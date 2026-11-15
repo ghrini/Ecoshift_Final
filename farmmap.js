@@ -104,7 +104,10 @@ async function make(key, getCandidates, extra) {
 }
 
 module.exports = function farmmap({ send }) {
+  // Vercel functions cannot run the Python image tools, so a new map is only drawn on the full server (node server.js).
+  const NO_PY = "Drawing a new farm map needs the full EcoShift server, which runs the Python map tools. The example county maps still work.";
   async function handleFarmMap(req, res) {
+    if (process.env.VERCEL) return send(res, 503, { error: NO_PY });
     const q = new URL(req.url, "http://x").searchParams, lat = Number(q.get("lat")), lon = Number(q.get("lon"));
     if (!q.get("lat") || !q.get("lon") || !isFinite(lat) || !isFinite(lon) || Math.abs(lat) > 85 || Math.abs(lon) > 180) return send(res, 400, { error: "Missing farm location." });
     const spot = `${lat.toFixed(3)},${lon.toFixed(3)}`, key = crypto.createHash("sha1").update("spot" + spot).digest("hex").slice(0, 24), b = boxOf(lat, lon);
@@ -127,6 +130,7 @@ module.exports = function farmmap({ send }) {
   }
 
   async function handleUpload(req, res) {
+    if (process.env.VERCEL) return send(res, 503, { error: NO_PY });
     const type = String(req.headers["content-type"] || "");
     if (!/^image\/(jpeg|png|webp)$/.test(type)) return send(res, 415, { error: "Use a JPEG, PNG or WebP photo." });
     let buf;

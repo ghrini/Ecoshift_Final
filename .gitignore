@@ -12,3 +12,6 @@ __pycache__/
 # Build output (rebuild with python3 simulator-source/build.py)
 simulator-source/dist/
 *.zip
+
+# Vercel CLI
+.vercel

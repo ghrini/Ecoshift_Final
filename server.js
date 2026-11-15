@@ -143,6 +143,11 @@ function serveStatic(req, res) {
 
 // Too big a body gets a 413 (the caller sends it); the extra bytes are dropped and the connection is closed after the reply.
 function readBody(req, limit) {
+  // On Vercel the platform may hand the body over already read
+  if (req.body !== undefined && req.readableEnded) {
+    const b = Buffer.isBuffer(req.body) ? req.body.toString("utf8") : typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+    return b.length > limit ? Promise.reject(Object.assign(new Error("too big"), { status: 413 })) : Promise.resolve(b);
+  }
   return new Promise((resolve, reject) => {
     let size = 0, over = false; const chunks = [];
     req.on("data", (c) => { size += c.length; if (over) return; if (size > limit) { over = true; reject(Object.assign(new Error("too big"), { status: 413 })); } else chunks.push(c); });
@@ -167,6 +172,7 @@ const WINDOW = 10 * 60_000;
 // With N hops the visitor is the Nth address from the right; anything further left was written by the visitor and can be faked.
 const TRUST_PROXY = Math.max(0, parseInt(process.env.TRUST_PROXY, 10) || 0);
 function clientIp(req) {
+  if (process.env.VERCEL && req.headers["x-real-ip"]) return String(req.headers["x-real-ip"]);
   if (TRUST_PROXY > 0) {
     const hops = String(req.headers["x-forwarded-for"] || "").split(",").map((x) => x.trim()).filter(Boolean);
     if (hops.length) return hops[Math.max(0, hops.length - TRUST_PROXY)];
@@ -195,7 +201,8 @@ const oops = (res) => (e) => { console.error(e); send(res, 500, { error: "Someth
 process.on("unhandledRejection", (e) => console.error("Unhandled rejection:", e && e.stack ? e.stack : e));
 process.on("uncaughtException", (e) => console.error("Uncaught exception:", e && e.stack ? e.stack : e));
 
-const server = http.createServer((req, res) => {
+// One handler for every request. `node server.js` serves it on a port; on Vercel, api/*.js hand their requests to it.
+function handle(req, res) {
   if (req.method === "POST" && req.url === "/api/localfit") return overLimit(req, "localfit") ? send(res, 429, TOO_MANY) : FIT.handleLocalFit(req, res).catch(oops(res));
   if (req.method === "GET" && req.url.startsWith("/api/outlook?")) return FIT.handleOutlook(req, res).catch(oops(res));
   if (req.method === "GET" && req.url.startsWith("/api/farmmap?")) return overLimit(req, "farmmap") ? send(res, 429, TOO_MANY) : MAP.handleFarmMap(req, res).catch(oops(res));
@@ -205,7 +212,11 @@ const server = http.createServer((req, res) => {
   if (req.method === "POST" && req.url === "/api/outlooknote") return overLimit(req, "outlooknote") ? send(res, 429, TOO_MANY) : FIT.handleOutlookNote(req, res).catch(oops(res));
   if (req.method === "GET" || req.method === "HEAD") return serveStatic(req, res);
   send(res, 405, "Method not allowed");
-});
+}
+module.exports = { handle };
+if (require.main !== module) return;
+
+const server = http.createServer(handle);
 server.requestTimeout = 120000;
 server.listen(PORT, () => {
   console.log(`EcoShift running at http://localhost:${PORT}`);
