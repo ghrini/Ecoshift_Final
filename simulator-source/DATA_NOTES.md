@@ -1,0 +1,76 @@
+# Data notes
+
+Everything below is rebuilt with `python3 tools/build_data.py` (standard library only) from the files in `raw/`. Hashes are in `raw/HASHES.txt`. All pulls were made on 2026-11-14.
+
+## What was pulled
+
+| File | Request | sha256 |
+|---|---|---|
+| raw/power.json | `https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MAX,T2M_MIN,T2M,T2MDEW,RH2M,WS2M,ALLSKY_SFC_SW_DWN,PRECTOTCORR,PS,GWETROOT&community=AG&longitude=-93.47&latitude=42.03&start=19810101&end=20251231&format=JSON` (POWER Daily API v2.10.3, sources MERRA2/SRB/SYN1DEG, LST) | 9786283ff5c72195402ab85f149646a015a1858a296868c450b6a10345f85bc9 |
+| raw/openmeteo.json | `https://archive-api.open-meteo.com/v1/archive?latitude=42.03&longitude=-93.47&start_date=1981-01-01&end_date=2025-12-31&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,et0_fao_evapotranspiration&timezone=America/Chicago` (grid cell snapped to 42.0035, -93.4061, 293 m) | 85aba3a89717175ac4bdfc7d2f1643a75fd4ff85392e51d505777d8374323f3d |
+| raw/nrcs_sda.json | POST `https://sdmdataaccess.sc.egov.usda.gov/Tabular/post.rest`, one SQL: `SDA_Get_Mukey_from_intersection_with_WktWgs84` for four points joined to `mapunit` and `muaggatt`. All four points returned a map unit (no fallback point was needed). | c5daf255eb1b8a447cab25fd7aab0511fbc8dfc3a3e1ee305ed3d04ca412be11 |
+
+## Where each number comes from
+
+**src/climate.js** (generated; do not hand-edit)
+- 44 season years, 1982-2025. Season Y = 16 Nov (Y-1) to 15 Nov Y, 29 Feb dropped, 365 days. Arrays are integers scaled as in `meta.scale`.
+- tmax, tmin, rain (PRECTOTCORR), gwr (GWETROOT), rad (ALLSKY_SFC_SW_DWN, MJ/m2/day, -1 where missing; POWER has no radiation before 1984-01-01, so 776 days of seasons 1982-1984 are -1) come straight from POWER.
+- et0: FAO-56 Penman-Monteith computed from POWER (Tmax, Tmin, T2MDEW for vapour pressure, WS2M, radiation, elevation 310.22 m, latitude 42.03). Hargreaves is used on days without radiation. No soil heat flux term (daily step).
+- meta.typicalYear (1984, kept in the generated file but no longer used): the season whose June-August rain alone is closest to the median of the 44 seasons (322.3 mm). The app's typical year is set in `src/data.js` (`weatherScenarios`, id `typical`, label 'Typical year (2011)'): 2011, the season closest to the median in both June-August rain (POWER 293 mm against a 322 mm median) and May-September growing degree-days, seasons 1982-83 skipped (`tools/validate.py` scenario checks). Its note no longer calls 293 mm the median.
+- meta.heatMatch: the POWER Tmax thresholds exceeded on as many June-August days (1981-2025) as ERA5 (Open-Meteo) exceeds 29, 30 and 35 C. Searched on a 0.1 C grid; c29 came out 30.0 here (the plan's earlier hand analysis said 29.9; within one grid step).
+- meta.et0Check: June-August ET0 totals, ours vs Open-Meteo.
+
+**src/data.js**
+- `farm.fields[].soil`: NRCS Soil Data Access map unit at one point per field (name, aws0150wta, drclassdcd, hydgrpdcd, slopegraddcp). `awcMmPerM = aws0150wta * 10 / 1.5`, rounded. The points are stand-ins for real field centres; the field polygons in this file are illustrative.
+- `farm.countyAwcMmPerM`: 180, a reference value rounded from the soils above; not computed from a county-wide query.
+- `weatherScenarios[].year`: typical = meta.typicalYear; 2012, 2019, 2023 as named; lateFreeze = season with the latest spring frost (Tmin <= 0 C, 1 Mar to 30 Jun), 1997 (15 May); earlyFrost = season with the earliest fall frost (Tmin <= 0 C, 1 Jul to 30 Dec), 1991 (19 Sep). Both confirm the earlier analysis.
+- `economics`: corn $4.60 and soybean $12.10 per bushel (Nov 2026 WASDE, 2026/27 season-average, via DTN); corn cost $911.98, corn after corn $960.02, 211 bu/acre (ISU A1-20, Jan 2026, via secondary summaries); soybean about $680 at 61 bu/acre (Iowa Soybean Association summary; sources conflict); N 146 lb/acre after soybean (ISU MRTN 2022), $0.57 per lb N (anhydrous $938/ton, DTN Nov 2026); volatility corn 0.15, soybean 0.13 (RMA 2026 via farmdoc daily); rye cost-share $30/acre (IDALS 2026). The N figure for corn after corn (190 lb) is a working number, not checked against a source.
+- `sources`: links for POWER, Open-Meteo, NRCS, ISU, WASDE, RMA, IDALS, FAO-56, FAO-33 (plus the earlier entries).
+
+## Known limits
+
+- POWER is a MERRA-2 based grid of about 0.5 x 0.625 degrees (roughly 50 km). All four fields fall in one cell and share one weather series. Field differences come from soil, slope and crop history only.
+- POWER runs warm in hot summers. Daily Tmax tracks ERA5 closely (correlation about 0.99) but June-August is warmer, and 2012 and 2023 are much hotter in POWER. `heatMatch` removes the average gap, not the extra extremity of hot years. Quote heat-day counts as a range from both datasets. No station data were checked, so which is closer to truth is unknown.
+- Our ET0 is within about 11% of Open-Meteo's ERA5 ET0 for the three check summers (2012 +10.3%, 2019 -11.3%, 2023 +3.9%), but the sign changes by year, so it is not a uniform bias.
+- GWETROOT is MERRA-2 modelled root-zone soil wetness. It is not SMAP and must not be labelled as SMAP.
+- Radiation is missing before 1984 in POWER; ET0 for those days is Hargreaves.
+- Costs are Iowa State 2026 budgets read through secondary summaries, not the A1-20 PDF itself. Verify against the PDF before quoting dollars.
+- Oats cost ($420), oats price ($3.50), oats yield (80 bu/acre) and the rye seeding cost ($37) are placeholders with no source. Hide oats from ranked recommendations until sourced.
+- Prices are held constant across replayed years. Drought years in reality tend to raise prices (2012 prices rose sharply), so fixed prices overstate drought losses; the why text for the 1988 and 2012 scenarios says so.
+- Open-Meteo free tier is non-commercial, CC BY 4.0 (attribution required).
+- Soil comes from the map unit at a single point; real field outlines may cross other map units.
+- `FS.data.sample` is `false` and `FS.engine.sample` is `false`: the weather and soils are real; the farm layout, field outlines and acres are illustrative (said in the data.js header).
+- Frost: POWER nights are colder than ERA5 in Sep-Nov, so we checked both against three NOAA GHCN-Daily stations around Ames (USC00130200 AMES 8 WSW, USW00094989 AMES MUNI AP, USC00131710 COLO; downloaded from https://noaa-ghcn-pds.s3.amazonaws.com/csv/by_station/<ID>.csv into `raw/ghcn/`, sha256 in `raw/HASHES.txt`). POWER's Sep-Nov Tmin is within -0.1 to +1.2 C of the stations; ERA5 is 1.4-2.6 C warm. Median first -2 C night: stations 17-21 Oct, POWER 23-26 Oct, ERA5 28-31 Oct. The engine therefore keeps the agronomic killing-frost threshold, Tmin <= -2 C on POWER, for spring and fall (`KILL_FALL_C`, `KILL_SPRING_C`). `tools/frost_compare.py` regenerates `data/frost_compare.json`. (The Iowa Environmental Mesonet and NOAA NCEI web services were blocked in the build environment; the AWS copy of GHCN-Daily was not.)
+- Heat is not identifiable from the NASS yields (fitted heat slope 0); the temperature slider uses a published-average floor on warming losses (Zhao et al. 2017, corn 7.4%, soybean 3.1% per degree C; `WARM_LOSS` in `src/engine.js`). Cooling is the model only.
+- Soil drainage differences between fields come from the NRCS drainage class through design constants (`WT_SHARE`, `DRAIN_K`), not from measured data; tile drainage, common on these soils in Story County, is not modelled.
+- The 'cover' metric is months with living roots in the field (crop alive from emergence/seeding to termination, maturity or killing frost), not green ground cover. API field names (`greenCoverMonths`, `greenCoverMonthsAdded`) are unchanged.
+- Risk numbers (worst 5 seasons, risk label and ranking, bad-year half of the balanced score) widen each season's yield deviation to the observed Iowa spread (k about 1.7 corn, 2.2 soybean, from `data/validation.json`). `worst5PerAcre` = the plan's own worst-5 average minus the current plan's.
+- Cost-share is one-time: full in 'this season', once in the 44-season average.
+
+## Planting shift and weather events (API_V3 sections 1 and 2)
+- `controls.crops.plantShiftDays` (-21..+21, default 0): moves every cash crop's target planting and harvest dates, and the end of a cover crop killed for it, by that many days (`planShifted` in `src/engine.js`). The existing rules do the rest: the wet and cold soil planting rule, growing-degree-day stages, frost checks, and the sourced planting-date curves (corn: ISU 1997-2000 trials; soybean and oats: design values already in the model). The hybrid stays the one matched to the usual dates. No new fitted numbers. At 0 the results are identical to before.
+- `controls.weather.events` (up to 3, default []): `dryspell` multiplies that calendar month's rain by 0.3 (moderate) or 0 (severe); `wetspell` by 2 or 3; `heatwave` adds 5 or 8 C to Tmax and 2 or 3 C to Tmin on days 10 to 19 of the month. The multipliers and temperature steps are design values from API_V3. A heat wave raises ET0 the way the temperature slider does (ET0 x (1 + 0.03 x the mean temperature rise)). There is no heat-damage penalty (heat is not identifiable from the NASS yields), so the result is mostly extra water use. At [] the results are identical to before.
+- `FS.engine.seasons(fieldId, controls)`: yield % and $/acre of the current plan and the chosen plan in all 44 seasons under the same controls, from the cached yield table. Money is null where it is hidden (oats).
+
+
+## Locations (API_V4 section 1, `src/sites.js`)
+Built by `python3 tools/build_sites.py` (standard library only; reuses the functions in `tools/build_data.py`; raw downloads cached in `raw/sites/<id>/`, sha256 in `raw/HASHES.txt`). Pulled 2026-11-15. `src/sites.js` (about 2.2 MB) is generated; do not hand-edit.
+- **story-ia** is the existing data: `climate: null` (the page's `FS.data.climate`), soils copied from `src/data.js`, normal yields 211 / 61 (ISU budget), `validated: true` (Story County yields were checked against NASS).
+- **Seven other counties** (`validated: false`): O'Brien IA (43.09 N, 95.63 W), Champaign IL (40.10, 88.20), Tippecanoe IN (40.36, 86.88), Blue Earth MN (44.06, 94.05), Saunders NE (41.22, 96.65), Brookings SD (44.35, 96.85), Wood OH (41.35, 83.68). Each point is a farmland location near the county centre, chosen by hand from general knowledge of the county (not from a map layer); the points were not checked against land cover.
+- **Weather**: NASA POWER daily 1981-2025, same parameters and community (AG) as Story, one grid cell per point (about 50 km). Seasons 1982-2025 built with the same code as Story (16 Nov to 15 Nov, 29 Feb dropped, same scales and rounding, FAO-56 Penman-Monteith ET0 with the site's latitude and POWER elevation). `meta.typicalYear` is the median-June-August-rain season as in `build_data.py`; the engine recomputes the typical year its own way. Radiation is missing before 1984 for every site (about 776-779 season days = -1, Hargreaves ET0 there).
+- **Open-Meteo ERA5 / heatMatch**: only Brookings SD got its own ERA5 series (and its own `heatMatch`: 30.4 / 31.4 / 38.0). The Open-Meteo free tier returned HTTP 429 "Daily API request limit exceeded" for the other six, so those six reuse Story County's `heatMatch` (30.0 / 31.0 / 38.2) and have `et0Check: null`; `meta.heatMatchFrom` says which. The heat thresholds therefore carry Story's POWER-versus-ERA5 gap, which is a limit for the other states. Re-running the tool on another day fills them in (the downloads are cached, only missing files are fetched).
+- **Soils**: NRCS Soil Data Access (`SDA_Get_Mukey_from_intersection_with_WktWgs84` joined to `mapunit` and `muaggatt`), four points at the same offsets from the county point as Story's four fields (1-3 km apart). Same fields as the data.js soil objects (`awcMmPerM = aws0150wta * 10 / 1.5`). Every point returned a map unit on the first try. Champaign's four points all fall in one map unit, so its four fields have the same soil.
+- **Yields** (`normalYield`, and `normalYieldDetail` with the yearly values): USDA NASS Quick Stats county survey yield (CORN, GRAIN and SOYBEANS, bu/acre, all production practices, so irrigated acres are included where a county has them, notably Saunders NE), mean of 2020-2024; the yearly values are in `normalYieldDetail` and the raw CSV in `raw/sites/<id>/nass_*.csv`. Years NASS did not publish for the county were left out: Champaign IL corn and soybean 2020-2023 (no 2024), Saunders NE corn 2020, 2022, 2023, Wood OH soybean 2021-2024.
+- Not real or not site-specific: prices (national), costs (Iowa State budgets), the field layout and acres, and the heatMatch of six sites (Story's).
+
+### Raw downloads for the 14 counties
+
+`raw/sites/<id>/` holds every county's downloads (NASA POWER daily, NRCS soil queries, NASS county yields and, where it was fetched, Open-Meteo ERA5), with SHA-256 hashes in `raw/HASHES.txt` (`sha256sum -c raw/HASHES.txt`). Re-running `python3 tools/build_sites.py` on these files reproduces `src/sites.js` exactly (checked 15 Nov 2026), with one exception: for Christian County, Kentucky the ERA5 series was not fetched for the shipped build, so its heat thresholds reuse Story County's (`meta.heatMatchFrom` says so). That file is left out on purpose; if a rebuild manages to fetch it, only Christian County's heat thresholds change.
+
+## Satellite check (MODIS NDVI)
+
+- **Source:** NASA GIBS WMS, layer `MODIS_Terra_L3_NDVI_16Day` (MODIS Terra 16-day NDVI composites, 250 m): `https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=MODIS_Terra_L3_NDVI_16Day&CRS=EPSG:4326&BBOX=41.86,-93.70,42.21,-93.23&WIDTH=209&HEIGHT=156&FORMAT=image/png&TRANSPARENT=TRUE&TIME=YYYY-MM-DD`. No login. Pulled 2026-11-15.
+- **Dates:** 345 composites, 2000-2025, every 16-day composite (grid from 1 Jan of each year) from April to October (13-14 a year). Files in `raw/gibs/`, one sha256 per file in `raw/HASHES.txt`. The date is the start of the 16-day period.
+- **Decoding:** GIBS returns a colourised PNG. Each opaque pixel colour was matched to the layer's colormap (`https://gibs.earthdata.nasa.gov/colormaps/v1.3/MODIS_L3_NDVI.xml`, saved in `raw/gibs/`) and given the centre of its 0.005 NDVI bin. All pixels matched exactly. Sanity: mid-July Iowa cropland is 0.8-0.9 (2005: 0.89; 2012: 0.85; 2013: 0.74 on 12 July after a late spring).
+- **Cropland mask:** CropScape (nassgeodata.gmu.edu) fails TLS here and TLS was not disabled, so no land-cover map was used. Mask = pixels whose median-year July-August NDVI is at least 0.70 and whose median-year 16 Apr-20 May NDVI is at most 0.50 (green in summer, still bare in spring). It keeps 84% of the box and so includes some grass and woodland. Chosen once, not tuned per year.
+- **Limits:** 250 m pixels (county-wide mean, not the example farm's fields); colour-decoding precision 0.005; no cloud or quality masking of our own (composites are NASA's; no no-data pixels were seen in July-August); NDVI saturates in dense canopy; the 16-day date resolution limits the "peak date". Model values come from `tools/satellite_model.js` (engine unchanged). SMAP soil moisture was not used.

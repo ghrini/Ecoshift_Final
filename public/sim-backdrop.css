@@ -1,0 +1,9 @@
+/* Dimmed field photo behind the farm questionnaire in the Simulation tab.
+   The site's app.js adds this stylesheet to the simulator page when it loads, so Shaurya's
+   simulator file stays exactly as it is in the team repository. */
+#fs-setup:not([hidden]) {
+  /* The dark layer on top is what dims the photo. */
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.72)),
+    url("images/hero-fields.jpg") center 45% / cover no-repeat fixed;
+}
