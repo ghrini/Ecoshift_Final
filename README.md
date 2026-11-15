@@ -94,3 +94,13 @@ The page tests (`verify/qa2/chat_test.js`, `verify/qa2/setup_test.js`) need Node
 - **Port:** the server listens on `PORT` (default 8787). Health check: `GET /`.
 - **Docker:** a `Dockerfile` (Node 20, Python 3 and the converter's packages) and `.dockerignore` are included. **They were written without Docker available and have not been built or run.** Build and test the image before depending on it.
 - Static pages are gzip-compressed by the server and cached by browsers for 5 minutes.
+
+### Vercel
+
+The repository deploys to Vercel as it is (`vercel.json`):
+
+- `public/` is served as the website. The whole simulator, the 14 county example farms and their maps run in the browser.
+- `api/*.js` are Vercel functions that pass each request to the same handler `node server.js` uses: address lookup, fitting the data to the farm's own location, the 30-day outlook and its note.
+- Drawing a **new** farm map (from a typed address or an uploaded photo) needs the Python map tools, which do not fit in a Vercel function. On Vercel that request answers "needs the full EcoShift server", and the simulation keeps the county map. Use the full server (Docker or `npm start` on a host with Python) for that feature.
+- `.vercelignore` leaves the Python tools, the raw data and the simulator sources out of the upload.
+- Settings: Framework Preset "Other" (set by `vercel.json`), Root Directory left empty. Optional environment variable: `GEMINI_API_KEY`. The visitor's address for rate limits comes from Vercel's `x-real-ip` header, so `TRUST_PROXY` is not needed.

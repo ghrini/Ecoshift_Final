@@ -1,0 +1,6 @@
+# Not needed on Vercel: the Python map tools (they need a full server), raw data, tests and build sources
+farmmap/
+simulator-source/
+Dockerfile
+.dockerignore
+*.zip
