@@ -1,0 +1,103 @@
+/* EcoShift guided tutorial for the simulator (see sim-guide.js).
+   Large text, large buttons and strong contrast, for farmers who are older or have low vision. */
+
+/* While the guide is open, leave room at the bottom so any part can scroll clear of the guide box. */
+body.fsg-open { padding-bottom: 70vh; }
+
+/* Full dim, used behind the first and last messages. */
+.fsg-shade {
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(0, 0, 0, 0.78);
+}
+.fsg-shade[hidden], .fsg-ring[hidden], .fsg-panel[hidden], .fsg-launch[hidden] { display: none; }
+
+/* Highlight around the part being explained. Everything else is dimmed by its shadow. */
+.fsg-ring {
+  position: absolute; z-index: 9000; pointer-events: none;
+  border: 3px solid #D3AF7C; border-radius: 14px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.66);
+  /* No sliding animation: the highlight must always be exactly on the part being explained. */
+}
+
+/* The guide box: fixed to the bottom of the screen so it never moves while reading. */
+.fsg-panel {
+  position: fixed; z-index: 9001;
+  left: 50%; bottom: 16px; transform: translateX(-50%);
+  width: min(680px, calc(100% - 24px));
+  max-height: calc(100vh - 32px); overflow-y: auto;
+  background: #1c1c1c; color: #f4f4f2;
+  border: 2px solid #D3AF7C; border-radius: 20px;
+  padding: 22px 24px 18px;
+  font-size: 20px; line-height: 1.5;
+}
+/* Moved to a bottom corner when the centre would cover the part being explained. */
+.fsg-panel.fsg-left { left: 16px; transform: none; }
+.fsg-panel.fsg-right { left: auto; right: 16px; transform: none; }
+/* First and last messages sit in the middle of the screen. */
+.fsg-panel.fsg-center { bottom: auto; top: 50%; transform: translate(-50%, -50%); }
+
+.fsg-count { margin: 0 44px 6px 0; font-size: 16px; font-weight: 600; letter-spacing: 0.02em; color: #D3AF7C; }
+.fsg-title { margin: 0 44px 10px 0; font-size: 28px; line-height: 1.2; font-weight: 700; color: #ffffff; }
+.fsg-title:focus { outline: none; }
+.fsg-text { margin: 0 0 18px; font-size: 20px; color: #f4f4f2; }
+.fsg-keys { margin: 14px 0 0; font-size: 15px; color: #b4b2ac; }
+
+.fsg-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.fsg-btn {
+  font: inherit; font-size: 19px; font-weight: 600;
+  min-height: 54px; padding: 10px 22px;
+  border-radius: 12px; cursor: pointer;
+  background: #2a2a2a; color: #f4f4f2; border: 2px solid #5a5a5a;
+}
+.fsg-btn:hover { border-color: #b4b2ac; }
+.fsg-primary { background: #9E6438; border-color: #b07648; color: #ffffff; flex: 1 1 160px; }
+.fsg-primary:hover { filter: brightness(1.15); }
+.fsg-speak { margin-left: auto; }
+.fsg-speak[aria-pressed="true"] { background: #3E401F; border-color: #D3AF7C; }
+
+.fsg-close {
+  position: absolute; top: 12px; right: 12px;
+  width: 44px; height: 44px; border-radius: 50%;
+  font: inherit; font-size: 28px; line-height: 1; cursor: pointer;
+  background: transparent; color: #f4f4f2; border: 2px solid #5a5a5a;
+}
+.fsg-close:hover { border-color: #b4b2ac; }
+
+.fsg-btn:focus-visible, .fsg-close:focus-visible, .fsg-launch:focus-visible {
+  outline: 3px solid #ffffff; outline-offset: 3px;
+}
+
+/* Placed above the part being explained when that part is near the bottom of the screen. */
+.fsg-panel.fsg-top { bottom: auto; top: 16px; }
+/* On a short screen, placed just under the part (top and height are set by sim-guide.js). */
+.fsg-panel.fsg-under { bottom: auto; }
+
+/* Short screens (a small laptop window, a phone held sideways): a more compact guide box. */
+@media (max-height: 560px) {
+  .fsg-panel { padding: 14px 18px 12px; font-size: 18px; }
+  .fsg-title { font-size: 22px; margin-bottom: 6px; }
+  .fsg-text { font-size: 18px; margin-bottom: 12px; }
+  .fsg-btn { min-height: 46px; padding: 8px 16px; }
+  .fsg-keys { display: none; }
+}
+
+/* The button that opens the guide again, in the simulator's top bar next to "Your farm". */
+.fsg-launch {
+  font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+  min-height: 37px; padding: 6px 16px; margin-inline-end: 12px; border-radius: 8px;
+  background: transparent; color: #f4f4f2; border: 1.5px solid #D3AF7C;
+}
+.fsg-launch:hover { background: #262626; }
+
+@media (max-width: 560px) {
+  .fsg-panel { padding: 18px 16px 14px; font-size: 18px; bottom: 8px; }
+  .fsg-title { font-size: 24px; }
+  .fsg-text { font-size: 18px; }
+  /* Back and Next share one row so the box stays short and leaves room to see the page. */
+  .fsg-btn { flex: 0 0 auto; padding: 10px 18px; }
+  .fsg-primary { flex: 1 1 0; }
+  .fsg-speak { flex: 1 1 100%; margin-left: 0; min-height: 46px; font-size: 17px; }
+  .fsg-text { margin-bottom: 14px; }
+  .fsg-keys { display: none; } /* phones have no keyboard */
+  .fsg-launch { margin-inline-end: 8px; font-size: 14px; padding: 6px 12px; }
+}

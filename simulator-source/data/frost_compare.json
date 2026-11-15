@@ -1,0 +1,220 @@
+{
+ "note": "median dates over 1982-2025; n = seasons with such a night",
+ "fall": {
+  "ERA5": {
+   "0.0": [
+    "21 Oct",
+    44
+   ],
+   "-1.7": [
+    "31 Oct",
+    44
+   ],
+   "-2.0": [
+    "31 Oct",
+    44
+   ],
+   "-2.8": [
+    "02 Nov",
+    44
+   ],
+   "-3.3": [
+    "05 Nov",
+    44
+   ]
+  },
+  "POWER": {
+   "0.0": [
+    "13 Oct",
+    44
+   ],
+   "-1.7": [
+    "23 Oct",
+    44
+   ],
+   "-2.0": [
+    "24 Oct",
+    44
+   ],
+   "-2.8": [
+    "27 Oct",
+    44
+   ],
+   "-3.3": [
+    "30 Oct",
+    44
+   ]
+  }
+ },
+ "spring": {
+  "ERA5": {
+   "0.0": [
+    "19 Apr",
+    44
+   ],
+   "-1.7": [
+    "11 Apr",
+    44
+   ],
+   "-2.0": [
+    "10 Apr",
+    44
+   ],
+   "-2.8": [
+    "07 Apr",
+    44
+   ],
+   "-3.3": [
+    "07 Apr",
+    44
+   ]
+  },
+  "POWER": {
+   "0.0": [
+    "22 Apr",
+    44
+   ],
+   "-1.7": [
+    "18 Apr",
+    44
+   ],
+   "-2.0": [
+    "18 Apr",
+    44
+   ],
+   "-2.8": [
+    "12 Apr",
+    44
+   ],
+   "-3.3": [
+    "10 Apr",
+    44
+   ]
+  }
+ },
+ "stations": {
+  "USC00130200": {
+   "name": "AMES 8 WSW",
+   "years": 44,
+   "fall_-2C": {
+    "station": [
+     "21 Oct",
+     44
+    ],
+    "POWER": [
+     "24 Oct",
+     44
+    ],
+    "ERA5": [
+     "31 Oct",
+     44
+    ]
+   },
+   "spring_0C": {
+    "station": [
+     "22 Apr",
+     44
+    ],
+    "POWER": [
+     "22 Apr",
+     44
+    ],
+    "ERA5": [
+     "19 Apr",
+     44
+    ]
+   },
+   "SepNov_Tmin_bias_vs_station_C": {
+    "POWER": -0.12,
+    "ERA5": 1.41
+   },
+   "Tmin_1992-10-18": {
+    "station": -4.4,
+    "POWER": -5.35,
+    "ERA5": -1.4
+   }
+  },
+  "USW00094989": {
+   "name": "AMES MUNI AP",
+   "years": 28,
+   "fall_-2C": {
+    "station": [
+     "17 Oct",
+     28
+    ],
+    "POWER": [
+     "26 Oct",
+     28
+    ],
+    "ERA5": [
+     "28 Oct",
+     28
+    ]
+   },
+   "spring_0C": {
+    "station": [
+     "24 Apr",
+     28
+    ],
+    "POWER": [
+     "21 Apr",
+     28
+    ],
+    "ERA5": [
+     "19 Apr",
+     28
+    ]
+   },
+   "SepNov_Tmin_bias_vs_station_C": {
+    "POWER": 1.21,
+    "ERA5": 2.62
+   },
+   "Tmin_1992-10-18": {
+    "station": null,
+    "POWER": -5.35,
+    "ERA5": -1.4
+   }
+  },
+  "USC00131710": {
+   "name": "COLO",
+   "years": 27,
+   "fall_-2C": {
+    "station": [
+     "17 Oct",
+     27
+    ],
+    "POWER": [
+     "23 Oct",
+     27
+    ],
+    "ERA5": [
+     "31 Oct",
+     27
+    ]
+   },
+   "spring_0C": {
+    "station": [
+     "24 Apr",
+     27
+    ],
+    "POWER": [
+     "26 Apr",
+     27
+    ],
+    "ERA5": [
+     "18 Apr",
+     27
+    ]
+   },
+   "SepNov_Tmin_bias_vs_station_C": {
+    "POWER": 0.71,
+    "ERA5": 2.37
+   },
+   "Tmin_1992-10-18": {
+    "station": -5.6,
+    "POWER": -5.35,
+    "ERA5": -1.4
+   }
+  }
+ }
+}

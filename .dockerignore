@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+node_modules
+simulator-source/raw
+simulator-source/dist
+__pycache__
+*.pyc
+*.zip
+.git

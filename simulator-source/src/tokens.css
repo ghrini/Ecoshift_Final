@@ -1,0 +1,33 @@
+/* Shared design tokens for the simulator. Black page, dark grey boxes, dark green and brown accents.
+   Use ONLY these tokens for color in every CSS file and in canvas code (read them with getComputedStyle). */
+:root {
+  --bg: #000000; --bg-raised: #2a2a2a;
+  /* text and marks that sit directly on the page background (header) */
+  --on-bg: #f4f4f2; --on-bg-muted: #a8a8a4; --on-bg-accent: #D3AF7C; --on-bg-warn: #8F884F; --warn-bg: #3a2f20;
+  /* dark grey boxes; inner surfaces (inputs, chips, bubbles, legend rows) one step lighter */
+  --panel: #1c1c1c; --panel-2: #262626; --panel-3: #313131;
+  --border: #2c2c2c; --border-strong: #3d3d3d; --divider: #2a2a2a;
+  --text: #f4f4f2; --text-muted: #b4b2ac; --text-faint: #86847e;
+  /* accents from the team's palette: Moss Green #8F884F (actions, selection), Drab Dark Brown #3E401F (selected and user surfaces),
+     Ecru #D3AF7C (secondary text and links), Raw Umber #9E6438 (marks and chip borders), French Gray #C5CFDF (focus and info) */
+  --umber: #9E6438; --umber-glow: rgba(158, 100, 56, 0.20);
+  --accent: #9E6438; --accent-ink: #ffffff; --accent-soft: #3E401F; --accent-strong: #D3AF7C; --accent-edge: #b07648;
+  --brown: #D3AF7C; --brown-strong: #e2c597; --brown-soft: #35261a;
+  --info: #C5CFDF; --info-soft: #2a2e35;
+  --warn: #D3AF7C; --warn-soft: #3a2f20; --warn-ink: #e2c597;
+  --danger: #D3AF7C; --danger-soft: #35261a;
+  --good: #8F884F; --good-soft: #3E401F;
+  --chip-bg: #262626; --bubble-assistant: #262626; --bubble-user: #3E401F;
+  --focus-ring: rgba(197, 207, 223, 0.40); --focus-edge: #9E6438;
+  --shadow-card: none;
+  --shadow-pop: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-modal: 0 12px 40px rgba(0, 0, 0, 0.6);
+  /* map water, rain and frost tint (kept blue so the creek reads as water) */
+  --water: #4f86c6;
+  /* crop colors for map fills, legend chips and charts */
+  --crop-corn: #c9a227; --crop-soybean: #3f9a46; --crop-rye: #2f8a80; --crop-oats: #a8834a; --crop-none: #8a6a45;
+  --font-sans: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --radius: 20px; --radius-lg: 20px; --radius-md: 10px; --radius-sm: 8px; --gap: 14px; --header-h: 64px;
+  color-scheme: dark;
+}

@@ -1,0 +1,2516 @@
+{
+ "source": "USDA NASS Quick Stats (survey, annual, final estimates)",
+ "accessed": "2026-11-15",
+ "nass": {
+  "state_corn": "https://quickstats.nass.usda.gov/results/FD34667D-1E68-3B9B-824A-8FB60E556C37",
+  "state_soybean": "https://quickstats.nass.usda.gov/results/B2BECBA1-CADE-36C5-BDD9-D105CEACBEDB",
+  "story_corn": "https://quickstats.nass.usda.gov/results/8E986F8E-A757-3F5A-9729-D8E0D6241656",
+  "story_soybean": "https://quickstats.nass.usda.gov/results/1EBD4B99-9D63-3C75-8310-C42288B9722E"
+ },
+ "scenarios": {
+  "typical": 2011,
+  "typicalRunnersUp": [
+   1999,
+   2001,
+   2019
+  ],
+  "typicalByRainOnly": 1984,
+  "gddRank1984Coolest": 4,
+  "wettestAprJun": 2008,
+  "wettestAprJunMm": 511.1,
+  "rank1988DriestAprJun": 1,
+  "rank1988DriestJJA": 5
+ },
+ "frostMatch": {
+  "fall": {
+   "0.0": -1.7,
+   "-2.0": -3.3
+  },
+  "spring": {
+   "0.0": -1.2,
+   "-2.0": -2.8
+  }
+ },
+ "corn": {
+  "n": 44,
+  "years": [
+   1982,
+   2025
+  ],
+  "metrics": {
+   "process": {
+    "all": {
+     "n": 44,
+     "r": 0.482,
+     "rho": 0.239,
+     "rmsePct": 9.86,
+     "rmseTrendPct": 11.26,
+     "skill": 0.125,
+     "maePct": 7.52
+    },
+    "exclFloodDerecho": {
+     "n": 42,
+     "r": 0.391,
+     "rho": 0.176,
+     "rmsePct": 9.23,
+     "rmseTrendPct": 9.49,
+     "skill": 0.027,
+     "maePct": 7.06
+    },
+    "excl2012": {
+     "n": 43,
+     "r": 0.415,
+     "rho": 0.192,
+     "rmsePct": 9.95,
+     "rmseTrendPct": 10.81,
+     "skill": 0.079,
+     "maePct": 7.6
+    },
+    "exclDroughts": {
+     "n": 42,
+     "r": 0.268,
+     "rho": 0.14,
+     "rmsePct": 9.9,
+     "rmseTrendPct": 9.72,
+     "skill": -0.018,
+     "maePct": 7.49
+    },
+    "exclDroughtsFloodDerecho": {
+     "n": 40,
+     "r": -0.009,
+     "rho": 0.063,
+     "rmsePct": 9.24,
+     "rmseTrendPct": 7.36,
+     "skill": -0.256,
+     "maePct": 7.01
+    }
+   },
+   "ridge": {
+    "all": {
+     "n": 44,
+     "r": 0.584,
+     "rho": 0.561,
+     "rmsePct": 9.07,
+     "rmseTrendPct": 11.26,
+     "skill": 0.195,
+     "maePct": 6.78
+    },
+    "exclFloodDerecho": {
+     "n": 42,
+     "r": 0.61,
+     "rho": 0.529,
+     "rmsePct": 7.78,
+     "rmseTrendPct": 9.49,
+     "skill": 0.18,
+     "maePct": 6.14
+    },
+    "excl2012": {
+     "n": 43,
+     "r": 0.528,
+     "rho": 0.531,
+     "rmsePct": 9.13,
+     "rmseTrendPct": 10.81,
+     "skill": 0.155,
+     "maePct": 6.79
+    },
+    "exclDroughts": {
+     "n": 42,
+     "r": 0.467,
+     "rho": 0.498,
+     "rmsePct": 8.75,
+     "rmseTrendPct": 9.72,
+     "skill": 0.1,
+     "maePct": 6.49
+    },
+    "exclDroughtsFloodDerecho": {
+     "n": 40,
+     "r": 0.449,
+     "rho": 0.457,
+     "rmsePct": 7.31,
+     "rmseTrendPct": 7.36,
+     "skill": 0.007,
+     "maePct": 5.81
+    }
+   },
+   "gbm": {
+    "all": {
+     "n": 44,
+     "r": 0.199,
+     "rho": 0.233,
+     "rmsePct": 11.95,
+     "rmseTrendPct": 11.26,
+     "skill": -0.061,
+     "maePct": 8.54
+    },
+    "exclFloodDerecho": {
+     "n": 42,
+     "r": 0.247,
+     "rho": 0.236,
+     "rmsePct": 10.43,
+     "rmseTrendPct": 9.49,
+     "skill": -0.099,
+     "maePct": 7.95
+    },
+    "excl2012": {
+     "n": 43,
+     "r": 0.145,
+     "rho": 0.199,
+     "rmsePct": 11.96,
+     "rmseTrendPct": 10.81,
+     "skill": -0.107,
+     "maePct": 8.47
+    },
+    "exclDroughts": {
+     "n": 42,
+     "r": 0.142,
+     "rho": 0.187,
+     "rmsePct": 11.25,
+     "rmseTrendPct": 9.72,
+     "skill": -0.158,
+     "maePct": 7.99
+    },
+    "exclDroughtsFloodDerecho": {
+     "n": 40,
+     "r": 0.19,
+     "rho": 0.18,
+     "rmsePct": 9.5,
+     "rmseTrendPct": 7.36,
+     "skill": -0.291,
+     "maePct": 7.34
+    }
+   },
+   "hybrid": {
+    "all": {
+     "n": 44,
+     "r": -0.198,
+     "rho": -0.092,
+     "rmsePct": 13.3,
+     "rmseTrendPct": 11.26,
+     "skill": -0.181,
+     "maePct": 8.92
+    },
+    "exclFloodDerecho": {
+     "n": 42,
+     "r": -0.166,
+     "rho": -0.058,
+     "rmsePct": 11.82,
+     "rmseTrendPct": 9.49,
+     "skill": -0.246,
+     "maePct": 8.12
+    },
+    "excl2012": {
+     "n": 43,
+     "r": -0.213,
+     "rho": -0.124,
+     "rmsePct": 13.08,
+     "rmseTrendPct": 10.81,
+     "skill": -0.21,
+     "maePct": 8.64
+    },
+    "exclDroughts": {
+     "n": 42,
+     "r": -0.241,
+     "rho": -0.153,
+     "rmsePct": 12.39,
+     "rmseTrendPct": 9.72,
+     "skill": -0.275,
+     "maePct": 8.13
+    },
+    "exclDroughtsFloodDerecho": {
+     "n": 40,
+     "r": -0.229,
+     "rho": -0.126,
+     "rmsePct": 10.65,
+     "rmseTrendPct": 7.36,
+     "skill": -0.447,
+     "maePct": 7.26
+    }
+   },
+   "trend": {
+    "all": {
+     "rmsePct": 11.26
+    }
+   }
+  },
+  "fit": {
+   "zMaxCorn": 1.5,
+   "startMode": "fixed",
+   "crMax": 6,
+   "gamma": 0.3153679576263077,
+   "b": 0.0,
+   "eDur": 0.2382785456548748,
+   "ratio": [
+    1.0890888029999306,
+    0.7733907748023731,
+    0.9756145468778104,
+    1.0759370020794936,
+    1.1305110523012956,
+    1.0680003024643028,
+    0.6772522053433191,
+    0.9339995120483158,
+    0.979430500701958,
+    0.8934436386557167,
+    1.1030920449548887,
+    0.5901029553727002,
+    1.1024290370905245,
+    0.8774110702114627,
+    0.9684690406995942,
+    0.9530338630459854,
+    0.985666888501215,
+    0.9972137262221961,
+    0.9490911047091533,
+    0.947855615405701,
+    1.042601526989691,
+    0.9896154522457286,
+    1.124535998194771,
+    1.0596395380429022,
+    1.0025918929864157,
+    1.0185928946140674,
+    1.0047803934230668,
+    1.049310438170087,
+    0.9439249881997623,
+    0.9711488746305769,
+    0.7635816819784041,
+    0.9024605189083961,
+    0.9672168202841618,
+    1.0303691367113694,
+    1.076073766171991,
+    1.0578321610794934,
+    1.0141549075229395,
+    1.0124140744066308,
+    0.8944817541725548,
+    1.0190434415387049,
+    0.9876761306246913,
+    0.981429400976125,
+    1.0187768184812647,
+    1.0027748013636262
+   ],
+   "pred": [
+    1.0539761346730923,
+    0.9793674432309007,
+    1.0695832608298301,
+    0.9453415890450205,
+    1.082776410515698,
+    1.0305153782110819,
+    0.7544376888680756,
+    1.0225965064425289,
+    1.0436265009507983,
+    1.0174197504624904,
+    0.8195921596268385,
+    0.8102169349603944,
+    1.0627438937887965,
+    0.9821792300920045,
+    1.01287388156905,
+    1.00993716932971,
+    1.0209296509965728,
+    1.013626830347134,
+    1.0025794244617252,
+    0.9994090060825344,
+    0.9974654863988791,
+    0.9342084752699328,
+    1.040234848437918,
+    0.9584250691666764,
+    0.9201304774685576,
+    0.9721463829756015,
+    1.0608799537607103,
+    1.0158748509868634,
+    1.0005909939174655,
+    0.9959399300994143,
+    0.788652158172584,
+    0.950182624745232,
+    1.0639919021929911,
+    1.0319498217232388,
+    1.0033854525777908,
+    0.9534479841611403,
+    0.994772870018465,
+    1.016743647867446,
+    0.9833906789328118,
+    0.9447428394718211,
+    0.943747894973109,
+    0.9832449478610504,
+    0.9913517866531687,
+    1.0277928415565305
+   ],
+   "trend": [
+    151.7241066590003,
+    2.3077918992090076
+   ],
+   "grid": [
+    {
+     "zMaxCorn": 1.2,
+     "startMode": "fixed",
+     "crMax": 0,
+     "gamma": 0.05,
+     "b": 0.00462,
+     "eDur": 0.164,
+     "rmseInSamplePct": 9.49
+    },
+    {
+     "zMaxCorn": 1.2,
+     "startMode": "fixed",
+     "crMax": 2,
+     "gamma": 0.109,
+     "b": 0.0,
+     "eDur": 0.199,
+     "rmseInSamplePct": 9.39
+    },
+    {
+     "zMaxCorn": 1.2,
+     "startMode": "fixed",
+     "crMax": 4,
+     "gamma": 0.135,
+     "b": 0.0,
+     "eDur": 0.206,
+     "rmseInSamplePct": 9.27
+    },
+    {
+     "zMaxCorn": 1.2,
+     "startMode": "fixed",
+     "crMax": 6,
+     "gamma": 0.157,
+     "b": 0.0,
+     "eDur": 0.226,
+     "rmseInSamplePct": 9.18
+    },
+    {
+     "zMaxCorn": 1.2,
+     "startMode": "spinup",
+     "crMax": 0,
+     "gamma": 0.05,
+     "b": 0.00462,
+     "eDur": 0.164,
+     "rmseInSamplePct": 9.49
+    },
+    {
+     "zMaxCorn": 1.2,
+     "startMode": "spinup",
+     "crMax": 2,
+     "gamma": 0.105,
+     "b": 0.00011,
+     "eDur": 0.201,
+     "rmseInSamplePct": 9.39
+    },
+    {
+     "zMaxCorn": 1.2,
+     "startMode": "spinup",
+     "crMax": 4,
+     "gamma": 0.135,
+     "b": 0.0,
+     "eDur": 0.206,
+     "rmseInSamplePct": 9.27
+    },
+    {
+     "zMaxCorn": 1.2,
+     "startMode": "spinup",
+     "crMax": 6,
+     "gamma": 0.157,
+     "b": 0.0,
+     "eDur": 0.226,
+     "rmseInSamplePct": 9.18
+    },
+    {
+     "zMaxCorn": 1.5,
+     "startMode": "fixed",
+     "crMax": 0,
+     "gamma": 0.13,
+     "b": 0.0,
+     "eDur": 0.188,
+     "rmseInSamplePct": 9.23
+    },
+    {
+     "zMaxCorn": 1.5,
+     "startMode": "fixed",
+     "crMax": 2,
+     "gamma": 0.17,
+     "b": 0.0,
+     "eDur": 0.208,
+     "rmseInSamplePct": 9.05
+    },
+    {
+     "zMaxCorn": 1.5,
+     "startMode": "fixed",
+     "crMax": 4,
+     "gamma": 0.231,
+     "b": 0.0,
+     "eDur": 0.223,
+     "rmseInSamplePct": 8.97
+    },
+    {
+     "zMaxCorn": 1.5,
+     "startMode": "fixed",
+     "crMax": 6,
+     "gamma": 0.315,
+     "b": 0.0,
+     "eDur": 0.238,
+     "rmseInSamplePct": 8.86
+    },
+    {
+     "zMaxCorn": 1.5,
+     "startMode": "spinup",
+     "crMax": 0,
+     "gamma": 0.126,
+     "b": 0.0,
+     "eDur": 0.19,
+     "rmseInSamplePct": 9.26
+    },
+    {
+     "zMaxCorn": 1.5,
+     "startMode": "spinup",
+     "crMax": 2,
+     "gamma": 0.17,
+     "b": 0.0,
+     "eDur": 0.208,
+     "rmseInSamplePct": 9.05
+    },
+    {
+     "zMaxCorn": 1.5,
+     "startMode": "spinup",
+     "crMax": 4,
+     "gamma": 0.231,
+     "b": 0.0,
+     "eDur": 0.223,
+     "rmseInSamplePct": 8.97
+    },
+    {
+     "zMaxCorn": 1.5,
+     "startMode": "spinup",
+     "crMax": 6,
+     "gamma": 0.315,
+     "b": 0.0,
+     "eDur": 0.238,
+     "rmseInSamplePct": 8.86
+    }
+   ]
+  },
+  "folds": [
+   {
+    "year": 1982,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.314,
+    "b": 0.0,
+    "eDur": 0.239
+   },
+   {
+    "year": 1983,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.328,
+    "b": 0.0,
+    "eDur": 0.198
+   },
+   {
+    "year": 1984,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.315,
+    "b": 0.0,
+    "eDur": 0.26
+   },
+   {
+    "year": 1985,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.357,
+    "b": 0.0,
+    "eDur": 0.231
+   },
+   {
+    "year": 1986,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.313,
+    "b": 0.0,
+    "eDur": 0.234
+   },
+   {
+    "year": 1987,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.311,
+    "b": 0.0,
+    "eDur": 0.242
+   },
+   {
+    "year": 1988,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.249,
+    "b": 0.0,
+    "eDur": 0.216
+   },
+   {
+    "year": 1989,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.322,
+    "b": 0.0,
+    "eDur": 0.232
+   },
+   {
+    "year": 1990,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.312,
+    "b": 0.0,
+    "eDur": 0.251
+   },
+   {
+    "year": 1991,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.327,
+    "b": 0.0,
+    "eDur": 0.226
+   },
+   {
+    "year": 1992,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.33,
+    "b": 0.0,
+    "eDur": 0.118
+   },
+   {
+    "year": 1993,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.295,
+    "b": 0.0,
+    "eDur": 0.302
+   },
+   {
+    "year": 1994,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.311,
+    "b": 0.0,
+    "eDur": 0.239
+   },
+   {
+    "year": 1995,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.33,
+    "b": 0.0,
+    "eDur": 0.226
+   },
+   {
+    "year": 1996,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.309,
+    "b": 0.0,
+    "eDur": 0.252
+   },
+   {
+    "year": 1997,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.319,
+    "b": 0.0,
+    "eDur": 0.236
+   },
+   {
+    "year": 1998,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.315,
+    "b": 0.0,
+    "eDur": 0.243
+   },
+   {
+    "year": 1999,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.315,
+    "b": 0.0,
+    "eDur": 0.239
+   },
+   {
+    "year": 2000,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.32,
+    "b": 0.0,
+    "eDur": 0.234
+   },
+   {
+    "year": 2001,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.321,
+    "b": 0.0,
+    "eDur": 0.231
+   },
+   {
+    "year": 2002,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.313,
+    "b": 0.0,
+    "eDur": 0.24
+   },
+   {
+    "year": 2003,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.317,
+    "b": 0.0,
+    "eDur": 0.246
+   },
+   {
+    "year": 2004,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.315,
+    "b": 0.0,
+    "eDur": 0.23
+   },
+   {
+    "year": 2005,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.322,
+    "b": 0.0,
+    "eDur": 0.245
+   },
+   {
+    "year": 2006,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.33,
+    "b": 0.0,
+    "eDur": 0.246
+   },
+   {
+    "year": 2007,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.313,
+    "b": 0.0,
+    "eDur": 0.245
+   },
+   {
+    "year": 2008,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.308,
+    "b": 0.0,
+    "eDur": 0.258
+   },
+   {
+    "year": 2009,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.315,
+    "b": 0.0,
+    "eDur": 0.226
+   },
+   {
+    "year": 2010,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.316,
+    "b": 0.0,
+    "eDur": 0.239
+   },
+   {
+    "year": 2011,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.315,
+    "b": 0.0,
+    "eDur": 0.241
+   },
+   {
+    "year": 2012,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.289,
+    "b": 0.0,
+    "eDur": 0.241
+   },
+   {
+    "year": 2013,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.31,
+    "b": 0.0,
+    "eDur": 0.238
+   },
+   {
+    "year": 2014,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.314,
+    "b": 0.0,
+    "eDur": 0.262
+   },
+   {
+    "year": 2015,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.316,
+    "b": 0.0,
+    "eDur": 0.235
+   },
+   {
+    "year": 2016,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.308,
+    "b": 0.0,
+    "eDur": 0.241
+   },
+   {
+    "year": 2017,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.335,
+    "b": 0.0,
+    "eDur": 0.234
+   },
+   {
+    "year": 2018,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.312,
+    "b": 0.0,
+    "eDur": 0.242
+   },
+   {
+    "year": 2019,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.313,
+    "b": 0.0,
+    "eDur": 0.241
+   },
+   {
+    "year": 2020,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.316,
+    "b": 0.0,
+    "eDur": 0.238
+   },
+   {
+    "year": 2021,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.32,
+    "b": 0.0,
+    "eDur": 0.247
+   },
+   {
+    "year": 2022,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.316,
+    "b": 0.0,
+    "eDur": 0.249
+   },
+   {
+    "year": 2023,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.312,
+    "b": 0.0,
+    "eDur": 0.246
+   },
+   {
+    "year": 2024,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.313,
+    "b": 0.0,
+    "eDur": 0.241
+   },
+   {
+    "year": 2025,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.315,
+    "b": 0.0,
+    "eDur": 0.241
+   }
+  ],
+  "choiceCounts": {
+   "1.5 m/fixed/cr 6": 44
+  },
+  "table": [
+   {
+    "year": 1982,
+    "yield": 120.0,
+    "obs": 1.0978012376664694,
+    "process": 1.0542853543898008,
+    "ridge": 1.0259972078500015,
+    "gbm": 1.1004094631433103,
+    "note": ""
+   },
+   {
+    "year": 1983,
+    "yield": 87.0,
+    "obs": 0.761168883616472,
+    "process": 0.9815650641228888,
+    "ridge": 0.9159222253021901,
+    "gbm": 0.9564504624770122,
+    "note": ""
+   },
+   {
+    "year": 1984,
+    "yield": 112.0,
+    "obs": 0.9753928428148436,
+    "process": 1.0753633468399728,
+    "ridge": 0.9162603759199798,
+    "gbm": 0.8473586181917007,
+    "note": ""
+   },
+   {
+    "year": 1985,
+    "yield": 126.0,
+    "obs": 1.0807315871302172,
+    "process": 0.9360354497487459,
+    "ridge": 0.9947072472085524,
+    "gbm": 1.009202312068986,
+    "note": ""
+   },
+   {
+    "year": 1986,
+    "yield": 135.0,
+    "obs": 1.1389923189891615,
+    "process": 1.0813303469011728,
+    "ridge": 1.0006679931228069,
+    "gbm": 0.9685492992697226,
+    "note": ""
+   },
+   {
+    "year": 1987,
+    "yield": 130.0,
+    "obs": 1.0712518665864699,
+    "process": 1.0305914570497423,
+    "ridge": 1.0448821726881703,
+    "gbm": 1.013501015333193,
+    "note": ""
+   },
+   {
+    "year": 1988,
+    "yield": 84.0,
+    "obs": 0.6749842011160133,
+    "process": 0.7963974206475056,
+    "ridge": 0.8670745294806811,
+    "gbm": 0.9629981807886527,
+    "note": "drought"
+   },
+   {
+    "year": 1989,
+    "yield": 118.0,
+    "obs": 0.9290831971711803,
+    "process": 1.0222019498027315,
+    "ridge": 1.013211614055727,
+    "gbm": 1.0419832917074034,
+    "note": ""
+   },
+   {
+    "year": 1990,
+    "yield": 126.0,
+    "obs": 0.980090904833083,
+    "process": 1.0458953445810568,
+    "ridge": 0.9339313428211933,
+    "gbm": 0.9219777325250127,
+    "note": ""
+   },
+   {
+    "year": 1991,
+    "yield": 117.0,
+    "obs": 0.8875567254684594,
+    "process": 1.017064463849234,
+    "ridge": 1.0021876693201304,
+    "gbm": 1.0797393822000472,
+    "note": ""
+   },
+   {
+    "year": 1992,
+    "yield": 147.0,
+    "obs": 1.1063852116263768,
+    "process": 0.76737049751655,
+    "ridge": 1.0997708213562376,
+    "gbm": 0.9814029205327099,
+    "note": ""
+   },
+   {
+    "year": 1993,
+    "yield": 80.0,
+    "obs": 0.5905166328173284,
+    "process": 0.836969014671377,
+    "ridge": 0.9074989437492963,
+    "gbm": 1.0040387275881408,
+    "note": "flood (not a weather-model year)"
+   },
+   {
+    "year": 1994,
+    "yield": 152.0,
+    "obs": 1.105078096106894,
+    "process": 1.0626055230645228,
+    "ridge": 1.046084399110768,
+    "gbm": 1.1427530476330627,
+    "note": ""
+   },
+   {
+    "year": 1995,
+    "yield": 123.0,
+    "obs": 0.873146916748451,
+    "process": 0.9822003313079809,
+    "ridge": 0.9764612692834282,
+    "gbm": 1.044274345904054,
+    "note": ""
+   },
+   {
+    "year": 1996,
+    "yield": 138.0,
+    "obs": 0.9686734028785156,
+    "process": 1.01698772775808,
+    "ridge": 1.096456229710878,
+    "gbm": 0.9885820481004262,
+    "note": ""
+   },
+   {
+    "year": 1997,
+    "yield": 138.0,
+    "obs": 0.9525922654919445,
+    "process": 1.0100667517138875,
+    "ridge": 0.9873951666246175,
+    "gbm": 0.992113923445338,
+    "note": ""
+   },
+   {
+    "year": 1998,
+    "yield": 145.0,
+    "obs": 0.9867177751209558,
+    "process": 1.0210366189606768,
+    "ridge": 1.0200462176080267,
+    "gbm": 1.0284111986417042,
+    "note": ""
+   },
+   {
+    "year": 1999,
+    "yield": 149.0,
+    "obs": 0.9975675246459169,
+    "process": 1.013630968882836,
+    "ridge": 0.9886124105116068,
+    "gbm": 0.9555337612971994,
+    "note": ""
+   },
+   {
+    "year": 2000,
+    "yield": 144.0,
+    "obs": 0.9487164601097404,
+    "process": 1.0029698219676282,
+    "ridge": 1.0297629673715838,
+    "gbm": 1.051271177024793,
+    "note": ""
+   },
+   {
+    "year": 2001,
+    "yield": 146.0,
+    "obs": 0.946532121006055,
+    "process": 0.9996946326056124,
+    "ridge": 0.9518333260850179,
+    "gbm": 1.0187184217694365,
+    "note": ""
+   },
+   {
+    "year": 2002,
+    "yield": 163.0,
+    "obs": 1.0428464922152247,
+    "process": 0.9973610972467774,
+    "ridge": 0.9930909523650663,
+    "gbm": 0.9957577099719463,
+    "note": ""
+   },
+   {
+    "year": 2003,
+    "yield": 157.0,
+    "obs": 0.9905974693755186,
+    "process": 0.9335820216500844,
+    "ridge": 0.9134466466818598,
+    "gbm": 0.9390655926086762,
+    "note": ""
+   },
+   {
+    "year": 2004,
+    "yield": 181.0,
+    "obs": 1.126496422983343,
+    "process": 1.038851105441454,
+    "ridge": 1.0741311490881515,
+    "gbm": 1.0529347047207465,
+    "note": ""
+   },
+   {
+    "year": 2005,
+    "yield": 173.0,
+    "obs": 1.0606044622480968,
+    "process": 0.9574345822535063,
+    "ridge": 0.9217636891974436,
+    "gbm": 0.9160456799035385,
+    "note": ""
+   },
+   {
+    "year": 2006,
+    "yield": 166.0,
+    "obs": 1.0030021667673494,
+    "process": 0.9169419148406625,
+    "ridge": 0.9589469218675026,
+    "gbm": 0.9935407444705192,
+    "note": ""
+   },
+   {
+    "year": 2007,
+    "yield": 171.0,
+    "obs": 1.019579965071869,
+    "process": 0.971611819035228,
+    "ridge": 1.0064054560511564,
+    "gbm": 1.0647068326743883,
+    "note": ""
+   },
+   {
+    "year": 2008,
+    "yield": 171.0,
+    "obs": 1.0052501978089359,
+    "process": 1.0672711534988517,
+    "ridge": 0.9279883388834893,
+    "gbm": 0.8658102228643707,
+    "note": ""
+   },
+   {
+    "year": 2009,
+    "yield": 181.0,
+    "obs": 1.0504867320766325,
+    "process": 1.0117298343044376,
+    "ridge": 1.067213127477961,
+    "gbm": 1.090956763353159,
+    "note": ""
+   },
+   {
+    "year": 2010,
+    "yield": 165.0,
+    "obs": 0.9423399470981638,
+    "process": 1.0005982812239447,
+    "ridge": 0.7671819657844,
+    "gbm": 0.8804228558460451,
+    "note": ""
+   },
+   {
+    "year": 2011,
+    "yield": 172.0,
+    "obs": 0.9709056601351842,
+    "process": 0.9957221820133992,
+    "ridge": 0.9889252734642481,
+    "gbm": 0.9584986340583923,
+    "note": ""
+   },
+   {
+    "year": 2012,
+    "yield": 137.0,
+    "obs": 0.7631019614838018,
+    "process": 0.8024799668646418,
+    "ridge": 0.6999607934075531,
+    "gbm": 0.8770718241055036,
+    "note": "drought and heat"
+   },
+   {
+    "year": 2013,
+    "yield": 164.0,
+    "obs": 0.8995930858449821,
+    "process": 0.9507857480798778,
+    "ridge": 0.9160901318182153,
+    "gbm": 0.8883378208372331,
+    "note": ""
+   },
+   {
+    "year": 2014,
+    "yield": 178.0,
+    "obs": 0.9663962018587126,
+    "process": 1.069136391567156,
+    "ridge": 1.0608814959679853,
+    "gbm": 0.9768362510235833,
+    "note": ""
+   },
+   {
+    "year": 2015,
+    "yield": 192.0,
+    "obs": 1.0317561562074824,
+    "process": 1.031668998712002,
+    "ridge": 1.0570370292236744,
+    "gbm": 0.9539277464407351,
+    "note": ""
+   },
+   {
+    "year": 2016,
+    "yield": 203.0,
+    "obs": 1.0801066928459038,
+    "process": 1.002950358778109,
+    "ridge": 1.090428678267464,
+    "gbm": 1.0755882950702964,
+    "note": ""
+   },
+   {
+    "year": 2017,
+    "yield": 202.0,
+    "obs": 1.0613652786217145,
+    "process": 0.9507415689620453,
+    "ridge": 1.0033400499313343,
+    "gbm": 0.8390961162572623,
+    "note": "record yield, dry July-August in POWER"
+   },
+   {
+    "year": 2018,
+    "yield": 196.0,
+    "obs": 1.0154238722479443,
+    "process": 0.9945397659277584,
+    "ridge": 1.068888348513855,
+    "gbm": 0.9983015112229863,
+    "note": ""
+   },
+   {
+    "year": 2019,
+    "yield": 198.0,
+    "obs": 1.013614339856325,
+    "process": 1.01683133093542,
+    "ridge": 0.9862644880148378,
+    "gbm": 1.0050228436771704,
+    "note": "late planting"
+   },
+   {
+    "year": 2020,
+    "yield": 177.0,
+    "obs": 0.8894069400769962,
+    "process": 0.9834152360722004,
+    "ridge": 0.9740356935817677,
+    "gbm": 0.8943554490920013,
+    "note": "derecho (not in weather data)"
+   },
+   {
+    "year": 2021,
+    "yield": 204.0,
+    "obs": 1.02106216579492,
+    "process": 0.9433957071294334,
+    "ridge": 0.9650543940761062,
+    "gbm": 0.9251253689384926,
+    "note": "record yield, dry summer in POWER"
+   },
+   {
+    "year": 2022,
+    "yield": 200.0,
+    "obs": 0.9868655695584198,
+    "process": 0.9424730994097502,
+    "ridge": 0.9483564957798126,
+    "gbm": 0.9643023109050647,
+    "note": ""
+   },
+   {
+    "year": 2023,
+    "yield": 201.0,
+    "obs": 0.9798429538867204,
+    "process": 0.9824506134461867,
+    "ridge": 0.9660596379088614,
+    "gbm": 0.8294845280370232,
+    "note": "dry, near-record yield"
+   },
+   {
+    "year": 2024,
+    "yield": 211.0,
+    "obs": 1.021219056582752,
+    "process": 0.9912948274366007,
+    "ridge": 1.0097722539757645,
+    "gbm": 0.9833422401313711,
+    "note": ""
+   },
+   {
+    "year": 2025,
+    "yield": 210.0,
+    "obs": 1.0032175998400137,
+    "process": 1.0279505232171808,
+    "ridge": 1.0193706277792525,
+    "gbm": 1.0144481889355053,
+    "note": ""
+   }
+  ],
+  "ranksLowest": {
+   "1988": {
+    "observed": 2,
+    "process": 2
+   },
+   "1993": {
+    "observed": 1,
+    "process": 4
+   },
+   "2012": {
+    "observed": 4,
+    "process": 3
+   },
+   "2017": {
+    "observed": 36,
+    "process": 10
+   },
+   "2021": {
+    "observed": 30,
+    "process": 9
+   },
+   "2023": {
+    "observed": 18,
+    "process": 16
+   }
+  },
+  "story": {
+   "all": {
+    "n": 44,
+    "r": 0.276,
+    "rho": 0.061,
+    "rmsePct": 12.59,
+    "rmseTrendPct": 12.8,
+    "skill": 0.016,
+    "maePct": 9.65
+   },
+   "exclFloodDerecho": {
+    "n": 42,
+    "r": 0.103,
+    "rho": -0.018,
+    "rmsePct": 11.7,
+    "rmseTrendPct": 10.37,
+    "skill": -0.129,
+    "maePct": 8.93
+   }
+  },
+  "bootstrapR": [
+   -0.02,
+   0.78
+  ],
+  "risk": {
+   "sdObs": 0.1117,
+   "sdPred": 0.0714,
+   "k": 1.565,
+   "worst5Obs": 0.733,
+   "worst5Pred": 0.824
+  }
+ },
+ "soybean": {
+  "n": 44,
+  "years": [
+   1982,
+   2025
+  ],
+  "metrics": {
+   "process": {
+    "all": {
+     "n": 44,
+     "r": 0.271,
+     "rho": 0.046,
+     "rmsePct": 9.46,
+     "rmseTrendPct": 9.82,
+     "skill": 0.037,
+     "maePct": 6.81
+    },
+    "exclFloodDerecho": {
+     "n": 42,
+     "r": 0.382,
+     "rho": 0.07,
+     "rmsePct": 8.43,
+     "rmseTrendPct": 9.11,
+     "skill": 0.074,
+     "maePct": 6.37
+    },
+    "excl2012": {
+     "n": 43,
+     "r": 0.182,
+     "rho": -0.007,
+     "rmsePct": 9.56,
+     "rmseTrendPct": 9.66,
+     "skill": 0.011,
+     "maePct": 6.88
+    },
+    "exclDroughts": {
+     "n": 42,
+     "r": -0.058,
+     "rho": -0.072,
+     "rmsePct": 9.63,
+     "rmseTrendPct": 9.16,
+     "skill": -0.051,
+     "maePct": 6.91
+    },
+    "exclDroughtsFloodDerecho": {
+     "n": 40,
+     "r": 0.055,
+     "rho": -0.064,
+     "rmsePct": 8.57,
+     "rmseTrendPct": 8.31,
+     "skill": -0.032,
+     "maePct": 6.45
+    }
+   },
+   "ridge": {
+    "all": {
+     "n": 44,
+     "r": 0.552,
+     "rho": 0.591,
+     "rmsePct": 8.23,
+     "rmseTrendPct": 9.82,
+     "skill": 0.162,
+     "maePct": 5.8
+    },
+    "exclFloodDerecho": {
+     "n": 42,
+     "r": 0.59,
+     "rho": 0.579,
+     "rmsePct": 7.51,
+     "rmseTrendPct": 9.11,
+     "skill": 0.175,
+     "maePct": 5.47
+    },
+    "excl2012": {
+     "n": 43,
+     "r": 0.54,
+     "rho": 0.567,
+     "rmsePct": 8.09,
+     "rmseTrendPct": 9.66,
+     "skill": 0.162,
+     "maePct": 5.64
+    },
+    "exclDroughts": {
+     "n": 42,
+     "r": 0.529,
+     "rho": 0.543,
+     "rmsePct": 7.79,
+     "rmseTrendPct": 9.16,
+     "skill": 0.149,
+     "maePct": 5.39
+    },
+    "exclDroughtsFloodDerecho": {
+     "n": 40,
+     "r": 0.562,
+     "rho": 0.522,
+     "rmsePct": 6.97,
+     "rmseTrendPct": 8.31,
+     "skill": 0.161,
+     "maePct": 5.01
+    }
+   },
+   "gbm": {
+    "all": {
+     "n": 44,
+     "r": 0.404,
+     "rho": 0.367,
+     "rmsePct": 9.08,
+     "rmseTrendPct": 9.82,
+     "skill": 0.076,
+     "maePct": 6.43
+    },
+    "exclFloodDerecho": {
+     "n": 42,
+     "r": 0.385,
+     "rho": 0.316,
+     "rmsePct": 8.71,
+     "rmseTrendPct": 9.11,
+     "skill": 0.043,
+     "maePct": 6.19
+    },
+    "excl2012": {
+     "n": 43,
+     "r": 0.362,
+     "rho": 0.329,
+     "rmsePct": 9.18,
+     "rmseTrendPct": 9.66,
+     "skill": 0.049,
+     "maePct": 6.56
+    },
+    "exclDroughts": {
+     "n": 42,
+     "r": 0.349,
+     "rho": 0.314,
+     "rmsePct": 8.91,
+     "rmseTrendPct": 9.16,
+     "skill": 0.027,
+     "maePct": 6.31
+    },
+    "exclDroughtsFloodDerecho": {
+     "n": 40,
+     "r": 0.31,
+     "rho": 0.249,
+     "rmsePct": 8.51,
+     "rmseTrendPct": 8.31,
+     "skill": -0.024,
+     "maePct": 6.05
+    }
+   },
+   "hybrid": {
+    "all": {
+     "n": 44,
+     "r": -0.13,
+     "rho": -0.123,
+     "rmsePct": 9.99,
+     "rmseTrendPct": 9.82,
+     "skill": -0.017,
+     "maePct": 7.28
+    },
+    "exclFloodDerecho": {
+     "n": 42,
+     "r": 0.012,
+     "rho": -0.105,
+     "rmsePct": 9.14,
+     "rmseTrendPct": 9.11,
+     "skill": -0.004,
+     "maePct": 6.83
+    },
+    "excl2012": {
+     "n": 43,
+     "r": -0.169,
+     "rho": -0.168,
+     "rmsePct": 9.93,
+     "rmseTrendPct": 9.66,
+     "skill": -0.028,
+     "maePct": 7.16
+    },
+    "exclDroughts": {
+     "n": 42,
+     "r": -0.224,
+     "rho": -0.21,
+     "rmsePct": 9.58,
+     "rmseTrendPct": 9.16,
+     "skill": -0.045,
+     "maePct": 6.87
+    },
+    "exclDroughtsFloodDerecho": {
+     "n": 40,
+     "r": -0.084,
+     "rho": -0.205,
+     "rmsePct": 8.62,
+     "rmseTrendPct": 8.31,
+     "skill": -0.037,
+     "maePct": 6.37
+    }
+   },
+   "trend": {
+    "all": {
+     "rmsePct": 9.82
+    }
+   }
+  },
+  "fit": {
+   "zMaxCorn": 1.5,
+   "startMode": "fixed",
+   "crMax": 6,
+   "gamma": 0.4622501954509607,
+   "b": 0.00012690512272272106,
+   "eDur": 0.0,
+   "ratio": [
+    1.0082432063630011,
+    0.9521033229280397,
+    0.8440548525859168,
+    1.0031948406087958,
+    1.079657495357352,
+    1.1154632920026581,
+    0.7836914815098098,
+    0.9721924112983688,
+    1.0202915326379334,
+    0.9822043416962754,
+    1.0528100133911722,
+    0.7319598661840377,
+    1.1768494252734372,
+    1.0121849731256538,
+    0.9993311602792244,
+    1.0316542492845056,
+    1.0631767257077809,
+    0.9735958944599613,
+    0.940215648380107,
+    0.9396666727114906,
+    1.0129948614997326,
+    0.6778829311985709,
+    1.010256895090405,
+    1.0700822755221608,
+    1.017718759051544,
+    1.0362711936460887,
+    0.9164539334662265,
+    0.9941872960937265,
+    0.9834678209536231,
+    0.982516028536307,
+    0.8494479758033215,
+    0.8499158101239938,
+    0.9428059266317762,
+    1.033795398242814,
+    1.0867180340025921,
+    1.0220320106124532,
+    0.9941349489677018,
+    0.9667862546482126,
+    0.9399699162891985,
+    1.086061207753286,
+    0.9988574840727712,
+    0.9809551465147026,
+    1.005274673377469,
+    1.0540413920639107
+   ],
+   "pred": [
+    0.9769044335988566,
+    0.9986599239294427,
+    1.0163641695427246,
+    0.9564354437547223,
+    1.004869291431285,
+    1.0148866221732835,
+    0.8096989682069862,
+    1.0091688683947995,
+    0.9488466780624809,
+    0.9105210293199409,
+    1.0079298318131804,
+    1.011168018237279,
+    1.0138775491240906,
+    1.005945117974696,
+    0.9697120892559322,
+    1.005494088420444,
+    1.0013400760705573,
+    0.9858540365332547,
+    1.0139285580206665,
+    1.0122288849962418,
+    1.0013401109606412,
+    0.9762821360794885,
+    0.9885290995600984,
+    0.9976740098952415,
+    0.9636138321038484,
+    1.0036300881229947,
+    0.9886508839880618,
+    1.010847756867442,
+    1.0076436201592451,
+    1.0091058902840333,
+    0.8240796010351966,
+    0.9595436222488393,
+    1.0142523171803521,
+    0.9952076489561215,
+    1.0073835683703112,
+    0.9485390512819478,
+    1.0147258898744986,
+    0.9633692161062407,
+    0.9479056020478134,
+    0.9764622030635448,
+    0.9583049191818724,
+    1.0042931263188133,
+    0.9966750737979991,
+    1.006934546076004
+   ],
+   "trend": [
+    46.26598171913639,
+    0.5591332687498323
+   ],
+   "grid": [
+    {
+     "zMaxCorn": 1.5,
+     "startMode": "fixed",
+     "crMax": 6,
+     "gamma": 0.462,
+     "b": 0.00013,
+     "eDur": 0.0,
+     "rmseInSamplePct": 8.78
+    }
+   ]
+  },
+  "folds": [
+   {
+    "year": 1982,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.457,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 1983,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.463,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 1984,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.446,
+    "b": 0.00033,
+    "eDur": 0.0
+   },
+   {
+    "year": 1985,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.476,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 1986,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.451,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 1987,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.445,
+    "b": 0.00015,
+    "eDur": 0.0
+   },
+   {
+    "year": 1988,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.379,
+    "b": 0.00024,
+    "eDur": 0.0
+   },
+   {
+    "year": 1989,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.466,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 1990,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.482,
+    "b": 5e-05,
+    "eDur": 0.0
+   },
+   {
+    "year": 1991,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.481,
+    "b": 4e-05,
+    "eDur": 0.0
+   },
+   {
+    "year": 1992,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.455,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 1993,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.419,
+    "b": 0.00034,
+    "eDur": 0.07
+   },
+   {
+    "year": 1994,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.465,
+    "b": 0.0,
+    "eDur": 0.0
+   },
+   {
+    "year": 1995,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.456,
+    "b": 0.00015,
+    "eDur": 0.0
+   },
+   {
+    "year": 1996,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.477,
+    "b": 8e-05,
+    "eDur": 0.0
+   },
+   {
+    "year": 1997,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.429,
+    "b": 0.00028,
+    "eDur": 0.0
+   },
+   {
+    "year": 1998,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.457,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 1999,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.465,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2000,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.473,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2001,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.498,
+    "b": 1e-05,
+    "eDur": 0.0
+   },
+   {
+    "year": 2002,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.455,
+    "b": 0.00015,
+    "eDur": 0.0
+   },
+   {
+    "year": 2003,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.437,
+    "b": 0.0,
+    "eDur": 0.0
+   },
+   {
+    "year": 2004,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.463,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2005,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.357,
+    "b": 0.00072,
+    "eDur": 0.0
+   },
+   {
+    "year": 2006,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.422,
+    "b": 0.00041,
+    "eDur": 0.0
+   },
+   {
+    "year": 2007,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.459,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2008,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.378,
+    "b": 0.00058,
+    "eDur": 0.0
+   },
+   {
+    "year": 2009,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.463,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2010,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.464,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2011,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.466,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2012,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.51,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2013,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.389,
+    "b": 0.00041,
+    "eDur": 0.0
+   },
+   {
+    "year": 2014,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.475,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2015,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.459,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2016,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.454,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2017,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.473,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2018,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.464,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2019,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.476,
+    "b": 9e-05,
+    "eDur": 0.0
+   },
+   {
+    "year": 2020,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.468,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2021,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.354,
+    "b": 0.00075,
+    "eDur": 0.0
+   },
+   {
+    "year": 2022,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.474,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2023,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.466,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2024,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.462,
+    "b": 0.00013,
+    "eDur": 0.0
+   },
+   {
+    "year": 2025,
+    "zMaxCorn": 1.5,
+    "startMode": "fixed",
+    "crMax": 6,
+    "gamma": 0.455,
+    "b": 0.00013,
+    "eDur": 0.0
+   }
+  ],
+  "choiceCounts": {
+   "1.5 m/fixed/cr 6": 44
+  },
+  "table": [
+   {
+    "year": 1982,
+    "yield": 36.5,
+    "obs": 1.0116260388133693,
+    "process": 0.9767427132294164,
+    "ridge": 1.0142791767694912,
+    "gbm": 1.0379217865361308,
+    "note": ""
+   },
+   {
+    "year": 1983,
+    "yield": 35.0,
+    "obs": 0.9460391060412328,
+    "process": 0.9986494380435427,
+    "ridge": 0.9163690978856793,
+    "gbm": 0.9645191833052973,
+    "note": ""
+   },
+   {
+    "year": 1984,
+    "yield": 31.5,
+    "obs": 0.8350885671452577,
+    "process": 1.020075867635519,
+    "ridge": 0.9290118368865552,
+    "gbm": 0.9270849783293891,
+    "note": ""
+   },
+   {
+    "year": 1985,
+    "yield": 38.0,
+    "obs": 1.0048428781846708,
+    "process": 0.9551028796902731,
+    "ridge": 0.9723330160021197,
+    "gbm": 1.0059628191356371,
+    "note": ""
+   },
+   {
+    "year": 1986,
+    "yield": 41.5,
+    "obs": 1.0875619658260252,
+    "process": 1.0045216821628162,
+    "ridge": 0.980059268231683,
+    "gbm": 0.9857812738461105,
+    "note": ""
+   },
+   {
+    "year": 1987,
+    "yield": 43.5,
+    "obs": 1.1249030171486702,
+    "process": 1.0149198697104542,
+    "ridge": 1.0784808267231247,
+    "gbm": 1.073900813199828,
+    "note": ""
+   },
+   {
+    "year": 1988,
+    "yield": 31.0,
+    "obs": 0.7792372441488498,
+    "process": 0.8349212089307296,
+    "ridge": 0.9418582652791115,
+    "gbm": 0.9489531696141349,
+    "note": "drought"
+   },
+   {
+    "year": 1989,
+    "yield": 39.0,
+    "obs": 0.9695989678108395,
+    "process": 1.009216736052272,
+    "ridge": 0.9798193441846296,
+    "gbm": 1.047387036290657,
+    "note": ""
+   },
+   {
+    "year": 1990,
+    "yield": 41.5,
+    "obs": 1.0236361231879214,
+    "process": 0.9469472976601933,
+    "ridge": 0.9494024982747263,
+    "gbm": 0.9256629459046136,
+    "note": ""
+   },
+   {
+    "year": 1991,
+    "yield": 40.5,
+    "obs": 0.9807291545803537,
+    "process": 0.9092832810561798,
+    "ridge": 0.9556715514926197,
+    "gbm": 0.9331587764109192,
+    "note": ""
+   },
+   {
+    "year": 1992,
+    "yield": 44.0,
+    "obs": 1.055961782438005,
+    "process": 1.0077106020746172,
+    "ridge": 1.0594918803227233,
+    "gbm": 1.0085594503669972,
+    "note": ""
+   },
+   {
+    "year": 1993,
+    "yield": 31.0,
+    "obs": 0.7311846992853617,
+    "process": 1.0402561461147073,
+    "ridge": 0.9777226423957355,
+    "gbm": 0.9399814974667535,
+    "note": "flood (not a weather-model year)"
+   },
+   {
+    "year": 1994,
+    "yield": 50.5,
+    "obs": 1.1810023326751187,
+    "process": 1.010965368987787,
+    "ridge": 1.0377194448652267,
+    "gbm": 1.0768280217343549,
+    "note": ""
+   },
+   {
+    "year": 1995,
+    "yield": 44.0,
+    "obs": 1.0138160978355253,
+    "process": 1.006274861765748,
+    "ridge": 0.9596056324853652,
+    "gbm": 0.9783483625876711,
+    "note": ""
+   },
+   {
+    "year": 1996,
+    "yield": 44.0,
+    "obs": 0.9998518275997508,
+    "process": 0.9680868231268291,
+    "ridge": 1.0029307776097867,
+    "gbm": 0.8857825983261286,
+    "note": ""
+   },
+   {
+    "year": 1997,
+    "yield": 46.0,
+    "obs": 1.034347213309041,
+    "process": 1.005435815807627,
+    "ridge": 0.9503568775720781,
+    "gbm": 0.9584931613284795,
+    "note": ""
+   },
+   {
+    "year": 1998,
+    "yield": 48.0,
+    "obs": 1.0655070859386264,
+    "process": 1.0012875023514645,
+    "ridge": 1.039126473902282,
+    "gbm": 1.04103351338827,
+    "note": ""
+   },
+   {
+    "year": 1999,
+    "yield": 44.5,
+    "obs": 0.972583334813321,
+    "process": 0.9859189249055427,
+    "ridge": 0.9627229702285321,
+    "gbm": 0.9751661796241758,
+    "note": ""
+   },
+   {
+    "year": 2000,
+    "yield": 43.5,
+    "obs": 0.9378226213523414,
+    "process": 1.014174763588335,
+    "ridge": 1.052328012252332,
+    "gbm": 1.096348669531074,
+    "note": ""
+   },
+   {
+    "year": 2001,
+    "yield": 44.0,
+    "obs": 0.937352343736535,
+    "process": 1.014840773692181,
+    "ridge": 0.9204080491266646,
+    "gbm": 1.0072019581309768,
+    "note": ""
+   },
+   {
+    "year": 2002,
+    "yield": 48.0,
+    "obs": 1.0140067587577564,
+    "process": 1.0008948442388126,
+    "ridge": 1.030276832832295,
+    "gbm": 1.0353094394381435,
+    "note": ""
+   },
+   {
+    "year": 2003,
+    "yield": 32.5,
+    "obs": 0.6778530147330226,
+    "process": 0.9802386380942265,
+    "ridge": 0.9132785876997057,
+    "gbm": 0.9715356254652745,
+    "note": ""
+   },
+   {
+    "year": 2004,
+    "yield": 49.0,
+    "obs": 1.0110503051222877,
+    "process": 0.9885171864686738,
+    "ridge": 1.0339483493411081,
+    "gbm": 1.0580517706326773,
+    "note": ""
+   },
+   {
+    "year": 2005,
+    "yield": 52.5,
+    "obs": 1.072214983207314,
+    "process": 0.9820241032910997,
+    "ridge": 0.9455500204974603,
+    "gbm": 0.8731517026958593,
+    "note": ""
+   },
+   {
+    "year": 2006,
+    "yield": 50.5,
+    "obs": 1.0187091657770158,
+    "process": 0.959136041731161,
+    "ridge": 0.9924226429436981,
+    "gbm": 0.9407369973287761,
+    "note": ""
+   },
+   {
+    "year": 2007,
+    "yield": 52.0,
+    "obs": 1.0374519984730532,
+    "process": 1.0036043274115274,
+    "ridge": 1.0175603887895353,
+    "gbm": 1.025081847090728,
+    "note": ""
+   },
+   {
+    "year": 2008,
+    "yield": 46.5,
+    "obs": 0.9138184021220463,
+    "process": 0.9990893835175458,
+    "ridge": 0.9448075150148579,
+    "gbm": 0.9023089973249618,
+    "note": ""
+   },
+   {
+    "year": 2009,
+    "yield": 51.0,
+    "obs": 0.9940366468437526,
+    "process": 1.0111092771612613,
+    "ridge": 1.0138430105874812,
+    "gbm": 0.9939258852870356,
+    "note": ""
+   },
+   {
+    "year": 2010,
+    "yield": 51.0,
+    "obs": 0.9827488646080992,
+    "process": 1.0077684873434023,
+    "ridge": 0.8748736115183346,
+    "gbm": 0.9450873037729075,
+    "note": ""
+   },
+   {
+    "year": 2011,
+    "yield": 51.5,
+    "obs": 0.9816769137717651,
+    "process": 1.0092096495778795,
+    "ridge": 0.981352022288851,
+    "gbm": 1.0219781630835054,
+    "note": ""
+   },
+   {
+    "year": 2012,
+    "yield": 45.0,
+    "obs": 0.8469957573359735,
+    "process": 0.8073617080234121,
+    "ridge": 0.718542231336188,
+    "gbm": 0.8553427602307999,
+    "note": "drought and heat"
+   },
+   {
+    "year": 2013,
+    "yield": 45.5,
+    "obs": 0.8473638909376942,
+    "process": 0.9659812176083372,
+    "ridge": 0.8683131037914641,
+    "gbm": 0.8977936109285235,
+    "note": ""
+   },
+   {
+    "year": 2014,
+    "yield": 51.0,
+    "obs": 0.939537013835282,
+    "process": 1.0147815974501557,
+    "ridge": 1.0080193329744294,
+    "gbm": 1.0065706458266122,
+    "note": ""
+   },
+   {
+    "year": 2015,
+    "yield": 56.5,
+    "obs": 1.0356671349541478,
+    "process": 0.9951765910499517,
+    "ridge": 1.0486877381268693,
+    "gbm": 1.0294773114369007,
+    "note": ""
+   },
+   {
+    "year": 2016,
+    "yield": 60.0,
+    "obs": 1.0914082359836812,
+    "process": 1.0073034860726016,
+    "ridge": 1.1315147191378976,
+    "gbm": 1.0982887272516888,
+    "note": ""
+   },
+   {
+    "year": 2017,
+    "yield": 57.0,
+    "obs": 1.023848027994629,
+    "process": 0.9479247561118471,
+    "ridge": 0.9951599383830453,
+    "gbm": 0.9708098788642299,
+    "note": "record yield, dry July-August in POWER"
+   },
+   {
+    "year": 2018,
+    "yield": 56.0,
+    "obs": 0.9936572151409719,
+    "process": 1.0147822412438643,
+    "ridge": 1.1041713351031845,
+    "gbm": 1.0496724883205037,
+    "note": ""
+   },
+   {
+    "year": 2019,
+    "yield": 55.0,
+    "obs": 0.9636161570831583,
+    "process": 0.9631332779971754,
+    "ridge": 1.0401201143757128,
+    "gbm": 1.0269303256281461,
+    "note": "late planting"
+   },
+   {
+    "year": 2020,
+    "yield": 54.0,
+    "obs": 0.9346534853660927,
+    "process": 0.9474656997633862,
+    "ridge": 0.9459076558680974,
+    "gbm": 0.912719470722587,
+    "note": "derecho (not in weather data)"
+   },
+   {
+    "year": 2021,
+    "yield": 63.0,
+    "obs": 1.092937516851965,
+    "process": 0.9575580934985236,
+    "ridge": 1.028681689338007,
+    "gbm": 0.9224105941962405,
+    "note": "record yield, dry summer in POWER"
+   },
+   {
+    "year": 2022,
+    "yield": 58.5,
+    "obs": 0.998771161442862,
+    "process": 0.9571823546828917,
+    "ridge": 0.9741935356630238,
+    "gbm": 0.9664316343950622,
+    "note": ""
+   },
+   {
+    "year": 2023,
+    "yield": 58.0,
+    "obs": 0.9784230775846039,
+    "process": 1.00433098691032,
+    "ridge": 1.0127040214638938,
+    "gbm": 0.9722972453463777,
+    "note": "dry, near-record yield"
+   },
+   {
+    "year": 2024,
+    "yield": 60.0,
+    "obs": 1.006031427527697,
+    "process": 0.9966808743354023,
+    "ridge": 1.0233311358840507,
+    "gbm": 1.00468989189261,
+    "note": ""
+   },
+   {
+    "year": 2025,
+    "yield": 63.5,
+    "obs": 1.061163869560967,
+    "process": 1.006870648479972,
+    "ridge": 1.0823533356233588,
+    "gbm": 1.040919538888684,
+    "note": ""
+   }
+  ],
+  "ranksLowest": {
+   "1988": {
+    "observed": 3,
+    "process": 2
+   },
+   "1993": {
+    "observed": 2,
+    "process": 44
+   },
+   "2012": {
+    "observed": 5,
+    "process": 1
+   },
+   "2017": {
+    "observed": 32,
+    "process": 6
+   },
+   "2021": {
+    "observed": 42,
+    "process": 9
+   },
+   "2023": {
+    "observed": 16,
+    "process": 26
+   }
+  },
+  "story": {
+   "all": {
+    "n": 44,
+    "r": 0.256,
+    "rho": 0.105,
+    "rmsePct": 12.79,
+    "rmseTrendPct": 13.05,
+    "skill": 0.02,
+    "maePct": 10.25
+   },
+   "exclFloodDerecho": {
+    "n": 42,
+    "r": 0.309,
+    "rho": 0.131,
+    "rmsePct": 12.27,
+    "rmseTrendPct": 12.67,
+    "skill": 0.031,
+    "maePct": 9.98
+   }
+  },
+  "bootstrapR": [
+   -0.2,
+   0.59
+  ],
+  "risk": {
+   "sdObs": 0.0977,
+   "sdPred": 0.0443,
+   "k": 2.204,
+   "worst5Obs": 0.774,
+   "worst5Pred": 0.889
+  }
+ },
+ "text": "Checked against USDA NASS Iowa yields 1982-2025: the model catches the big droughts (1988, 2012), but in ordinary years it does no better than the long-term yield trend, and in any one season it has a typical error of 10 points of a normal crop. Small differences between plans are not reliable."
+}
