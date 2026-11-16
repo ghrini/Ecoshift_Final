@@ -495,11 +495,9 @@ body.on-sim .site-footer { display: none; }
   .flow-kicker { margin-top: 64px; }
 }
 
-/* Home: the definition under the problem, the 4-step flow, the satellites line */
-.definition { display: grid; grid-template-columns: auto auto 1fr; gap: 6px 14px; align-items: baseline; max-width: 78ch; margin: 34px 0 0; padding: 16px 20px; border-left: 3px solid var(--accent); background: var(--surface); border-radius: 0 12px 12px 0; }
-.def-term { font-weight: 600; color: var(--text); font-size: 1.1rem; }
-.def-kind { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ecru); }
-.def-text { color: var(--muted); }
+/* Home: the footnote under the problem, the 4-step flow, the satellites line */
+.ast { color: var(--ecru); margin-left: 1px; }
+.footnote { max-width: 78ch; margin: 22px 0 0; font-size: 0.92rem; line-height: 1.5; color: var(--faint); }
 #problem-solution .statement + .text-link { margin-top: 28px; }
 .figs.flow.flow-4 { grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr) 40px minmax(0, 1fr) 40px minmax(0, 1fr); }
 .flow-4 .flow-arrow svg { width: 36px; }
@@ -508,4 +506,4 @@ body.on-sim .site-footer { display: none; }
 .sat-ic { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; color: var(--ecru); background: color-mix(in srgb, var(--accent) 16%, transparent); }
 .fig-link { margin-top: 14px; font-size: 0.98rem; }
 @media (max-width: 1100px) and (min-width: 901px) { .figs.flow.flow-4 { grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr); row-gap: 40px; } .flow-4 > .flow-arrow:nth-of-type(2) { display: none; } }
-@media (max-width: 900px) { .figs.flow.flow-4 { grid-template-columns: 1fr; } .definition { grid-template-columns: auto 1fr; } .def-text { grid-column: 1 / -1; } }
+@media (max-width: 900px) { .figs.flow.flow-4 { grid-template-columns: 1fr; } }
