@@ -42,8 +42,7 @@ This is a working prototype. Simulation results are estimates for comparing opti
 17. [Tests](#tests)
 18. [Deploying](#deploying)
 19. [Repository Layout](#repository-layout)
-20. [Limits We Know About](#limits-we-know-about)
-21. [Credits And Licenses](#credits-and-licenses)
+20. [Credits And Licenses](#credits-and-licenses)
 
 ---
 
@@ -472,18 +471,6 @@ simulator-source/
   tests/, verify/  model tests, page tests and the published chat checks
   VALIDATION.md, DATA_NOTES.md, CONTRACT.md, QUESTIONNAIRE.md, REALMAP.md   how it was checked and where every number comes from
 ```
-
----
-
-## Limits We Know About
-
-- The yield check covers one county's weather (Story County, Iowa) against Iowa state yields. It catches the big droughts but is no better than the yield trend in ordinary years. The other 13 counties and fitted farms are not separately checked.
-- The crop model knows corn, soybeans, oats and a cereal rye cover crop. Irrigation is a fixed weekly amount in set months; water allocations, tile drainage and nitrogen are not modelled yet.
-- NASA POWER's grid cell is about 50 km, so fields close together share one weather record.
-- Outside the United States, soils come from ISRIC SoilGrids and harvests are measured against a Corn Belt yardstick.
-- Field Health scores, the rough yield guide and the warnings are published satellite indices with simple rules, not a model trained on harvests. The burn test can mistake bare soil after harvest for a burn without a NASA fire detection.
-- The 30-day outlook comes from Open-Meteo, not NASA; days 17 to 30 are a rough estimate.
-- Oats price and cost are rough guesses with no source yet, so money is not shown while oats is in a plan. Outside Iowa only the differences between plans are shown in dollars.
 
 ---
 
