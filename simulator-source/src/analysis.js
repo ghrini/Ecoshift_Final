@@ -119,6 +119,8 @@
       open = 'In ' + esc(sc) + ', ' + who + (groups.length > 1 ? ' earn' : ' earns') + ' about ' + money(round10(delta)) + (delta < 0 ? ' less' : ' more') + ' than your current plan.';
     } else {
       open = 'In ' + esc(sc) + ', your farm gets about ' + pctNormal + '% of a normal crop' + (FS.absMoneyOk() ? ' and ' + earns(s.farm.returnTotal) : '') + (changed.length ? ', about the same as your current plan' : '') + '.';
+      var errPts = (/typical error (?:of )?(\d+) points?/.exec((s.validation && s.validation.text) || '') || [])[1];
+      if (errPts) open += ' Any one season can be off by about ' + errPts + ' points.';
     }
     h = verdictsHtml(r, all, cur0) + '<p>' + open + '</p><div class="fs-strip-wrap"></div>';
 
