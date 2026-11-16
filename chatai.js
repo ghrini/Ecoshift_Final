@@ -50,7 +50,7 @@ const SCHEMA = {
 
 module.exports = function chatai({ geminiJSON, hasKey, readBody, send, UserError, noKey }) {
   async function handleChat(req, res) {
-    if (!hasKey()) return send(res, 503, { error: noKey });
+    if (!hasKey()) return send(res, 503, { error: typeof noKey === "function" ? noKey() : noKey });
     let b;
     try { b = JSON.parse(await readBody(req, 60000)); } catch (e) { return send(res, e.status === 413 ? 413 : 400, { error: "That message was too long or garbled." }); }
     const message = String((b && b.message) || "").slice(0, 2000).trim();
