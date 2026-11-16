@@ -672,12 +672,12 @@ textarea.fs-q-text { resize: vertical; min-height: 3.4em; }
 </head><body>
 <nav id="fs-backrow" hidden><a id="fs-back" class="fs-backlink" href="../index.html">← Back to EcoShift</a></nav>
 <header id="fs-header">
-  <h1 class="fs-adjust-title"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Adjust these settings</h1>
+  <h1 class="fs-adjust-title"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Adjust These Settings</h1>
   <button type="button" id="fs-farm-btn" class="fs-farm-btn"><span class="fs-farm-name">Your farm</span><span aria-hidden="true"> · </span><span class="fs-farm-change">Change</span></button>
   <div class="fs-run-wrap">
     <button type="button" id="fs-run" class="fs-btn-primary">
       <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"/></svg>
-      Run simulation<i id="fs-dirty" class="fs-rundot" hidden aria-hidden="true"></i><span class="fs-sr" id="fs-dirty-sr" hidden>(changes not run yet)</span>
+      Run Simulation<i id="fs-dirty" class="fs-rundot" hidden aria-hidden="true"></i><span class="fs-sr" id="fs-dirty-sr" hidden>(changes not run yet)</span>
     </button>
   </div>
 </header>
@@ -3480,7 +3480,7 @@ window.FS = window.FS || {};
   function fieldOptions() { return D.farm.fields.map(function (f) { return '<option value="' + f.id + '">' + esc(f.name) + ' · ' + f.acres + ' ac</option>'; }).join(''); }
 
   function build() {
-    root.weather.innerHTML = head('Weather / season', 'fs-reset-weather') + '<div class="fs-panel-body">' +
+    root.weather.innerHTML = head('Weather / Season', 'fs-reset-weather') + '<div class="fs-panel-body">' +
       '<div class="fs-row" data-path="weather.scenario"><div class="fs-row-head"><label for="fs-weather-scenario">Scenario</label></div>' +
       '<select id="fs-weather-scenario" class="fs-select">' + scenarioOptions() + '</select></div>' +
       slider('fs-weather-temp', 'Temperature shift', 'weather.tempShift', -2, 4, 0.5, 'temp') +
@@ -3497,7 +3497,7 @@ window.FS = window.FS || {};
       '<div class="fs-row" id="fs-irrig-row" data-path="crops.irrigation" hidden><div class="fs-row-head"><label for="fs-crops-irrigation">Irrigation, 1 inch a week</label></div>' +
       '<select id="fs-crops-irrigation" class="fs-select">' + IRRIG.map(function (p) { return '<option value="' + p[0] + '">' + p[1] + '</option>'; }).join('') + '</select></div></div>';
 
-    root.other.innerHTML = head('Other conditions', 'fs-reset-other') + '<div class="fs-panel-body">' +
+    root.other.innerHTML = head('Other Conditions', 'fs-reset-other') + '<div class="fs-panel-body">' +
       slider('fs-other-price', 'Crop price', 'other.priceChange', -40, 40, 5, 'pct') +
       slider('fs-other-nitrogen', 'Nitrogen price', 'other.nitrogenChange', -30, 80, 5, 'pct') +
       slider('fs-other-contracted', 'Already contracted', 'other.contracted', 0, 100, 5, 'plain') +
@@ -3614,7 +3614,7 @@ window.FS = window.FS || {};
       root = els;
       build();
       // Reset lives inside each open box (top right), so the title bar only holds the title and the open/close arrow.
-      [['weather', 'Weather / season'], ['crops', 'Crops'], ['other', 'Other conditions']].forEach(function (p) {
+      [['weather', 'Weather / Season'], ['crops', 'Crops'], ['other', 'Other Conditions']].forEach(function (p) {
         root[p[0]].querySelector('.fs-panel-body').insertAdjacentHTML('afterbegin',
           '<div class="fs-body-tools"><button type="button" class="fs-linkbtn fs-reset" id="fs-reset-' + p[0] + '" aria-label="Reset ' + p[1] + '">Reset</button></div>');
       });
@@ -3645,7 +3645,7 @@ window.FS = window.FS || {};
 
   var listEl, runningEl = null, made = {};
   function chrome() {
-    el.innerHTML = '<div class="fs-panel-head"><h2 class="fs-panel-title">Sim analysis</h2><div class="fs-head-right">' +
+    el.innerHTML = '<div class="fs-panel-head"><h2 class="fs-panel-title">Sim Analysis</h2><div class="fs-head-right">' +
       '<button type="button" class="fs-expand" data-expand="Sim analysis" aria-label="Expand Sim analysis">' + EXPAND_SVG + '</button></div></div>' +
       '<div class="fs-panel-body" id="fs-analysis-body" aria-live="polite"></div>';
     listEl = el.querySelector('#fs-analysis-body');
@@ -5155,13 +5155,13 @@ window.FS = window.FS || {};
   };
 
   var STEPS = [
-    { id: 'welcome', title: "Let's get to know your farm", noSkip: true, next: 'Start',
+    { id: 'welcome', title: "Let's Get To Know Your Farm", noSkip: true, next: 'Start',
       hint: function () { return STEPS.filter(function (q) { return !q.noSkip; }).length + ' quick questions. Most are optional. Then the simulator replays ' + years() + ' real seasons of NASA weather on your farm.'; },
       render: function () { return (FS.i18n && /^https?:$/.test(location.protocol) ? '<div class="fs-q-langrow">' + FS.i18n.selectHTML('fs-q-lang') + '<span class="fs-q-langhint" translate="no">Choose your language · Elige tu idioma · Escolha seu idioma · Choisissez votre langue</span></div>' : '') + '<p class="fs-q-plain">Your answers are saved in this browser. To fit the data to your farm, its location is sent to NASA POWER, USDA (soils and yields), ISRIC SoilGrids, the FCC and US Census lookups and the Open-Meteo forecast. Addresses you type go to the Photon address search (OpenStreetMap). If the server has an AI key, your land answers go to Google Gemini.</p>'; } },
-    { id: 'name', short: 'Name', title: 'What should we call you?', hint: 'Optional. Just used to say hello in the chat.',
+    { id: 'name', short: 'Name', title: 'What Should We Call You?', hint: 'Optional. Just used to say hello in the chat.',
       render: function (a) { return '<label class="fs-q-label" for="fs-q-name">Name or farm name</label><input type="text" id="fs-q-name" class="fs-q-text" maxlength="40" autocomplete="name" value="' + esc(a.name) + '">'; },
       collect: function (a, r) { a.name = text(val(r, 'fs-q-name'), 40); } },
-    { id: 'location', title: 'Where is your farm?', hint: 'Use your precise location, or start typing your address (anywhere in the world) and pick it from the list.',
+    { id: 'location', title: 'Where Is Your Farm?', hint: 'Use your precise location, or start typing your address (anywhere in the world) and pick it from the list.',
       render: function (a) {
         var p = a.point;
         return '<div class="fs-q-geo">' +
@@ -5284,7 +5284,7 @@ window.FS = window.FS || {};
           } catch (e) { loc.disabled = false; say('We could not get your location. Type your address instead.'); }
         });
       } },
-    { id: 'fields', title: 'Your four fields', hint: 'Acres (10 to 640) and last year\'s crop for each.',
+    { id: 'fields', title: 'Your Four Fields', hint: 'Acres (10 to 640) and last year\'s crop for each.',
       render: function (a) {
         return a.fields.map(function (f) {
           var n = labelOf(POS, f.id);
@@ -5303,17 +5303,17 @@ window.FS = window.FS || {};
         a.fields.forEach(function (f) { if (f.raw !== undefined) { f.acres = Math.round(Number(f.raw)); delete f.raw; } });
         return null;
       } },
-    { id: 'you', short: 'You and your farm', title: 'You and your farm', hint: 'This helps us suggest changes that fit how you work. Skip anything you would rather not answer.',
+    { id: 'you', short: 'You And Your Farm', title: 'You And Your Farm', hint: 'This helps us suggest changes that fit how you work. Skip anything you would rather not answer.',
       render: function (a) {
         return group('Do you own or rent this land?', tiles('tenure', TENURE, 'radio', a.tenure)) + group('If you rent: how long is your lease?', tiles('lease', LEASE, 'radio', a.lease)) +
           group('How long have you farmed this land?', tiles('experience', EXPERIENCE, 'radio', a.experience)) + group('Which of these do you already do?', tiles('practices', PRACTICES, 'checkbox', a.practices)) +
           group('Do you keep animals?', tiles('livestock', LIVESTOCK, 'checkbox', a.livestock));
       },
       collect: function (a, r) { a.tenure = one(r, 'tenure'); a.lease = one(r, 'lease'); a.experience = one(r, 'experience'); a.practices = checked(r, 'practices'); a.livestock = checked(r, 'livestock'); } },
-    { id: 'water', short: 'Water', title: 'Is your farm irrigated or rain-fed?', hint: 'This changes whether the irrigation setting is offered.',
+    { id: 'water', short: 'Water', title: 'Is Your Farm Irrigated Or Rain-Fed?', hint: 'This changes whether the irrigation setting is offered.',
       render: function (a) { return tiles('water', WATER, 'radio', a.water); },
       collect: function (a, r) { a.water = one(r, 'water'); } },
-    { id: 'land', short: 'Land', title: 'Your land', hint: 'Your best guess is fine. Pick Not sure for anything you do not know.',
+    { id: 'land', short: 'Land', title: 'Your Land', hint: 'Your best guess is fine. Pick Not sure for anything you do not know.',
       render: function (a) {
         var soil = a.fields.map(function (f) { var l = soilLine(a.site, f.id); return l ? '<li><strong>' + esc(fieldName(f)) + ':</strong> ' + esc(l) + '</li>' : ''; }).join('');
         return (soil ? '<ul class="fs-q-soil" aria-label="USDA soil survey for each field">' + soil + '</ul>' : '') +
@@ -5321,26 +5321,26 @@ window.FS = window.FS || {};
           group('Is the land flat or sloped?', tiles('slope', SLOPE, 'radio', a.slope)) + group('Have you had a soil test in the last 3 years?', tiles('soilTest', YESNO, 'radio', a.soilTest));
       },
       collect: function (a, r) { a.drainage = one(r, 'drainage'); a.tile = one(r, 'tile'); a.slope = one(r, 'slope'); a.soilTest = one(r, 'soilTest'); } },
-    { id: 'limits', short: 'Limits', title: 'What limits you?', hint: 'Pick everything that applies. This keeps us from suggesting things you cannot do.',
+    { id: 'limits', short: 'Limits', title: 'What Limits You?', hint: 'Pick everything that applies. This keeps us from suggesting things you cannot do.',
       render: function (a) {
         return LIMIT_GROUPS.map(function (g) { return group(g[0], tiles('limits', g[1], 'checkbox', a.limits)); }).join('') +
           '<label class="fs-q-label" for="fs-q-limnote">Anything else?</label><input type="text" id="fs-q-limnote" class="fs-q-text" maxlength="300" value="' + esc(a.limitsNote) + '">';
       },
       collect: function (a, r) { a.limits = checked(r, 'limits'); a.limitsNote = text(val(r, 'fs-q-limnote'), 300); } },
-    { id: 'crops', short: "Crops you won't grow", title: "Crops you won't grow or won't try", hint: 'These are left out of the options and the recommendations. Your current plans stay.',
+    { id: 'crops', short: "Crops You Won't Grow", title: "Crops You Won't Grow Or Won't Try", hint: 'These are left out of the options and the recommendations. Your current plans stay.',
       render: function (a) { return tiles('wont', WONT, 'checkbox', a.wont); },
       collect: function (a, r) { a.wont = checked(r, 'wont'); } },
-    { id: 'contracts', short: 'Contracts', title: "How much of next year's crop is already contracted?", hint: 'Contracted grain is sold at a set price, so price changes hurt or help less. Not sure? Leave it as it is: the simulator assumes 30%.',
+    { id: 'contracts', short: 'Contracts', title: "How Much Of Next Year's Crop Is Already Contracted?", hint: 'Contracted grain is sold at a set price, so price changes hurt or help less. Not sure? Leave it as it is: the simulator assumes 30%.',
       render: function (a) {
         var v = a.contracted == null ? 30 : a.contracted;
         return '<div class="fs-q-slider"><label class="fs-sr" for="fs-q-contracted">Percent contracted</label><input type="range" id="fs-q-contracted" min="0" max="100" step="5" value="' + v + '"><output id="fs-q-contracted-out" for="fs-q-contracted">' + v + '%</output></div>';
       },
       collect: function (a, r) { var v = Number(val(r, 'fs-q-contracted')); a.contracted = isFinite(v) ? v : null; },
       mount: function (r) { var i = r.querySelector('#fs-q-contracted'), o = r.querySelector('#fs-q-contracted-out'); i.addEventListener('input', function () { o.textContent = i.value + '%'; }); } },
-    { id: 'budget', short: 'Budget', title: 'What could you spend to try something new?', hint: 'A rough amount for changes like seed or a cover crop, per acre.',
+    { id: 'budget', short: 'Budget', title: 'What Could You Spend To Try Something New?', hint: 'A rough amount for changes like seed or a cover crop, per acre.',
       render: function (a) { return tiles('budget', BUDGETS, 'radio', a.budget) + group('Would you use a cost-share payment?', tiles('costShare', COST_SHARE, 'radio', a.costShare)); },
       collect: function (a, r) { a.budget = one(r, 'budget'); a.costShare = one(r, 'costShare'); } },
-    { id: 'priorities', short: 'Priorities', title: 'What matters most to you?', hint: 'Tap up to 3, in order of importance. Tap again to remove. The first one decides how options are ranked.',
+    { id: 'priorities', short: 'Priorities', title: 'What Matters Most To You?', hint: 'Tap up to 3, in order of importance. Tap again to remove. The first one decides how options are ranked.',
       render: function (a) {
         return '<div class="fs-q-rank" role="group" aria-label="What matters most, up to 3 in order">' + PRIORITIES.map(function (p) {
           var i = a.priorities.indexOf(p);
@@ -5367,13 +5367,13 @@ window.FS = window.FS || {};
           paint();
         });
       } },
-    { id: 'buyers', short: 'Buyers', title: 'Who are your buyers?', hint: 'Pick all that apply.',
+    { id: 'buyers', short: 'Buyers', title: 'Who Are Your Buyers?', hint: 'Pick all that apply.',
       render: function (a) { return tiles('buyers', BUYERS, 'checkbox', a.buyers) + '<label class="fs-q-label" for="fs-q-buyernote">Names or details (optional)</label><input type="text" id="fs-q-buyernote" class="fs-q-text" maxlength="300" value="' + esc(a.buyersNote) + '">'; },
       collect: function (a, r) { a.buyers = checked(r, 'buyers'); a.buyersNote = text(val(r, 'fs-q-buyernote'), 300); } },
-    { id: 'other', short: 'Anything else', title: 'Anything else?', hint: 'Plans, history, something a neighbor tried. Anything that helps.',
+    { id: 'other', short: 'Anything Else', title: 'Anything Else?', hint: 'Plans, history, something a neighbor tried. Anything that helps.',
       render: function (a) { return '<label class="fs-sr" for="fs-q-other">Anything else</label><textarea id="fs-q-other" class="fs-q-text" rows="5" maxlength="600">' + esc(a.other) + '</textarea>'; },
       collect: function (a, r) { a.other = text(val(r, 'fs-q-other'), 600); } },
-    { id: 'review', title: 'Your farm, in short', noSkip: true, next: 'Start',
+    { id: 'review', title: 'Your Farm, In Short', noSkip: true, next: 'Start',
       hint: function (a) { return a.example ? 'This is the example farm. Change any answer to make it yours. Everything not marked is used by the simulator.' : 'Everything not marked below is used by the simulator.'; },
       render: function (a) {
         var rows = Q.review(a), done = {}, html = '';
@@ -5404,7 +5404,7 @@ window.FS = window.FS || {};
       '<p id="fs-setup-err" class="fs-setup-err" role="alert" hidden></p></div>' +
       '<div class="fs-q-nav"><button type="button" class="fs-q-btn" id="fs-q-back">Back</button><button type="button" class="fs-q-btn" id="fs-q-skip">Skip</button><span class="fs-q-spacer"></span>' +
       '<button type="submit" class="fs-btn-primary fs-setup-go" id="fs-q-next">Next</button></div>' +
-      '<div class="fs-q-foot"><button type="button" class="fs-setup-alt" id="fs-setup-example">Use the example farm</button></div></form></div>';
+      '<div class="fs-q-foot"><button type="button" class="fs-setup-alt" id="fs-setup-example">Use The Example Farm</button></div></form></div>';
     card = host.querySelector('.fs-q'); root = host.querySelector('#fs-q-body');
     function $(id) { return host.querySelector('#' + id); }
     function err(msg, el) { var e = $('fs-setup-err'); e.textContent = msg || ''; e.hidden = !msg; if (el) { el.setAttribute('aria-invalid', 'true'); el.focus(); } }
@@ -5692,7 +5692,7 @@ window.FS = window.FS || {};
         if (!f.grain || !(f.normal > 0)) return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td colspan="2">No grain harvest on this plan</td></tr>';
         return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td>' + r0(f.normal) + '</td><td>' + r0(f.p10) + '–' + r0(f.p90) + '</td></tr>';
       }).join('');
-      return '<h3 class="fs-ol-h">Next harvest (' + model.year + '), bushels per acre</h3>' +
+      return '<h3 class="fs-ol-h">Next Harvest (' + model.year + '), Bushels Per Acre</h3>' +
         '<div class="fs-ol-tablewrap"><table class="fs-ol-table fs-ol-harvest"><thead><tr><th scope="col">Field</th><th scope="col">Plan</th><th scope="col">Normal (median)</th><th scope="col">Range (10th–90th)</th></tr></thead><tbody>' + rowsE + '</tbody></table></div>' +
         '<p class="fs-ol-plain">Plainly: these 30 days come before planting. In this model, weather before spring does not change the ' + model.year + ' harvest (each season starts from the same spring soil water), so this table is the spread of all ' + nY + ' past seasons on your current plan, not a forecast. Check back in spring.</p>';
     }
@@ -5701,13 +5701,13 @@ window.FS = window.FS || {};
       var pr = f.pct == null ? null : r1(f.pct), pc = pr == null ? '–' : (pr > 0 ? '+' : pr < 0 ? '−' : '') + Math.abs(pr) + '%';
       return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td>' + r0(f.normal) + '</td><td>' + r0(f.med) + '</td><td>' + r0(f.p10) + '–' + r0(f.p90) + '</td><td class="' + (f.pct <= -1 ? 'is-down' : f.pct >= 1 ? 'is-up' : '') + '">' + pc + '</td></tr>';
     }).join('');
-    return '<h3 class="fs-ol-h">Next harvest (' + model.year + '), bushels per acre</h3>' +
+    return '<h3 class="fs-ol-h">Next Harvest (' + model.year + '), Bushels Per Acre</h3>' +
       '<div class="fs-ol-tablewrap"><table class="fs-ol-table fs-ol-harvest"><thead><tr><th scope="col">Field</th><th scope="col">Plan</th><th scope="col">Normal (median)</th><th scope="col">With these 30 days (median)</th><th scope="col">Range (10th–90th)</th><th scope="col">Change</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
       '<p class="fs-ol-plain">Only these 30 days are known; the rest of the season comes from replaying every past season (' + nY + ' of them), which is where most of the range comes from.' +
       ' Each field keeps its current plan. Days 17–30 are a rough average of many forecasts, so a single frost, heat wave or downpour on those days will not show.</p>';
   }
   function noteHTML() {
-    if (note && note.summary) return '<div class="fs-ol-note"><h3 class="fs-ol-h">What this means <span class="fs-ol-tag">written by Gemini from the numbers above</span></h3><p>' + esc(note.summary) + '</p>' +
+    if (note && note.summary) return '<div class="fs-ol-note"><h3 class="fs-ol-h">What This Means <span class="fs-ol-tag">written by Gemini from the numbers above</span></h3><p>' + esc(note.summary) + '</p>' +
       (note.actions && note.actions.length ? '<ul>' + note.actions.map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') + '</ul>' : '') + '</div>';
     if (noteErr) return '<p class="fs-ol-faint">' + esc(noteErr) + '</p>';
     return model && !model.error && apiBase() ? '<p class="fs-ol-faint">Asking the AI helper for a short note…</p>' : '';
@@ -5759,7 +5759,7 @@ window.FS = window.FS || {};
   }
   function mount(node) {
     el = node; if (!el) return;
-    el.innerHTML = '<div class="fs-panel-head"><h2 class="fs-panel-title">Next 30 days</h2></div><div class="fs-panel-body" aria-live="polite"></div>';
+    el.innerHTML = '<div class="fs-panel-head"><h2 class="fs-panel-title">Next 30 Days</h2></div><div class="fs-panel-body" aria-live="polite"></div>';
     refresh();
   }
 
@@ -5817,7 +5817,7 @@ window.FS = window.FS || {};
       h += '<div class="fs-fm-busy" role="status"><span class="fs-fm-spin" aria-hidden="true"></span>' + (state.upload ? 'Turning your photo into a map' : 'Getting aerial and satellite images, keeping the sharper one, and drawing your map') + '… ' + s + ' s <span class="fs-fm-faint">(usually 20–40 s)</span></div>';
     } else if (state.err) h += '<p class="fs-fm-msg fs-fm-err">' + esc(state.err) + '</p><button type="button" class="fs-fm-btn" id="fs-fm-retry">Try again</button>';
     else if (d) {
-      h += '<div class="fs-fm-seg" role="group" aria-label="Show"><button type="button" data-v="map" aria-pressed="' + (view === 'map') + '">Illustrated map</button><button type="button" data-v="photo" aria-pressed="' + (view === 'photo') + '">Photo it was drawn from</button></div>' +
+      h += '<div class="fs-fm-seg" role="group" aria-label="Show"><button type="button" data-v="map" aria-pressed="' + (view === 'map') + '">Illustrated Map</button><button type="button" data-v="photo" aria-pressed="' + (view === 'photo') + '">Photo It Was Drawn From</button></div>' +
         '<figure class="fs-fm-fig"><img src="' + esc(base() + (view === 'map' ? d.map : d.photo)) + '" alt="' + esc(view === 'map' ? 'Illustrated map of the farm from above: fields, trees, water and roads' : 'Aerial view of the farm from above') + '"></figure>' +
         '<p class="fs-fm-note">' + (d.source === 'upload' ? 'Drawn from your photo.' : 'About ' + (d.widthKm || 1.6) + ' km across, centred on the point. Source: ' + esc(d.detail) + '.' +
           (d.scores ? ' Sharpness score ' + Object.keys(d.scores).map(function (k) { return (k === 'usgs' ? 'USGS aerial ' : k === 's2' ? 'Sentinel-2 ' : k + ' ') + (d.scores[k] == null ? 'no image' : d.scores[k]); }).join(', ') + '; the sharper one was used.' : '')) +
@@ -5868,7 +5868,7 @@ window.FS = window.FS || {};
     panel = p; if (!panel) return;
     body = panel.querySelector('.fs-view-body'); var right = panel.querySelector('.fs-head-right'); if (!body || !right) return;
     tabs = document.createElement('div'); tabs.className = 'fs-fm-tabs'; tabs.setAttribute('role', 'group'); tabs.setAttribute('aria-label', 'View');
-    tabs.innerHTML = '<button type="button" data-t="sim" aria-pressed="true">Simulation</button><button type="button" data-t="map" aria-pressed="false">Farm map</button>';
+    tabs.innerHTML = '<button type="button" data-t="sim" aria-pressed="true">Simulation</button><button type="button" data-t="map" aria-pressed="false">Farm Map</button>';
     right.insertBefore(tabs, right.firstChild);
     layer = document.createElement('section'); layer.className = 'fs-fm'; layer.hidden = true; layer.setAttribute('aria-label', 'Farm map');
     body.appendChild(layer);

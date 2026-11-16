@@ -27,7 +27,7 @@ async function tabTo(page, id, max = 80) { for (let i = 0; i < max; i++) { if (a
 
   // ================================================================ first open
   ok(await page.isVisible('#fs-setup'), 'questionnaire shows on first open');
-  ok(await title(page) === "Let's get to know your farm", 'it opens on the welcome screen');
+  ok(await title(page) === "Let's Get To Know Your Farm", 'it opens on the welcome screen');
   ok(await page.getAttribute('#fs-setup .fs-setup-card', 'role') === 'dialog' && await page.getAttribute('#fs-setup .fs-setup-card', 'aria-modal') === 'true', 'it is a modal dialog');
   ok(await page.evaluate(() => document.activeElement && document.activeElement.id === 'fs-q-title'), 'focus starts on the step heading');
   ok(/\d+ quick questions\. Most are optional\. Then the simulator replays 44 real seasons of NASA weather on your farm\./.test(await page.textContent('#fs-setup')), 'welcome text');
@@ -52,14 +52,14 @@ async function tabTo(page, id, max = 80) { for (let i = 0; i < max; i++) { if (a
 
   // ---- Change opens the review; its links go to the step and come back
   await page.click('#fs-farm-btn'); await page.waitForTimeout(150);
-  ok(await title(page) === 'Your farm, in short', 'Change opens the review step');
+  ok(await title(page) === 'Your Farm, In Short', 'Change opens the review step');
   ok(/Everything not marked is used by the simulator/.test(await page.textContent('#fs-setup')) && /Not answered/.test(await page.textContent('#fs-setup')), 'review explains marks and lists unanswered steps');
   await page.click('#fs-setup .fs-q-change[data-step="water"]'); await page.waitForTimeout(100);
-  ok(/irrigated or rain-fed/.test(await title(page)), 'a Change link opens that step');
+  ok(/irrigated or rain-fed/i.test(await title(page)), 'a Change link opens that step');
   ok(await page.evaluate(() => document.activeElement.id) === 'fs-q-title', 'focus moves to the new step heading');
   ok((await page.textContent('#fs-q-next')) === 'Back to review', 'its Next button says Back to review');
   await pick(page, 'water', 'rainfed'); await next(page);
-  ok(await title(page) === 'Your farm, in short', 'Next returns to the review');
+  ok(await title(page) === 'Your Farm, In Short', 'Next returns to the review');
   ok(/Rain-fed/.test(await page.textContent('#fs-setup .fs-q-review')), 'the review shows the new answer');
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   ok(!(await page.isVisible('#fs-setup')) && await summary(page) === story, 'Escape from Change closes without applying anything');
@@ -75,9 +75,9 @@ async function tabTo(page, id, max = 80) { for (let i = 0; i < max; i++) { if (a
   const other = 'champaign-il';
   const ctx2 = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: 'dark', geolocation: { latitude: 40.12, longitude: -88.25 }, permissions: ['geolocation'] });
   page = await open(ctx2);
-  await next(page); ok(/What should we call you/.test(await title(page)), 'step 1: name');
+  await next(page); ok(/What should we call you/i.test(await title(page)), 'step 1: name');
   await page.fill('#fs-q-name', 'Sam'); await next(page);
-  ok(await title(page) === 'Where is your farm?', 'step 2: location');
+  ok(await title(page) === 'Where Is Your Farm?', 'step 2: location');
   ok(/precise location|address/.test(await page.textContent('#fs-q-hint')), 'location line: use your location or type an address');
   ok(await page.isVisible('#fs-q-locate') && await page.isVisible('#fs-q-addr'), 'location step offers use-my-location and an address box');
   ok(!!(await page.$('#fs-q-site')), 'the nearest data county is kept for the farm');
@@ -86,43 +86,43 @@ async function tabTo(page, id, max = 80) { for (let i = 0; i < max; i++) { if (a
   ok(/Champaign County, Illinois \(\d+ km away\), fitted to your exact spot/.test(geo) && await page.inputValue('#fs-q-site') === 'champaign-il', 'geolocation picks the nearest county: ' + geo);
   await shot(page, 'q-02-location');
   await next(page);
-  ok(await title(page) === 'Your four fields', 'step 3: fields');
+  ok(await title(page) === 'Your Four Fields', 'step 3: fields');
   await page.fill('#fs-q-acres-north', '5'); await next(page);
-  ok(await title(page) === 'Your four fields' && await page.isVisible('#fs-setup-err'), 'acres below 10 is refused with a message');
+  ok(await title(page) === 'Your Four Fields' && await page.isVisible('#fs-setup-err'), 'acres below 10 is refused with a message');
   ok(await page.evaluate(() => document.activeElement.id) === 'fs-q-acres-north', 'focus goes to the bad field');
   const acres = { north: 60, creek: 30, west: 200, south: 100 }, crops = { north: 'soybean', creek: 'soybean', west: 'corn', south: 'corn' };
   for (const k of Object.keys(acres)) { await page.fill('#fs-q-acres-' + k, String(acres[k])); await page.selectOption('#fs-q-crop-' + k, crops[k]); }
   await shot(page, 'q-03-fields');
   await next(page);
-  ok(await title(page) === 'You and your farm', 'step 4: you and your farm');
+  ok(await title(page) === 'You And Your Farm', 'step 4: you and your farm');
   await pick(page, 'tenure', 'rent'); await pick(page, 'lease', 'short'); await pick(page, 'practices', 'covers'); await shot(page, 'q-04-you'); await next(page);
-  ok(/irrigated or rain-fed/.test(await title(page)), 'step 5: water');
+  ok(/irrigated or rain-fed/i.test(await title(page)), 'step 5: water');
   await pick(page, 'water', 'irrigated'); await next(page);
-  ok(await title(page) === 'Your land', 'step 6: land');
+  ok(await title(page) === 'Your Land', 'step 6: land');
   const soil = await page.textContent('.fs-q-soil');
   ok(/North 60:\s*USDA soil survey: Flanagan silt loam, somewhat poorly drained/.test(soil) && /South 100/.test(soil), 'USDA soil survey line per field: ' + soil.replace(/\s+/g, ' ').slice(0, 110));
   await pick(page, 'drainage', 'good'); await pick(page, 'tile', 'no'); await pick(page, 'slope', 'flat'); await pick(page, 'soilTest', 'yes'); await shot(page, 'q-06-land'); await next(page);
-  ok(await title(page) === 'What limits you?', 'step 7: limits');
+  ok(await title(page) === 'What Limits You?', 'step 7: limits');
   ok((await page.$$('#fs-q-body input[name="limits"]')).length === 20, 'all 20 EcoShifters limits');
   await pick(page, 'limits', 'sprayer'); await next(page);
-  ok(/won't grow/.test(await title(page)), 'step 8: crops you won\'t grow');
+  ok(/won't grow/i.test(await title(page)), 'step 8: crops you won\'t grow');
   await pick(page, 'wont', 'oats'); await pick(page, 'wont', 'corn-corn'); await next(page);
-  ok(/contracted/.test(await title(page)), 'step 9: contracts');
+  ok(/contracted/i.test(await title(page)), 'step 9: contracts');
   await page.fill('#fs-q-contracted', '40'); ok(await page.textContent('#fs-q-contracted-out') === '40%', 'slider shows 40%'); await next(page);
-  ok(/spend to try something new/.test(await title(page)), 'step 10: budget');
+  ok(/spend to try something new/i.test(await title(page)), 'step 10: budget');
   await pick(page, 'budget', 'low'); await pick(page, 'costShare', 'yes'); await next(page);
-  ok(await title(page) === 'What matters most to you?', 'step 11: priorities');
+  ok(await title(page) === 'What Matters Most To You?', 'step 11: priorities');
   await page.click('.fs-q-rankbtn[data-p="Soil health"]'); await page.click('.fs-q-rankbtn[data-p="Profit"]');
   ok(await page.textContent('.fs-q-rankbtn[data-p="Soil health"] .fs-q-badge') === '1' && await page.textContent('.fs-q-rankbtn[data-p="Profit"] .fs-q-badge') === '2', 'priorities are numbered in order');
   await page.click('.fs-q-rankbtn[data-p="Less erosion"]'); await page.click('.fs-q-rankbtn[data-p="Food for my family"]');
   ok((await page.$$('.fs-q-rankbtn[aria-pressed="true"]')).length === 3, 'at most 3 priorities');
   await page.click('.fs-q-rankbtn[data-p="Less erosion"]');
   await pick(page, 'trial', 'field'); await page.fill('#fs-q-worries', 'Last two summers were too dry'); await shot(page, 'q-11-priorities'); await next(page);
-  ok(await title(page) === 'Who are your buyers?', 'step 12: buyers');
+  ok(await title(page) === 'Who Are Your Buyers?', 'step 12: buyers');
   await pick(page, 'buyers', 'nobuyer'); await next(page);
-  ok(await title(page) === 'Anything else?', 'step 13: anything else');
+  ok(await title(page) === 'Anything Else?', 'step 13: anything else');
   await page.fill('#fs-q-other', 'Thinking about cattle in two years'); await next(page);
-  ok(await title(page) === 'Your farm, in short', 'step 14: review');
+  ok(await title(page) === 'Your Farm, In Short', 'step 14: review');
   const rv = await page.textContent('#fs-q-body');
   ok(/Champaign County, Illinois/.test(rv) && /I rent it/.test(rv) && /1 year or less/.test(rv) && /I already plant cover crops/.test(rv) && /Irrigated/.test(rv) && /No sprayer/.test(rv) && /40%/.test(rv) && /Under \$50 per acre/.test(rv) && /1\. Soil health/.test(rv) && /One field/.test(rv), 'review lists the answers');
   ok(/Last two summers were too dry/.test(rv) && /noted, not used by the simulator/.test(rv), 'worries are marked "noted, not used by the simulator"');
@@ -219,7 +219,7 @@ async function tabTo(page, id, max = 80) { for (let i = 0; i < max; i++) { if (a
   const ctx3 = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: 'dark' });
   page = await open(ctx3);
   await next(page);
-  let n = 0; while (await title(page) !== 'Your farm, in short' && n < 20) { await skip(page); n++; }
+  let n = 0; while (await title(page) !== 'Your Farm, In Short' && n < 20) { await skip(page); n++; }
   ok(n === 13, 'Skip works on all 13 optional steps (' + n + ')');
   ok(/Not answered/.test(await page.textContent('#fs-q-body')), 'review lists the skipped steps');
   await page.click('#fs-q-next'); await page.waitForTimeout(900);
@@ -235,22 +235,22 @@ async function tabTo(page, id, max = 80) { for (let i = 0; i < max; i++) { if (a
   page = await open(ctx4);
   ok(await tabTo(page, 'fs-q-next'), 'keyboard: reach Start');
   await page.keyboard.press('Enter'); await page.waitForTimeout(80);
-  ok(/What should we call you/.test(await title(page)) && await page.evaluate(() => document.activeElement.id) === 'fs-q-title', 'keyboard: Enter on Start goes to the next step, focus on its heading');
+  ok(/What should we call you/i.test(await title(page)) && await page.evaluate(() => document.activeElement.id) === 'fs-q-title', 'keyboard: Enter on Start goes to the next step, focus on its heading');
   await page.keyboard.press('Tab'); await page.keyboard.type('Kay'); await page.keyboard.press('Enter'); await page.waitForTimeout(80);
-  ok(await title(page) === 'Where is your farm?', 'keyboard: typing a name and pressing Enter moves on');
+  ok(await title(page) === 'Where Is Your Farm?', 'keyboard: typing a name and pressing Enter moves on');
   await page.keyboard.press('Tab');      // the use-my-location button, then the address box
   ok(await page.evaluate(() => document.activeElement.id) === 'fs-q-locate', 'keyboard: Tab reaches use-my-location');
   await page.keyboard.press('Tab');
   ok(await page.evaluate(() => document.activeElement.id) === 'fs-q-addr', 'keyboard: Tab reaches the address box');
   ok(await tabTo(page, 'fs-q-next') && (await page.keyboard.press('Space'), true)); await page.waitForTimeout(80);
-  ok(await title(page) === 'Your four fields', 'keyboard: Space on Next moves on');
-  for (let i = 0; i < 9 && await title(page) !== 'What matters most to you?'; i++) { await tabTo(page, 'fs-q-skip'); await page.keyboard.press('Enter'); await page.waitForTimeout(60); }
-  ok(await title(page) === 'What matters most to you?', 'keyboard: Skip by keyboard through the steps in between');
+  ok(await title(page) === 'Your Four Fields', 'keyboard: Space on Next moves on');
+  for (let i = 0; i < 9 && await title(page) !== 'What Matters Most To You?'; i++) { await tabTo(page, 'fs-q-skip'); await page.keyboard.press('Enter'); await page.waitForTimeout(60); }
+  ok(await title(page) === 'What Matters Most To You?', 'keyboard: Skip by keyboard through the steps in between');
   await page.evaluate(() => document.querySelector('.fs-q-rankbtn').focus());
   await page.keyboard.press('Space'); await page.waitForTimeout(40);
   ok(await page.getAttribute('.fs-q-rankbtn[data-p="Profit"]', 'aria-pressed') === 'true' && /added as number 1/.test(await page.textContent('#fs-q-rank-live')), 'keyboard: Space picks a priority and announces it');
   ok(await tabTo(page, 'fs-q-next')); await page.keyboard.press('Enter'); await page.waitForTimeout(60);
-  while (await title(page) !== 'Your farm, in short') { await tabTo(page, 'fs-q-skip'); await page.keyboard.press('Enter'); await page.waitForTimeout(60); }
+  while (await title(page) !== 'Your Farm, In Short') { await tabTo(page, 'fs-q-skip'); await page.keyboard.press('Enter'); await page.waitForTimeout(60); }
   ok(await tabTo(page, 'fs-q-next')); await page.keyboard.press('Enter'); await page.waitForTimeout(900);
   const kb = await page.evaluate(() => ({ site: FS.engine.site().id, prio: FS.store.get().controls.other.priority, first: document.querySelector('#fs-chat-list .fs-msg').textContent, vis: document.getElementById('fs-setup').hidden, focus: document.activeElement && document.activeElement.id }));
   ok(kb.vis && kb.site === 'story-ia' && kb.prio === 'profit' && /^Hi Kay\./.test(kb.first), 'keyboard: the whole questionnaire can be done without a mouse: ' + JSON.stringify({ site: kb.site, prio: kb.prio }));
@@ -274,7 +274,7 @@ async function tabTo(page, id, max = 80) { for (let i = 0; i < max; i++) { if (a
   ok(h.foot.includes('Champaign County'), 'hash: footer names the site');
   ok(page.errs.length === 0, 'hash: no page errors: ' + page.errs.join('|'));
   await page.click('#fs-farm-btn'); await page.waitForTimeout(100);
-  ok(await title(page) === 'Your farm, in short' && /Champaign County/.test(await page.textContent('#fs-q-body')), 'hash: Change still opens the review, with the linked farm');
+  ok(await title(page) === 'Your Farm, In Short' && /Champaign County/.test(await page.textContent('#fs-q-body')), 'hash: Change still opens the review, with the linked farm');
   await page.close();
   page = await open(c2, '#from=ecoshifters&site=nowhere&irrigation=flood&acres=abc');
   ok(!(await page.isVisible('#fs-setup')) && await page.evaluate(() => FS.store.get().controls.crops.irrigation || 'none') === 'none' && await page.evaluate(() => FS.data.farm.fields.map(f => f.acres).join()) === '80,40,40,120', 'bad hash values ignored');
@@ -285,7 +285,7 @@ async function tabTo(page, id, max = 80) { for (let i = 0; i < max; i++) { if (a
     const c3 = await browser.newContext({ viewport: vp, colorScheme: 'dark', isMobile: true, hasTouch: true });
     page = await open(c3);
     await next(page); await next(page); await next(page); await next(page);   // welcome, name, location, fields -> you and your farm
-    ok(await title(page) === 'You and your farm', label + ': at the long step');
+    ok(await title(page) === 'You And Your Farm', label + ': at the long step');
     const sc = await page.evaluate(() => { const s = document.getElementById('fs-q-scroll'), nx = document.getElementById('fs-q-next').getBoundingClientRect(), card = document.querySelector('.fs-setup-card').getBoundingClientRect(); return { sh: s.scrollHeight, ch: s.clientHeight, ox: document.documentElement.scrollWidth - innerWidth, nextIn: nx.bottom <= innerHeight && nx.top >= 0, cardIn: card.bottom <= innerHeight + 1 && card.top >= 0 }; });
     ok(sc.sh > sc.ch && sc.ox <= 0 && sc.nextIn && sc.cardIn, label + ': the card scrolls inside itself (' + sc.sh + ' > ' + sc.ch + '), no sideways scroll, Next in view');
     await shot(page, 'q-phone-' + vp.width + '-you');
@@ -293,7 +293,7 @@ async function tabTo(page, id, max = 80) { for (let i = 0; i < max; i++) { if (a
     ok(await page.evaluate(() => { const r = document.getElementById('fs-q-next').getBoundingClientRect(); return r.bottom <= innerHeight && r.top >= 0; }), label + ': Next reachable after scrolling');
     await page.evaluate(() => { document.getElementById('fs-q-skip').click(); }); await page.waitForTimeout(80);
     ok(await page.evaluate(() => document.getElementById('fs-q-scroll').scrollTop) === 0, label + ': a new step starts at the top');
-    while (await title(page) !== 'Your farm, in short') { await page.evaluate(() => { const b = document.getElementById('fs-q-skip'); (b && !b.hidden ? b : document.getElementById('fs-q-next')).click(); }); await page.waitForTimeout(40); }
+    while (await title(page) !== 'Your Farm, In Short') { await page.evaluate(() => { const b = document.getElementById('fs-q-skip'); (b && !b.hidden ? b : document.getElementById('fs-q-next')).click(); }); await page.waitForTimeout(40); }
     await shot(page, 'q-phone-' + vp.width + '-review');
     await page.click('#fs-q-next'); await page.waitForTimeout(800);
     ok(!(await page.isVisible('#fs-setup')) && await page.evaluate(() => document.documentElement.scrollWidth - innerWidth) <= 0, label + ': Start works, no sideways scroll');

@@ -211,13 +211,13 @@
   };
 
   var STEPS = [
-    { id: 'welcome', title: "Let's get to know your farm", noSkip: true, next: 'Start',
+    { id: 'welcome', title: "Let's Get To Know Your Farm", noSkip: true, next: 'Start',
       hint: function () { return STEPS.filter(function (q) { return !q.noSkip; }).length + ' quick questions. Most are optional. Then the simulator replays ' + years() + ' real seasons of NASA weather on your farm.'; },
       render: function () { return (FS.i18n && /^https?:$/.test(location.protocol) ? '<div class="fs-q-langrow">' + FS.i18n.selectHTML('fs-q-lang') + '<span class="fs-q-langhint" translate="no">Choose your language · Elige tu idioma · Escolha seu idioma · Choisissez votre langue</span></div>' : '') + '<p class="fs-q-plain">Your answers are saved in this browser. To fit the data to your farm, its location is sent to NASA POWER, USDA (soils and yields), ISRIC SoilGrids, the FCC and US Census lookups and the Open-Meteo forecast. Addresses you type go to the Photon address search (OpenStreetMap). If the server has an AI key, your land answers go to Google Gemini.</p>'; } },
-    { id: 'name', short: 'Name', title: 'What should we call you?', hint: 'Optional. Just used to say hello in the chat.',
+    { id: 'name', short: 'Name', title: 'What Should We Call You?', hint: 'Optional. Just used to say hello in the chat.',
       render: function (a) { return '<label class="fs-q-label" for="fs-q-name">Name or farm name</label><input type="text" id="fs-q-name" class="fs-q-text" maxlength="40" autocomplete="name" value="' + esc(a.name) + '">'; },
       collect: function (a, r) { a.name = text(val(r, 'fs-q-name'), 40); } },
-    { id: 'location', title: 'Where is your farm?', hint: 'Use your precise location, or start typing your address (anywhere in the world) and pick it from the list.',
+    { id: 'location', title: 'Where Is Your Farm?', hint: 'Use your precise location, or start typing your address (anywhere in the world) and pick it from the list.',
       render: function (a) {
         var p = a.point;
         return '<div class="fs-q-geo">' +
@@ -340,7 +340,7 @@
           } catch (e) { loc.disabled = false; say('We could not get your location. Type your address instead.'); }
         });
       } },
-    { id: 'fields', title: 'Your four fields', hint: 'Acres (10 to 640) and last year\'s crop for each.',
+    { id: 'fields', title: 'Your Four Fields', hint: 'Acres (10 to 640) and last year\'s crop for each.',
       render: function (a) {
         return a.fields.map(function (f) {
           var n = labelOf(POS, f.id);
@@ -359,17 +359,17 @@
         a.fields.forEach(function (f) { if (f.raw !== undefined) { f.acres = Math.round(Number(f.raw)); delete f.raw; } });
         return null;
       } },
-    { id: 'you', short: 'You and your farm', title: 'You and your farm', hint: 'This helps us suggest changes that fit how you work. Skip anything you would rather not answer.',
+    { id: 'you', short: 'You And Your Farm', title: 'You And Your Farm', hint: 'This helps us suggest changes that fit how you work. Skip anything you would rather not answer.',
       render: function (a) {
         return group('Do you own or rent this land?', tiles('tenure', TENURE, 'radio', a.tenure)) + group('If you rent: how long is your lease?', tiles('lease', LEASE, 'radio', a.lease)) +
           group('How long have you farmed this land?', tiles('experience', EXPERIENCE, 'radio', a.experience)) + group('Which of these do you already do?', tiles('practices', PRACTICES, 'checkbox', a.practices)) +
           group('Do you keep animals?', tiles('livestock', LIVESTOCK, 'checkbox', a.livestock));
       },
       collect: function (a, r) { a.tenure = one(r, 'tenure'); a.lease = one(r, 'lease'); a.experience = one(r, 'experience'); a.practices = checked(r, 'practices'); a.livestock = checked(r, 'livestock'); } },
-    { id: 'water', short: 'Water', title: 'Is your farm irrigated or rain-fed?', hint: 'This changes whether the irrigation setting is offered.',
+    { id: 'water', short: 'Water', title: 'Is Your Farm Irrigated Or Rain-Fed?', hint: 'This changes whether the irrigation setting is offered.',
       render: function (a) { return tiles('water', WATER, 'radio', a.water); },
       collect: function (a, r) { a.water = one(r, 'water'); } },
-    { id: 'land', short: 'Land', title: 'Your land', hint: 'Your best guess is fine. Pick Not sure for anything you do not know.',
+    { id: 'land', short: 'Land', title: 'Your Land', hint: 'Your best guess is fine. Pick Not sure for anything you do not know.',
       render: function (a) {
         var soil = a.fields.map(function (f) { var l = soilLine(a.site, f.id); return l ? '<li><strong>' + esc(fieldName(f)) + ':</strong> ' + esc(l) + '</li>' : ''; }).join('');
         return (soil ? '<ul class="fs-q-soil" aria-label="USDA soil survey for each field">' + soil + '</ul>' : '') +
@@ -377,26 +377,26 @@
           group('Is the land flat or sloped?', tiles('slope', SLOPE, 'radio', a.slope)) + group('Have you had a soil test in the last 3 years?', tiles('soilTest', YESNO, 'radio', a.soilTest));
       },
       collect: function (a, r) { a.drainage = one(r, 'drainage'); a.tile = one(r, 'tile'); a.slope = one(r, 'slope'); a.soilTest = one(r, 'soilTest'); } },
-    { id: 'limits', short: 'Limits', title: 'What limits you?', hint: 'Pick everything that applies. This keeps us from suggesting things you cannot do.',
+    { id: 'limits', short: 'Limits', title: 'What Limits You?', hint: 'Pick everything that applies. This keeps us from suggesting things you cannot do.',
       render: function (a) {
         return LIMIT_GROUPS.map(function (g) { return group(g[0], tiles('limits', g[1], 'checkbox', a.limits)); }).join('') +
           '<label class="fs-q-label" for="fs-q-limnote">Anything else?</label><input type="text" id="fs-q-limnote" class="fs-q-text" maxlength="300" value="' + esc(a.limitsNote) + '">';
       },
       collect: function (a, r) { a.limits = checked(r, 'limits'); a.limitsNote = text(val(r, 'fs-q-limnote'), 300); } },
-    { id: 'crops', short: "Crops you won't grow", title: "Crops you won't grow or won't try", hint: 'These are left out of the options and the recommendations. Your current plans stay.',
+    { id: 'crops', short: "Crops You Won't Grow", title: "Crops You Won't Grow Or Won't Try", hint: 'These are left out of the options and the recommendations. Your current plans stay.',
       render: function (a) { return tiles('wont', WONT, 'checkbox', a.wont); },
       collect: function (a, r) { a.wont = checked(r, 'wont'); } },
-    { id: 'contracts', short: 'Contracts', title: "How much of next year's crop is already contracted?", hint: 'Contracted grain is sold at a set price, so price changes hurt or help less. Not sure? Leave it as it is: the simulator assumes 30%.',
+    { id: 'contracts', short: 'Contracts', title: "How Much Of Next Year's Crop Is Already Contracted?", hint: 'Contracted grain is sold at a set price, so price changes hurt or help less. Not sure? Leave it as it is: the simulator assumes 30%.',
       render: function (a) {
         var v = a.contracted == null ? 30 : a.contracted;
         return '<div class="fs-q-slider"><label class="fs-sr" for="fs-q-contracted">Percent contracted</label><input type="range" id="fs-q-contracted" min="0" max="100" step="5" value="' + v + '"><output id="fs-q-contracted-out" for="fs-q-contracted">' + v + '%</output></div>';
       },
       collect: function (a, r) { var v = Number(val(r, 'fs-q-contracted')); a.contracted = isFinite(v) ? v : null; },
       mount: function (r) { var i = r.querySelector('#fs-q-contracted'), o = r.querySelector('#fs-q-contracted-out'); i.addEventListener('input', function () { o.textContent = i.value + '%'; }); } },
-    { id: 'budget', short: 'Budget', title: 'What could you spend to try something new?', hint: 'A rough amount for changes like seed or a cover crop, per acre.',
+    { id: 'budget', short: 'Budget', title: 'What Could You Spend To Try Something New?', hint: 'A rough amount for changes like seed or a cover crop, per acre.',
       render: function (a) { return tiles('budget', BUDGETS, 'radio', a.budget) + group('Would you use a cost-share payment?', tiles('costShare', COST_SHARE, 'radio', a.costShare)); },
       collect: function (a, r) { a.budget = one(r, 'budget'); a.costShare = one(r, 'costShare'); } },
-    { id: 'priorities', short: 'Priorities', title: 'What matters most to you?', hint: 'Tap up to 3, in order of importance. Tap again to remove. The first one decides how options are ranked.',
+    { id: 'priorities', short: 'Priorities', title: 'What Matters Most To You?', hint: 'Tap up to 3, in order of importance. Tap again to remove. The first one decides how options are ranked.',
       render: function (a) {
         return '<div class="fs-q-rank" role="group" aria-label="What matters most, up to 3 in order">' + PRIORITIES.map(function (p) {
           var i = a.priorities.indexOf(p);
@@ -423,13 +423,13 @@
           paint();
         });
       } },
-    { id: 'buyers', short: 'Buyers', title: 'Who are your buyers?', hint: 'Pick all that apply.',
+    { id: 'buyers', short: 'Buyers', title: 'Who Are Your Buyers?', hint: 'Pick all that apply.',
       render: function (a) { return tiles('buyers', BUYERS, 'checkbox', a.buyers) + '<label class="fs-q-label" for="fs-q-buyernote">Names or details (optional)</label><input type="text" id="fs-q-buyernote" class="fs-q-text" maxlength="300" value="' + esc(a.buyersNote) + '">'; },
       collect: function (a, r) { a.buyers = checked(r, 'buyers'); a.buyersNote = text(val(r, 'fs-q-buyernote'), 300); } },
-    { id: 'other', short: 'Anything else', title: 'Anything else?', hint: 'Plans, history, something a neighbor tried. Anything that helps.',
+    { id: 'other', short: 'Anything Else', title: 'Anything Else?', hint: 'Plans, history, something a neighbor tried. Anything that helps.',
       render: function (a) { return '<label class="fs-sr" for="fs-q-other">Anything else</label><textarea id="fs-q-other" class="fs-q-text" rows="5" maxlength="600">' + esc(a.other) + '</textarea>'; },
       collect: function (a, r) { a.other = text(val(r, 'fs-q-other'), 600); } },
-    { id: 'review', title: 'Your farm, in short', noSkip: true, next: 'Start',
+    { id: 'review', title: 'Your Farm, In Short', noSkip: true, next: 'Start',
       hint: function (a) { return a.example ? 'This is the example farm. Change any answer to make it yours. Everything not marked is used by the simulator.' : 'Everything not marked below is used by the simulator.'; },
       render: function (a) {
         var rows = Q.review(a), done = {}, html = '';
@@ -460,7 +460,7 @@
       '<p id="fs-setup-err" class="fs-setup-err" role="alert" hidden></p></div>' +
       '<div class="fs-q-nav"><button type="button" class="fs-q-btn" id="fs-q-back">Back</button><button type="button" class="fs-q-btn" id="fs-q-skip">Skip</button><span class="fs-q-spacer"></span>' +
       '<button type="submit" class="fs-btn-primary fs-setup-go" id="fs-q-next">Next</button></div>' +
-      '<div class="fs-q-foot"><button type="button" class="fs-setup-alt" id="fs-setup-example">Use the example farm</button></div></form></div>';
+      '<div class="fs-q-foot"><button type="button" class="fs-setup-alt" id="fs-setup-example">Use The Example Farm</button></div></form></div>';
     card = host.querySelector('.fs-q'); root = host.querySelector('#fs-q-body');
     function $(id) { return host.querySelector('#' + id); }
     function err(msg, el) { var e = $('fs-setup-err'); e.textContent = msg || ''; e.hidden = !msg; if (el) { el.setAttribute('aria-invalid', 'true'); el.focus(); } }
