@@ -51,7 +51,7 @@
     s9t: "Your Results",
     s9: "This tells you how your farm does in a normal year: how much of a normal crop you get, and what it earns.",
     s10t: "Every Season Since 1982",
-    s10: "Each small square is one real season of weather on your farm. Olive means a good season and brown means a bad one. Press a square to see that season.",
+    s10: "Each small square is one real season of weather on your farm. Olive means a good season, brown means a bad one, and grey means about normal. Press a square to see that season.",
     s11t: "Ask In Your Own Words",
     s11: "Type a what-if, for example: What if July is very dry? Then press Send. The answers also compare the options for each field. Press More to read about an option.",
     s12t: "The Next 30 Days",
