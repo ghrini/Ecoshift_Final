@@ -5044,8 +5044,8 @@ window.FS = window.FS || {};
     // Season counts are money comparisons, so they are left out when money is not shown (oats placeholders).
     if (it.moneyNote) return '';
     if (it.isCurrent || it.betterSeasons == null || !it.nSeasons) return '';
-    return it.betterSeasons === 0 ? 'earned less than your current plan in every one of the ' + it.nSeasons + ' past seasons'
-      : 'earned more than your current plan in ' + it.betterSeasons + ' of ' + it.nSeasons + ' past seasons';
+    return it.betterSeasons === 0 ? 'earned less than your current plan in every one of the ' + it.nSeasons + ' past seasons the model replayed (a model estimate; small gaps are within its error)'
+      : 'earned more than your current plan in ' + it.betterSeasons + ' of ' + it.nSeasons + ' past seasons the model replayed';
   }
   function itemHtml(it, idx, kind) {
     var f = fieldById(it.fieldId), seasons = bits(it), lead, more = [];
