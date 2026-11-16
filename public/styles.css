@@ -448,3 +448,13 @@ body.on-sim .site-footer { display: none; }
 .helpers li > span { color: var(--muted); line-height: 1.45; }
 .helper-tag { margin: 0; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
 .helpers li.is-ai .helper-tag { color: var(--ecru); }
+
+/* the 14 example farms open in the simulator */
+.farm-link { display: block; color: inherit; text-decoration: none; border-radius: 12px; }
+.farm-link img { transition: border-color .15s, transform .15s; }
+.farm-link:hover img, .farm-link:focus-visible img { border-color: var(--accent); transform: translateY(-2px); }
+.farm-link:focus-visible { outline: 2px solid var(--ecru); outline-offset: 4px; }
+.farm-open { display: block; margin-top: 2px; color: var(--ecru); font-size: 0.82rem; opacity: 0; transition: opacity .15s; }
+.farm-link:hover .farm-open, .farm-link:focus-visible .farm-open { opacity: 1; }
+@media (hover: none) { .farm-open { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .farm-link img, .farm-open { transition: none; } .farm-link:hover img, .farm-link:focus-visible img { transform: none; } }
