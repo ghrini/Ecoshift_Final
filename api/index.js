@@ -3,6 +3,7 @@
 // limit of 12 functions per deployment.
 // The rewrite passes the original path as ?__p=...; if Vercel already hands us the original URL, it is kept.
 module.exports = (req, res) => {
+  if (req.headers["x-ecoshift-debug"] === "1") { res.setHeader("Content-Type", "application/json"); return res.end(JSON.stringify({ url: req.url, method: req.method, matched: req.headers["x-matched-path"] || null, invoke: req.headers["x-invoke-path"] || null, now: req.headers["x-now-route-matches"] || null })); }
   const i = req.url.indexOf("?");
   if (i >= 0) {
     let p = null;
