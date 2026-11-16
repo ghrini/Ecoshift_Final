@@ -1,3 +1,5 @@
+<h1 align="center"><a href="https://ecoshift-final-8dsi.vercel.app/">Try EcoShift: ecoshift-final-8dsi.vercel.app</a></h1>
+
 <p align="center"><img src="public/images/logo-512.png" width="96" alt="EcoShift logo"></p>
 
 <h1 align="center">EcoShift</h1>
