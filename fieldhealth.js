@@ -177,7 +177,10 @@ function analyse(f, rows, heat, normal, now) {
   const w1 = slope(rows.filter((r) => t(r) >= lastT - 21)), w0 = slope(rows.filter((r) => t(r) < lastT - 21 && t(r) >= lastT - 42));
   o.momentum = { perWeek: round(w1, 3), before: round(w0, 3),
     word: w1 == null ? "not enough recent images" : w1 > 0.03 ? "growing fast" : w1 > 0.005 ? "growing" : w1 > -0.005 ? "steady" : w1 > -0.03 ? "slowing down" : "dropping",
-    accel: w1 != null && w0 != null ? (w1 - w0 > 0.01 ? "speeding up" : w1 - w0 < -0.01 ? "slowing" : "about the same pace") : null };
+    // when greenness is falling, a rising rate means the drop is easing, not that growth is speeding up
+    accel: w1 != null && w0 != null ? (w1 < -0.005
+      ? (w1 - w0 > 0.01 ? "the drop is easing" : w1 - w0 < -0.01 ? "the drop is getting faster" : "dropping at about the same pace")
+      : (w1 - w0 > 0.01 ? "speeding up" : w1 - w0 < -0.01 ? "slowing" : "about the same pace")) : null };
   // health scores (0-100) from the peak of the season (or now, mid-season)
   const ref = harvested || /past peak|mature|R5|R6|R7/.test(stage) ? peak : last;
   const sc = (x) => (x == null ? null : Math.round(clamp(x, 0, 1) * 100));
