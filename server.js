@@ -46,21 +46,29 @@ function loadEnv(file) {
 
 /* ---------------- Gemini ---------------- */
 // One Gemini call that must answer with JSON matching schema; retries other models when one is busy or retired.
-async function geminiJSON(system, userText, schema) {
+// opts.thinking: let the model think before answering (the chat); opts.model: a different model for this call.
+async function geminiJSON(system, userText, schema, opts = {}) {
   const body = {
     systemInstruction: { parts: [{ text: system }] },
     contents: [{ role: "user", parts: [{ text: userText }] }],
-    generationConfig: { responseMimeType: "application/json", responseSchema: schema, temperature: 0.4 },
+    generationConfig: { responseMimeType: "application/json", responseSchema: schema, temperature: opts.temperature ?? 0.4 },
   };
-  let res = await geminiRequest(geminiModel, body);
+  if (opts.thinking) body.generationConfig.thinkingConfig = { thinkingBudget: 4096 };
+  const first = opts.model || geminiModel;
+  let res = await geminiRequest(first, body);
+  if (res.status === 400 && opts.thinking) {
+    // A model that cannot take a thinking budget: ask again without it.
+    const peek = await res.clone().json().catch(() => ({}));
+    if (/thinking/i.test(peek.error?.message || "")) { delete body.generationConfig.thinkingConfig; res = await geminiRequest(first, body); }
+  }
   if (res.status === 404 || res.status === 503) {
     // Model retired (404) or overloaded (503): try the next newest Flash-Lite models (fast), up to 2 more.
     const retired = res.status === 404;
-    const others = (await listFlashModels()).filter((m) => m !== geminiModel).slice(0, 2);
+    const others = (await listFlashModels()).filter((m) => m !== first).slice(0, 2);
     for (const m of others) {
       console.log(`Gemini model "${geminiModel}" returned ${res.status}; trying "${m}".`);
       res = await geminiRequest(m, body);
-      if (res.ok) { if (retired) geminiModel = m; break; } // a busy model stays the default
+      if (res.ok) { if (retired && !opts.model) geminiModel = m; break; } // a busy model stays the default
     }
   }
   const json = await res.json().catch(() => ({}));
@@ -81,7 +89,7 @@ async function geminiRequest(model, body) {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_KEY },
       body: JSON.stringify(body),
-      signal: AbortSignal.timeout(25000),
+      signal: AbortSignal.timeout(40000),
     });
   } catch (e) {
     if (e.name !== "TimeoutError") throw e;
@@ -114,7 +122,7 @@ function serveStatic(req, res) {
   const file = path.normalize(path.join(PUBLIC, urlPath.endsWith("/") ? urlPath + "index.html" : urlPath));
   const rel = path.relative(PUBLIC, file);
   const hidden = rel.split(path.sep).some((part) => part.startsWith("."));
-  const serverOnly = /^(server|farmfit|farmmap|sim\.test)\.js$/i.test(path.basename(file));
+  const serverOnly = /^(server|farmfit|farmmap|chatai|sim\.test)\.js$/i.test(path.basename(file));
   const ext = path.extname(file).toLowerCase();
   if (rel.startsWith("..") || path.isAbsolute(rel) || hidden || serverOnly || !MIME[ext]) return send(res, 404, "Not found");
   fs.stat(file, (err, st) => {
@@ -166,7 +174,7 @@ function send(res, status, body) {
 }
 
 // Each visitor gets a fair number of AI calls, so a shared link can't run up the key's bill.
-const AI_LIMIT = { localfit: 10, outlooknote: 12, translate: 120, geocode: 150, farmmap: 20, all: 600 }; // calls per visitor per 10 minutes; "all" = everyone together
+const AI_LIMIT = { localfit: 10, outlooknote: 12, chat: 40, translate: 120, geocode: 150, farmmap: 20, all: 600 }; // calls per visitor per 10 minutes; "all" = everyone together
 const WINDOW = 10 * 60_000;
 // X-Forwarded-For is only believed when TRUST_PROXY says how many proxies of ours sit in front of the server (0 = none: use the socket address).
 // With N hops the visitor is the Nth address from the right; anything further left was written by the visitor and can be faked.
@@ -194,6 +202,7 @@ function overLimit(req, kind) {
 }
 const FIT = require("./farmfit")({ geminiJSON, hasKey: () => !!GEMINI_KEY, readBody, send, UserError });
 const MAP = require("./farmmap")({ send });
+const CHAT = require("./chatai")({ geminiJSON, hasKey: () => !!GEMINI_KEY, readBody, send, UserError, noKey: NO_KEY });
 const TOO_MANY = { error: "That's a lot of requests in a short time. Wait a few minutes and try again." };
 const oops = (res) => (e) => { console.error(e); send(res, 500, { error: "Something went wrong on our side. Try again in a minute." }); };
 
@@ -246,6 +255,7 @@ function handle(req, res) {
   if (req.method === "GET" && req.url.startsWith("/api/farmmap/img/")) return MAP.handleImage(req, res);
   if (req.method === "GET" && req.url.startsWith("/api/geocode?")) return overLimit(req, "geocode") ? send(res, 429, TOO_MANY) : FIT.handleGeocode(req, res).catch(oops(res));
   if (req.method === "POST" && req.url === "/api/translate") return overLimit(req, "translate") ? send(res, 429, TOO_MANY) : handleTranslate(req, res).catch(oops(res));
+  if (req.method === "POST" && req.url === "/api/chat") return overLimit(req, "chat") ? send(res, 429, TOO_MANY) : CHAT.handleChat(req, res).catch(oops(res));
   if (req.method === "POST" && req.url === "/api/outlooknote") return overLimit(req, "outlooknote") ? send(res, 429, TOO_MANY) : FIT.handleOutlookNote(req, res).catch(oops(res));
   if (req.method === "GET" || req.method === "HEAD") return serveStatic(req, res);
   send(res, 405, "Method not allowed");

@@ -111,7 +111,8 @@ FS.data = {
     weather: { scenario: 'typical', tempShift: 0, rainChange: 0, events: [] },   // events: up to 3 of { type: 'dryspell'|'wetspell'|'heatwave', month: 1-12, severity: 'moderate'|'severe' } (API_V3 section 2)
     crops:   { plans: { north: 'soy', creek: 'soy', west: 'corn', south: 'corn' },
                trialAcres: { north: 80, creek: 40, west: 40, south: 120 },
-               plantShiftDays: 0 },   // days earlier (-) or later (+) than the usual planting dates, -21..21 in steps of 7 (API_V3 section 1)
+               plantShiftDays: 0,
+               soilWaterPct: 0 },   // how much more (+) or less (-) water the soil holds than the soil survey says, -60..40 % (set from the chat)   // days earlier (-) or later (+) than the usual planting dates, -21..21 in steps of 7 (API_V3 section 1)
     other:   { priceChange: 0, nitrogenChange: 0, contracted: 30, costShare: false, priority: 'balanced' }   // priority: 'balanced' | 'profit' | 'risk' | 'cover'
   }
 };
