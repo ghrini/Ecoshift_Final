@@ -554,7 +554,8 @@ textarea.fs-q-text { resize: vertical; min-height: 3.4em; }
 .fs-scrollhint { position: absolute; left: 50%; z-index: 3; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
   border: 1px solid var(--on-bg-accent, var(--border)); border-radius: 999px; background: var(--panel); color: var(--text); font: 600 13px/1.3 var(--font-sans);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); cursor: pointer; white-space: nowrap; }
-.fs-scrollhint-down { transform: translate(-50%, -100%); }
+.fs-scrollhint-up { transform: translate(-50%, -100%); }
+.fs-scrollhint-down { transform: translate(-50%, 0); }
 .fs-scrollhint:hover { color: var(--on-bg-accent, var(--text)); }
 .fs-scrollhint[hidden] { display: none; }
 @media (prefers-reduced-motion: no-preference) { .fs-scrollhint { animation: fs-hint-in 0.2s ease-out; } }
@@ -655,6 +656,12 @@ textarea.fs-q-text { resize: vertical; min-height: 3.4em; }
 .fs-cn-fresh i { font-style: normal; opacity: 0.8; }
 .fs-cn-fresh .fs-cn-auto { border-style: dashed; }
 .fs-fm-tabs button { white-space: nowrap; }
+
+/* helper trace under each chat reply */
+#fs-chat .fs-panel-body .fs-trace, #fs-chat .fs-panel-body .fs-trace * { font-size: 14px; line-height: 1.5; }
+.fs-trace { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); color: var(--text-muted); }
+#fs-chat .fs-panel-body .fs-trace .fs-trace-label { color: var(--umber); font-weight: 600; margin-right: 4px; }
+.fs-trace-arrow { color: var(--umber); margin: 0 2px; }
 
 /* Bird's-eye view styles. Every selector is scoped under #fs-view or starts with .fv- (tokens only for color). */
 #fs-view { position: relative; display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: var(--panel); color: var(--text); font-family: var(--font-sans); }
@@ -4353,7 +4360,7 @@ window.FS = window.FS || {};
 
     // quick intents on the whole text
     if (/\breset\b|start over|back to normal|clear (?:everything|all)(?! (?:the |my )?(?:weather )?(?:events?|spells?))|\bdefaults?\b/.test(t))
-      return { reply: 'Reset all controls to your current plans in a typical year. Running.', actions: resetActions().concat([{ type: 'run', label: 'Typical year · current plans' }]) };
+      return { reply: 'Reset all controls to your current plans in a typical season (2011 weather). Running.', actions: resetActions().concat([{ type: 'run', label: 'Typical Season (2011 Weather) · Current Plans' }]) };
     if (/^\s*undo\b|\bundo (?:that|it|the last)|^\s*(?:go back|take that back|revert)\b/.test(t)) {
       if (!undoStack.length) return { reply: 'There is nothing to undo.', actions: [] };
       var what = undoDiff(controls, undoStack[undoStack.length - 1]);
@@ -4363,6 +4370,19 @@ window.FS = window.FS || {};
     var Q_LEAD = /^\s*(?:and |but |so |ok |okay )?(?:why|how|which|where|can you|could you|is it|is this|is that|are you|should i|what is|whats|what are|what happens|will it|will this|do you|does it|explain|tell me why)\b/.test(t);
     var SUP = /\b(?:safest|cheapest|most profitable|least risky|lowest risk|most money|highest profit)\b/.test(t) && !/\b(?:care|want|prefer|focus|rank|sort|priority|goal|worried|interested|optimi[sz]e)\b/.test(t) && (Q_LEAD || t.length < 45);
     if (!CMD && (Q_LEAD || SUP)) { var qa = answerQuestion(t, state); if (qa) return qa; }
+
+    // ---- less water / irrigation cut: irrigation amounts are not modelled, so the closest real scenario is a dry July and August
+    var waterCut = false;
+    if (!(Q_LEAD && !CMD)) {
+      var WC = /\b(?:(?:much |a lot |a little |a bit )?(?:less|lower|reduced?|fewer|cut|cuts|limited|restricted?|short on|low) (?:in |on |of )?(?:my |the |our )?(?:irrigation|irrigating|water(?: allocation| supply| rights?)?|allocation)(?! (?:use|usage|hungry|intensive|loss|runoff|holding))|(?:my |the |our )?(?:irrigation|water)(?: allocation| supply| rights?)? (?:is |are |was |got |gets |being |will be |has been )?(?:cut|reduced|lowered|restricted|limited|short|cut back)\b|\bwater (?:shortage|restrictions?|cutbacks?)\b|\bnot enough water\b|\bwater is (?:short|tight|scarce)\b|\birrigate (?:a lot |a little )?less\b)/i;
+      var wm = WC.exec(raw);
+      if (wm) {
+        waterCut = true; var sev = /\b(?:much|a lot|severe\w*|drastic\w*|half|big)\b/i.test(wm[0]);
+        raw = raw.replace(WC, sev ? 'severe dry July and severe dry August' : 'dry July and dry August');
+        t = raw.toLowerCase().replace(/[−–]/g, '-').replace(/['’]/g, ''); tk = tokenize(raw); n = tk.length;
+        notes.push('Irrigation amounts and water allocations are not modeled yet (irrigation here is one inch a week in set months). I used a ' + (sev ? 'severe ' : '') + 'dry July and August as the closest stand-in for having less water.');
+      }
+    }
 
     // ---- token classification
     for (i = 0; i < n; i++) {
@@ -4558,7 +4578,7 @@ window.FS = window.FS || {};
           else dropped.push(evList([e])[0]);
         });
         if (dropped.length) notes.push('Three weather events at most, so I left out ' + dropped.join(' and ') + '. Say "remove the events" to start again.');
-        if (newHeat) notes.push('A heat wave shows up in this model mostly as extra water use. The damage from the heat itself could not be measured from the data, so none is added.');
+        if (newHeat) notes.push('A heat wave shows up in this model mostly as extra water use. The damage from the heat itself could not be measured from the data, so none is added. That is why heat alone changes little here: what moves yield in this model is water, and the extra heat only hurts when the soil is already running dry.');
       }
       if (JSON.stringify(list) !== JSON.stringify(cur)) {
         actions.push({ type: 'setControl', path: 'weather.events', value: list }); planned['weather.events'] = list;
@@ -4839,8 +4859,8 @@ window.FS = window.FS || {};
         notes.push(cap(planPlain(pl)) + ' is not an option on ' + names.join(' and ') + ', which follow ' + lcs.join(' and ') + ', so I left ' + (names.length > 1 ? 'them' : 'it') + ' as ' + (names.length > 1 ? 'they were' : 'it was') + '.');
       });
       if (usedDefault) notes.push('You did not name a field, so I used ' + fieldById(def).name + ' (the one selected).');
-    } else if (fieldsNamed.length && !(isCmp || isReco)) {
-      // only a field was named: show it
+    } else if (fieldsNamed.length && !(isCmp || isReco) && /\b(?:show|select|open|view|display|go to|switch to|look at|focus on|pull up|see)\b/.test(t)) {
+      // a field was named with a clear show/select/open intent: show it
       parsed = true;
       var fid0 = fieldsNamed[0].id;
       if (fid0 !== state.selectedField) { actions.push({ type: 'selectField', id: fid0 }); applied.push('selected ' + fieldById(fid0).name); } else same.push(fieldById(fid0).name + ' is already selected');
@@ -4981,6 +5001,22 @@ window.FS = window.FS || {};
       '<div class="fs-rec-more" hidden><ul class="fs-detail-list">' + more.join('') + cardLines(it, kind) + '</ul>' +
       '<button type="button" class="fs-linkbtn" data-act="sim" data-i="' + idx + '">Show on map</button></div></li>';
   }
+  // ---------- the helper trace: which helpers ran for one reply, recorded as the code runs ----------
+  var turn = null, turnStart = 0;
+  function beginTurn(first) { turn = { steps: first ? [first] : [], done: false }; turnStart = S.get().chat.length; }
+  function step(s) { if (turn && s && turn.steps.indexOf(s) < 0) turn.steps.push(s); }
+  function traceHtml(steps) { return '<div class="fs-trace"><span class="fs-trace-label">How This Answer Was Made</span> ' + steps.map(esc).join(' <span class="fs-trace-arrow" aria-hidden="true">\u2192</span> ') + '</div>'; }
+  function seasonCount() { return climYears().length || 44; }
+  function attachTrace() {
+    if (!turn || turn.done || !turn.steps.length) return;
+    var chat = S.get().chat; if (chat.length <= turnStart) return;
+    var m = chat[chat.length - 1]; if (m.role !== 'assistant') return;
+    turn.done = true; m.trace = turn.steps.slice();
+    var els = listEl ? listEl.querySelectorAll('.fs-msg.assistant:not(.fs-thinking)') : [];
+    var el = els[els.length - 1];
+    if (el && !el.querySelector('.fs-trace')) el.insertAdjacentHTML('beforeend', traceHtml(m.trace));
+  }
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
   function renderMessage(m) {
     var d = document.createElement('div');
     d.className = 'fs-msg ' + m.role;
@@ -4991,6 +5027,7 @@ window.FS = window.FS || {};
     var items = m.items || m.recs;
     if (items && items.length) { h += '<ul class="fs-recs">' + items.map(function (r, i) { return itemHtml(r, i, m.kind || (m.recs ? 'rec' : 'cmp')); }).join('') + '</ul>'; d._items = items; }
     if (m.foot) h += '<p>' + esc(m.foot) + '</p>';
+    if (m.trace && m.trace.length) h += traceHtml(m.trace);
     d.innerHTML = h;
     return d;
   }
@@ -5043,7 +5080,11 @@ window.FS = window.FS || {};
     });
     return out;
   }
-  function stackNote() { var act = activeChanges(); return act.length >= 2 ? ' Still in effect together: ' + act.join(', ') + '. Say "reset" to go back to a typical year.' : ''; }
+  function stackNote() { var act = activeChanges(); return act.length >= 2 ? ' Still in effect together: ' + act.join(', ') + '. Say "reset" to go back to a typical season (2011 weather).' : ''; }
+  function stepAnalysis() {
+    var cur = S.get().current, n = cur && cur.summary ? recsFrom(cur.summary).length : 0;
+    step(n ? 'Analysis compared the plans and found ' + plural(n, 'option', 'options') + ' worth a look' : 'Analysis compared the plans and found nothing that beats your current ones');
+  }
   function execute(actions) {
     var ran = null, prioBefore = (S.get().controls.other || {}).priority;
     if (actions.some(function (a) { return a.type === 'undo'; })) {
@@ -5052,7 +5093,8 @@ window.FS = window.FS || {};
         if (cur[p] === tgt[p]) return;
         A.setControl(p, p === 'weather.events' ? JSON.parse(tgt[p]) : tgt[p], 'chat');
       });
-      A.runSimulation('chat', 'Undo'); A.addChat({ role: 'assistant', text: resultLine() });
+      step('Undo put back the earlier settings'); A.runSimulation('chat', 'Undo'); step('Crop Model replayed ' + seasonCount() + ' NASA POWER seasons'); stepAnalysis();
+      A.addChat({ role: 'assistant', text: resultLine() }); attachTrace();
       return;
     }
     if (actions.some(function (a) { return a.type === 'setControl'; })) undoStack.push(S.snapshot ? S.snapshot() : clone(S.get().controls));
@@ -5062,22 +5104,35 @@ window.FS = window.FS || {};
       else if (a.type === 'run') { A.runSimulation('chat', a.label); ran = a.label; }
     });
     if (ran) {
-      A.addChat({ role: 'assistant', text: resultLine() + stackNote() });
+      step('Crop Model replayed ' + seasonCount() + ' NASA POWER seasons'); stepAnalysis();
+      A.addChat({ role: 'assistant', text: resultLine() + stackNote() }); attachTrace();
       var pNow = (S.get().controls.other || {}).priority; if (pNow !== lastRecPriority && pNow !== prioBefore || (pNow !== lastRecPriority && actions.some(function (a) { return a.path === 'other.priority'; }))) FS.chat.postRecs(false);
     }
   }
   function send(text) {
     text = String(text || '').trim(); if (!text) return;
     A.addChat({ role: 'user', text: text });
-    if (FS.i18n && FS.i18n.active()) { FS.i18n.toEnglish(text).then(answer); return; }   // the farmer's own language: read it in English
+    if (FS.i18n && FS.i18n.active()) { FS.i18n.toEnglish(text).then(function (en) { answer(en, 'Translator read your message in English'); }); return; }   // the farmer's own language: read it in English
     answer(text);
   }
-  function answer(text) {
-    var out;
+  function noAiText(out) {
+    var keep = out && out.reply && !/^Sorry, I did not catch|^Sorry, I could not read|^Type a change to the weather/.test(out.reply) ? out.reply + '\n\n' : '';
+    var f1 = D.farm.fields[0].name;
+    return keep + 'I cannot answer open questions like that right now, because the AI helper is switched off. Without it I can still test what-ifs on your fields (weather, crops, prices), compare plans and explain your results. For example:\n\u2022 "What if 2012 happens again?"\n\u2022 "What if I put rye on ' + f1 + '?"\n\u2022 "Which field is most at risk?"';
+  }
+  function answer(text, first) {
+    var out; beginTurn(first);
     try { out = FS.chat.interpret(text, S.get()); } catch (e) { console.error(e); out = { reply: 'Sorry, I could not read that.\n' + examples(), actions: [], ai: true }; }
-    if (out.ai && aiAvailable()) return askAI(text, out);
+    var acts = out.actions || [], nSet = acts.filter(function (a) { return a.type === 'setControl'; }).length;
+    if (out.ai && aiAvailable()) { step('Chat Rules found no match for your question'); return askAI(text, out); }
+    if (out.ai && !nSet) { step('Chat Rules could not turn your question into a change'); step('The AI helper is off, so built-in help answered'); out = { reply: noAiText(out), actions: [] }; }
+    else if (nSet) step('Chat Rules read your question and found ' + plural(nSet, 'change', 'changes'));
+    else if (out.items) { step('Chat Rules read your question'); step('Analysis lined up the options'); }
+    else if (acts.some(function (a) { return a.type === 'selectField'; })) step('Chat Rules read your question and picked a field to show');
+    else step('Chat Rules read your question and answered from your latest results');
     if (out.reply || out.items) A.addChat({ role: 'assistant', text: out.reply, items: out.items, kind: out.kind, foot: out.foot, actions: out.actions });
-    execute(out.actions || []);
+    execute(acts);
+    attachTrace();
   }
 
   // ---------- AI helper (server /api/chat, Google Gemini with thinking) ----------
@@ -5145,8 +5200,11 @@ window.FS = window.FS || {};
       .then(function (x) {
         done();
         if (!x.ok || !x.j.reply) {
-          if (x.status === 404 || x.status === 503) aiDown = true;   // no server route or no key: stay with the rules
-          A.addChat({ role: 'assistant', text: (ruleOut.reply || examples()) + (x.j.error ? '\n(' + x.j.error + ')' : '') });
+          var off = x.status === 404 || x.status === 503;
+          if (off) aiDown = true;   // no server route or no key: stay with the rules
+          step(off ? 'Gemini Adviser is switched off, so built-in help answered' : 'Gemini Adviser could not answer this time');
+          A.addChat({ role: 'assistant', text: off ? noAiText(ruleOut) : (ruleOut.reply && !/^Sorry, I did not catch/.test(ruleOut.reply) ? ruleOut.reply : 'The AI helper is busy right now, so I could not answer that.\n' + examples()) + (x.j.error ? '\n(' + x.j.error + ')' : '') });
+          attachTrace();
           return;
         }
         var acts = [], skipped = 0;
@@ -5154,24 +5212,31 @@ window.FS = window.FS || {};
           var v = checkedValue(c.path, c.value);
           if (v === null || v === undefined) skipped++; else acts.push({ type: 'setControl', path: c.path, value: v });
         });
+        var proposed = (x.j.changes || []).length;
+        step(proposed ? 'Gemini Adviser proposed ' + plural(proposed, 'change', 'changes') : 'Gemini Adviser answered in words, with no setting change');
+        if (proposed) step('Code Check kept ' + acts.length + (skipped ? ' and rejected ' + skipped + ' (out of range or not a setting)' : ''));
         A.addChat({ role: 'assistant', text: x.j.reply + (skipped ? '\n(' + skipped + ' of the changes could not be applied.)' : '') });
+        if (!acts.length) attachTrace();
         if (acts.length) execute(acts.concat([{ type: 'run', label: 'Chat: ' + acts.map(function (a) { return describeValue(a.path, Array.isArray(a.value) ? JSON.stringify(a.value) : a.value); }).join(' · ') }]));
       })
       .catch(function (e) {
         console.error(e); done();
-        A.addChat({ role: 'assistant', text: (ruleOut.reply || examples()) + '\n(The AI helper could not be reached.)' });
+        step('Gemini Adviser could not be reached, so built-in help answered');
+        A.addChat({ role: 'assistant', text: noAiText(ruleOut) }); attachTrace();
       });
   }
 
   function showOnMap(it) {
     var f = fieldById(it.fieldId);
+    beginTurn('You pressed Show on the map for ' + f.name);
     A.addChat({ role: 'assistant', text: 'Showing ' + f.name + ': ' + planPlain(it.plan) + '.' });
     A.selectField(it.fieldId, 'chat');
     undoStack.push(clone(S.get().controls));
     A.setControl('crops.plans.' + it.fieldId, it.plan, 'chat');
     var tr = S.get().controls.crops.trialAcres; if (tr && tr[it.fieldId] === 0) A.setControl('crops.trialAcres.' + it.fieldId, f.acres, 'chat');
     A.runSimulation('chat', f.name + ' ' + planPlain(it.plan));
-    A.addChat({ role: 'assistant', text: resultLine(it.fieldId) });
+    step('Crop Model replayed ' + seasonCount() + ' NASA POWER seasons'); stepAnalysis();
+    A.addChat({ role: 'assistant', text: resultLine(it.fieldId) }); attachTrace();
   }
   function onListClick(e) {
     var b = e.target.closest && e.target.closest('button[data-act]'); if (!b) return;
@@ -7056,8 +7121,8 @@ window.FS = window.FS || {};
     function update() {
       var over = /(auto|scroll)/.test(getComputedStyle(box).overflowY) && box.scrollHeight > box.clientHeight + 4;
       var top = box.offsetTop, bottom = top + box.offsetHeight;
-      h.up.style.top = (top - 12) + 'px';          // on the panel's edge, above the text, so the note never covers words
-      h.down.style.top = (bottom + 12) + 'px';
+      h.up.style.top = (top - 2) + 'px';           // just outside the text box (above it / below it), so the note never covers words
+      h.down.style.top = (bottom + 2) + 'px';
       h.up.hidden = !(over && box.scrollTop > 4);
       h.down.hidden = !(over && box.scrollTop + box.clientHeight < box.scrollHeight - 4);
     }

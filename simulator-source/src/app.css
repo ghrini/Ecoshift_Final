@@ -513,7 +513,8 @@ textarea.fs-q-text { resize: vertical; min-height: 3.4em; }
 .fs-scrollhint { position: absolute; left: 50%; z-index: 3; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
   border: 1px solid var(--on-bg-accent, var(--border)); border-radius: 999px; background: var(--panel); color: var(--text); font: 600 13px/1.3 var(--font-sans);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); cursor: pointer; white-space: nowrap; }
-.fs-scrollhint-down { transform: translate(-50%, -100%); }
+.fs-scrollhint-up { transform: translate(-50%, -100%); }
+.fs-scrollhint-down { transform: translate(-50%, 0); }
 .fs-scrollhint:hover { color: var(--on-bg-accent, var(--text)); }
 .fs-scrollhint[hidden] { display: none; }
 @media (prefers-reduced-motion: no-preference) { .fs-scrollhint { animation: fs-hint-in 0.2s ease-out; } }

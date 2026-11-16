@@ -19,8 +19,8 @@
     function update() {
       var over = /(auto|scroll)/.test(getComputedStyle(box).overflowY) && box.scrollHeight > box.clientHeight + 4;
       var top = box.offsetTop, bottom = top + box.offsetHeight;
-      h.up.style.top = (top - 12) + 'px';          // on the panel's edge, above the text, so the note never covers words
-      h.down.style.top = (bottom + 12) + 'px';
+      h.up.style.top = (top - 2) + 'px';           // just outside the text box (above it / below it), so the note never covers words
+      h.down.style.top = (bottom + 2) + 'px';
       h.up.hidden = !(over && box.scrollTop > 4);
       h.down.hidden = !(over && box.scrollTop + box.clientHeight < box.scrollHeight - 4);
     }
