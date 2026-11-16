@@ -8,7 +8,8 @@
 //   SAVI  = 1.5 (B8A - B4) / (B8A + B4 + 0.5); LAI = -ln((0.69 - SAVI) / 0.59) / 0.91 (empirical leaf area index; rough)
 //   FVC   = ((NDVI - 0.15) / (0.90 - 0.15))^2           share of ground covered by plants
 //   CV    = spread of NDVI across the field (standard deviation / mean): uniformity
-//   N sufficiency = mean NDRE / NDRE of the field's own best 10% of pixels ("virtual reference strip", after Holland and Schepers 2013)
+//   N sufficiency = mean NDRE / NDRE of the field's own best 10% of pixels ("virtual reference strip", after Holland and Schepers 2013).
+//     A hint only: it cannot see a field that is short of nitrogen everywhere and is less reliable early in the season.
 // Growth stage: growing degree days (base 10 C) from the planting date with ECMWF daily temperatures, checked against the NDVI curve.
 // Phosphorus cannot be seen from orbit with any reliability, so it is reported as "soil test needed", not guessed.
 // Scores, yield estimate, root causes and advice are simple published rules and thresholds, not a trained model: they say so on the page.
@@ -114,7 +115,9 @@ module.exports = function fieldhealth({ readBody, send }) {
     }).filter(Boolean);
     if (!fields.length) return send(res, 400, { error: "No fields to check." });
     const normal = b.normalYield || {}, now = Date.now(), d = new Date(now);
-    const seasonYear = d.getUTCMonth() >= 2 ? d.getUTCFullYear() : d.getUTCFullYear() - 1, start = Date.UTC(seasonYear, 3, 1);
+    // growing season starts 1 April (north) or 1 October (south of the equator, 6 months later)
+    const south = fields.reduce((s, f) => s + f.center[1], 0) / fields.length < 0, m0 = south ? 8 : 2;
+    const seasonYear = d.getUTCMonth() >= m0 ? d.getUTCFullYear() : d.getUTCFullYear() - 1, start = Date.UTC(seasonYear, south ? 9 : 3, 1);
     const key = JSON.stringify([fields.map((f) => [f.ring, f.crop, f.plant]), iso(now)]);
     try {
       if (!memo.has(key)) { const p = run(fields, start, now, seasonYear, normal); memo.set(key, p); p.catch(() => memo.delete(key)); if (memo.size > 50) memo.delete(memo.keys().next().value); }
@@ -140,7 +143,7 @@ module.exports = function fieldhealth({ readBody, send }) {
     const out = { season: seasonYear, images: items.length, fields: {}, sources: [`Copernicus Sentinel-2 Level-2A, ${items.length} images from ${iso(start)} to ${iso(now)} (Earth Search on AWS), clearest in each 8 days.`] };
     const plants = fields.map((f) => (f.plant ? Date.parse(f.plant) : null)).filter(Boolean), p0 = plants.length ? Math.min(...plants) : start;
     let heat = [];
-    try { heat = await gdd(cy, cx, p0, Math.min(now, Date.UTC(seasonYear, 10, 15))); out.sources.push("Growth stage: growing degree days (base 10 °C) from ECMWF daily temperatures since planting."); } catch { /* stage from the NDVI curve alone */ }
+    try { heat = await gdd(cy, cx, p0, Math.min(now, Date.UTC(seasonYear + (cy < 0 ? 1 : 0), cy < 0 ? 4 : 10, 15))); out.sources.push("Growth stage: growing degree days (base 10 °C) from ECMWF daily temperatures since planting."); } catch { /* stage from the NDVI curve alone */ }
     for (const f of fields) {
       const rows = series[f.id].sort((a, z) => (a.date < z.date ? -1 : 1));
       out.fields[f.id] = analyse(f, rows, heat, normal, now);
@@ -154,7 +157,7 @@ module.exports = function fieldhealth({ readBody, send }) {
 
 // ---------------------------------------------------------------- one field
 function analyse(f, rows, heat, normal, now) {
-  const C = CROPS[f.crop], o = { name: f.name, crop: f.crop, observations: rows.length };
+  const C = CROPS[f.crop], o = { name: f.name, crop: f.crop, observations: rows.length, south: f.center[1] < 0 };
   if (rows.length < 3) { o.error = "Fewer than 3 clear Sentinel-2 images this season, so field health cannot be judged yet."; return o; }
   const last = rows[rows.length - 1], peak = rows.reduce((a, r) => (r.ndvi > a.ndvi ? r : a), rows[0]);
   // growth stage: degree days since planting, then the NDVI curve decides harvested or not
@@ -191,12 +194,15 @@ function analyse(f, rows, heat, normal, now) {
     uniformity: { score: sc(1 - (ref.ndvi_cv - 0.05) / 0.25), cv: ref.ndvi_cv, p10: ref.ndvi_p10, p90: ref.ndvi_p90 },
   };
   const H = o.health, v = (k) => (H[k].score == null ? 50 : H[k].score);
+  // Health index, 0 to 100: canopy against a healthy crop's peak NDVI for this crop ("normal"), and nitrogen, leaf structure and evenness against the field's own best parts
   o.yieldScore = Math.round(0.35 * v("canopy") + 0.25 * v("nitrogen") + 0.2 * v("moisture") + 0.1 * v("leaf") + 0.1 * v("uniformity"));
+  o.healthIndex = o.yieldScore;
   o.qualityScore = Math.round(0.4 * v("nitrogen") + 0.3 * v("moisture") + 0.3 * v("uniformity"));
   const nb = +normal[f.crop];
   if (nb > 0 && (harvested || /past peak|R4|R5|R6|R7|mature|grain|seed fill|pod/.test(stage))) {
     const k = clamp(0.55 + 0.5 * o.yieldScore / 100, 0.4, 1.12), y = nb * k;
-    o.yieldEstimate = { bu: Math.round(y), low: Math.round(y * 0.85), high: Math.round(y * 1.15), normal: nb, note: "Rough: county normal yield scaled by the season's health score. Not checked against harvests." };
+    o.yieldEstimate = { bu: Math.round(y), low: Math.round(y * 0.85), high: Math.round(y * 1.15), normal: nb, factor: round(k, 2),
+      note: `Rough guide, not yet checked against real harvests. The estimate is the county normal yield (${nb} bu/acre) scaled by the health index (normal times ${round(k, 2)}). The range is a design range (0.85 times to 1.15 times the estimate), not a measured error.` };
   } else o.yieldEstimate = { bu: null, note: nb > 0 ? "Too early in the season to estimate." : "No normal yield for this crop." };
   o.causes = causes(o, C, rows);
   o.advice = advice(o, C, f);
@@ -206,16 +212,16 @@ function analyse(f, rows, heat, normal, now) {
 // root causes: which of the usual suspects the numbers point to, with the evidence
 function causes(o, C, rows) {
   const H = o.health, out = [], add = (cause, why, conf) => out.push({ cause, why, confidence: conf });
-  if (H.nitrogen.score != null && H.nitrogen.score < 50) add("Nitrogen short", `Red-edge index (NDRE) is ${Math.round(H.nitrogen.sufficiency * 100)}% of the field's own best 10%; under about 82% usually means nitrogen is limiting.`, H.moisture.score > 50 ? "medium" : "low");
+  if (H.nitrogen.score != null && H.nitrogen.score < 50) add("Nitrogen may be short", `Red-edge index (NDRE) is ${Math.round(H.nitrogen.sufficiency * 100)}% of the field's own best 10%; under about 82% can mean nitrogen is limiting, but this check is only against the field's own best parts and is less reliable early in the season: confirm with a soil nitrate or tissue test.`, "low");
   if (H.moisture.score != null && H.moisture.score < 40) add("Water stress", `Leaf water index (NDMI) was ${H.moisture.ndmi} at the reference date, near the dry line of ${C.dryNdmi}.`, "medium");
   if (H.uniformity.score != null && H.uniformity.score < 50) add("Patchy field", `Greenness varies a lot across the field (spread ${Math.round(H.uniformity.cv * 100)}%; weakest tenth at NDVI ${H.uniformity.p10}, best at ${H.uniformity.p90}). Typical causes: wet or eroded spots, compaction, uneven stand.`, "medium");
   if (H.canopy.score != null && H.canopy.score < 60 && !(H.nitrogen.score < 50) && !(H.moisture.score < 40)) add("Thin canopy without a clear nutrient or water signal", `Peak NDVI ${o.peak.ndvi} against a healthy ${C.peak}. Check stand count, planting date, pests, disease or hail.`, "low");
   // a sudden drop in NDVI between two images before the expected senescence: hail, flooding, lodging or a burn
   for (let i = 1; i < rows.length; i++) {
     const a = rows[i - 1], z = rows[i], gap = (Date.parse(z.date) - Date.parse(a.date)) / DAY;
-    if (a.ndvi > 0.6 && a.ndvi - z.ndvi > 0.2 && gap <= 16 && z.date < o.peak.date.slice(0, 4) + "-08-25") { add("Sudden damage", `NDVI fell from ${a.ndvi} to ${z.ndvi} between ${a.date} and ${z.date}, before the crop would normally turn. Hail, flooding, lodging or a fire are the usual causes.`, "medium"); break; }
+    if (a.ndvi > 0.6 && a.ndvi - z.ndvi > 0.2 && gap <= 16 && z.date < (o.south ? (+o.peak.date.slice(5, 7) >= 7 ? +o.peak.date.slice(0, 4) + 1 : o.peak.date.slice(0, 4)) + "-02-25" : o.peak.date.slice(0, 4) + "-08-25")) { add("Sudden damage", `NDVI fell from ${a.ndvi} to ${z.ndvi} between ${a.date} and ${z.date}, before the crop would normally turn. Hail, flooding, lodging or a fire are the usual causes.`, "medium"); break; }
   }
-  if (!out.length) out.push({ cause: "No clear problem", why: "Canopy, nitrogen, water and uniformity are all in the healthy range on the satellite indices.", confidence: "medium" });
+  if (!out.length) out.push({ cause: "No clear problem in the latest image", why: "Canopy, nitrogen, water and uniformity are all in the healthy range on this season's satellite indices. Weak growth zones from last summer's image, if there are any, are listed separately under Warnings.", confidence: "medium" });
   return out;
 }
 
@@ -230,10 +236,10 @@ function advice(o, C, f) {
   else add("Irrigation", "low", "Leaf water is fine: no irrigation needed now.");
   // nutrition
   if (H.nitrogen.score != null && H.nitrogen.score < 50) {
-    if (nTime) add("Nutrition", "high", `Nitrogen looks short at ${s} (NDRE ${Math.round(H.nitrogen.sufficiency * 100)}% of the best part of the field): side-dress 30 to 50 lb N/acre now, more where the field is palest.`);
-    else if (post) add("Nutrition", "medium", `Nitrogen ran short this season (${Math.round(H.nitrogen.sufficiency * 100)}% of the field's best). Next season, check the rate with a late-spring nitrate test and split the application.`);
-    else add("Nutrition", "medium", `Nitrogen looks short (${Math.round(H.nitrogen.sufficiency * 100)}% of the field's best), past the usual side-dress window: note the pale zones for next year's plan.`);
-  } else add("Nutrition", "low", f.crop === "soybean" ? "Soybeans fix their own nitrogen; the red edge shows no nitrogen shortage." : "No nitrogen shortage on the red edge.");
+    if (nTime) add("Nutrition", "medium", `Nitrogen may be short at ${s} (NDRE ${Math.round(H.nitrogen.sufficiency * 100)}% of the best part of the field). NDRE against the field's own best 10% cannot see a field that is short of nitrogen everywhere, and it is less reliable early in the season, so treat it as a hint. Check with a soil nitrate or tissue test before side-dressing; if confirmed, 30 to 50 lb N/acre, more where the field is palest.`);
+    else if (post) add("Nutrition", "medium", `Nitrogen may have run short this season (${Math.round(H.nitrogen.sufficiency * 100)}% of the field's best). NDRE against the field's own best 10% cannot see a field that is short of nitrogen everywhere, and it is less reliable early in the season, so treat it as a hint. Next season, check the rate with a late-spring nitrate test and split the application.`);
+    else add("Nutrition", "medium", `Nitrogen may be short (${Math.round(H.nitrogen.sufficiency * 100)}% of the field's best), past the usual side-dress window. NDRE against the field's own best 10% cannot see a field that is short of nitrogen everywhere, and it is less reliable early in the season, so treat it as a hint. Note the pale zones and confirm with a soil nitrate or tissue test before changing next year's plan.`);
+  } else add("Nutrition", "low", f.crop === "soybean" ? "Soybeans fix their own nitrogen; the red edge shows no nitrogen shortage." : "The red edge shows no uneven nitrogen shortage (it cannot see a shortage across the whole field: a soil nitrate or tissue test can).");
   add("Nutrition", post ? "medium" : "low", "Phosphorus and potassium cannot be read from satellite: " + (post ? "now, after harvest, is the time to soil-sample (every 2.5 acres or by zone)." : "rely on your last soil test."));
   // soil moisture
   if (post) add("Soil moisture", "low", "Keep heavy equipment off wet ground this fall to avoid compaction; keep residue or plant a cover crop to hold soil water and topsoil over winter.");

@@ -1,0 +1,758 @@
+{
+ "what": "EcoShift /api/liveconditions run on 16 Nov 2026 after adding NASA fire detections (VIIRS and MODIS through NASA GIBS), NASA POWER MERRA-2 soil wetness and the stricter burn test. Same requests as burn-check-2026-11-16.json.",
+ "patiala": {
+  "request": {
+   "approximate": false,
+   "fields": [
+    {
+     "id": "north",
+     "name": "Farmland near Patiala",
+     "ring": [
+      [
+       76.29374969740343,
+       30.41457376960226
+      ],
+      [
+       76.30625030259657,
+       30.41457376960226
+      ],
+      [
+       76.30625030259657,
+       30.425426230397743
+      ],
+      [
+       76.29374969740343,
+       30.425426230397743
+      ],
+      [
+       76.29374969740343,
+       30.41457376960226
+      ]
+     ]
+    }
+   ]
+  },
+  "response": {
+   "checkedAt": "2026-11-16T04:29:27.867Z",
+   "center": [
+    76.3,
+    30.42
+   ],
+   "now": null,
+   "era5Soil": null,
+   "nasa": {
+    "fire": {
+     "from": "2026-11-02",
+     "to": "2026-11-15",
+     "days": 14,
+     "sensors": [
+      "VIIRS Suomi NPP",
+      "VIIRS NOAA-20",
+      "MODIS Terra and Aqua"
+     ],
+     "detections": [
+      {
+       "field": "north",
+       "name": "Farmland near Patiala",
+       "days": [
+        {
+         "date": "2026-11-03",
+         "sensors": [
+          "MODIS Terra and Aqua"
+         ]
+        },
+        {
+         "date": "2026-11-05",
+         "sensors": [
+          "MODIS Terra and Aqua"
+         ]
+        }
+       ]
+      }
+     ],
+     "line": "NASA fire satellites (VIIRS/MODIS, via NASA GIBS): fire detected over or within 400 m of Farmland near Patiala on 2026-11-03, 2026-11-05 (2026-11-02 to 2026-11-15). NASA had not yet published the newest maps for VIIRS Suomi NPP (latest 2026-11-02)."
+    },
+    "soil": {
+     "date": "2026-11-12",
+     "root": 0.35,
+     "top": 0.2,
+     "avgRoot": 0.42,
+     "avgTop": 0.38,
+     "years": "2001-2025",
+     "window": "10-30 to 11-12",
+     "line": "NASA MERRA-2 model soil wetness (NASA POWER; 0 = dry, 1 = saturated; a model, not SMAP): root zone 0.35, top 5 cm 0.2 on 2026-11-12, against an average of 0.42 (top 0.38) for 10-30 to 11-12 in 2001-2025: close to normal."
+    }
+   },
+   "air": {
+    "time": "2026-11-16T09:30",
+    "pm25": 94.1,
+    "dust": 28,
+    "uv": 1.9
+   },
+   "fields": {
+    "north": {
+     "name": "Farmland near Patiala",
+     "center": [
+      76.3,
+      30.42
+     ],
+     "fertility": {
+      "organicCarbonGkg": 9.6,
+      "nitrogenGkg": 1.05,
+      "ph": 8,
+      "cecCmolKg": 23.8
+     },
+     "cover": {
+      "sharePct": {
+       "cropland": 94.8,
+       "trees": 3.3,
+       "built": 1.9,
+       "grass": 0
+      },
+      "water": []
+     },
+     "terrain": {
+      "cells": 1755,
+      "elevationM": 254,
+      "minM": 252,
+      "maxM": 262,
+      "slopePct": 1.1,
+      "steepSharePct": 3,
+      "lowSpots": [
+       {
+        "lon": 76.29777,
+        "lat": 30.41688,
+        "areaM2": 96645
+       },
+       {
+        "lon": 76.30027,
+        "lat": 30.41961,
+        "areaM2": 39313
+       },
+       {
+        "lon": 76.29667,
+        "lat": 30.42427,
+        "areaM2": 36037
+       }
+      ]
+     },
+     "satellite": {
+      "ground": {
+       "date": "2026-11-14",
+       "bareSoilPct": 98,
+       "plantsPct": 2
+      },
+      "burn": {
+       "from": "2026-10-28",
+       "to": "2026-11-14",
+       "checkedPct": 98,
+       "patches": [
+        {
+         "lon": 76.3055,
+         "lat": 30.41686,
+         "areaM2": 34000
+        },
+        {
+         "lon": 76.29758,
+         "lat": 30.41807,
+         "areaM2": 30400
+        },
+        {
+         "lon": 76.29922,
+         "lat": 30.42045,
+         "areaM2": 28000
+        },
+        {
+         "lon": 76.30355,
+         "lat": 30.42196,
+         "areaM2": 22800
+        }
+       ],
+       "burnedPct": 13.1,
+       "fire": {
+        "from": "2026-10-28",
+        "to": "2026-11-14",
+        "answeredTo": "2026-11-14",
+        "complete": true,
+        "days": [
+         {
+          "date": "2026-11-03",
+          "sensors": [
+           "MODIS Terra and Aqua"
+          ]
+         },
+         {
+          "date": "2026-11-05",
+          "sensors": [
+           "MODIS Terra and Aqua"
+          ]
+         }
+        ]
+       }
+      },
+      "summer": {
+       "date": "2026-07-14",
+       "ndviMedian": 0.39,
+       "weakZones": []
+      }
+     }
+    }
+   },
+   "warnings": [
+    {
+     "level": "warn",
+     "text": "Poor air (fine dust PM2.5 94.1 µg/m³, Copernicus CAMS): limit long hard work outdoors."
+    },
+    {
+     "level": "warn",
+     "field": "north",
+     "text": "Burned ground, about 8.4 acres, in the south-east part of Farmland near Patiala, confirmed by fire: NASA MODIS Terra and Aqua saw active fire over this field on 2026-11-03, 2026-11-05 (NASA GIBS), and between 2026-10-28 and 2026-11-14 Sentinel-2 saw the burn ratio drop sharply and the ground turn dark like charred residue. Burning crop residue sends most of its nitrogen and sulfur into the air and burns off organic matter, so the soil there is less fertile and bare to wind and water erosion. If it was burned: plan extra nitrogen, test the soil, and next time leave or work in the residue.",
+     "lon": 76.3055,
+     "lat": 30.41686
+    },
+    {
+     "level": "warn",
+     "field": "north",
+     "text": "Burned ground, about 7.5 acres, in the south-west part of Farmland near Patiala, confirmed by fire: NASA MODIS Terra and Aqua saw active fire over this field on 2026-11-03, 2026-11-05 (NASA GIBS), and between 2026-10-28 and 2026-11-14 Sentinel-2 saw the burn ratio drop sharply and the ground turn dark like charred residue. Burning crop residue sends most of its nitrogen and sulfur into the air and burns off organic matter, so the soil there is less fertile and bare to wind and water erosion. If it was burned: plan extra nitrogen, test the soil, and next time leave or work in the residue.",
+     "lon": 76.29758,
+     "lat": 30.41807
+    },
+    {
+     "level": "warn",
+     "field": "north",
+     "text": "Burned ground, about 6.9 acres, in the middle part of Farmland near Patiala, confirmed by fire: NASA MODIS Terra and Aqua saw active fire over this field on 2026-11-03, 2026-11-05 (NASA GIBS), and between 2026-10-28 and 2026-11-14 Sentinel-2 saw the burn ratio drop sharply and the ground turn dark like charred residue. Burning crop residue sends most of its nitrogen and sulfur into the air and burns off organic matter, so the soil there is less fertile and bare to wind and water erosion. If it was burned: plan extra nitrogen, test the soil, and next time leave or work in the residue.",
+     "lon": 76.29922,
+     "lat": 30.42045
+    },
+    {
+     "level": "warn",
+     "field": "north",
+     "text": "Burned ground, about 5.6 acres, in the north-east part of Farmland near Patiala, confirmed by fire: NASA MODIS Terra and Aqua saw active fire over this field on 2026-11-03, 2026-11-05 (NASA GIBS), and between 2026-10-28 and 2026-11-14 Sentinel-2 saw the burn ratio drop sharply and the ground turn dark like charred residue. Burning crop residue sends most of its nitrogen and sulfur into the air and burns off organic matter, so the soil there is less fertile and bare to wind and water erosion. If it was burned: plan extra nitrogen, test the soil, and next time leave or work in the residue.",
+     "lon": 76.30355,
+     "lat": 30.42196
+    },
+    {
+     "level": "warn",
+     "text": "NASA fire satellites (VIIRS/MODIS, via NASA GIBS): fire detected over or within 400 m of Farmland near Patiala on 2026-11-03, 2026-11-05 (2026-11-02 to 2026-11-15). NASA had not yet published the newest maps for VIIRS Suomi NPP (latest 2026-11-02)."
+    },
+    {
+     "level": "info",
+     "field": "north",
+     "text": "Low, flat spot of about 23.9 acres in the south-west part of Farmland near Patiala (Copernicus elevation model). Water gathers there after heavy rain.",
+     "lon": 76.29777,
+     "lat": 30.41688
+    },
+    {
+     "level": "info",
+     "field": "north",
+     "text": "Low, flat spot of about 9.7 acres in the middle part of Farmland near Patiala (Copernicus elevation model). Water gathers there after heavy rain.",
+     "lon": 76.30027,
+     "lat": 30.41961
+    },
+    {
+     "level": "info",
+     "field": "north",
+     "text": "Low, flat spot of about 8.9 acres in the north-west part of Farmland near Patiala (Copernicus elevation model). Water gathers there after heavy rain.",
+     "lon": 76.29667,
+     "lat": 30.42427
+    },
+    {
+     "level": "info",
+     "field": "north",
+     "text": "Farmland near Patiala was 98% bare soil on 2026-11-14. Bare soil over winter loses topsoil to wind and water; a cover crop or leaving residue protects it."
+    },
+    {
+     "level": "info",
+     "field": "north",
+     "text": "Farmland near Patiala: topsoil pH about 8 (alkaline, likely limy). Soybeans on high-pH soils can get iron deficiency chlorosis (yellow leaves): choose a tolerant variety."
+    },
+    {
+     "level": "info",
+     "field": "north",
+     "text": "Farmland near Patiala: low organic matter (about 9.6 g of carbon per kg of topsoil). Cover crops and leaving residue build it up and help the soil hold water."
+    }
+   ],
+   "sources": [
+    "Burned ground and bare soil: Copernicus Sentinel-2 images of 2026-11-14 and 2026-10-28 (burn ratio change).",
+    "Weak growth zones: Copernicus Sentinel-2 image of 2026-07-14 (plant greenness, NDVI, 10 m).",
+    "Air: Copernicus Atmosphere Monitoring Service (CAMS).",
+    "Soil wetness: NASA POWER (MERRA-2 model), latest day 2026-11-12, against 2001-2025.",
+    "Fire detections: NASA GIBS (VIIRS Suomi NPP and NOAA-20 375 m, MODIS Terra and Aqua 1 km; the same detections as NASA FIRMS), over each field plus 400 m.",
+    "Soil fertility: ISRIC SoilGrids 250 m model estimates for the top 30 cm (a soil test on the field is more exact).",
+    "Ponds, wet ground and land cover: ESA WorldCover 2021, 10 m, made from Copernicus Sentinel-1 and Sentinel-2.",
+    "Low spots: Copernicus GLO-30 elevation model."
+   ],
+   "gaps": [
+    "The ECMWF weather did not answer (historical-forecast-api.open-meteo.com returned 429).",
+    "Copernicus ERA5-Land soil moisture did not answer (archive-api.open-meteo.com returned 429)."
+   ],
+   "approximate": false
+  }
+ },
+ "iowa_sample": {
+  "request": {
+   "approximate": false,
+   "fields": [
+    {
+     "id": "north",
+     "name": "Home quarter",
+     "ring": [
+      [
+       -93.48,
+       42.04
+      ],
+      [
+       -93.4705,
+       42.04
+      ],
+      [
+       -93.4705,
+       42.0472
+      ],
+      [
+       -93.48,
+       42.0472
+      ],
+      [
+       -93.48,
+       42.04
+      ]
+     ]
+    },
+    {
+     "id": "creek",
+     "name": "Creek bottom",
+     "ring": [
+      [
+       -93.48,
+       42.0328
+      ],
+      [
+       -93.4705,
+       42.0328
+      ],
+      [
+       -93.4705,
+       42.0364
+      ],
+      [
+       -93.4752,
+       42.0364
+      ],
+      [
+       -93.4752,
+       42.0394
+      ],
+      [
+       -93.48,
+       42.0394
+      ],
+      [
+       -93.48,
+       42.0328
+      ]
+     ]
+    },
+    {
+     "id": "west",
+     "name": "East forty",
+     "ring": [
+      [
+       -93.4698,
+       42.04
+      ],
+      [
+       -93.465,
+       42.04
+      ],
+      [
+       -93.465,
+       42.0436
+      ],
+      [
+       -93.4698,
+       42.0436
+      ],
+      [
+       -93.4698,
+       42.04
+      ]
+     ]
+    }
+   ]
+  },
+  "response": {
+   "checkedAt": "2026-11-16T04:29:35.364Z",
+   "center": [
+    -93.47329,
+    42.04013
+   ],
+   "now": null,
+   "era5Soil": {
+    "time": "2026-11-10T23:00",
+    "top7": 0.354,
+    "to28": 0.365
+   },
+   "nasa": {
+    "fire": {
+     "from": "2026-11-02",
+     "to": "2026-11-15",
+     "days": 14,
+     "sensors": [
+      "VIIRS Suomi NPP",
+      "VIIRS NOAA-20",
+      "MODIS Terra and Aqua"
+     ],
+     "detections": [],
+     "line": "NASA fire satellites (VIIRS/MODIS, via NASA GIBS): no fire detected over these fields in the last 14 days (2026-11-02 to 2026-11-15). NASA had not yet published the newest maps for VIIRS Suomi NPP (latest 2026-11-02)."
+    },
+    "soil": {
+     "date": "2026-11-12",
+     "root": 0.71,
+     "top": 0.66,
+     "avgRoot": 0.48,
+     "avgTop": 0.51,
+     "years": "2001-2025",
+     "window": "10-30 to 11-12",
+     "line": "NASA MERRA-2 model soil wetness (NASA POWER; 0 = dry, 1 = saturated; a model, not SMAP): root zone 0.71, top 5 cm 0.66 on 2026-11-12, against an average of 0.48 (top 0.51) for 10-30 to 11-12 in 2001-2025: wetter than normal."
+    }
+   },
+   "air": {
+    "time": "2026-11-15T22:00",
+    "pm25": 6.2,
+    "dust": 0,
+    "uv": 0
+   },
+   "fields": {
+    "north": {
+     "name": "Home quarter",
+     "center": [
+      -93.47525,
+      42.0436
+     ],
+     "fertility": {
+      "organicCarbonGkg": 18.9,
+      "nitrogenGkg": 2.07,
+      "ph": 6.5,
+      "cecCmolKg": 20
+     },
+     "cover": {
+      "sharePct": {
+       "cropland": 82.5,
+       "built": 3.7,
+       "grass": 11.3,
+       "trees": 2.6
+      },
+      "water": [
+       {
+        "kind": "water",
+        "inside": false,
+        "lon": -93.48135,
+        "lat": 42.04315,
+        "areaM2": 3174
+       }
+      ]
+     },
+     "terrain": {
+      "cells": 910,
+      "elevationM": 303,
+      "minM": 293,
+      "maxM": 312,
+      "slopePct": 2.1,
+      "steepSharePct": 5,
+      "lowSpots": []
+     },
+     "satellite": {
+      "ground": {
+       "date": "2026-11-14",
+       "bareSoilPct": 89,
+       "plantsPct": 11
+      },
+      "burn": {
+       "from": "2026-10-22",
+       "to": "2026-11-14",
+       "checkedPct": 100,
+       "patches": [],
+       "burnedPct": 0
+      },
+      "summer": {
+       "date": "2026-07-14",
+       "ndviMedian": 0.89,
+       "weakZones": [
+        {
+         "lon": -93.47588,
+         "lat": 42.04242,
+         "areaM2": 79100,
+         "ndvi": 0.53
+        },
+        {
+         "lon": -93.47961,
+         "lat": 42.04127,
+         "areaM2": 7700,
+         "ndvi": 0.52
+        },
+        {
+         "lon": -93.47377,
+         "lat": 42.04356,
+         "areaM2": 3000,
+         "ndvi": 0.53
+        }
+       ],
+       "weakPct": 15.6
+      }
+     }
+    },
+    "creek": {
+     "name": "Creek bottom",
+     "center": [
+      -93.47723,
+      42.035
+     ],
+     "fertility": {
+      "organicCarbonGkg": 22.4,
+      "nitrogenGkg": 2.68,
+      "ph": 6.5,
+      "cecCmolKg": 19.8
+     },
+     "cover": {
+      "sharePct": {
+       "grass": 36.5,
+       "cropland": 58.4,
+       "trees": 5.1
+      },
+      "water": []
+     },
+     "terrain": {
+      "cells": 635,
+      "elevationM": 296,
+      "minM": 290,
+      "maxM": 302,
+      "slopePct": 4.4,
+      "steepSharePct": 25,
+      "lowSpots": [
+       {
+        "lon": -93.47241,
+        "lat": 42.03333,
+        "areaM2": 2116
+       },
+       {
+        "lon": -93.47181,
+        "lat": 42.03403,
+        "areaM2": 1411
+       }
+      ]
+     },
+     "satellite": {
+      "ground": {
+       "date": "2026-11-14",
+       "bareSoilPct": 57,
+       "plantsPct": 43
+      },
+      "burn": {
+       "from": "2026-10-22",
+       "to": "2026-11-14",
+       "checkedPct": 100,
+       "patches": [],
+       "burnedPct": 0
+      },
+      "summer": {
+       "date": "2026-07-14",
+       "ndviMedian": 0.79,
+       "weakZones": [
+        {
+         "lon": -93.47245,
+         "lat": 42.03411,
+         "areaM2": 54000,
+         "ndvi": 0.51
+        },
+        {
+         "lon": -93.47828,
+         "lat": 42.03582,
+         "areaM2": 9600,
+         "ndvi": 0.54
+        },
+        {
+         "lon": -93.47569,
+         "lat": 42.0366,
+         "areaM2": 4100,
+         "ndvi": 0.51
+        },
+        {
+         "lon": -93.47974,
+         "lat": 42.03692,
+         "areaM2": 3200,
+         "ndvi": 0.55
+        }
+       ],
+       "weakPct": 17.7
+      }
+     }
+    },
+    "west": {
+     "name": "East forty",
+     "center": [
+      -93.4674,
+      42.0418
+     ],
+     "fertility": {
+      "organicCarbonGkg": 22,
+      "nitrogenGkg": 2.24,
+      "ph": 6.5,
+      "cecCmolKg": 19.8
+     },
+     "cover": {
+      "sharePct": {
+       "cropland": 30.3,
+       "grass": 53.5,
+       "trees": 12.5,
+       "built": 3.7
+      },
+      "water": []
+     },
+     "terrain": {
+      "cells": 221,
+      "elevationM": 297,
+      "minM": 292,
+      "maxM": 308,
+      "slopePct": 5,
+      "steepSharePct": 38,
+      "lowSpots": [
+       {
+        "lon": -93.46738,
+        "lat": 42.04034,
+        "areaM2": 6348
+       },
+       {
+        "lon": -93.46575,
+        "lat": 42.04155,
+        "areaM2": 4938
+       },
+       {
+        "lon": -93.46583,
+        "lat": 42.04319,
+        "areaM2": 1411
+       }
+      ]
+     },
+     "satellite": {
+      "ground": {
+       "date": "2026-11-14",
+       "bareSoilPct": 43,
+       "plantsPct": 57
+      },
+      "burn": {
+       "from": "2026-10-22",
+       "to": "2026-11-14",
+       "checkedPct": 100,
+       "patches": [],
+       "burnedPct": 0
+      },
+      "summer": {
+       "date": "2026-07-14",
+       "ndviMedian": 0.77,
+       "weakZones": [
+        {
+         "lon": -93.46751,
+         "lat": 42.04195,
+         "areaM2": 18600,
+         "ndvi": 0.47
+        }
+       ],
+       "weakPct": 14.2
+      }
+     }
+    }
+   },
+   "warnings": [
+    {
+     "level": "warn",
+     "field": "north",
+     "text": "Weak growth zone from last summer's image (2026-07-14, not today's crop), about 19.5 acres, in the middle part of Home quarter: plants there were much less green (NDVI 0.53) than the rest of the field (0.89). Common causes are low fertility, an eroded knoll, compaction or a wet spot. Soil-test this zone on its own.",
+     "lon": -93.47588,
+     "lat": 42.04242,
+     "imageDate": "2026-07-14"
+    },
+    {
+     "level": "warn",
+     "field": "creek",
+     "text": "Weak growth zone from last summer's image (2026-07-14, not today's crop), about 13.3 acres, in the south-east part of Creek bottom: plants there were much less green (NDVI 0.51) than the rest of the field (0.79). Common causes are low fertility, an eroded knoll, compaction or a wet spot. Soil-test this zone on its own.",
+     "lon": -93.47245,
+     "lat": 42.03411,
+     "imageDate": "2026-07-14"
+    },
+    {
+     "level": "warn",
+     "field": "west",
+     "text": "Weak growth zone from last summer's image (2026-07-14, not today's crop), about 4.6 acres, in the middle part of East forty: plants there were much less green (NDVI 0.47) than the rest of the field (0.77). Common causes are low fertility, an eroded knoll, compaction or a wet spot. Soil-test this zone on its own.",
+     "lon": -93.46751,
+     "lat": 42.04195,
+     "imageDate": "2026-07-14"
+    },
+    {
+     "level": "info",
+     "field": "north",
+     "text": "A pond or stream, about 0.78 acres (3,174 m²), just off the west side of Home quarter. Runoff and spray drift from this edge reach it: a grass buffer strip along it helps.",
+     "lon": -93.48135,
+     "lat": 42.04315
+    },
+    {
+     "level": "info",
+     "field": "north",
+     "text": "Weak growth zone from last summer's image (2026-07-14, not today's crop), about 1.9 acres, in the south-west part of Home quarter: plants there were much less green (NDVI 0.52) than the rest of the field (0.89). Common causes are low fertility, an eroded knoll, compaction or a wet spot. Soil-test this zone on its own.",
+     "lon": -93.47961,
+     "lat": 42.04127,
+     "imageDate": "2026-07-14"
+    },
+    {
+     "level": "info",
+     "field": "north",
+     "text": "Home quarter was 89% bare soil on 2026-11-14. Bare soil over winter loses topsoil to wind and water; a cover crop or leaving residue protects it."
+    },
+    {
+     "level": "info",
+     "field": "creek",
+     "text": "Low, flat spot of about 0.52 acres in the south-east part of Creek bottom (Copernicus elevation model). Water gathers there after heavy rain.",
+     "lon": -93.47241,
+     "lat": 42.03333
+    },
+    {
+     "level": "info",
+     "field": "creek",
+     "text": "Weak growth zone from last summer's image (2026-07-14, not today's crop), about 2.4 acres, in the west part of Creek bottom: plants there were much less green (NDVI 0.54) than the rest of the field (0.79). Common causes are low fertility, an eroded knoll, compaction or a wet spot. Soil-test this zone on its own.",
+     "lon": -93.47828,
+     "lat": 42.03582,
+     "imageDate": "2026-07-14"
+    },
+    {
+     "level": "info",
+     "field": "west",
+     "text": "Low, flat spot of about 1.6 acres in the south part of East forty (Copernicus elevation model). Water gathers there after heavy rain.",
+     "lon": -93.46738,
+     "lat": 42.04034
+    },
+    {
+     "level": "info",
+     "field": "west",
+     "text": "Low, flat spot of about 1.2 acres in the east part of East forty (Copernicus elevation model). Water gathers there after heavy rain.",
+     "lon": -93.46575,
+     "lat": 42.04155
+    }
+   ],
+   "sources": [
+    "Burned ground and bare soil: Copernicus Sentinel-2 images of 2026-11-14 and 2026-10-22 (burn ratio change).",
+    "Weak growth zones: Copernicus Sentinel-2 image of 2026-07-14 (plant greenness, NDVI, 10 m).",
+    "Soil moisture: Copernicus ERA5-Land, latest day available (2026-11-10).",
+    "Air: Copernicus Atmosphere Monitoring Service (CAMS).",
+    "Soil wetness: NASA POWER (MERRA-2 model), latest day 2026-11-12, against 2001-2025.",
+    "Fire detections: NASA GIBS (VIIRS Suomi NPP and NOAA-20 375 m, MODIS Terra and Aqua 1 km; the same detections as NASA FIRMS), over each field plus 400 m.",
+    "Soil fertility: ISRIC SoilGrids 250 m model estimates for the top 30 cm (a soil test on the field is more exact).",
+    "Ponds, wet ground and land cover: ESA WorldCover 2021, 10 m, made from Copernicus Sentinel-1 and Sentinel-2.",
+    "Low spots: Copernicus GLO-30 elevation model."
+   ],
+   "gaps": [
+    "The ECMWF weather did not answer (historical-forecast-api.open-meteo.com returned 429)."
+   ],
+   "approximate": false
+  }
+ }
+}

@@ -1,7 +1,7 @@
 /* "Advanced near-real-time conditions": a third view in the Simulation panel (next to Simulation and Farm map). It asks the server (/api/liveconditions,
    fieldlive.js and fieldsat.js) what is happening on the fields today: ECMWF weather, Copernicus ERA5-Land soil moisture and CAMS air,
    SoilGrids fertility, ESA WorldCover ponds and wet ground, Copernicus elevation low spots, and Sentinel-2 burned ground, bare soil and
-   last summer's weak growth zones. Warnings that belong to a place are numbered on a small map of the fields.
+   last summer's weak growth zones, plus NASA: fire detections (VIIRS and MODIS through NASA GIBS) that confirm or soften the burn check and a fire line, and NASA POWER (MERRA-2) soil wetness. Warnings that belong to a place are numbered on a small map of the fields.
    With imported outlines the checks run on the exact fields; otherwise on a square of each field's size around its soil survey point. */
 (function () {
   'use strict';
@@ -46,11 +46,11 @@
 
   // ---------------------------------------------------------------- field health: crop and planting date of the season just grown
   function healthRequest(req) {
-    var F = FS.data.farm.fields, E = FS.data.economics || {}, now = new Date(), y = now.getUTCMonth() >= 2 ? now.getUTCFullYear() : now.getUTCFullYear() - 1;
+    var F = FS.data.farm.fields, E = FS.data.economics || {}, now = new Date(), lat0 = req.fields[0] && req.fields[0].ring[0][1], south = lat0 < 0, y = now.getUTCMonth() >= (south ? 8 : 2) ? now.getUTCFullYear() : now.getUTCFullYear() - 1;
     var irr = !!(FS.farmSetup && FS.farmSetup.canIrrigate);
     return { normalYield: E.normalYield || {}, fields: req.fields.map(function (x) {
       var f = F.filter(function (q) { return q.id === x.id; })[0] || {}, crop = f.lastCrop === 'soybean' ? 'soybean' : 'corn';
-      return { id: x.id, name: x.name, ring: x.ring, crop: crop, plantDate: y + (crop === 'corn' ? '-04-28' : '-05-15'), irrigable: irr };
+      return { id: x.id, name: x.name, ring: x.ring, crop: crop, plantDate: y + (south ? (crop === 'corn' ? '-10-28' : '-11-15') : (crop === 'corn' ? '-04-28' : '-05-15')), irrigable: irr };
     }) };
   }
   function loadHealth(req, force) {
@@ -86,28 +86,30 @@
     if (hs.busy) return h + '<div class="fs-fm-busy" role="status"><span class="fs-fm-spin" aria-hidden="true"></span>Reading this season\u2019s Sentinel-2 images of each field\u2026 ' + Math.round((Date.now() - hs.t0) / 1000) + ' s <span class="fs-fm-faint">(15 to 60 s the first time)</span></div></section>';
     if (hs.err) return h + '<p class="fs-fm-msg fs-fm-err">' + esc(hs.err) + '</p></section>';
     if (!hs.data) return h + '</section>';
-    var D = hs.data;
+    var D = hs.data, L = st.data && st.data.fields || {};
     Object.keys(D.fields).forEach(function (id) {
       var f = D.fields[id], H = f.health;
       h += '<article class="fs-hl-field"><header><strong>' + esc(f.name) + '</strong> <span class="fs-fm-faint">' + esc(f.crop === 'soybean' ? 'soybeans' : f.crop) + ' · ' + f.observations + ' clear images</span></header>';
       if (f.error) { h += '<p>' + esc(f.error) + '</p></article>'; return; }
       var M = f.momentum || {};
       h += '<p class="fs-hl-line">Stage: <b>' + esc(f.stage) + '</b>' + (f.gdd != null ? ' (' + f.gdd + ' degree days since planting)' : '') + ' · Growth momentum: <b>' + esc(M.word) + '</b>' + (M.perWeek != null ? ' (NDVI ' + (M.perWeek > 0 ? '+' : '') + M.perWeek + ' a week' + (M.accel ? ', ' + esc(M.accel) : '') + ')' : '') + ' · Peak NDVI ' + f.peak.ndvi + ' on ' + esc(f.peak.date) + '</p>';
+      var Y = f.yieldEstimate || {};
+      h += '<div class="fs-hl-scores"><span>Health index <b>' + (f.healthIndex != null ? f.healthIndex : f.yieldScore) + '</b>/100</span><span>Quality score <b>' + f.qualityScore + '</b>/100</span><span>Rough yield guide <b>' + (Y.bu ? Y.bu + ' bu/acre' : '–') + '</b>' + (Y.bu ? ' (design range ' + Y.low + ' to ' + Y.high + '; county normal ' + Y.normal + ')' : '') + '</span></div>' +
+        '<p class="fs-fm-faint fs-hl-small">The health index (0 to 100) compares the canopy with a healthy crop\u2019s normal peak, and the nitrogen, leaf structure and evenness with this field\u2019s own best parts. It is the number to read first.' + '</p>' +
+        (Y.note ? '<p class="fs-fm-faint fs-hl-small">' + esc(Y.note) + '</p>' : '');
       h += '<div class="fs-hl-grid"><div>' + spark(f.series) + '<p class="fs-hl-key"><i class="g"></i>greenness NDVI <i class="b"></i>leaf water NDMI</p></div><div class="fs-hl-bars">' +
         bar('Canopy', H.canopy.score, 'NDVI ' + H.canopy.ndvi + ', ' + Math.round(H.canopy.cover * 100) + '% cover, leaf area ~' + H.canopy.lai) +
-        bar('Nitrogen', H.nitrogen.score, H.nitrogen.note ? esc(H.nitrogen.note) : 'red edge ' + Math.round(H.nitrogen.sufficiency * 100) + '% of the field\u2019s best') +
+        bar('Nitrogen', H.nitrogen.score, H.nitrogen.note ? esc(H.nitrogen.note) : 'red edge ' + Math.round(H.nitrogen.sufficiency * 100) + '% of the field\u2019s best (a hint only: confirm with a soil or tissue test)') +
         bar('Phosphorus', null, esc(H.phosphorus.note)) +
         bar('Moisture', H.moisture.score, 'leaf water NDMI ' + H.moisture.ndmi) +
         bar('Leaf structure', H.leaf.score, 'red-edge position ' + H.leaf.redEdgeNm + ' nm') +
         bar('Uniformity', H.uniformity.score, 'spread ' + Math.round(H.uniformity.cv * 100) + '% across the field') + '</div></div>';
-      var Y = f.yieldEstimate || {};
-      h += '<div class="fs-hl-scores"><span>Yield score <b>' + f.yieldScore + '</b>/100</span><span>Quality score <b>' + f.qualityScore + '</b>/100</span><span>Yield estimate <b>' + (Y.bu ? Y.bu + ' bu/acre' : '–') + '</b>' + (Y.bu ? ' (' + Y.low + ' to ' + Y.high + '; county normal ' + Y.normal + ')' : '') + '</span></div>' +
-        (Y.note ? '<p class="fs-fm-faint fs-hl-small">' + esc(Y.note) + '</p>' : '');
-      h += '<div class="fs-hl-cols"><div><h4>Root causes</h4><ul>' + f.causes.map(function (c) { return '<li><b>' + esc(c.cause) + '</b> <span class="fs-fm-faint">(' + esc(c.confidence) + ' confidence)</span>: ' + esc(c.why) + '</li>'; }).join('') + '</ul></div>' +
+      var zs = L[id] && L[id].satellite && L[id].satellite.summer, zn = zs && zs.weakZones && zs.weakZones.length;
+      h += '<div class="fs-hl-cols"><div><h4>Root causes</h4><ul>' + f.causes.map(function (c) { return '<li><b>' + esc(c.cause) + '</b> <span class="fs-fm-faint">(' + esc(c.confidence) + ' confidence)</span>: ' + esc(c.why) + '</li>'; }).join('') + (zn ? '<li class="fs-fm-faint">Last summer\u2019s weak growth zones (Sentinel-2 image of ' + esc(zs.date) + ', not this season) are listed separately under Warnings above.</li>' : '') + '</ul></div>' +
         '<div><h4>What to do</h4><ul class="fs-hl-adv">' + f.advice.map(function (a) { return '<li><span class="fs-hl-pr fs-hl-' + a.priority + '">' + a.priority + '</span> <b>' + esc(a.topic) + ':</b> ' + esc(a.text) + '</li>'; }).join('') + '</ul></div></div>';
       h += '<p class="fs-hl-small"><a download="' + esc((f.name || id).replace(/[^\w-]+/g, '_')) + '_sentinel2.csv" href="' + csvHref(f.series || []) + '">Download this field\u2019s data (CSV)</a>' + (f.csv ? ' · also saved on the server as <code>' + esc(f.csv) + '</code>' : '') + '</p></article>';
     });
-    return h + '<p class="fs-fm-note">' + esc((D.sources || []).join(' ')) + ' Scores, the yield estimate, causes and advice are rules on published satellite indices (NDVI, NDRE, NDMI, red-edge position), not a model trained on harvests. Crop and planting date come from the farm setup (the last crop on each field; corn 28 April, soybeans 15 May). Sentinel-1 radar and Sentinel-3 are not used: Sentinel-3 pixels (300 m) are bigger than most fields.</p></section>';
+    return h + '<p class="fs-fm-note">' + esc((D.sources || []).join(' ')) + ' The health index, the yield guide, causes and advice are rules on published satellite indices (NDVI, NDRE, NDMI, red-edge position), not a model trained on harvests. Crop and planting date come from the farm setup (the last crop on each field; corn 28 April, soybeans 15 May, six months later south of the equator). Sentinel-1 radar and Sentinel-3 are not used: Sentinel-3 pixels (300 m) are bigger than most fields.</p></section>';
   }
 
   // ---------------------------------------------------------------- small map: fields, ponds and numbered warnings
@@ -153,16 +155,17 @@
         card('Rain', num(n.rainPast7Mm, ' mm', 1), 'past 7 days · next 3 days ' + num(n.rainNext3Mm, ' mm', 1)) +
         card('Topsoil water', n.soilMoist == null ? '–' : Math.round(n.soilMoist * 100) + '%', 'by volume, now' + (e5 ? ' · ERA5-Land ' + Math.round(e5.top7 * 100) + '% on ' + esc(e5.time.slice(5, 10)) : '')) +
         card('Air quality', num(a.pm25, ' µg/m³'), 'fine dust PM2.5 · UV ' + num(a.uv, '', 1)) + '</div>';
+      h += nasaHTML(d);
       h += '<div class="fs-cn-main">' + miniMap(d, req, list) + '<div class="fs-cn-warns"><h3>Warnings</h3>' +
         (list.length ? '<ol>' + list.map(function (w, i) {
           return '<li class="fs-cn-' + w.level + (i === pick ? ' fs-cn-on' : '') + '"><button type="button" data-i="' + i + '"' + (w.lon == null ? ' disabled' : '') + '><span class="fs-cn-badge">' + (w.level === 'warn' ? 'Warning' : 'Note') + '</span> ' + esc(w.text) + '</button></li>';
         }).join('') + '</ol>' : '<p>Nothing to warn about on these fields right now.</p>') + '</div></div>';
-      h += '<div class="fs-cn-tablewrap"><table class="fs-cn-table"><thead><tr><th>Field</th><th>Organic carbon</th><th>Nitrogen</th><th>pH</th><th>CEC</th><th>Cropland · water · wetland</th><th>Slope</th><th>Bare soil now</th><th>Summer greenness</th></tr></thead><tbody>' +
+      h += '<div class="fs-cn-tablewrap"><table class="fs-cn-table"><thead><tr><th>Field</th><th>Organic carbon</th><th>Nitrogen</th><th>pH</th><th>CEC</th><th>Cropland · water · wetland</th><th>Slope</th><th>Bare soil now</th><th>Last summer\u2019s greenness</th></tr></thead><tbody>' +
         req.fields.map(function (f) {
           var x = d.fields[f.id] || {}, s = x.fertility || {}, c = (x.cover && x.cover.sharePct) || {}, t = x.terrain || {}, sat = x.satellite || {};
           return '<tr><th>' + esc(f.name) + '</th><td>' + num(s.organicCarbonGkg, ' g/kg', 1) + '</td><td>' + num(s.nitrogenGkg, ' g/kg', 2) + '</td><td>' + num(s.ph, '', 1) + '</td><td>' + num(s.cecCmolKg, '', 0) + '</td>' +
             '<td>' + num(c.cropland, '%', 0) + ' · ' + num(c.water || 0, '%', 1) + ' · ' + num(c.wetland || 0, '%', 1) + '</td><td>' + num(t.slopePct, '%', 1) + '</td>' +
-            '<td>' + (sat.ground ? sat.ground.bareSoilPct + '%' : '–') + '</td><td>' + (sat.summer ? 'NDVI ' + sat.summer.ndviMedian : '–') + '</td></tr>';
+            '<td>' + (sat.ground ? sat.ground.bareSoilPct + '%' : '–') + '</td><td>' + (sat.summer ? 'NDVI ' + sat.summer.ndviMedian + ' <i class="fs-fm-faint">(image of ' + esc(sat.summer.date) + ')</i>' : '–') + '</td></tr>';
         }).join('') + '</tbody></table></div>';
       h += healthHTML();
       h += '<p class="fs-fm-note">Sources: ' + esc((d.sources || []).join(' ')) + (d.gaps && d.gaps.length ? ' Gaps: ' + esc(d.gaps.join(' ')) : '') +
@@ -187,10 +190,19 @@
     if (n && n.time) rows.push(['Weather (ECMWF)', n.time.replace('T', ' ') + ' local', 'updated hourly']);
     if (d.air && d.air.time) rows.push(['Air (Copernicus CAMS)', d.air.time.replace('T', ' ') + ' local', 'updated hourly']);
     if (d.era5Soil) rows.push(['Soil moisture (ERA5-Land)', d.era5Soil.time.slice(0, 10), ago(d.era5Soil.time + 'Z') + ', runs about 5 days behind']);
+    if (d.nasa && d.nasa.soil) rows.push(['Soil wetness (NASA POWER MERRA-2)', d.nasa.soil.date, ago(d.nasa.soil.date + 'T12:00:00Z') + ', runs about 3 days behind']);
+    if (d.nasa && d.nasa.fire) rows.push(['Fire detections (NASA GIBS)', 'to ' + d.nasa.fire.to, ago(d.nasa.fire.to + 'T12:00:00Z') + ', NASA publishes with a delay']);
     if (sat) rows.push(['Last clear Sentinel-2 pass', sat, ago(sat + 'T12:00:00Z') + ', a new pass every 2 to 5 days']);
     rows.push(['Ponds and land cover', 'ESA WorldCover 2021', 'fixed map'], ['Soil fertility', 'ISRIC SoilGrids', 'fixed map']);
     return '<div class="fs-cn-fresh" aria-label="How recent each source is">' + rows.map(function (r) { return '<span><b>' + esc(r[0]) + '</b> ' + esc(r[1]) + ' <i>' + esc(r[2]) + '</i></span>'; }).join('') +
       '<span class="fs-cn-auto">Checks again by itself every 15 minutes while this view is open.</span></div>';
+  }
+  // the NASA lines: fire detections and MERRA-2 soil wetness
+  function nasaHTML(d) {
+    var N = d.nasa || {}, rows = [];
+    if (N.fire) rows.push('<li class="' + (N.fire.detections.length ? 'fs-cn-warn' : '') + '">' + esc(N.fire.line) + '</li>');
+    if (N.soil) rows.push('<li>' + esc(N.soil.line) + '</li>');
+    return rows.length ? '<div class="fs-cn-nasa"><h3>NASA Data On These Fields</h3><ul>' + rows.join('') + '</ul></div>' : '';
   }
   function card(t, big, small) { return '<div class="fs-cn-card"><span class="fs-cn-t">' + t + '</span><strong>' + big + '</strong><span class="fs-cn-s">' + small + '</span></div>'; }
 

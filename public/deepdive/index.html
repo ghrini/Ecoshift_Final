@@ -256,15 +256,17 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px var(
 .fs-adjust-title { display: inline-flex; align-items: center; gap: 10px; padding-left: 4px; font: 600 18px/1.2 var(--font-sans); letter-spacing: 0; color: var(--on-bg); }
 .fs-adjust-title svg { flex: none; color: var(--umber); }
 
-/* ===== Inside text at 22px (team request): controls, Sim analysis and Chat ===== */
-.fs-row-head label, .fs-label, .fs-val, .fs-check, .fs-check span { font-size: 22px; line-height: 1.35; }
-.fs-select { font-size: 22px; padding: 8px 12px; }
+/* size of the text inside the setting boxes, Sim analysis and Chat: 16px on phones, about 18px on a 1440 laptop, 22px from 1760px up */
+:root { --fs-inner: clamp(16px, 1.25vw, 22px); }
+/* ===== Inside text: controls, Sim analysis and Chat ===== */
+.fs-row-head label, .fs-label, .fs-val, .fs-check, .fs-check span { font-size: var(--fs-inner); line-height: 1.35; }
+.fs-select { font-size: var(--fs-inner); padding: 8px 12px; }
 .fs-ctl-row .fs-panel-body { gap: 16px; }
-.fs-body-tools .fs-reset { font-size: 22px; }
+.fs-body-tools .fs-reset { font-size: var(--fs-inner); }
 #fs-chat .fs-panel-body, #fs-analysis .fs-panel-body,
-#fs-analysis .fs-panel-body *, #fs-chat .fs-panel-body * { font-size: 22px; line-height: 1.45; }
-#fs-chat-input { font-size: 22px; min-height: 50px; }
-#fs-chat-send { font-size: 20px; height: 50px; }
+#fs-analysis .fs-panel-body *, #fs-chat .fs-panel-body * { font-size: var(--fs-inner); line-height: 1.45; }
+#fs-chat-input { font-size: var(--fs-inner); min-height: 50px; }
+#fs-chat-send { font-size: calc(var(--fs-inner) - 2px); height: 50px; }
 /* bullets that expand */
 .fs-detail-list { margin: 6px 0 0; padding-left: 26px; display: grid; gap: 6px; }
 .fs-detail-list li::marker { color: var(--umber); }
@@ -662,6 +664,46 @@ textarea.fs-q-text { resize: vertical; min-height: 3.4em; }
 .fs-trace { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); color: var(--text-muted); }
 #fs-chat .fs-panel-body .fs-trace .fs-trace-label { color: var(--umber); font-weight: 600; margin-right: 4px; }
 .fs-trace-arrow { color: var(--umber); margin: 0 2px; }
+/* ===== Phones: the Simulation / Farm Map / Conditions switcher gets its own row under the panel title ===== */
+@media (max-width: 700px) {
+  #fs-view-panel .fs-panel-head { height: auto; min-height: 56px; flex-wrap: wrap; align-items: center; row-gap: 8px; padding: 10px 14px; }
+  #fs-view-panel .fs-panel-title { flex: 1 1 auto; font-size: 22px; }
+  #fs-view-panel .fs-head-right { display: contents; }
+  #fs-view-panel .fs-expand { order: 2; }
+  #fs-view-panel .fs-fm-tabs { order: 3; flex: 1 1 100%; display: flex; max-width: 100%; }
+  #fs-view-panel .fs-fm-tabs button { flex: 1 1 0; min-width: 0; white-space: normal; line-height: 1.15; padding: 7px 6px; font-size: 13px; }
+}
+
+/* ===== Welcome screen: privacy note folded, the example farm is a clear second button ===== */
+.fs-q-priv { margin-top: 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--panel-2); }
+.fs-q-priv > summary { cursor: pointer; padding: 10px 14px; font-weight: 600; color: var(--on-bg-accent); }
+.fs-q-priv[open] > summary { border-bottom: 1px solid var(--divider); }
+.fs-q-priv > .fs-q-plain { margin: 0; padding: 12px 14px; font-size: 17px; line-height: 1.5; color: var(--text-muted); }
+.fs-q-btn.fs-setup-example-btn { display: inline-block; text-decoration: none; font-family: var(--font-sans); font-size: 20px; padding: 10px 22px; border-radius: 10px; border: 1px solid var(--accent); background: transparent; color: var(--on-bg-accent); cursor: pointer; font-weight: 600; }
+.fs-setup-example-btn:hover { background: var(--umber-glow); color: var(--brown-strong); }
+.fs-setup-example-btn:focus-visible { outline: 2px solid var(--info); outline-offset: 3px; }
+@media (max-width: 700px) { .fs-q-nav { flex-wrap: wrap; } .fs-setup-example-btn { font-size: 18px; padding: 8px 14px; } }
+
+/* ===== Laptop sizing: the field view gets the height, headings are a little tighter ===== */
+@media (min-width: 1001px) {
+  .fs-panel-head { height: 60px; }
+  .fs-panel-title { font-size: 24px; }
+  #fs-app { min-height: 800px; grid-template-columns: minmax(0, 2fr) minmax(380px, 1fr); }
+  #fs-right { grid-template-rows: minmax(0, 1.25fr) minmax(0, 1fr); }
+  #fs-analysis .fs-panel-body, #fs-chat .fs-panel-body { padding: 12px 16px 14px; }
+}
+
+/* one verdict line per field at the top of Sim analysis */
+#fs-analysis .fs-verdicts { list-style: none; margin: 0 0 10px; padding: 0 0 8px; border-bottom: 1px solid var(--divider); display: grid; gap: 2px; }
+#fs-analysis .fs-verdicts, #fs-analysis .fs-verdicts * { font-size: calc(var(--fs-inner) - 1px); line-height: 1.35; }
+#fs-analysis .fs-verdicts b { color: var(--on-bg-accent); font-weight: 700; }
+
+/* laptop: the whole farm map picture fits in the box without scrolling */
+@media (min-width: 1001px) { .fs-fm-fig img { width: auto; height: min(640px, calc(100dvh - 430px)); min-height: 280px; max-width: 100%; } }
+.fs-cn-nasa { padding: 10px 14px; border: 1px solid var(--border); border-left: 4px solid var(--info); border-radius: var(--radius-sm); }
+.fs-cn-nasa h3 { margin: 0 0 6px; font: 700 16px var(--font-sans); }
+.fs-cn-nasa ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: 15px; line-height: 1.45; }
+.fs-cn-nasa li.fs-cn-warn { font-weight: 600; }
 
 /* Bird's-eye view styles. Every selector is scoped under #fs-view or starts with .fv- (tokens only for color). */
 #fs-view { position: relative; display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: var(--panel); color: var(--text); font-family: var(--font-sans); }
@@ -881,7 +923,7 @@ FS.data = {
   // typical = the season closest to the 1982-2025 median in BOTH June-August rain and May-September growing degree-days (seasons
   // 1982-83 skipped: no radiation, so ET0 is Hargreaves). 1984, the earlier choice, matched rain only and is the 4th coolest season.
   weatherScenarios: [
-    { id: 'typical', label: 'Typical year (2011)', phrase: 'a typical year (2011 weather)', year: 2011,
+    { id: 'typical', label: 'Typical season (2011 weather)', phrase: 'a typical season\'s weather (2011)', year: 2011,
       note: 'Closest of the 44 seasons to the middle of the record in both June-August rain (293 mm here against a 1982-2025 median of 322 mm) and summer warmth; Iowa corn 172 bu/acre (USDA NASS).' },
     { id: 'drought2012', label: '2012 drought and heat', phrase: 'a 2012-style drought', year: 2012,
       note: 'Iowa corn 137 bu/acre vs 172 in 2011 (USDA NASS); the 2nd driest June-August of the 44 seasons here.' },
@@ -908,8 +950,8 @@ FS.data = {
     costShareCapAcres: 160,                                        // IDALS 2026: cost-share is paid on at most 160 acres per farm
     asOf: '2026-11-14',
     sources: {
-      price: 'Corn $4.60 and soybean $12.10 per bushel: USDA WASDE November 2026, 2026/27 season-average farm price (reported by DTN, 10 Nov 2026). Oats $3.50 is a placeholder, not sourced.',
-      costs: 'Corn $911.98, corn after corn $960.02 and the 211 bu/acre budget yield: Iowa State University Ag Decision Maker A1-20, January 2026, read through secondary summaries (Fencerow, Iowa Farm Bureau). Soybean about $680 at 61 bu/acre: Iowa Soybean Association summary of the same budgets, sources conflict. Oats $420 and 80 bu/acre are placeholders. Rye $37 is a placeholder.',
+      price: 'Corn $4.60 and soybean $12.10 per bushel: USDA WASDE November 2026, 2026/27 season-average farm price (reported by DTN, 10 Nov 2026). Oats $3.50 is a rough guess with no source.',
+      costs: 'Corn $911.98, corn after corn $960.02 and the 211 bu/acre budget yield: Iowa State University Ag Decision Maker A1-20, January 2026, read through secondary summaries (Fencerow, Iowa Farm Bureau). Soybean about $680 at 61 bu/acre: Iowa Soybean Association summary of the same budgets, sources conflict. Oats $420 and 80 bu/acre are rough guesses with no source. Rye $37 is a rough guess with no source.',
       nitrogen: '146 lb N/acre for corn after soybean: Iowa State MRTN 2022. 190 lb for corn after corn is a working figure. $0.57 per lb N from anhydrous at $938/ton (DTN, November 2026).',
       volatility: 'RMA 2026 volatility factors, via farmdoc daily (March 2026).',
       costShare: 'Iowa Department of Agriculture and Land Stewardship cover crop cost-share 2026: $30/acre first-time, 160-acre cap; not combinable with the crop insurance discount.'
@@ -1984,8 +2026,8 @@ window.FS = window.FS || {};
   var PRIORITIES = { balanced: 1, profit: 1, risk: 1, cover: 1 };
   // plans the farmer will not grow: controls.other.exclude, an array of plan ids ([] or missing = none). A field's current plan is never dropped by callers.
   function excluded(controls, pid) { var x = controls && controls.other && controls.other.exclude; return Array.isArray(x) && x.length > 0 && x.indexOf(pid) >= 0; }
-  var PLAN_WORDS = { 'soy': 'soybeans', 'rye-soy': 'a cereal rye cover crop, then soybeans', 'corn-corn': 'corn again (corn after corn)', 'oats-cover': 'oats, then a summer cover crop',
-                     'corn': 'corn', 'rye-corn': 'a cereal rye cover crop, then corn', 'soy-soy': 'soybeans again (soybeans after soybeans)' };
+  var PLAN_WORDS = { 'soy': 'soybeans', 'rye-soy': 'a cereal rye cover crop, then soybeans', 'corn-corn': 'corn after corn (a second year of corn)', 'oats-cover': 'oats, then a summer cover crop',
+                     'corn': 'corn', 'rye-corn': 'a cereal rye cover crop, then corn', 'soy-soy': 'soybeans after soybeans (a second year of soybeans)' };
   function planWords(pid) { return PLAN_WORDS[pid] || (FS.data.plans[pid] ? FS.data.plans[pid].label.toLowerCase() : pid); }
   function money0(v) { return '$' + Math.abs(Math.round(v)).toLocaleString('en-US'); }
   function moreLess(v) { return Math.round(v) === 0 ? 'about the same money' : 'about ' + money0(v) + (v > 0 ? ' more' : ' less') + ' per acre'; }
@@ -2000,7 +2042,7 @@ window.FS = window.FS || {};
     return e;
   }
   function riskOf(w5) { return w5 < RISK_HIGH ? 'high' : w5 < RISK_LOW ? 'medium' : 'low'; }
-  function moneyNoteFor(crop) { return crop === 'oats' ? 'Oats price and cost are placeholders, so money is not shown.' : null; }
+  function moneyNoteFor(crop) { return crop === 'oats' ? 'Oats price and cost are rough guesses with no source yet, so money is not shown.' : null; }
 
   // cost-share share for this field's rye acres when the other fields' rye acres (from controls) are counted first
   function shareFor(farm, controls, fieldId, acres) {
@@ -2098,10 +2140,10 @@ window.FS = window.FS || {};
     'current': 'No change to your rotation, equipment or marketing.'
   };
   var GAPS = {
-    'rye': 'This tool does not put a dollar value on less nitrate loss, less erosion or weed control, and the $37 per acre rye cost is a placeholder.',
+    'rye': 'This tool does not put a dollar value on less nitrate loss, less erosion or weed control, and the $37 per acre rye cost is a rough guess with no source yet.',
     'corn-corn': 'The corn-after-corn yield drag (about 8%) comes from Iowa State budgets, not from your fields; rootworm and residue problems are not modelled separately.',
     'soy-soy': 'The soybean-after-soybean drag (7%) is a working value with no published source; disease and nematode build-up are not modelled.',
-    'oats-cover': 'Oats price, cost and yield are placeholders, so the money result is not reliable.',
+    'oats-cover': 'Oats price, cost and yield are rough guesses with no source yet, so the money result is not reliable.',
     'current': 'All results use one weather grid square of about 50 km and hold prices at today\'s levels.'
   };
   var RISKS = {
@@ -2318,7 +2360,7 @@ window.FS = window.FS || {};
         var cs = { frost: 'Frost during', heat: 'Heat during', drought: 'Dry soil during', wet: 'Waterlogged soil during' }[worst.cause], sg = STAGE_TEXT[wf.weeks[worst.w].stage] || 'growth';
         note = cs + ' ' + cropName + ' ' + sg + (res.late > PLANT_LATE_FLAG ? '; planted ' + Math.round(res.late) + ' days after the target date' : '');
       }
-      if (cropName === 'oats') note += '; oats price and cost are placeholders, needs a local buyer';
+      if (cropName === 'oats') note += '; oats price and cost are rough guesses with no source yet, needs a local buyer';
       fieldsOut[f.id] = { plan: planId, planLabel: ev.plan.label, crop: cropName, acres: f.acres, trialAcres: planId === cur && planReq !== cur ? 0 : trial,
         yieldPctOfNormal: Math.round(ev.pct), yieldBuPerAcre: r1(ev.bu), returnPerAcre: retField, returnVsBaselinePerAcre: vs,
         greenCoverMonths: r1(res.rootDays / 30.4), worstWeek: wDate, note: note, moneyNote: moneyNoteFor(cropName) };
@@ -2377,7 +2419,7 @@ window.FS = window.FS || {};
       why.push({ text: it0 ? 'A hard frost on ' + realDayWords(it0.fr.d, year) + ' caught the crop before it finished (' + frostStageWords(it0.fr) + '), which cost the most yield.' : 'A killing frost caught the crop before it finished, which cost the most yield.', source: 'power' });
     } else if (best === 'wet') why.push({ text: 'Soils the soil survey rates as slow to drain stayed saturated in May and June, which cost the most yield. ' + tileWords(), source: 'nrcs' });
     else why.push({ text: 'Planting went in late because fields were too wet or too cold in spring, which cost the most yield.', source: 'power' });
-    var yl = sc.id === 'typical' ? 'the ' + year + ' season (a typical year)' : 'the real ' + year + ' season';
+    var yl = sc.id === 'typical' ? 'the ' + year + ' season (a typical season\'s weather)' : 'the real ' + year + ' season';
     why.push({ text: 'Weather is ' + yl + ' from NASA POWER for one ~50 km grid square shared by all four fields; soils from NRCS; costs from Iowa State 2026 budgets at today\'s prices; before insurance; not a forecast.' +
       (sc.id === 'drought2012' || sc.id === 'drought1988' ? ' Prices are held at today\'s level; in the real ' + year + ' drought prices rose sharply, which softened the losses.' : ''), source: 'power' });
     why.push({ text: 'The weather response was checked against Iowa yields from USDA NASS: it catches the big droughts but is no better than the yield trend in ordinary years, and heat damage cannot be estimated from that data. The rotation, cover-crop and planting-date effects come from Iowa State trials and are not covered by that check.', source: 'isu' });
@@ -2449,7 +2491,7 @@ window.FS = window.FS || {};
     list.forEach(function (s) {
       var o = O.filter(function (x) { return x.id === s.id; })[0] || s, k; for (k in s) delete s[k]; for (k in o) s[k] = o[k];
       var fw;
-      if (s.id === 'typical') { s.year = T.year; s.label = 'Typical year (' + T.year + ')'; s.phrase = 'a typical year (' + T.year + ' weather)';
+      if (s.id === 'typical') { s.year = T.year; s.label = 'Typical season (' + T.year + ' weather)'; s.phrase = 'a typical season\'s weather (' + T.year + ')';
         s.note = 'Closest of the ' + yrs.length + ' seasons to the middle of the record in both June-August rain (' + Math.round(T.jja) + ' mm here against a ' + span + ' median of ' + Math.round(T.medJJA) + ' mm) and summer warmth.'; }
       else if (s.id === 'drought2012' || s.id === 'drought1988') s.note = jjaNote(s.year, 'Drought and heat across the Corn Belt.');
       else if (s.id === 'dry2023') s.note = jjaNote(s.year, 'A dry summer.');
@@ -2738,6 +2780,8 @@ window.FS = window.FS || {};
   }
   buildGeo();
   function imported() { return !!DATA.farm.imported; }   // the farmer's own outlines (GeoJSON): no drawn farmstead, roads or creek
+  // the weather behind an imported farm: NASA POWER, or the Copernicus ERA5 fallback when NASA POWER did not answer
+  function importedWeatherName() { try { var g = FS.engine && FS.engine.site && FS.engine.site().geo; return (g && g.weather) || 'NASA POWER'; } catch (e) { return 'NASA POWER'; } }
 
   // Geometry of a real farm map's fields in map units (0..MAPSIZE), or null when the record cannot paint all four simulator fields.
   function buildMapGeo(rec) {
@@ -3374,7 +3418,7 @@ window.FS = window.FS || {};
       liveSt = { key: key, status: 'ok', rec: rec }; useMap(rec, true, 'live', rec.img);
     }
     function pickMap() {
-      if (imported()) { liveSt = { key: '', status: '', rec: null }; fallBack(0, false, 'county'); credEl.textContent = 'Your own field outlines · Copernicus weather and terrain'; return; }
+      if (imported()) { liveSt = { key: '', status: '', rec: null }; fallBack(0, false, 'county'); credEl.textContent = 'Your own field outlines · ' + importedWeatherName() + ' weather · Copernicus terrain'; return; }
       var pt = ownPoint(), base = serverBase(), c = countyRec();
       if (pt && base) {
         var key = pt.lat.toFixed(3) + ',' + pt.lon.toFixed(3);
@@ -3867,8 +3911,8 @@ window.FS = window.FS || {};
 
   var PLAN_PHRASE = {
     'rye-soy': 'planting cereal rye before soybeans', 'rye-corn': 'planting cereal rye before corn',
-    'corn-corn': 'planting corn again', 'oats-cover': 'planting oats with a summer cover crop',
-    'soy-soy': 'planting soybeans again', 'corn': 'planting corn after soybeans', 'soy': 'planting soybeans after corn'
+    'corn-corn': 'planting corn after corn', 'oats-cover': 'planting oats with a summer cover crop',
+    'soy-soy': 'planting soybeans after soybeans', 'corn': 'planting corn after soybeans', 'soy': 'planting soybeans after corn'
   };
   function planPhrase(id, x) { return PLAN_PHRASE[id] || ('going with ' + planName(x)); }
   function sentence(s) { s = String(s).trim(); return /[.!?]$/.test(s) ? s : s + '.'; }
@@ -3878,6 +3922,24 @@ window.FS = window.FS || {};
   // mislead; differences between plans hold up much better and are still shown.
   FS.absMoneyOk = function () { try { var st = FS.engine && FS.engine.site && FS.engine.site(); return !st || !st.state || st.state === 'IA'; } catch (e) { return true; } };
   function earns(tot) { var v = round10(tot); return v < 50 ? 'about breaks even' : tot > 0 ? 'earns about ' + money(v) : 'loses about ' + money(v); }
+
+  // One line per field in farmer words, from the same past-season table the strip uses: "North 80: keep soybeans · worst season 87% of normal"
+  var CROP_OF = { 'soy': 'soybeans', 'soy-soy': 'soybeans', 'rye-soy': 'soybeans', 'corn': 'corn', 'corn-corn': 'corn', 'rye-corn': 'corn', 'oats-cover': 'oats' };
+  function verdictsHtml(r, fields, cur0) {
+    var rows = '';
+    fields.forEach(function (f) {
+      var plan = r.inputs.crops && r.inputs.crops.plans[f.id], data = null;
+      try { if (FS.engine && FS.engine.seasons) data = FS.engine.seasons(f.id, r.inputs); } catch (e) { data = null; }
+      if (!data || !data.years || !data.plan || !data.plan.pct) return;
+      var worst = null, wy = null;
+      data.plan.pct.forEach(function (v, i) { if (v != null && isFinite(v) && (worst == null || v < worst)) { worst = v; wy = data.years[i]; } });
+      if (worst == null) return;
+      var keep = !plan || plan === cur0[f.id];
+      var what = keep ? 'keep ' + (CROP_OF[cur0[f.id]] || 'your plan') : 'try ' + (PLAN_SHORT[plan] || 'your plan');
+      rows += '<li><b>' + esc(f.name) + ':</b> ' + esc(what) + ' \u00b7 <span title="The worst of the ' + data.years.length + ' past seasons (' + wy + ')">worst season ' + Math.round(worst) + '% of normal</span></li>';
+    });
+    return rows ? '<ul class="fs-verdicts" aria-label="One line per field">' + rows + '</ul>' : '';
+  }
 
   function runHtml(r) {
     var s = r.summary, delta = s.farm.returnVsBaselineTotal, cur0 = D.initialControls.crops.plans;
@@ -3893,18 +3955,18 @@ window.FS = window.FS || {};
     var pctNormal = Math.round(tot / (ac || 1));
     // Visible part: ONE short sentence. Everything else sits behind "Show details".
     var oats = all.some(function (f) { return s.fields[f.id].moneyNote; });
-    // group changed fields by plan: "planting corn again on North 80 and Creek 40"
+    // group changed fields by plan: "planting corn after corn on North 80 and Creek 40"
     var groups = [], byPlan = {};
     changed.forEach(function (f) { var p = r.inputs.crops.plans[f.id]; if (!byPlan[p]) { byPlan[p] = { p: p, x: s.fields[f.id], names: [] }; groups.push(byPlan[p]); } byPlan[p].names.push(esc(f.name)); });
     var who = groups.length > 2 ? 'your changes on ' + changed.length + ' fields' : joinAnd(groups.map(function (g) { return planPhrase(g.p, g.x) + ' on ' + joinAnd(g.names); }));
     if (oats) {
-      open = 'In ' + esc(sc) + ', your farm gets about ' + pctNormal + '% of a normal crop. Money is not shown while oats is in the plan, because oats prices are placeholders.';
+      open = 'In ' + esc(sc) + ', your farm gets about ' + pctNormal + '% of a normal crop. Money is not shown while oats is in the plan, because oats price and cost are rough guesses with no source yet.';
     } else if (changed.length && Math.round(delta) !== 0) {
       open = 'In ' + esc(sc) + ', ' + who + (groups.length > 1 ? ' earn' : ' earns') + ' about ' + money(round10(delta)) + (delta < 0 ? ' less' : ' more') + ' than your current plan.';
     } else {
       open = 'In ' + esc(sc) + ', your farm gets about ' + pctNormal + '% of a normal crop' + (FS.absMoneyOk() ? ' and ' + earns(s.farm.returnTotal) : '') + (changed.length ? ', about the same as your current plan' : '') + '.';
     }
-    h = '<p>' + open + '</p><div class="fs-strip-wrap"></div>';
+    h = verdictsHtml(r, all, cur0) + '<p>' + open + '</p><div class="fs-strip-wrap"></div>';
 
     // Details: plain sentences, a farmer can read them top to bottom.
     var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -3944,7 +4006,7 @@ window.FS = window.FS || {};
   }
 
   // ---- season strip: one square per past season for the selected field (API_V3 section 3)
-  var PLAN_SHORT = { 'rye-soy': 'rye then soybeans', 'rye-corn': 'rye then corn', 'corn-corn': 'corn again', 'soy-soy': 'soybeans again', 'oats-cover': 'oats then a cover crop', 'corn': 'corn', 'soy': 'soybeans' };
+  var PLAN_SHORT = { 'rye-soy': 'rye then soybeans', 'rye-corn': 'rye then corn', 'corn-corn': 'corn after corn', 'soy-soy': 'soybeans after soybeans', 'oats-cover': 'oats then a cover crop', 'corn': 'corn', 'soy': 'soybeans' };
   var focusYear = null;
   function yearOf(id) {
     var sc = scen(id); if (sc && sc.year) return Number(sc.year);
@@ -4036,12 +4098,12 @@ window.FS = window.FS || {};
   var NAMED = function () { return D.weatherScenarios || []; };
   function climYears() { var c = D.climate && D.climate.meta; return (c && c.years) || []; }
 
-  var SHORT_PLAN = { 'soy': 'soybeans (current plan)', 'rye-soy': 'rye after harvest, then soybeans', 'corn-corn': 'corn again',
-    'oats-cover': 'oats, then a summer cover crop', 'corn': 'corn (current plan)', 'rye-corn': 'rye after harvest, then corn', 'soy-soy': 'soybeans again' };
+  var SHORT_PLAN = { 'soy': 'soybeans (current plan)', 'rye-soy': 'rye after harvest, then soybeans', 'corn-corn': 'corn after corn',
+    'oats-cover': 'oats, then a summer cover crop', 'corn': 'corn (current plan)', 'rye-corn': 'rye after harvest, then corn', 'soy-soy': 'soybeans after soybeans' };
   var PLAN_PHRASE = {
-    'soy': 'plant soybeans (your current plan)', 'rye-soy': 'plant cereal rye after harvest, then soybeans in spring', 'corn-corn': 'plant corn again',
+    'soy': 'plant soybeans (your current plan)', 'rye-soy': 'plant cereal rye after harvest, then soybeans in spring', 'corn-corn': 'plant corn after corn (a second year of corn)',
     'oats-cover': 'plant oats in spring, then a summer cover crop', 'corn': 'plant corn (your current plan)',
-    'rye-corn': 'plant cereal rye after harvest, then corn in spring', 'soy-soy': 'plant soybeans again'
+    'rye-corn': 'plant cereal rye after harvest, then corn in spring', 'soy-soy': 'plant soybeans after soybeans (a second year of soybeans)'
   };
   // "(current plan)" is only true while some field is on that plan (a farmer who already plants rye has another current plan)
   function isCurrentSomewhere(p) { var pl = D.initialControls.crops.plans; return D.farm.fields.some(function (f) { return pl[f.id] === p; }); }
@@ -4204,7 +4266,7 @@ window.FS = window.FS || {};
     var f = (summary && summary.fields) || {};
     return Object.keys(f).some(function (id) { return f[id] && f[id].moneyNote; });
   }
-  var OATS_MONEY = 'Money is not shown while oats is in the plan, because oats prices are placeholders.';
+  var OATS_MONEY = 'Money is not shown while oats is in the plan, because oats price and cost are rough guesses with no source yet.';
   function errPoints(summary) {
     var m = /typical error (?:of )?(\d+) points?/.exec((summary && summary.validation && summary.validation.text) || '');
     return m ? +m[1] : null;
@@ -4299,7 +4361,7 @@ window.FS = window.FS || {};
     var ys = climYears(), span = ys.length ? ys[0] + '-' + ys[ys.length - 1] : '1982-2025', site = FS.farmSetup && FS.farmSetup.site;
     var notChecked = site && site.validated === false ? ' This location was not checked against its own county\'s harvests; the yield check was done for Story County, Iowa.' : '';
     return 'The weather is NASA POWER daily weather for ' + span + ' for this grid square (about 50 km wide), and the soils are from the USDA NRCS soil survey. The yield model is checked against USDA NASS Iowa yields.' + notChecked + ' ' +
-      (prices ? cap(prices) + (E.asOf ? ' (as of ' + E.asOf + ')' : '') + '; oats and rye prices are placeholders.' : 'Prices and costs are listed in the data notes.');
+      (prices ? cap(prices) + (E.asOf ? ' (as of ' + E.asOf + ')' : '') + '; oats and rye prices are rough guesses with no source yet.' : 'Prices and costs are listed in the data notes.');
   }
   function answerQuestion(t, state) {
     var r = state.current, sm = r && r.summary, fid = fieldFromText(t) || state.selectedField || D.farm.fields[0].id;
@@ -4323,7 +4385,7 @@ window.FS = window.FS || {};
       var parts = [], pw = PLAN_WORDS.filter(function (w) { return w[0].test(t); })[0];
       if (pw) {
         var rows = compareRows(fid, state.controls), row = rows && rows.filter(function (x) { return !x.isCurrent && pw[1](x.plan); })[0];
-        if (row) { parts.push(cap(planPlain(row.plan)) + ' on ' + fieldById(fid).name + ' ' + (row.moneyNote ? 'has no reliable money figure (oats prices are placeholders)' : moneyVs(row.deltaPerAcre)) + '.'); }
+        if (row) { parts.push(cap(planPlain(row.plan)) + ' on ' + fieldById(fid).name + ' ' + (row.moneyNote ? 'has no reliable money figure (oats prices are rough guesses with no source yet)' : moneyVs(row.deltaPerAcre)) + '.'); }
       }
       var why = (sm.why || []).map(function (w) { return typeof w === 'string' ? w : w && w.text; }).filter(Boolean);
       if (!parts.length) parts = why.slice(0, 2); else if (why[0]) parts.push('For this run: ' + why[0].replace(/^./, function (c) { return c.toLowerCase(); }));
@@ -4360,7 +4422,7 @@ window.FS = window.FS || {};
 
     // quick intents on the whole text
     if (/\breset\b|start over|back to normal|clear (?:everything|all)(?! (?:the |my )?(?:weather )?(?:events?|spells?))|\bdefaults?\b/.test(t))
-      return { reply: 'Reset all controls to your current plans in a typical season (2011 weather). Running.', actions: resetActions().concat([{ type: 'run', label: 'Typical Season (2011 Weather) · Current Plans' }]) };
+      return { reply: 'Reset all controls to your current plans in a typical season (2011 weather). Running.', actions: resetActions().concat([{ type: 'run', label: 'Typical season · current plans' }]) };
     if (/^\s*undo\b|\bundo (?:that|it|the last)|^\s*(?:go back|take that back|revert)\b/.test(t)) {
       if (!undoStack.length) return { reply: 'There is nothing to undo.', actions: [] };
       var what = undoDiff(controls, undoStack[undoStack.length - 1]);
@@ -5495,7 +5557,8 @@ window.FS = window.FS || {};
   var STEPS = [
     { id: 'welcome', title: "Let's Get To Know Your Farm", noSkip: true, next: 'Start',
       hint: function () { return STEPS.filter(function (q) { return !q.noSkip; }).length + ' quick questions. Most are optional. Then the simulator replays ' + years() + ' real seasons of NASA weather on your farm.'; },
-      render: function () { return (FS.i18n && /^https?:$/.test(location.protocol) ? '<div class="fs-q-langrow">' + FS.i18n.selectHTML('fs-q-lang') + '<span class="fs-q-langhint" translate="no">Choose your language · Elige tu idioma · Escolha seu idioma · Choisissez votre langue</span></div>' : '') + '<p class="fs-q-plain">Your answers are saved in this browser. To fit the data to your farm, its location is sent to NASA POWER, USDA (soils and yields), ISRIC SoilGrids, the FCC and US Census lookups and the Open-Meteo forecast. Addresses you type go to the Photon address search (OpenStreetMap). If the server has an AI key, your land answers go to Google Gemini.</p>'; } },
+      render: function () { return (FS.i18n && /^https?:$/.test(location.protocol) ? '<div class="fs-q-langrow">' + FS.i18n.selectHTML('fs-q-lang') + '<span class="fs-q-langhint" translate="no">Choose your language · Elige tu idioma · Escolha seu idioma · Choisissez votre langue</span></div>' : '') + '<p class="fs-q-plain">Your answers stay in this browser. Only your farm\'s location is sent out, to fetch weather and soil data.</p>' +
+        '<details class="fs-q-priv"><summary>How We Use Your Answers</summary><p class="fs-q-plain">Your answers are saved in this browser. To fit the data to your farm, its location is sent to NASA POWER, USDA (soils and yields), ISRIC SoilGrids, the FCC and US Census lookups and the Open-Meteo forecast. Addresses you type go to the Photon address search (OpenStreetMap). If the server has an AI key, your land answers go to Google Gemini.</p></details>'; } },
     { id: 'name', short: 'Name', title: 'What Should We Call You?', hint: 'Optional. Just used to say hello in the chat.',
       render: function (a) { return '<label class="fs-q-label" for="fs-q-name">Name or farm name</label><input type="text" id="fs-q-name" class="fs-q-text" maxlength="40" autocomplete="name" value="' + esc(a.name) + '">'; },
       collect: function (a, r) { a.name = text(val(r, 'fs-q-name'), 40); } },
@@ -5740,7 +5803,7 @@ window.FS = window.FS || {};
       '<div class="fs-q-top"><div class="fs-q-bar" id="fs-q-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progress"><i></i></div><p class="fs-q-count" id="fs-q-count"></p></div>' +
       '<form class="fs-q-form" id="fs-setup-form" novalidate><div class="fs-q-scroll" id="fs-q-scroll"><h2 id="fs-q-title" tabindex="-1"></h2><p class="fs-q-hint" id="fs-q-hint"></p><div class="fs-q-body" id="fs-q-body"></div>' +
       '<p id="fs-setup-err" class="fs-setup-err" role="alert" hidden></p></div>' +
-      '<div class="fs-q-nav"><button type="button" class="fs-q-btn" id="fs-q-back">Back</button><button type="button" class="fs-q-btn" id="fs-q-skip">Skip</button><span class="fs-q-spacer"></span>' +
+      '<div class="fs-q-nav" id="fs-q-nav"><button type="button" class="fs-q-btn" id="fs-q-back">Back</button><button type="button" class="fs-q-btn" id="fs-q-skip">Skip</button><span class="fs-q-spacer"></span>' +
       '<button type="submit" class="fs-btn-primary fs-setup-go" id="fs-q-next">Next</button></div>' +
       '<div class="fs-q-foot"><button type="button" class="fs-setup-alt" id="fs-setup-example">Use The Example Farm</button></div></form></div>';
     card = host.querySelector('.fs-q'); root = host.querySelector('#fs-q-body');
@@ -5760,6 +5823,10 @@ window.FS = window.FS || {};
       $('fs-q-back').hidden = idx === 0 || fromReview; $('fs-q-skip').hidden = !!s.noSkip;
       $('fs-q-next').textContent = fromReview && s.id !== 'review' ? 'Back to review' : s.next || 'Next';
       $('fs-q-skip').textContent = fromReview ? 'Skip' : 'Skip';
+      // on the welcome screen the example farm is a clear second button beside Start; on later steps it stays a quiet link at the bottom
+      var exBtn = $('fs-setup-example'), onWelcome = s.id === 'welcome';
+      exBtn.className = onWelcome ? 'fs-q-btn fs-setup-example-btn' : 'fs-setup-alt';
+      if (onWelcome) $('fs-q-nav').insertBefore(exBtn, $('fs-q-next')); else host.querySelector('.fs-q-foot').appendChild(exBtn);
       var sc = $('fs-q-scroll'); sc.scrollTop = 0; host.scrollTop = 0;
       if (focus !== false) $('fs-q-title').focus();
     }
@@ -5965,6 +6032,7 @@ window.FS = window.FS || {};
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
         if (my !== seq) return;
+        if (x.ok && x.j && x.j.off) return;   // the server has no AI key: leave the note out quietly
         if (!x.ok) { noteErr = x.j && x.j.error || 'The AI helper could not write a note just now.'; render(); return; }
         note = x.j; try { sessionStorage.setItem(key, JSON.stringify(note)); } catch (e) { /* ignore */ }
         render();
@@ -6229,7 +6297,7 @@ window.FS = window.FS || {};
 /* "Advanced near-real-time conditions": a third view in the Simulation panel (next to Simulation and Farm map). It asks the server (/api/liveconditions,
    fieldlive.js and fieldsat.js) what is happening on the fields today: ECMWF weather, Copernicus ERA5-Land soil moisture and CAMS air,
    SoilGrids fertility, ESA WorldCover ponds and wet ground, Copernicus elevation low spots, and Sentinel-2 burned ground, bare soil and
-   last summer's weak growth zones. Warnings that belong to a place are numbered on a small map of the fields.
+   last summer's weak growth zones, plus NASA: fire detections (VIIRS and MODIS through NASA GIBS) that confirm or soften the burn check and a fire line, and NASA POWER (MERRA-2) soil wetness. Warnings that belong to a place are numbered on a small map of the fields.
    With imported outlines the checks run on the exact fields; otherwise on a square of each field's size around its soil survey point. */
 (function () {
   'use strict';
@@ -6274,11 +6342,11 @@ window.FS = window.FS || {};
 
   // ---------------------------------------------------------------- field health: crop and planting date of the season just grown
   function healthRequest(req) {
-    var F = FS.data.farm.fields, E = FS.data.economics || {}, now = new Date(), y = now.getUTCMonth() >= 2 ? now.getUTCFullYear() : now.getUTCFullYear() - 1;
+    var F = FS.data.farm.fields, E = FS.data.economics || {}, now = new Date(), lat0 = req.fields[0] && req.fields[0].ring[0][1], south = lat0 < 0, y = now.getUTCMonth() >= (south ? 8 : 2) ? now.getUTCFullYear() : now.getUTCFullYear() - 1;
     var irr = !!(FS.farmSetup && FS.farmSetup.canIrrigate);
     return { normalYield: E.normalYield || {}, fields: req.fields.map(function (x) {
       var f = F.filter(function (q) { return q.id === x.id; })[0] || {}, crop = f.lastCrop === 'soybean' ? 'soybean' : 'corn';
-      return { id: x.id, name: x.name, ring: x.ring, crop: crop, plantDate: y + (crop === 'corn' ? '-04-28' : '-05-15'), irrigable: irr };
+      return { id: x.id, name: x.name, ring: x.ring, crop: crop, plantDate: y + (south ? (crop === 'corn' ? '-10-28' : '-11-15') : (crop === 'corn' ? '-04-28' : '-05-15')), irrigable: irr };
     }) };
   }
   function loadHealth(req, force) {
@@ -6314,28 +6382,30 @@ window.FS = window.FS || {};
     if (hs.busy) return h + '<div class="fs-fm-busy" role="status"><span class="fs-fm-spin" aria-hidden="true"></span>Reading this season\u2019s Sentinel-2 images of each field\u2026 ' + Math.round((Date.now() - hs.t0) / 1000) + ' s <span class="fs-fm-faint">(15 to 60 s the first time)</span></div></section>';
     if (hs.err) return h + '<p class="fs-fm-msg fs-fm-err">' + esc(hs.err) + '</p></section>';
     if (!hs.data) return h + '</section>';
-    var D = hs.data;
+    var D = hs.data, L = st.data && st.data.fields || {};
     Object.keys(D.fields).forEach(function (id) {
       var f = D.fields[id], H = f.health;
       h += '<article class="fs-hl-field"><header><strong>' + esc(f.name) + '</strong> <span class="fs-fm-faint">' + esc(f.crop === 'soybean' ? 'soybeans' : f.crop) + ' · ' + f.observations + ' clear images</span></header>';
       if (f.error) { h += '<p>' + esc(f.error) + '</p></article>'; return; }
       var M = f.momentum || {};
       h += '<p class="fs-hl-line">Stage: <b>' + esc(f.stage) + '</b>' + (f.gdd != null ? ' (' + f.gdd + ' degree days since planting)' : '') + ' · Growth momentum: <b>' + esc(M.word) + '</b>' + (M.perWeek != null ? ' (NDVI ' + (M.perWeek > 0 ? '+' : '') + M.perWeek + ' a week' + (M.accel ? ', ' + esc(M.accel) : '') + ')' : '') + ' · Peak NDVI ' + f.peak.ndvi + ' on ' + esc(f.peak.date) + '</p>';
+      var Y = f.yieldEstimate || {};
+      h += '<div class="fs-hl-scores"><span>Health index <b>' + (f.healthIndex != null ? f.healthIndex : f.yieldScore) + '</b>/100</span><span>Quality score <b>' + f.qualityScore + '</b>/100</span><span>Rough yield guide <b>' + (Y.bu ? Y.bu + ' bu/acre' : '–') + '</b>' + (Y.bu ? ' (design range ' + Y.low + ' to ' + Y.high + '; county normal ' + Y.normal + ')' : '') + '</span></div>' +
+        '<p class="fs-fm-faint fs-hl-small">The health index (0 to 100) compares the canopy with a healthy crop\u2019s normal peak, and the nitrogen, leaf structure and evenness with this field\u2019s own best parts. It is the number to read first.' + '</p>' +
+        (Y.note ? '<p class="fs-fm-faint fs-hl-small">' + esc(Y.note) + '</p>' : '');
       h += '<div class="fs-hl-grid"><div>' + spark(f.series) + '<p class="fs-hl-key"><i class="g"></i>greenness NDVI <i class="b"></i>leaf water NDMI</p></div><div class="fs-hl-bars">' +
         bar('Canopy', H.canopy.score, 'NDVI ' + H.canopy.ndvi + ', ' + Math.round(H.canopy.cover * 100) + '% cover, leaf area ~' + H.canopy.lai) +
-        bar('Nitrogen', H.nitrogen.score, H.nitrogen.note ? esc(H.nitrogen.note) : 'red edge ' + Math.round(H.nitrogen.sufficiency * 100) + '% of the field\u2019s best') +
+        bar('Nitrogen', H.nitrogen.score, H.nitrogen.note ? esc(H.nitrogen.note) : 'red edge ' + Math.round(H.nitrogen.sufficiency * 100) + '% of the field\u2019s best (a hint only: confirm with a soil or tissue test)') +
         bar('Phosphorus', null, esc(H.phosphorus.note)) +
         bar('Moisture', H.moisture.score, 'leaf water NDMI ' + H.moisture.ndmi) +
         bar('Leaf structure', H.leaf.score, 'red-edge position ' + H.leaf.redEdgeNm + ' nm') +
         bar('Uniformity', H.uniformity.score, 'spread ' + Math.round(H.uniformity.cv * 100) + '% across the field') + '</div></div>';
-      var Y = f.yieldEstimate || {};
-      h += '<div class="fs-hl-scores"><span>Yield score <b>' + f.yieldScore + '</b>/100</span><span>Quality score <b>' + f.qualityScore + '</b>/100</span><span>Yield estimate <b>' + (Y.bu ? Y.bu + ' bu/acre' : '–') + '</b>' + (Y.bu ? ' (' + Y.low + ' to ' + Y.high + '; county normal ' + Y.normal + ')' : '') + '</span></div>' +
-        (Y.note ? '<p class="fs-fm-faint fs-hl-small">' + esc(Y.note) + '</p>' : '');
-      h += '<div class="fs-hl-cols"><div><h4>Root causes</h4><ul>' + f.causes.map(function (c) { return '<li><b>' + esc(c.cause) + '</b> <span class="fs-fm-faint">(' + esc(c.confidence) + ' confidence)</span>: ' + esc(c.why) + '</li>'; }).join('') + '</ul></div>' +
+      var zs = L[id] && L[id].satellite && L[id].satellite.summer, zn = zs && zs.weakZones && zs.weakZones.length;
+      h += '<div class="fs-hl-cols"><div><h4>Root causes</h4><ul>' + f.causes.map(function (c) { return '<li><b>' + esc(c.cause) + '</b> <span class="fs-fm-faint">(' + esc(c.confidence) + ' confidence)</span>: ' + esc(c.why) + '</li>'; }).join('') + (zn ? '<li class="fs-fm-faint">Last summer\u2019s weak growth zones (Sentinel-2 image of ' + esc(zs.date) + ', not this season) are listed separately under Warnings above.</li>' : '') + '</ul></div>' +
         '<div><h4>What to do</h4><ul class="fs-hl-adv">' + f.advice.map(function (a) { return '<li><span class="fs-hl-pr fs-hl-' + a.priority + '">' + a.priority + '</span> <b>' + esc(a.topic) + ':</b> ' + esc(a.text) + '</li>'; }).join('') + '</ul></div></div>';
       h += '<p class="fs-hl-small"><a download="' + esc((f.name || id).replace(/[^\w-]+/g, '_')) + '_sentinel2.csv" href="' + csvHref(f.series || []) + '">Download this field\u2019s data (CSV)</a>' + (f.csv ? ' · also saved on the server as <code>' + esc(f.csv) + '</code>' : '') + '</p></article>';
     });
-    return h + '<p class="fs-fm-note">' + esc((D.sources || []).join(' ')) + ' Scores, the yield estimate, causes and advice are rules on published satellite indices (NDVI, NDRE, NDMI, red-edge position), not a model trained on harvests. Crop and planting date come from the farm setup (the last crop on each field; corn 28 April, soybeans 15 May). Sentinel-1 radar and Sentinel-3 are not used: Sentinel-3 pixels (300 m) are bigger than most fields.</p></section>';
+    return h + '<p class="fs-fm-note">' + esc((D.sources || []).join(' ')) + ' The health index, the yield guide, causes and advice are rules on published satellite indices (NDVI, NDRE, NDMI, red-edge position), not a model trained on harvests. Crop and planting date come from the farm setup (the last crop on each field; corn 28 April, soybeans 15 May, six months later south of the equator). Sentinel-1 radar and Sentinel-3 are not used: Sentinel-3 pixels (300 m) are bigger than most fields.</p></section>';
   }
 
   // ---------------------------------------------------------------- small map: fields, ponds and numbered warnings
@@ -6381,16 +6451,17 @@ window.FS = window.FS || {};
         card('Rain', num(n.rainPast7Mm, ' mm', 1), 'past 7 days · next 3 days ' + num(n.rainNext3Mm, ' mm', 1)) +
         card('Topsoil water', n.soilMoist == null ? '–' : Math.round(n.soilMoist * 100) + '%', 'by volume, now' + (e5 ? ' · ERA5-Land ' + Math.round(e5.top7 * 100) + '% on ' + esc(e5.time.slice(5, 10)) : '')) +
         card('Air quality', num(a.pm25, ' µg/m³'), 'fine dust PM2.5 · UV ' + num(a.uv, '', 1)) + '</div>';
+      h += nasaHTML(d);
       h += '<div class="fs-cn-main">' + miniMap(d, req, list) + '<div class="fs-cn-warns"><h3>Warnings</h3>' +
         (list.length ? '<ol>' + list.map(function (w, i) {
           return '<li class="fs-cn-' + w.level + (i === pick ? ' fs-cn-on' : '') + '"><button type="button" data-i="' + i + '"' + (w.lon == null ? ' disabled' : '') + '><span class="fs-cn-badge">' + (w.level === 'warn' ? 'Warning' : 'Note') + '</span> ' + esc(w.text) + '</button></li>';
         }).join('') + '</ol>' : '<p>Nothing to warn about on these fields right now.</p>') + '</div></div>';
-      h += '<div class="fs-cn-tablewrap"><table class="fs-cn-table"><thead><tr><th>Field</th><th>Organic carbon</th><th>Nitrogen</th><th>pH</th><th>CEC</th><th>Cropland · water · wetland</th><th>Slope</th><th>Bare soil now</th><th>Summer greenness</th></tr></thead><tbody>' +
+      h += '<div class="fs-cn-tablewrap"><table class="fs-cn-table"><thead><tr><th>Field</th><th>Organic carbon</th><th>Nitrogen</th><th>pH</th><th>CEC</th><th>Cropland · water · wetland</th><th>Slope</th><th>Bare soil now</th><th>Last summer\u2019s greenness</th></tr></thead><tbody>' +
         req.fields.map(function (f) {
           var x = d.fields[f.id] || {}, s = x.fertility || {}, c = (x.cover && x.cover.sharePct) || {}, t = x.terrain || {}, sat = x.satellite || {};
           return '<tr><th>' + esc(f.name) + '</th><td>' + num(s.organicCarbonGkg, ' g/kg', 1) + '</td><td>' + num(s.nitrogenGkg, ' g/kg', 2) + '</td><td>' + num(s.ph, '', 1) + '</td><td>' + num(s.cecCmolKg, '', 0) + '</td>' +
             '<td>' + num(c.cropland, '%', 0) + ' · ' + num(c.water || 0, '%', 1) + ' · ' + num(c.wetland || 0, '%', 1) + '</td><td>' + num(t.slopePct, '%', 1) + '</td>' +
-            '<td>' + (sat.ground ? sat.ground.bareSoilPct + '%' : '–') + '</td><td>' + (sat.summer ? 'NDVI ' + sat.summer.ndviMedian : '–') + '</td></tr>';
+            '<td>' + (sat.ground ? sat.ground.bareSoilPct + '%' : '–') + '</td><td>' + (sat.summer ? 'NDVI ' + sat.summer.ndviMedian + ' <i class="fs-fm-faint">(image of ' + esc(sat.summer.date) + ')</i>' : '–') + '</td></tr>';
         }).join('') + '</tbody></table></div>';
       h += healthHTML();
       h += '<p class="fs-fm-note">Sources: ' + esc((d.sources || []).join(' ')) + (d.gaps && d.gaps.length ? ' Gaps: ' + esc(d.gaps.join(' ')) : '') +
@@ -6415,10 +6486,19 @@ window.FS = window.FS || {};
     if (n && n.time) rows.push(['Weather (ECMWF)', n.time.replace('T', ' ') + ' local', 'updated hourly']);
     if (d.air && d.air.time) rows.push(['Air (Copernicus CAMS)', d.air.time.replace('T', ' ') + ' local', 'updated hourly']);
     if (d.era5Soil) rows.push(['Soil moisture (ERA5-Land)', d.era5Soil.time.slice(0, 10), ago(d.era5Soil.time + 'Z') + ', runs about 5 days behind']);
+    if (d.nasa && d.nasa.soil) rows.push(['Soil wetness (NASA POWER MERRA-2)', d.nasa.soil.date, ago(d.nasa.soil.date + 'T12:00:00Z') + ', runs about 3 days behind']);
+    if (d.nasa && d.nasa.fire) rows.push(['Fire detections (NASA GIBS)', 'to ' + d.nasa.fire.to, ago(d.nasa.fire.to + 'T12:00:00Z') + ', NASA publishes with a delay']);
     if (sat) rows.push(['Last clear Sentinel-2 pass', sat, ago(sat + 'T12:00:00Z') + ', a new pass every 2 to 5 days']);
     rows.push(['Ponds and land cover', 'ESA WorldCover 2021', 'fixed map'], ['Soil fertility', 'ISRIC SoilGrids', 'fixed map']);
     return '<div class="fs-cn-fresh" aria-label="How recent each source is">' + rows.map(function (r) { return '<span><b>' + esc(r[0]) + '</b> ' + esc(r[1]) + ' <i>' + esc(r[2]) + '</i></span>'; }).join('') +
       '<span class="fs-cn-auto">Checks again by itself every 15 minutes while this view is open.</span></div>';
+  }
+  // the NASA lines: fire detections and MERRA-2 soil wetness
+  function nasaHTML(d) {
+    var N = d.nasa || {}, rows = [];
+    if (N.fire) rows.push('<li class="' + (N.fire.detections.length ? 'fs-cn-warn' : '') + '">' + esc(N.fire.line) + '</li>');
+    if (N.soil) rows.push('<li>' + esc(N.soil.line) + '</li>');
+    return rows.length ? '<div class="fs-cn-nasa"><h3>NASA Data On These Fields</h3><ul>' + rows.join('') + '</ul></div>' : '';
   }
   function card(t, big, small) { return '<div class="fs-cn-card"><span class="fs-cn-t">' + t + '</span><strong>' + big + '</strong><span class="fs-cn-s">' + small + '</span></div>'; }
 
@@ -6881,7 +6961,7 @@ window.FS = window.FS || {};
     var site = FS.farmSetup.site || STORY(), loc = localOf(), p = FS.farmSetup.setup && !FS.farmSetup.example && FS.farmSetup.setup.point;
     var dataName = String(site.name).split(',')[0];
     var g = geoOf(FS.farmSetup.setup), gs = g && FS.engine && FS.engine.site ? FS.engine.site().geo : null;
-    var txt = gs ? 'Your ' + gs.fields + ' field' + (gs.fields === 1 ? '' : 's') + (g.cond.county ? ' in ' + g.cond.county : '') + ' · ' + ((g.cond.climate && g.cond.climate.meta && g.cond.climate.meta.short) || 'NASA POWER') + ' weather, Copernicus terrain' : loc ? 'Your farm near ' + shortLabel(loc.label) + ' · data from ' + dataName + ' (' + loc.km + ' km)'
+    var txt = gs ? 'Your ' + gs.fields + ' field' + (gs.fields === 1 ? '' : 's') + (g.cond.county ? ' in ' + g.cond.county : '') + ' · ' + ((g.cond.climate && g.cond.climate.meta && g.cond.climate.meta.short) || 'NASA POWER') + ' weather · Copernicus terrain' : loc ? 'Your farm near ' + shortLabel(loc.label) + ' · data from ' + dataName + ' (' + loc.km + ' km)'
       : p ? 'Your farm near ' + shortLabel(p.label) + ' · data from ' + dataName : 'Your farm: ' + siteShort(site);
     b.querySelector('.fs-farm-name').textContent = txt;
     b.setAttribute('aria-label', txt + '. Change');
@@ -6922,7 +7002,7 @@ window.FS = window.FS || {};
     guard('footer', function () { wireFooter(); wireFarmLine(); });
     guard('chat reset', function () { FS.chat.reset(); });
     guard('select', function () { FS.store.emit('field:select', { id: st.selectedField, source: 'setup' }); });
-    guard('run', function () { FS.actions.runSimulation('setup', 'Typical year · current plans'); });
+    guard('run', function () { FS.actions.runSimulation('setup', 'Typical season · current plans'); });
     guard('recs', function () { FS.chat.postRecs(); });
     guard('outlook', function () { if (FS.outlook) FS.outlook.refresh(); });
     guard('farm map', function () { if (FS.farmMap) FS.farmMap.refresh(); });
@@ -6936,7 +7016,7 @@ window.FS = window.FS || {};
   function setInert(on) { INERT.forEach(function (id) { var e = $(id); if (!e) return; if (on) { e.setAttribute('inert', ''); e.setAttribute('aria-hidden', 'true'); } else { e.removeAttribute('inert'); e.removeAttribute('aria-hidden'); } }); }
   function buildPanel() {
     var host = $('fs-setup'); if (!host || ctrl) return;
-    ctrl = Q().create(host, { onStart: onStart, onExample: onExample, onEscape: function () { if (firstOpen) onExample(); else closePanel(); } });
+    ctrl = Q().create(host, { onStart: onStart, onExample: onExample, onEscape: function () { if (firstOpen && FS.farmSetup.example) onExample(); else closePanel(); } });
     panel = host;
   }
   // step: 'welcome' on the first run, 'review' from "Change" in the header
@@ -6958,7 +7038,8 @@ window.FS = window.FS || {};
     saveSetup(setup); closePanel(); maybeFit(setup); return { ok: true };
   }
   // fieldimport.js hands over a whole setup (the farm's own outlines and the conditions at them)
-  FS.farmSetup.use = function (setup) { var r = applySetup(setup); if (r.ok) saveSetup(setup); return r; };
+  // an imported farm replaces the example, so a welcome screen that is still open closes (Escape then keeps that farm too)
+  FS.farmSetup.use = function (setup) { var r = applySetup(setup); if (r.ok) { saveSetup(setup); closePanel(); } return r; };
   FS.farmSetup.blank = function () { return Q().blank(); };
   // the field list's + and − buttons: one field more or less (1 to 4), kept with the farm
   FS.farmSetup.setFieldCount = function (n) {
@@ -7077,7 +7158,7 @@ window.FS = window.FS || {};
     guard('footer', function () { wireFooter(); wireFarmLine(); });
     guard('farm button', function () { var b = $('fs-farm-btn'); if (b) b.addEventListener('click', function () { openPanel(false, 'review'); }); });
     guard('link', function () { parseHash(); if (fromEco) wireBack(); });
-    guard('first run', function () { FS.actions.runSimulation('boot', 'Typical year · current plans'); });
+    guard('first run', function () { FS.actions.runSimulation('boot', 'Typical season · current plans'); });
     guard('opening message', function () { FS.chat.postRecs(); });
     // last, so it is the line the farmer sees first in the chat (the chat scrolls to the newest message)
     guard('link line', function () {
