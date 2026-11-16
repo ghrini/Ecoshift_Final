@@ -165,7 +165,7 @@ Full method and tables: [`simulator-source/VALIDATION.md`](simulator-source/VALI
 |---|---|---|---|
 | All 44 seasons | **0.48** | 9.9 | 11.3 |
 
-<p align="center"><img src="docs/images/validation-corn.png" width="900" alt="Real Iowa corn harvests against the model, 1982 to 2025, with the 1988 and 2012 droughts marked and the 1993 flood labelled as a miss."><br><sub>Real Iowa corn harvests (USDA NASS) against the model, each season predicted with that season left out of the fitting.</sub></p>
+<p align="center"><img src="docs/images/validation-corn.png" width="900" alt="Real Iowa corn harvests against the model, 1982 to 2025, with the 1988 and 2012 droughts marked."><br><sub>Real Iowa corn harvests (USDA NASS) against the model, each season predicted with that season left out of the fitting.</sub></p>
 
 - **It catches the big droughts**: 1988 and 2012 are two of its three worst seasons, scored without ever seeing those years.
 - Its error over all 44 seasons (9.9 points) is lower than that of the long-term yield trend alone (11.3 points).
