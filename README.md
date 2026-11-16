@@ -1,4 +1,8 @@
-# EcoShift
+<p align="center"><img src="public/images/logo-512.png" width="96" alt="EcoShift logo"></p>
+
+<h1 align="center">EcoShift</h1>
+
+<p align="center"><img src="public/images/action-simulation.jpg" width="900" alt="The EcoShift simulator: the farm map painted by crop and stage, the season timeline, the per-field verdicts and the chat answering a what-if about the 2012 drought."></p>
 
 **Test a crop rotation before you plant it.** EcoShift grows every rotation plan through 44 real seasons (1982 to 2025) of NASA POWER daily weather, on the farmer's own fields, with a FAO-56 soil-water crop model, then ranks the plans by harvest, profit and risk. Imported field outlines are then checked from orbit: Copernicus Sentinel-2 field health at 10 m, NASA fire detections, NASA soil wetness, terrain, ponds and live conditions.
 
@@ -58,6 +62,17 @@ The site has four tabs:
 - **About Us**: the team, the challenge and the data credits.
 
 On the example farm in Story County, Iowa, the current plan gets about 99% of a normal crop in a typical season (2011 weather), but about 79% in a 2012-style drought and loses about $37,200, give or take about 10 points (the model's typical error for any one season).
+
+<table>
+  <tr>
+    <td width="50%"><img src="public/images/action-simulation.jpg" alt="Asking a what-if in the simulator"><br><b>Ask a what-if.</b> "What if 2012 happens again?" replays that drought on every field.</td>
+    <td width="50%"><img src="public/images/action-import.jpg" alt="Three imported field outlines"><br><b>Import the field boundaries.</b> GeoJSON or KML; each field gets its own NASA POWER weather, slope and soil.</td>
+  </tr>
+  <tr>
+    <td><img src="public/images/action-conditions.jpg" alt="Advanced near-real-time conditions with warnings on a map"><br><b>Near-real-time conditions.</b> Weather, soil, NASA fire and soil wetness, Sentinel-2 warnings pinned to the field.</td>
+    <td><img src="public/images/action-health.jpg" alt="Field health scores from Sentinel-2"><br><b>Field health from space.</b> A season of Sentinel-2 images turned into scores and advice.</td>
+  </tr>
+</table>
 
 ---
 
@@ -137,6 +152,8 @@ norm = the median season of the baseline rotation, so the median season = 100
 
 The three weather exponents (`gamma`, `b`, `eDur`) are **fitted** by `tools/validate.py` with leave-one-year-out against USDA NASS Iowa yields. The heat slope `b` fits to 0: heat damage is not identifiable from the yield record, so the warming slider uses a published floor (Zhao et al. 2017, PNAS) and says so. Money comes from Iowa State University crop budgets and USDA prices; the farmer can set their own prices.
 
+<p align="center"><img src="docs/images/season-strip.jpg" width="900" alt="The example farm drawn through one season, April to October: fields change colour as crops emerge, grow, ripen and are harvested."><br><sub>One simulated season on the example farm: the fields are painted week by week from the model's own growth stages.</sub></p>
+
 **What it compares.** For each field: corn, soybeans, corn after corn, soybeans after soybeans, cereal rye before corn or soybeans, and oats with a summer cover crop. Each option reports harvest and profit in a typical season and in the worst seasons, how many of the 44 seasons it beat the current plan, the evidence, the extra work and the information gaps.
 
 ---
@@ -150,6 +167,8 @@ Full method and tables: [`simulator-source/VALIDATION.md`](simulator-source/VALI
 | All 44 seasons | **0.48** (95% bootstrap −0.02 to 0.78) | 9.9 | 11.3 |
 | Without 1988 and 2012 | 0.27 | 9.9 | 9.7 |
 
+<p align="center"><img src="docs/images/validation-corn.png" width="900" alt="Real Iowa corn harvests against the model, 1982 to 2025, with the 1988 and 2012 droughts marked and the 1993 flood labelled as a miss."><br><sub>Real Iowa corn harvests (USDA NASS) against the model, each season predicted with that season left out of the fitting.</sub></p>
+
 - **It catches the big droughts**, 1988 and 2012, as two of its three worst seasons, but not their full depth (1988: real 67%, model 80%; 2012: real 76%, model 80%).
 - **In ordinary years it is no better than the long-term yield trend.** Small differences between plans are not reliable, and the simulator says so in every result ("any one season can be off by about 10 points").
 - **It misses floods**: 1993, real 59%, model 84%.
@@ -157,6 +176,8 @@ Full method and tables: [`simulator-source/VALIDATION.md`](simulator-source/VALI
 - The model's design was shaped on these same 44 years, so the numbers are treated as somewhat optimistic. Only Story County's weather has been checked; the other 13 counties use the same model untested.
 
 **Checked from space.** NASA Terra MODIS 16-day NDVI (via NASA GIBS, 250 m) over Story County cropland, 2000 to 2025, tracks the real Story County corn harvests (correlation **0.61**), so it is an independent check. The model agrees with it in the 2012 drought (the satellite saw the crop peak early, on 11 July, and fade in August) but not in ordinary years (correlation 0.15 without 2012). The 2012 satellite dip was about 94% of average, similar to 2000, 2013 and 2020. Script: `simulator-source/tools/satellite_check.py`.
+
+<p align="center"><img src="docs/images/satellite-check.png" width="900" alt="MODIS peak greenness, the model's corn yield and the real Story County corn harvest, 2000 to 2025, each as a percent of normal."><br><sub>NASA Terra MODIS peak greenness, the model and the real Story County corn harvest, 2000 to 2025.</sub></p>
 
 The site's Project Details tab shows the chart (`public/images/validation-corn.svg`) and these limits.
 
@@ -216,6 +237,8 @@ sequenceDiagram
   S-->>B: a farm the simulator runs exactly like a built-in county
 ```
 
+<p align="center"><img src="public/images/action-import.jpg" width="820" alt="Three imported field outlines near Ames, Iowa, now running in the simulator."></p>
+
 - **Weather:** NASA POWER first (`nasaPowerWeather`); only if it does not answer, Copernicus ERA5 / ERA5-Land from Open-Meteo's archive (`farmWeather`). Checked against the built-in Story County data: 869 mm against 867 mm of seasonal rain, and the same ET₀.
 - **Terrain:** the GLO-30 Cloud Optimized GeoTIFF is read with HTTP range requests, only the tiles over the fields, and averaged over every 30 m cell inside each outline.
 - About 30 seconds on a cold cache, a few seconds once cached.
@@ -238,6 +261,8 @@ sequenceDiagram
 | Low spots where water gathers | Copernicus GLO-30 | Fixed |
 | Soil fertility: organic carbon, nitrogen, pH, CEC | ISRIC SoilGrids 250 m | Fixed |
 
+<p align="center"><img src="public/images/action-conditions.jpg" width="820" alt="Advanced near-real-time conditions: freshness of each source, weather, soil moisture, air quality, and numbered warnings on a map of the fields."></p>
+
 **Burned ground.** Two Sentinel-2 images of the same tile are compared. A pixel counts when the Normalized Burn Ratio `NBR = (B8A − B12) / (B8A + B12)` was at least 0.15 before, is below −0.10 now, dropped by at least 0.27 (dNBR, a threshold from forest-fire work), and the near-infrared is dark like char (below 0.17). Only scene-classification classes 4, 5 and 6 (vegetation, bare soil, water) count as clear, and pixels within 40 m of cloud, shadow, snow or no-data in either image are left out. Because bare soil after harvest can pass this test, every warning is then checked against NASA's fire detections: "confirmed by fire" when NASA saw fire there in the burn window, otherwise "possible burned ground or bare soil after harvest, check on the ground". Tested near Patiala, Punjab, in the stubble-burning season: four patches of about 6 to 8 acres, with NASA MODIS fire on 3 and 5 November 2026 ([evidence](docs/evidence/burn-check-nasa-2026-11-16.json)).
 
 **Time limits.** Every source has a 40-second deadline and the NASA fire and soil checks a 12-second budget (6 seconds more for the burn confirmation), so the answer always comes back inside a host's request limit; a late source is listed as "did not answer in time" and the rest still shows.
@@ -256,6 +281,8 @@ sequenceDiagram
 | Red-edge position (S2REP) | 705 + 35 × ((B4 + B7)/2 − B5) / (B6 − B5) nm (Frampton et al. 2013) | Leaf chlorophyll and structure |
 | SAVI, LAI, cover | SAVI = 1.5 (B8A − B4) / (B8A + B4 + 0.5); LAI = −ln((0.69 − SAVI) / 0.59) / 0.91; cover = ((NDVI − 0.15) / 0.75)² | Leaf area (empirical, rough), ground cover |
 | Uniformity | NDVI 10th and 90th percentiles and coefficient of variation | How even the field is |
+
+<p align="center"><img src="public/images/action-health.jpg" width="820" alt="Field health from Sentinel-2: scores for canopy, nitrogen, moisture, leaf structure and uniformity, a rough yield guide and prioritised advice."></p>
 
 Reflectance scale and offset follow the Sentinel-2 processing baseline 04.00 (the −1000 offset after January 2022, honouring `earthsearch:boa_offset_applied`).
 
@@ -314,6 +341,8 @@ A language picker sits on the questionnaire's first screen and in the simulator'
 ## The Farm Map
 
 `farmmap/` (Python, OpenCV, scikit-image) and `farmmap.js`. EcoShift downloads the same 1.6 km square around the farm from two public sources, a USDA NAIP aerial photo (about 1 m, US only) and the Sentinel-2 cloudless 2020 map by EOX (10 m), keeps the sharper picture, and turns it into a flat illustrated map of fields, crop rows, trees, roads and water. Image processing finds the four fields with no hand drawing, and the weekly results colour them as the season plays. The 14 county maps are built in (`simulator-source/tools/build_farmmaps.py`). Drawing a new map needs Python on the server; a conversion peaks at about 415 MB of memory.
+
+<p align="center"><img src="docs/images/photo-to-map.jpg" width="900" alt="Left: a USDA NAIP aerial photo of the example farm. Right: the illustrated farm map EcoShift draws from it."></p>
 
 ---
 
