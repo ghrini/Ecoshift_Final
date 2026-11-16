@@ -536,3 +536,7 @@ body.on-sim .site-footer { display: none; }
 /* About: three team members side by side */
 .team.team-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 @media (max-width: 1000px) { .team.team-3 { grid-template-columns: 1fr; } }
+/* the EcoShift logo (Rotation Cycle) */
+.brand-mark { width: 32px; height: 32px; }
+.footer-brand { display: inline-flex; align-items: center; gap: 8px; }
+.site-footer .brand-mark { width: 24px; height: 24px; }
