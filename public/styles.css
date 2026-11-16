@@ -540,3 +540,15 @@ body.on-sim .site-footer { display: none; }
 .brand-mark { width: 32px; height: 32px; }
 .footer-brand { display: inline-flex; align-items: center; gap: 8px; }
 .site-footer .brand-mark { width: 24px; height: 24px; }
+
+/* ---------- Home: see it in action, NASA data at the core ---------- */
+.action-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 48px; }
+.action-card { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; }
+.action-card img { display: block; width: 100%; height: auto; border-bottom: 1px solid var(--line); background: #000; }
+.action-card figcaption { padding: 20px 22px 22px; color: var(--muted); line-height: 1.5; display: flex; flex-direction: column; gap: 6px; }
+.action-card figcaption strong { color: var(--text); font-size: 1.2rem; font-weight: 600; }
+.action-tag { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ecru); }
+.nasa-list { list-style: none; margin: 40px 0 28px; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 40px; max-width: 1100px; }
+.nasa-list li { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; color: var(--muted); line-height: 1.5; }
+.nasa-list strong { display: block; color: var(--text); font-weight: 600; margin-bottom: 2px; }
+@media (max-width: 900px) { .action-grid, .nasa-list { grid-template-columns: 1fr; } }

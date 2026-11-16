@@ -8,7 +8,7 @@ The site has three tabs:
 
 - **Home**: what the project is, why it matters, why farmers can trust it, why it is credible (NASA data), and its honest limits.
 - **Simulation**: the EcoShift simulator, in this order:
-  1. **Farm questionnaire**, about 12 questions (location by address search or "use my location", fields, crops, water, land, limits, money, priorities, buyers). Every question can be skipped, or use the example farm. A returning farmer sees the review of their saved answers.
+  1. **Farm questionnaire**, 13 questions (location by address search or "use my location", fields, crops, water, land, limits, money, priorities, buyers). Every question can be skipped, or use the example farm. A returning farmer sees the review of their saved answers.
   2. **Guided tutorial**: 14 steps through every part of the simulator, with large text, keyboard controls, screen-reader support and an optional read-aloud voice. It opens when the questionnaire closes, once per visit; "How to use this page" opens it again.
   3. **The simulation**: 44 real seasons (1982 to 2025) of NASA POWER daily weather, USDA soils and yields for 14 Corn Belt counties, crop plans compared in harvest and dollars, a chat for what-ifs, a 44-season strip, and a 30-day outlook.
 - **About us**: the team.
