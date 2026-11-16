@@ -166,7 +166,7 @@ function send(res, status, body) {
 }
 
 // Each visitor gets a fair number of AI calls, so a shared link can't run up the key's bill.
-const AI_LIMIT = { localfit: 10, outlooknote: 12, geocode: 150, farmmap: 20, all: 400 }; // calls per visitor per 10 minutes; "all" = everyone together
+const AI_LIMIT = { localfit: 10, outlooknote: 12, translate: 120, geocode: 150, farmmap: 20, all: 600 }; // calls per visitor per 10 minutes; "all" = everyone together
 const WINDOW = 10 * 60_000;
 // X-Forwarded-For is only believed when TRUST_PROXY says how many proxies of ours sit in front of the server (0 = none: use the socket address).
 // With N hops the visitor is the Nth address from the right; anything further left was written by the visitor and can be faked.
@@ -201,6 +201,42 @@ const oops = (res) => (e) => { console.error(e); send(res, 500, { error: "Someth
 process.on("unhandledRejection", (e) => console.error("Unhandled rejection:", e && e.stack ? e.stack : e));
 process.on("uncaughtException", (e) => console.error("Uncaught exception:", e && e.stack ? e.stack : e));
 
+/* ---------------- translation (the farmer's language) ---------------- */
+// The page's screen text, and what the farmer types in the chat, in another language. Keyed s0, s1, ... so every string
+// comes back in its own slot. Kept while the server runs (and in the farmer's browser), so each sentence is translated once.
+const translations = new Map(); // language -> Map(english -> translated)
+async function handleTranslate(req, res) {
+  if (!GEMINI_KEY) return send(res, 503, { error: NO_KEY });
+  let language, strings;
+  try { ({ language, strings } = JSON.parse(await readBody(req, 300_000))); } catch (e) { return send(res, e && e.status === 413 ? 413 : 400, { error: "Bad request." }); }
+  if (typeof language !== "string" || !language.trim() || language.length > 40 || /[<>{}\n]/.test(language) || !Array.isArray(strings) || !strings.length || strings.length > 200 ||
+      !strings.every((x) => typeof x === "string" && x.length <= 1500)) return send(res, 400, { error: "Bad request." });
+  language = language.trim();
+  if (!translations.has(language)) { if (translations.size >= 30) translations.delete(translations.keys().next().value); translations.set(language, new Map()); }
+  const known = translations.get(language);
+  const todo = [...new Set(strings.filter((x) => !known.has(x)))];
+  if (todo.length) {
+    const system = `Translate the screen text of a farm planning app into ${language}, for everyday farmers: short, plain, natural words, with the language's proper accents and punctuation.
+Keep exactly as written: numbers, years, dates, units and $ amounts, {placeholders} in curly braces, symbols like → · … and %, the names "EcoShift", "NASA", "NASA POWER", "USDA" and "Gemini", county and state names, and field names such as "North 80", "Creek 40", "West 40" and "South 120".
+If a text is already in ${language}, return it unchanged. Return the same keys with translated values.`;
+    const batches = [];
+    for (let i = 0; i < todo.length; i += 50) batches.push(todo.slice(i, i + 50));   // a response schema with too many keys is refused
+    try {
+      await Promise.all(batches.map(async (batch) => {
+        const keyed = Object.fromEntries(batch.map((x, i) => [`s${i}`, x]));
+        const schema = { type: "OBJECT", properties: Object.fromEntries(Object.keys(keyed).map((k) => [k, { type: "STRING" }])), required: Object.keys(keyed) };
+        const out = await geminiJSON(system, JSON.stringify(keyed), schema);
+        for (const [k, x] of Object.entries(keyed)) if (typeof out[k] === "string" && out[k].trim()) known.set(x, out[k]);
+      }));
+      if (known.size > 20000) for (const k of [...known.keys()].slice(0, 5000)) known.delete(k);
+    } catch (e) {
+      console.error(e);
+      return send(res, 502, { error: e instanceof UserError ? e.message : "Couldn't reach the translation service." });
+    }
+  }
+  send(res, 200, { translations: Object.fromEntries(strings.map((x) => [x, known.get(x) || x])) });
+}
+
 // One handler for every request. `node server.js` serves it on a port; on Vercel, api/*.js hand their requests to it.
 function handle(req, res) {
   if (req.method === "POST" && req.url === "/api/localfit") return overLimit(req, "localfit") ? send(res, 429, TOO_MANY) : FIT.handleLocalFit(req, res).catch(oops(res));
@@ -209,6 +245,7 @@ function handle(req, res) {
   if (req.method === "POST" && req.url === "/api/farmmap/upload") return overLimit(req, "farmmap") ? send(res, 429, TOO_MANY) : MAP.handleUpload(req, res).catch(oops(res));
   if (req.method === "GET" && req.url.startsWith("/api/farmmap/img/")) return MAP.handleImage(req, res);
   if (req.method === "GET" && req.url.startsWith("/api/geocode?")) return overLimit(req, "geocode") ? send(res, 429, TOO_MANY) : FIT.handleGeocode(req, res).catch(oops(res));
+  if (req.method === "POST" && req.url === "/api/translate") return overLimit(req, "translate") ? send(res, 429, TOO_MANY) : handleTranslate(req, res).catch(oops(res));
   if (req.method === "POST" && req.url === "/api/outlooknote") return overLimit(req, "outlooknote") ? send(res, 429, TOO_MANY) : FIT.handleOutlookNote(req, res).catch(oops(res));
   if (req.method === "GET" || req.method === "HEAD") return serveStatic(req, res);
   send(res, 405, "Method not allowed");

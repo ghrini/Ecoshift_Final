@@ -85,6 +85,10 @@ The page tests (`verify/qa2/chat_test.js`, `verify/qa2/setup_test.js`) need Node
 - The simulator and the guide are in English only.
 - The server has per-visitor limits on the AI calls and the farm map (see Hosting for how visitors are told apart).
 
+### Languages
+
+The simulator speaks the farmer's language. A language picker sits on the questionnaire's first screen and in the simulator's top bar (English, Spanish, Portuguese, French, Hindi, Chinese, Arabic, Swahili, Vietnamese, Ukrainian, or any other typed in). Every piece of screen text, chat answers and the analysis included, is translated by Gemini through `POST /api/translate` and kept in the farmer's browser, so each sentence is translated once. What the farmer types in the chat is put into English before the simulator reads it. Numbers, dates and the year strip are left as they are. It needs `GEMINI_API_KEY` on the server; without it the page stays in English and says so.
+
 ## Hosting
 
 - **Memory: at least 1 GB RAM.** One farm-map conversion peaks at about 415 MB (up to 2 run at once). A 512 MB host will run out of memory on the first "Farm map" click. Uploaded photos over 50 megapixels are refused to protect the server.

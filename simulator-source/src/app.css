@@ -498,3 +498,15 @@ textarea.fs-q-text { resize: vertical; min-height: 3.4em; }
 .fs-fm-fig img { display: block; width: 100%; max-width: 640px; height: auto; aspect-ratio: 1; object-fit: contain; margin: 0 auto; border-radius: var(--radius-md); background: var(--panel-2); }
 .fs-fm-note { margin: 0; font-size: 14px; color: var(--text-faint); }
 @media (max-width: 700px) { .fs-fm-tabs button { padding: 6px 9px; font-size: 13px; } }
+
+/* language picker: top bar and the questionnaire's first screen */
+.fs-lang { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); }
+.fs-lang-ic { display: inline-flex; }
+.fs-lang-select { font: inherit; font-size: 14px; color: var(--text); background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; min-height: 36px; max-width: 150px; }
+.fs-lang-select:focus-visible { outline: 2px solid var(--focus-edge); outline-offset: 1px; }
+#fs-header .fs-lang { margin-right: 4px; }
+.fs-q-langrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 0 0 14px; }
+.fs-q-langrow .fs-lang-select { font-size: 18px; min-height: 44px; max-width: 220px; }
+.fs-q-langhint { font-size: 14px; color: var(--text-muted); }
+.fs-lang-note { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 9999; max-width: min(92vw, 560px); margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--panel); border: 1px solid var(--border); color: var(--text); font-size: 14px; box-shadow: var(--shadow-card); }
+@media (max-width: 560px) { #fs-header .fs-lang-select { max-width: 110px; font-size: 13px; } }
