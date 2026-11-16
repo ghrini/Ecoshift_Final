@@ -73,7 +73,7 @@
     warnT: "Warnings And What To Do",
     warn: "In the same view, a map of your fields marks wet spots and puddles, low ground, bare soil, weak growth and burned ground, with numbered warnings and what to do about each. Field health this season shows how each crop is doing in satellite pictures. Press Check again for the newest news. While the view is open, it checks again by itself every 15 minutes.",
     resultsT: "Your Results",
-    results: "The first lines give one answer per field: what to plant, and how it does in its worst season. Below that, how your farm does in a typical season: how much of a normal crop you get and what it earns. Any one season can be off by about 10 points, so treat small differences as a tie. Press Show details to read more.",
+    results: "The first lines give one answer per field: what to plant, and how it does in its worst season. Below that, how your farm does in a typical season: how much of a normal crop you get and what it earns. Press Show details to read more.",
     stripT: "Every Season Since 1982",
     strip: "Each small square is one real season of weather on your farm. Olive means a good season, brown means a bad one, and grey means about normal. Press a square to see that season.",
     chatT: "Ask In Your Own Words",

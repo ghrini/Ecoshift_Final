@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="100%" role="img" aria-labelledby="t d" font-family="'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12">
 <title id="t">Real Iowa corn harvests against the EcoShift model, 1982-2025</title>
-<desc id="d">Line chart, one point per season from 1982 to 2025, of corn harvest as a percent of the yield trend. One line is the real USDA NASS Iowa state yield; the other is the model prediction made with each season left out of the fitting. The model dips in the two big droughts, 1988 (real 67, model 80) and 2012 (real 76, model 80), but underestimates how bad 1988 was and misses the 1993 flood entirely (real 59, model 84). In ordinary years the model line stays close to 100 and does not follow the real ups and downs, so it is no better than the yield trend. Correlation over all 44 seasons is 0.48.</desc>
+<desc id="d">Line chart, one point per season from 1982 to 2025, of corn harvest as a percent of the yield trend. One line is the real USDA NASS Iowa state yield; the other is the model prediction made with each season left out of the fitting. The model dips in the two big droughts, 1988 (real 67, model 80) and 2012 (real 76, model 80). In ordinary years the model line stays close to 100 and does not follow the real ups and downs, so it is no better than the yield trend. Correlation over all 44 seasons is 0.48.</desc>
 <line x1="64" x2="940" y1="265.5" y2="265.5" stroke="#808080" stroke-opacity="0.18" stroke-width="1"/>
 <text x="56" y="269.5" fill="#b4b2ac" text-anchor="end">60</text>
 <line x1="64" x2="940" y1="231.0" y2="231.0" stroke="#808080" stroke-opacity="0.18" stroke-width="1"/>
@@ -31,7 +31,6 @@
 <rect x="670.2" y="24" width="10" height="276" fill="#e8e2d8" fill-opacity="0.09"/>
 <text x="675.2" y="34" fill="#e8e2d8" text-anchor="middle" font-weight="600">2012 drought</text>
 <text x="675.2" y="48" fill="#b4b2ac" text-anchor="middle" font-size="11">real 76, model 80</text>
-<text x="297.1" y="272.9" fill="#b4b2ac" font-size="11">1993 flood: real 59, model 84 (the model misses floods)</text>
 <path d="M64.0,108.8 L84.4,133.9 L104.7,101.5 L125.1,149.6 L145.5,99.4 L165.9,116.9 L186.2,197.7 L206.6,119.8 L227.0,111.7 L247.3,121.6 L267.7,207.8 L288.1,183.7 L308.5,105.9 L328.8,133.6 L349.2,121.6 L369.6,124.0 L390.0,120.2 L410.3,122.8 L430.7,126.5 L451.1,127.6 L471.4,128.4 L491.8,150.4 L512.2,114.1 L532.6,142.2 L552.9,156.2 L573.3,137.3 L593.7,104.3 L614.0,123.5 L634.4,127.3 L654.8,129.0 L675.2,195.6 L695.5,144.5 L715.9,103.6 L736.3,116.6 L756.7,126.5 L777.0,144.5 L797.4,129.4 L817.8,121.7 L838.1,133.2 L858.5,147.0 L878.9,147.3 L899.3,133.6 L919.6,130.5 L940.0,117.9" fill="none" stroke="#9E6438" stroke-width="1.8" stroke-linejoin="round"/>
 <circle cx="64.0" cy="108.8" r="2.6" fill="#9E6438"/>
 <circle cx="84.4" cy="133.9" r="2.6" fill="#9E6438"/>

@@ -110,7 +110,7 @@
       if (top) h += '<p class="fs-hl-todo"><span class="fs-hl-pr fs-hl-' + top.priority + '">' + top.priority + '</span> <b>' + esc(top.topic) + ':</b> ' + esc(top.text) + '</p>';
       h += '<details class="fs-cn-more"><summary>Root causes, all advice and details</summary>' +
         '<p class="fs-hl-line">Stage: <b>' + esc(f.stage) + '</b>' + (f.gdd != null ? ' (' + f.gdd + ' degree days since planting)' : '') + ' · Growth momentum: <b>' + esc(M.word) + '</b>' + (M.perWeek != null ? ' (NDVI ' + (M.perWeek > 0 ? '+' : '') + M.perWeek + ' a week' + (M.accel ? ', ' + esc(M.accel) : '') + ')' : '') + ' · Peak NDVI ' + f.peak.ndvi + ' on ' + esc(f.peak.date) + '</p>' +
-        '<p class="fs-hl-line">Quality score <b>' + f.qualityScore + '</b>/100' + (Y.bu ? ' · Yield guide ' + Y.bu + ' bu/acre (design range ' + Y.low + ' to ' + Y.high + '; county normal ' + Y.normal + ')' : '') + '</p>' +
+        '<p class="fs-hl-line">Quality score <b>' + f.qualityScore + '</b>/100' + (Y.bu ? ' · Yield guide ' + Y.bu + ' bu/acre (range ' + Y.low + ' to ' + Y.high + '; county normal ' + Y.normal + ')' : '') + '</p>' +
         '<div class="fs-hl-bars">' + bar('Phosphorus', null, esc(H.phosphorus.note)) + bar('Leaf structure', H.leaf.score, 'red-edge position ' + H.leaf.redEdgeNm + ' nm') + '</div>' +
         '<p class="fs-fm-faint fs-hl-small">The health index (0 to 100) compares the canopy with a healthy crop’s normal peak, and the nitrogen, leaf structure and evenness with this field’s own best parts.</p>' +
         (Y.note ? '<p class="fs-fm-faint fs-hl-small">' + esc(Y.note) + '</p>' : '') +
