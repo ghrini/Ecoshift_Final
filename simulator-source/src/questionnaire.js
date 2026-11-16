@@ -56,7 +56,7 @@
   Q.setDefaultFields = function (f) { DEFAULT_FIELDS = f.map(function (x) { return { id: x.id, acres: x.acres, lastCrop: x.lastCrop }; }); };
   function defaultFields() { return clone(DEFAULT_FIELDS || [{ id: 'north', acres: 80, lastCrop: 'corn' }, { id: 'creek', acres: 40, lastCrop: 'corn' }, { id: 'west', acres: 40, lastCrop: 'soybean' }, { id: 'south', acres: 120, lastCrop: 'soybean' }]); }
   Q.blank = function () {
-    return { v: 2, example: false, name: '', site: 'story-ia', point: null, fit: null, fields: defaultFields(), tenure: '', lease: '', experience: '', practices: [], livestock: [], water: '', drainage: '', tile: '', slope: '', soilTest: '',
+    return { v: 2, example: false, name: '', site: 'story-ia', point: null, fit: null, fields: defaultFields(), fieldCount: 4, tenure: '', lease: '', experience: '', practices: [], livestock: [], water: '', drainage: '', tile: '', slope: '', soilTest: '',
       limits: [], limitsNote: '', wont: [], contracted: null, budget: '', costShare: '', priorities: [], trial: '', worries: '', buyers: [], buyersNote: '', other: '' };
   };
   Q.example = function () { var a = Q.blank(); a.example = true; return a; };
@@ -64,20 +64,24 @@
   function siteById(id) { return sites().filter(function (s) { return s.id === id; })[0] || null; }
   function pick(v, list) { return typeof v === 'string' && vals(list).indexOf(v) >= 0 ? v : ''; }
   function pickMany(v, list) { var ok = vals(list); return Array.isArray(v) ? v.filter(function (x, i) { return ok.indexOf(x) >= 0 && v.indexOf(x) === i; }) : []; }
+  function countOf(v) { var n = Math.round(Number(v)); return n >= 1 && n <= 4 ? n : 4; }   // how many fields the farm has (1 to 4)
   function text(v, n) { return typeof v === 'string' ? v.replace(/[\u0000-\u001f]+/g, ' ').trim().slice(0, n) : ''; }
 
   // Anything stored or linked is checked here; returns answers or null when it is not a usable farm. Old saves (one panel) are converted.
   Q.normalize = function (raw) {
     try {
       if (!raw || typeof raw !== 'object') return null;
-      if (raw.example) return Q.example();
+      if (raw.example) { var ex = Q.example(); ex.fieldCount = countOf(raw.fieldCount); return ex; }
       var a = Q.blank();
       if (!siteById(raw.site) || !Array.isArray(raw.fields) || raw.fields.length !== 4) return null;
       var okF = POS.every(function (p) { var f = raw.fields.filter(function (x) { return x && x.id === p[0]; })[0]; return f && f.acres >= 10 && f.acres <= 640 && (f.lastCrop === 'corn' || f.lastCrop === 'soybean'); });
       if (!okF) return null;
       a.site = raw.site;
+      a.fieldCount = countOf(raw.fieldCount);
       a.point = normPoint(raw.point);
       a.fit = a.point && raw.fit && typeof raw.fit === 'object' && raw.fit.local && typeof raw.fit.key === 'string' ? raw.fit : null;   // checked again against the answers in app.js
+      // imported field outlines and the conditions at them (fieldimport.js): kept as they are, checked in app.js and the engine
+      a.geo = raw.geo && typeof raw.geo === 'object' && Array.isArray(raw.geo.fields) && raw.geo.fields.length && raw.geo.cond && typeof raw.geo.cond === 'object' ? raw.geo : null;
       a.fields = POS.map(function (p) { var f = raw.fields.filter(function (x) { return x.id === p[0]; })[0]; return { id: p[0], acres: Math.round(f.acres), lastCrop: f.lastCrop }; });
       if (raw.v !== 2) {   // the one-panel save: priority, costShare, irrigate
         var lp = { profit: ['Profit'], risk: ['Low risk / steady income'], cover: ['Soil health'] }[raw.priority];

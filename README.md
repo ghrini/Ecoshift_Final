@@ -18,7 +18,7 @@ This is a working prototype. Simulation results are estimates for comparing opti
 ## Run it on your computer
 
 1. Install **Node.js 18 or newer** from https://nodejs.org (no `npm install` needed; there are no packages).
-2. Optional, for the AI parts (fitting the data to your farm from your land answers, and the daily outlook note): copy `.env.example` to `.env` and put your Gemini key after `GEMINI_API_KEY=` (get one at https://aistudio.google.com/apikey). Without a key everything else works.
+2. Optional, for the AI parts (the chat helper that answers any question and runs what-ifs the rules cannot read, fitting the data to your farm from your land answers, and the daily outlook note): copy `.env.example` to `.env` and put your Gemini key after `GEMINI_API_KEY=` (get one at https://aistudio.google.com/apikey). Without a key everything else works.
 3. In a terminal, in this folder:
 
    ```bash
@@ -33,7 +33,18 @@ Optional, for the "Farm map" view: Python 3 and `pip install -r farmmap/requirem
 
 **Never commit or upload `.env`.** It is in `.gitignore`, but GitHub's "Add files via upload" does not read `.gitignore`: delete or leave out `.env` before uploading through the website.
 
-What needs the server and internet: the address search, fitting the data to your own farm (NASA POWER, USDA NRCS soils, USDA NASS yields, FCC county lookup), the 30-day forecast (Open-Meteo) and the farm map (USGS / Sentinel-2 imagery). The simulator itself also opens as a plain file (`public/deepdive/index.html`) and works offline on the county data.
+What needs the server and internet: the address search, fitting the data to your own farm (NASA POWER, USDA NRCS soils, USDA NASS yields, FCC county lookup), importing your own field outlines, the 30-day forecast (Open-Meteo) and the farm map (USGS / Sentinel-2 imagery). The simulator itself also opens as a plain file (`public/deepdive/index.html`) and works offline on the county data.
+
+**Your own fields from a GeoJSON file.** Press "Import field outlines" in the simulator header and pick a GeoJSON file of field boundaries in longitude/latitude (from geojson.io, QGIS, John Deere Operations Center or Climate FieldView). Up to four fields are used (the largest four if there are more); a `name` property names a field and a `crop` property (corn or soybean) sets its last crop. The server (`fieldgeo.js`, `/api/fieldconditions`) then measures the conditions on those exact fields:
+- weather: 44 seasons of daily Copernicus reanalysis at the farm (ERA5-Land, about 9 km, for temperature; ERA5 for rain and FAO-56 reference evapotranspiration), from Open-Meteo's archive. It replaces the county's NASA POWER weather;
+- slope and height: the Copernicus GLO-30 elevation model (30 m), read straight from its public AWS bucket, averaged over every 30 m cell inside each outline;
+- soil: the USDA soil survey at a point well inside each field; normal yields: USDA NASS for the fields' county.
+
+**Advanced near-real-time conditions.** The third switch in the Simulation panel ("Simulation | Farm map | Advanced near-real-time conditions") checks the fields today, shows how recent each source is and checks again every 15 minutes while open (`fieldlive.js`, `fieldsat.js`, `/api/liveconditions`): ECMWF weather (now, past 7 days, next 3), Copernicus ERA5-Land soil moisture and CAMS air quality; soil fertility from ISRIC SoilGrids (organic carbon, nitrogen, pH, CEC); ponds and wet ground from ESA WorldCover (10 m, Copernicus Sentinel-1/2); low spots from the Copernicus DEM; and from Copernicus Sentinel-2 (Earth Search on AWS) likely burned ground (burn ratio change plus dark char), bare soil now and last summer's weak growth zones (NDVI). Warnings that belong to a place are numbered on a small map of the fields. With imported outlines the checks use the exact fields; otherwise a square of each field's size around its soil survey point.
+
+**Field health** (bottom of "Advanced near-real-time conditions", `fieldhealth.js`, `/api/fieldhealth`): this season's Sentinel-2 images of each field (clearest in every 8 days) give a time series per field, saved as `data/<farm>_<field>.csv` (date, NDVI, NDRE, NDMI, red-edge position, LAI, cover, uniformity) and downloadable from the page. From it: growth stage (degree days since planting plus the NDVI curve), growth momentum, scores for canopy, nitrogen (red edge against the field's own best 10%), moisture, leaf structure and uniformity, yield and quality scores, a rough yield estimate, root causes, and prioritised advice for irrigation, nutrition, soil moisture and uniformity that depends on the crop and stage. Phosphorus is not visible from satellite, so the page asks for a soil test instead of guessing. These are rules on published indices, not a model trained on harvests.
+
+Try it with `public/deepdive/sample-fields.geojson` (three fields near Ames, Iowa). "Use example fields" goes back. The 44-season download is heavy for Open-Meteo's free limits, so the server keeps it on disk for 30 days per 0.1-degree cell.
 
 ## Folder structure
 

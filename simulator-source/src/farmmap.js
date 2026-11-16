@@ -90,7 +90,6 @@
   function setOpen(on) {
     open = on;
     layer.hidden = !on;
-    Array.prototype.forEach.call(tabs.querySelectorAll('button'), function (b) { b.setAttribute('aria-pressed', String((b.getAttribute('data-t') === 'map') === on)); });
     if (on) load(); else window.dispatchEvent(new Event('resize'));
   }
 
@@ -98,11 +97,18 @@
     panel = p; if (!panel) return;
     body = panel.querySelector('.fs-view-body'); var right = panel.querySelector('.fs-head-right'); if (!body || !right) return;
     tabs = document.createElement('div'); tabs.className = 'fs-fm-tabs'; tabs.setAttribute('role', 'group'); tabs.setAttribute('aria-label', 'View');
-    tabs.innerHTML = '<button type="button" data-t="sim" aria-pressed="true">Simulation</button><button type="button" data-t="map" aria-pressed="false">Farm Map</button>';
+    tabs.innerHTML = '<button type="button" data-t="sim" aria-pressed="true">Simulation</button><button type="button" data-t="map" aria-pressed="false">Farm Map</button><button type="button" data-t="now" aria-pressed="false">Advanced Near-Real-Time Conditions</button>';
     right.insertBefore(tabs, right.firstChild);
     layer = document.createElement('section'); layer.className = 'fs-fm'; layer.hidden = true; layer.setAttribute('aria-label', 'Farm map');
     body.appendChild(layer);
-    tabs.addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) setOpen(b.getAttribute('data-t') === 'map'); });
+    // three views: the simulation, the farm map, and the conditions on the fields now (conditions.js)
+    tabs.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      var t = b.getAttribute('data-t');
+      Array.prototype.forEach.call(tabs.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', String(x.getAttribute('data-t') === t)); });
+      setOpen(t === 'map');
+      if (FS.conditions) FS.conditions.show(t === 'now', body);
+    });
   }
   // the farm moved: a new map next time the switch is on (or now, if it is on); an uploaded photo stays until then
   function refresh() { if (state.upload) return; if (open) load(); }

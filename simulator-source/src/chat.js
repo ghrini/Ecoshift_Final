@@ -92,10 +92,22 @@
     if (CROP_EXACT[w]) return CROP_EXACT[w];
     return fuzzy(w, CROP_DICT, CROP_STOP);
   }
+  // imported fields have the farmer's own names ("Home quarter"): a word that belongs to one field's name finds it
+  var NAME_SKIP = ['field', 'fields', 'the', 'and', 'farm', 'acre', 'acres', 'plot', 'lot'];
+  function nameWords() {
+    var seen = {}, out = {};
+    D.farm.fields.forEach(function (f) {
+      String(f.name || '').toLowerCase().split(/[^a-z0-9]+/).forEach(function (w) {
+        if (w.length < 3 || NAME_SKIP.indexOf(w) >= 0 || /^\d+$/.test(w)) return;
+        if (seen[w] && seen[w] !== f.id) out[w] = null; else { seen[w] = f.id; if (out[w] !== null) out[w] = f.id; }
+      });
+    });
+    return out;
+  }
   function fieldOf(w) {
-    if (FIELD_EXACT[w]) return FIELD_EXACT[w];
-    if (FIELD_STOP.indexOf(w) >= 0) return null;
-    return fuzzy(w, FIELD_DICT, FIELD_STOP);
+    var nw = nameWords()[w]; if (nw) return nw;
+    var id = FIELD_EXACT[w] || (FIELD_STOP.indexOf(w) >= 0 ? null : fuzzy(w, FIELD_DICT, FIELD_STOP));
+    return id && fieldById(id) ? id : null;   // only fields this farm has
   }
 
   // ---------- vocabulary ----------
@@ -226,6 +238,7 @@
     if (path === 'weather.rainChange') return 'rain ' + signed(v, '%');
     if (path === 'other.priceChange') return 'crop prices ' + signed(v, '%');
     if (path === 'other.nitrogenChange') return 'nitrogen price ' + signed(v, '%');
+    if (path === 'crops.soilWaterPct') return Number(v) ? 'soil holding ' + signed(Number(v), '%') + ' water' : 'soil as surveyed';
     if (path === 'other.priority') return 'options ranked by ' + (PRIO_PHRASE[v] || v);
     var m = /^crops\.plans\.(\w+)$/.exec(path); if (m && fieldById(m[1])) return fieldById(m[1]).name + ' on ' + planPlain(v);
     m = /^crops\.trialAcres\.(\w+)$/.exec(path); if (m && fieldById(m[1])) return fieldById(m[1]).name + ' trial acres ' + v;
@@ -317,7 +330,7 @@
     return 'yields are ' + sel.join(', ') + ' of a normal crop';
   }
 
-  function examples() { return 'Type a change to the weather, crops or prices. Examples:\n• "What if 2012 happens again?"\n• "Try corn after corn on ' + fieldById('north').name + '"\n• "Rain −20% and +2°C"\n• "What should I plant on ' + fieldById('creek').name + '?"\n• "I care most about profit"'; }
+  function examples() { return 'Type a change to the weather, crops or prices. Examples:\n• "What if 2012 happens again?"\n• "Try corn after corn on ' + D.farm.fields[0].name + '"\n• "Rain −20% and +2°C"\n• "What should I plant on ' + D.farm.fields[D.farm.fields.length > 1 ? 1 : 0].name + '?"\n• "I care most about profit"'; }
 
   // ================================================================= the interpreter
   FS.chat = FS.chat || {};
@@ -360,7 +373,7 @@
       if (w === 'cover' && tk[i + 1] && tk[i + 1].k === 'word' && /^crops?$/.test(tk[i + 1].w)) { T.c = 'rye'; tk[i + 1].c = '-'; T.coverCrop = true; continue; }
       if (tk[i].c) continue;
       var c = cropOf(w); if (c) { T.c = c; T.fuzzyFrom = (c === CROP_EXACT[w] ? null : w); continue; }
-      var fo = fieldOf(w); if (fo) { T.f = fo; T.fuzzyFrom = (FIELD_EXACT[w] ? null : w); continue; }
+      var fo = fieldOf(w); if (fo) { T.f = fo; T.fuzzyFrom = (FIELD_EXACT[w] || nameWords()[w] ? null : w); continue; }
       if (KW[w]) T.kw = KW[w];
       if (/^(prices?|costs?)$/.test(w) && tk[i - 1] && tk[i - 1].kw === 'NITRO') { T.kw = null; T.used = true; T.w = '_'; continue; }   // "fertilizer prices" is one thing
       if (IMPLICIT[w]) { T.imp = IMPLICIT[w]; }
@@ -633,7 +646,7 @@
 
     if (prevCropRef && !fieldsNamed.length) {
       var fol = D.farm.fields.filter(function (f) { return prevCropRef === 'soy' ? f.lastCrop === 'soybean' : f.lastCrop === 'corn'; }).map(function (f) { return f.name; });
-      return { reply: 'Which field do you mean? ' + (fol.length ? 'The fields that followed ' + (prevCropRef === 'soy' ? 'soybeans' : 'corn') + ' are ' + fol.join(' and ') + '. ' : '') + 'Name one, for example "corn on ' + (fol[0] || fieldById('south').name) + '".', actions: [] };
+      return { reply: 'Which field do you mean? ' + (fol.length ? 'The fields that followed ' + (prevCropRef === 'soy' ? 'soybeans' : 'corn') + ' are ' + fol.join(' and ') + '. ' : '') + 'Name one, for example "corn on ' + (fol[0] || D.farm.fields[D.farm.fields.length - 1].name) + '".', actions: [] };
     }
     // ---- 4. questions: compare / what should I plant
     var isCmp = /\bcompar\w*|\bversus\b|\bvs\b|side by side/.test(t);
@@ -837,7 +850,7 @@
     if (selectTo && selectTo !== state.selectedField) actions.push({ type: 'selectField', id: selectTo });
 
     // fuzzy matches said back to the user
-    var fz = []; tk.forEach(function (x) { if (x.fuzzyFrom && x.used) fz.push('"' + x.fuzzyFrom + '" as ' + (x.c ? (x.c === 'soy' ? 'soybeans' : x.c) : x.f)); });
+    var fz = []; tk.forEach(function (x) { if (x.fuzzyFrom && x.used) fz.push('"' + x.fuzzyFrom + '" as ' + (x.c ? (x.c === 'soy' ? 'soybeans' : x.c) : ((fieldById(x.f) || {}).name || x.f))); });
     if (fz.length && actions.length) notes.push('I read ' + fz.join(' and ') + '.');
 
     // ---- 8. answer
@@ -852,12 +865,16 @@
         for (var j = cl[0]; j <= cl[1]; j++) { if (tk[j].used) any = true; else if (tk[j].k === 'word' && STOP.indexOf(tk[j].w) < 0 && !tk[j].f && !tk[j].c) words.push(tk[j].raw); else if (tk[j].k === 'pct' || tk[j].k === 'deg') words.push(tk[j].raw.trim()); }
         if (!any && words.length) left.push(words.join(' '));
       });
-      if (left.length && (parsed || res.actions.length)) res.reply += (res.reply ? '\n' : '') + 'I could not apply: "' + left.join('"; "') + '".';
+      if (events.length) res.ai = true;
+      // words the rules skipped inside a clause they half-read ("beetles are eating my soybeans on North 80"): the farmer meant more than a setting
+      var stray = tk.filter(function (x) { return !x.used && x.k === 'word' && x.w.length > 2 && STOP.indexOf(x.w) < 0 && !x.f && !x.c; }).length;
+      if (stray >= 2) res.ai = true;   // floods, pests, hail...: the model cannot run them, so the AI helper answers the farmer's real question
+      if (left.length && (parsed || res.actions.length)) { res.reply += (res.reply ? '\n' : '') + 'I could not apply: "' + left.join('"; "') + '".'; res.ai = true; }
       return res;
     }
     var moneyQ = /\bhow much (?:money|profit|will i|do i|would i)\b|\bwhat.?s (?:my|the) (?:profit|return|income|bottom line)\b|\bhow (?:am i|will i|would i) do\b|\bhow (?:does|would) (?:it|that|this) look\b/.test(t);
     if (Q_LEAD && !CMD && !/\d/.test(t) && !(isCmp || isReco) && !moneyQ && !scenId && !Object.keys(qty).length) {
-      return { reply: 'That sounds like a question, so I changed nothing. I can answer "why", "how reliable is this", "where does the data come from", "which field is most at risk" or "what is the safest option". To try something, say what, for example "what if 2012 happens again?".', actions: [] };
+      return { ai: true, reply: 'That sounds like a question, so I changed nothing. I can answer "why", "how reliable is this", "where does the data come from", "which field is most at risk" or "what is the safest option". To try something, say what, for example "what if 2012 happens again?".', actions: [] };
     }
     if (isCmp || isReco) {
       var cfid = fieldsNamed.length ? fieldsNamed[0].id : null;
@@ -875,7 +892,7 @@
         var sf = (state.selectedField || D.farm.fields[0].id), cmpR = compareReply(sf, simState, state, '');
         res2.reply = (lead || '') + plainSpeak((sm && sm.recommendationNote) || 'No alternative beats your current plans on this ranking.') + '\nHere is how the other options on ' + fieldById(sf).name + ' compare:';
         if (cmpR.items && cmpR.items.length) { res2.items = cmpR.items; res2.kind = 'cmp'; }
-        else res2.reply += ' Name a field to compare its plans, for example "compare plans for ' + fieldById('creek').name + '".';
+        else res2.reply += ' Name a field to compare its plans, for example "compare plans for ' + D.farm.fields[0].name + '".';
       }
       if (actions.length) res2.actions = actions.concat([{ type: 'run', label: labelBits.join(' · ') || 'Chat run' }]);
       return finish(res2);
@@ -892,7 +909,7 @@
     var needRun = !declinedOnly && ( changedAny || (wantsRun && !fieldsNamed.length && !actions.length && (parsed || !tk.some(function (x) { return x.k === 'word' && STOP.indexOf(x.w) < 0 && !x.used; }))) || (wantsRun && same.length && !actions.length));
     if (!parsed && !wantsRun) {
       var unk = notes.length ? uniq(notes).slice(0, 3).join('\n') : 'Sorry, I did not catch a change in that.\n' + examples();
-      return { reply: unk, actions: [] };
+      return { reply: unk, actions: [], ai: true };
     }
     var lines = [];
     if (applied.length) lines.push('Showing ' + applied.join('; ') + '.');
@@ -903,7 +920,7 @@
     notes.forEach(function (x) { lines.push(x); });
     var out = { reply: lines.join('\n'), actions: actions };
     if (needRun) out.actions = out.actions.concat([{ type: 'run', label: labelBits.length ? labelBits.join(' · ') : 'Chat run' }]);
-    if (!out.reply) out.reply = examples();
+    if (!out.reply) { out.reply = examples(); out.ai = true; }
     return finish(out);
   };
 
@@ -1022,7 +1039,7 @@
     var init = D.initialControls; if (!init) return [];
     var a = leaves(S.get().controls, '', {}), b = leaves(init, '', {}), out = [];
     Object.keys(a).forEach(function (p) {
-      if (!/^(weather\.(scenario|tempShift|rainChange|events)|other\.(priceChange|nitrogenChange)|crops\.plantShiftDays)$/.test(p)) return;
+      if (!/^(weather\.(scenario|tempShift|rainChange|events)|other\.(priceChange|nitrogenChange)|crops\.(plantShiftDays|soilWaterPct))$/.test(p)) return;
       if (String(a[p]) !== String(b[p] == null ? (p === 'weather.events' ? '[]' : 0) : b[p])) out.push(describeValue(p, a[p]));
     });
     return out;
@@ -1058,9 +1075,93 @@
   }
   function answer(text) {
     var out;
-    try { out = FS.chat.interpret(text, S.get()); } catch (e) { console.error(e); out = { reply: 'Sorry, I could not read that.\n' + examples(), actions: [] }; }
+    try { out = FS.chat.interpret(text, S.get()); } catch (e) { console.error(e); out = { reply: 'Sorry, I could not read that.\n' + examples(), actions: [], ai: true }; }
+    if (out.ai && aiAvailable()) return askAI(text, out);
     if (out.reply || out.items) A.addChat({ role: 'assistant', text: out.reply, items: out.items, kind: out.kind, foot: out.foot, actions: out.actions });
     execute(out.actions || []);
+  }
+
+  // ---------- AI helper (server /api/chat, Google Gemini with thinking) ----------
+  // Used when the rules above do not understand a message. The reply is plain text; any setting changes it asks for are
+  // checked here against the same ranges as the control boxes before they are applied and the simulation re-runs.
+  var aiDown = false;
+  function aiAvailable() { return !aiDown && /^https?:$/.test(location.protocol); }
+  function num(v, lo, hi, step) { var n = Number(v); if (!isFinite(n) || n < lo || n > hi) return null; if (step) n = Math.round(n / step) * step; return Math.min(hi, Math.max(lo, +n.toFixed(2))); }   // out of range: skipped, never stretched to fit
+  function checkedValue(path, raw) {
+    var v = String(raw).trim(), m;
+    switch (path) {
+      case 'weather.scenario':
+        if ((D.weatherScenarios || []).some(function (x) { return x.id === v; })) return v;
+        m = /^y(\d{4})$/.exec(v); return m && climYears().indexOf(+m[1]) >= 0 ? v : null;
+      case 'weather.tempShift': return num(v, -2, 4, 0.5);
+      case 'weather.rainChange': return num(v, -50, 50, 5);
+      case 'weather.events':
+        var ev; try { ev = JSON.parse(v); } catch (e) { return null; }
+        if (!Array.isArray(ev)) return null;
+        return ev.filter(function (e) { return e && /^(dryspell|wetspell|heatwave)$/.test(e.type) && +e.month >= 1 && +e.month <= 12; }).slice(0, 3)
+          .map(function (e) { return { type: e.type, month: Math.round(+e.month), severity: e.severity === 'severe' ? 'severe' : 'moderate' }; });
+      case 'crops.plantShiftDays': return num(v, -21, 21, 7);
+      case 'crops.irrigation': return /^(none|july|july-aug|jun-aug)$/.test(v) ? v : null;
+      case 'crops.soilWaterPct': return num(v, -60, 40, 5);
+      case 'other.priceChange': return num(v, -40, 40, 5);
+      case 'other.nitrogenChange': return num(v, -30, 80, 5);
+      case 'other.contracted': return num(v, 0, 100, 5);
+      case 'other.costShare': return v === 'true' ? true : v === 'false' ? false : null;
+      case 'other.priority': return /^(balanced|profit|risk|cover)$/.test(v) ? v : null;
+    }
+    m = /^crops\.plans\.(\w+)$/.exec(path);
+    if (m) { var f = fieldById(m[1]), ok = f && (D.planOptions[f.lastCrop] || []); return ok && ok.indexOf(v) >= 0 ? v : null; }
+    m = /^crops\.trialAcres\.(\w+)$/.exec(path);
+    if (m) { var f2 = fieldById(m[1]); return f2 ? num(v, 0, f2.acres, 1) : null; }
+    return null;
+  }
+  function aiContext() {
+    var st = S.get(), r = st.current, sm = r && r.summary, farm = D.farm, yrs = climYears();
+    var fields = farm.fields.map(function (f) {
+      var x = sm && sm.fields && sm.fields[f.id], so = f.soil || {};
+      return { id: f.id, name: f.name, acres: f.acres, lastCrop: f.lastCrop, plannedNow: st.controls.crops.plans[f.id], currentPlan: D.initialControls.crops.plans[f.id],
+        allowedPlans: (D.planOptions[f.lastCrop] || []).map(function (p) { return { id: p, label: plain((D.plans[p] || {}).label || p) }; }),
+        soil: { name: so.name, drainage: so.drainage, waterHoldingMmPerM: so.awcMmPerM, slopePct: so.slopePct, tiled: !!so.tiled },
+        lastRun: x ? { yieldPctOfNormal: Math.round(x.yieldPctOfNormal), note: x.note || null, moneyNote: x.moneyNote || null } : null };
+    });
+    var lastRun = null;
+    try { if (r) lastRun = { weather: r.inputs && r.inputs.weather, farmSummary: farmLine(r), recommendationNote: (sm && sm.recommendationNote) || null }; } catch (e) { /* leave it out */ }
+    return {
+      farm: { name: farm.name, place: farm.place, lat: farm.lat, lon: farm.lon }, fields: fields, selectedField: st.selectedField,
+      settingsNow: st.controls, seasonsAvailable: yrs.length ? yrs[0] + '-' + yrs[yrs.length - 1] : '1982-2025',
+      namedWeather: (D.weatherScenarios || []).map(function (x) { return { id: x.id, label: x.label }; }),
+      lastRun: lastRun, farmerNotes: FS.chat.advice ? FS.chat.advice.lines : [],
+      economics: { pricePerBu: (D.economics || {}).price, normalYieldBuPerAcre: (D.economics || {}).normalYield, fullCostPerAcreIncludingLand: (D.economics || {}).costPerAcre,
+        nitrogen: (D.economics || {}).nitrogen, coverCropCostShare: (D.economics || {}).costShareRye, sources: (D.economics || {}).sources }
+    };
+  }
+  function askAI(text, ruleOut) {
+    var wait = document.createElement('div'); wait.className = 'fs-msg assistant fs-thinking'; wait.innerHTML = '<p>Thinking it through…</p>';
+    if (listEl) { listEl.appendChild(wait); listEl.scrollTop = listEl.scrollHeight; }
+    var hist = S.get().chat.slice(-11, -1).map(function (m) { return { role: m.role, text: m.text || '' }; });
+    var btn = document.getElementById('fs-chat-send'); if (btn) btn.disabled = true;
+    function done() { if (wait.parentNode) wait.parentNode.removeChild(wait); if (btn) btn.disabled = false; }
+    fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, history: hist, context: aiContext() }) })
+      .then(function (res) { return res.json().catch(function () { return {}; }).then(function (j) { return { ok: res.ok, status: res.status, j: j }; }); })
+      .then(function (x) {
+        done();
+        if (!x.ok || !x.j.reply) {
+          if (x.status === 404 || x.status === 503) aiDown = true;   // no server route or no key: stay with the rules
+          A.addChat({ role: 'assistant', text: (ruleOut.reply || examples()) + (x.j.error ? '\n(' + x.j.error + ')' : '') });
+          return;
+        }
+        var acts = [], skipped = 0;
+        (x.j.changes || []).forEach(function (c) {
+          var v = checkedValue(c.path, c.value);
+          if (v === null || v === undefined) skipped++; else acts.push({ type: 'setControl', path: c.path, value: v });
+        });
+        A.addChat({ role: 'assistant', text: x.j.reply + (skipped ? '\n(' + skipped + ' of the changes could not be applied.)' : '') });
+        if (acts.length) execute(acts.concat([{ type: 'run', label: 'Chat: ' + acts.map(function (a) { return describeValue(a.path, Array.isArray(a.value) ? JSON.stringify(a.value) : a.value); }).join(' · ') }]));
+      })
+      .catch(function (e) {
+        console.error(e); done();
+        A.addChat({ role: 'assistant', text: (ruleOut.reply || examples()) + '\n(The AI helper could not be reached.)' });
+      });
   }
 
   function showOnMap(it) {

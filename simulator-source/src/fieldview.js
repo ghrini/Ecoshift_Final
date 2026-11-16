@@ -89,7 +89,8 @@ window.FS = window.FS || {};
   function polyPath(c, poly) { c.beginPath(); poly.forEach(function (p, i) { if (i) c.lineTo(p[0], p[1]); else c.moveTo(p[0], p[1]); }); c.closePath(); }
 
   var GEO = {};   // per field: bbox, label point, dry and wet blobs
-  FIELDS.forEach(function (f, idx) {
+  function buildGeo() { GEO = {}; FIELDS.forEach(geoField); }
+  function geoField(f, idx) {
     var r = mulberry(hash(f.id) + 11), b = bbox(f.poly), dry = [], wet = [], tries = 0;
     function blobs(list, n, rmin, rmax) {
       while (list.length < n && tries++ < 400) {
@@ -99,7 +100,9 @@ window.FS = window.FS || {};
     }
     blobs(dry, 9, 22, 55); blobs(wet, 5, 16, 34);
     GEO[f.id] = { bb: b, lp: labelPoint(f.poly), dry: dry, wet: wet, dir: ROW_DIR[f.id] || (idx % 2 ? 'v' : 'h') };
-  });
+  }
+  buildGeo();
+  function imported() { return !!DATA.farm.imported; }   // the farmer's own outlines (GeoJSON): no drawn farmstead, roads or creek
 
   // Geometry of a real farm map's fields in map units (0..MAPSIZE), or null when the record cannot paint all four simulator fields.
   function buildMapGeo(rec) {
@@ -176,23 +179,25 @@ window.FS = window.FS || {};
     // base: ground, farmstead lawn, pond, roads
     var base = mkCanvas(W, H), c = base.getContext('2d'); c.setTransform(k, 0, 0, k, 0, 0);
     c.fillStyle = rgba(T.ground); c.fillRect(0, 0, VW, VH); blotches(c, 311, 1.15);
+    if (!imported()) {
     var fs = SCN.farmstead; c.fillStyle = rgba(T.lawn); c.fillRect(fs[0][0], fs[0][1], fs[2][0] - fs[0][0], fs[2][1] - fs[0][1]); blotches(c, 5, 0.0);
     c.fillStyle = rgba(T.lawn, 0.9); c.fillRect(fs[0][0], fs[0][1], fs[2][0] - fs[0][0], fs[2][1] - fs[0][1]);
     c.fillStyle = rgba(T.road, 0.55); c.fillRect(60, 150, 150, 120);              // yard gravel
     c.fillStyle = rgba(T.water, 0.9); c.beginPath(); c.ellipse(180, 470, 38, 15, -0.2, 0, 7); c.fill();   // pond
     c.strokeStyle = rgba(T.soilDark, 0.5); c.lineWidth = 2; c.stroke();
     c.fillStyle = rgba(light(T.water, 0.3), 0.3); c.beginPath(); c.ellipse(172, 466, 22, 6, -0.2, 0, 7); c.fill();
+    }
     grain(c, W, H, 9, 0.2);
     c.setTransform(k, 0, 0, k, 0, 0);
     // driveway and gravel roads
-    var roads = SCN.roads.concat([[[130, 270], [130, 325]]]);
+    var roads = imported() ? [] : SCN.roads.concat([[[130, 270], [130, 325]]]);
     roads.forEach(function (rd) {
       c.lineCap = 'butt'; c.strokeStyle = rgba(T.shadow, 0.35); c.lineWidth = 15; c.beginPath(); rd.forEach(function (p, i) { i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1]); }); c.stroke();
       c.strokeStyle = rgba(T.road, 0.92); c.lineWidth = 11; c.stroke();
       c.strokeStyle = rgba(T.soilDark, 0.18); c.lineWidth = 1.5; c.setLineDash([]);
       [-3, 3].forEach(function (o) { c.beginPath(); rd.forEach(function (p, i) { var q = rd[0][1] === rd[rd.length - 1][1] ? [p[0], p[1] + o] : [p[0] + o, p[1]]; i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1]); }); c.stroke(); });
     });
-    for (var i = 0; i < 500; i++) {                                                // gravel speckle
+    for (var i = 0; i < (roads.length ? 500 : 0); i++) {                                                // gravel speckle
       var rd = roads[i % roads.length], a = rd[0], b = rd[rd.length - 1], t = r(); c.fillStyle = rgba(r() > 0.5 ? light(T.road, 0.4) : T.soilDark, 0.35);
       c.fillRect(lerp(a[0], b[0], t) + (a[0] === b[0] ? (r() - 0.5) * 10 : 0), lerp(a[1], b[1], t) + (a[1] === b[1] ? (r() - 0.5) * 10 : 0), 1, 1);
     }
@@ -202,6 +207,7 @@ window.FS = window.FS || {};
     var top = mkCanvas(W, H), t2 = top.getContext('2d'); t2.setTransform(k, 0, 0, k, 0, 0);
     var rnd = mulberry(99);
     FIELDS.forEach(function (f) { polyPath(t2, f.poly); t2.strokeStyle = rgba(T.shadow, 0.55); t2.lineWidth = 2.6; t2.stroke(); t2.strokeStyle = rgba(light(T.crop.oats, 0.4), 0.55); t2.lineWidth = 1; t2.stroke(); });
+    if (!imported()) {
     var cp = creekPts();                                                            // creek
     smoothPath(t2, cp); t2.lineCap = 'round'; t2.lineJoin = 'round';
     t2.strokeStyle = rgba(T.soilDark, 0.4); t2.lineWidth = 20; t2.stroke();
@@ -233,6 +239,7 @@ window.FS = window.FS || {};
       t2.fillStyle = g; t2.beginPath(); t2.arc(s[0], s[1], 10, 0, 7); t2.fill();
     });
     [[40, 44], [100, 44], [200, 40], [214, 110], [40, 150], [48, 186], [60, 232], [110, 258], [196, 232], [212, 270], [32, 280], [150, 290], [210, 170], [34, 100]].forEach(function (p) { tree(t2, p[0] + (rnd() - 0.5) * 6, p[1] + (rnd() - 0.5) * 6, 8 + rnd() * 6, rnd); });
+    }
     // photo-like vignette and grain
     var vg = t2.createRadialGradient(VW / 2, VH / 2, VH * 0.45, VW / 2, VH / 2, VW * 0.65); vg.addColorStop(0, rgba(T.shadow, 0)); vg.addColorStop(1, rgba(T.shadow, 0.38));
     t2.fillStyle = vg; t2.fillRect(0, 0, VW, VH);
@@ -283,7 +290,7 @@ window.FS = window.FS || {};
 
     // legend rows and labels
     var rows = {}, labelEls = {}, ul = $('.fv-fields');
-    FIELDS.forEach(function (f) {
+    function addRow(f) {
       var li = document.createElement('li'), b = document.createElement('button');
       b.type = 'button'; b.className = 'fv-row'; b.setAttribute('data-id', f.id);
       b.innerHTML = '<span class="fv-chip"></span><span class="fv-ftxt"><span class="fv-fname"></span><span class="fv-fcrop"></span></span><span class="fv-acres"></span>';
@@ -291,7 +298,25 @@ window.FS = window.FS || {};
       b.addEventListener('click', function () { FS.actions.selectField(f.id, 'map'); setSelected(f.id); });
       li.appendChild(b); ul.appendChild(li); rows[f.id] = { btn: b, chip: b.querySelector('.fv-chip'), crop: b.querySelector('.fv-fcrop') };
       var lb = document.createElement('span'); lb.className = 'fv-label'; lb.textContent = f.name; labelsEl.appendChild(lb); labelEls[f.id] = lb;
+      rows[f.id].li = li;
+    }
+    FIELDS.forEach(addRow);
+    // how many fields: add one more (up to four) or take the last one away; imported outlines set their own number
+    var cnt = document.createElement('div'); cnt.className = 'fv-count';
+    cnt.innerHTML = '<button type="button" class="fv-count-btn" data-d="-1" aria-label="Remove the last field">\u2212</button>' +
+      '<span class="fv-count-n" aria-live="polite"></span><button type="button" class="fv-count-btn fv-count-add" data-d="1">+ Add field</button>';
+    ul.parentNode.insertBefore(cnt, ul.nextSibling);
+    cnt.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b || b.disabled || !FS.farmSetup.setFieldCount) return;
+      FS.farmSetup.setFieldCount(FIELDS.length + Number(b.getAttribute('data-d')));
     });
+    function showCount() {
+      var n = FIELDS.length, imp = imported(), bs = cnt.querySelectorAll('button');
+      cnt.querySelector('.fv-count-n').textContent = n + (n === 1 ? ' field' : ' fields');
+      bs[0].disabled = imp || n <= 1; bs[1].disabled = imp || n >= 4;
+      cnt.title = imp ? 'Your imported outlines set the fields. Press "Use example fields" to change the number.' : '';
+    }
+    showCount();
     var keyEl = $('.fv-key');
     ['corn', 'soybean', 'rye', 'oats', 'none'].forEach(function (c) {
       var s = document.createElement('span'); s.className = 'fv-key-i'; s.innerHTML = '<i class="fv-chip fv-chip-' + c + '"></i>' + (c === 'none' ? 'bare' : c === 'soybean' ? 'soy' : c); keyEl.appendChild(s);
@@ -714,6 +739,7 @@ window.FS = window.FS || {};
       liveSt = { key: key, status: 'ok', rec: rec }; useMap(rec, true, 'live', rec.img);
     }
     function pickMap() {
+      if (imported()) { liveSt = { key: '', status: '', rec: null }; fallBack(0, false, 'county'); credEl.textContent = 'Your own field outlines · Copernicus weather and terrain'; return; }
       var pt = ownPoint(), base = serverBase(), c = countyRec();
       if (pt && base) {
         var key = pt.lat.toFixed(3) + ',' + pt.lon.toFixed(3);
@@ -731,6 +757,10 @@ window.FS = window.FS || {};
     // A new farm was set up (names, acres, place): re-read the field list and relabel the legend, the labels and the caption.
     function refresh() {
       FIELDS = DATA.farm.fields;
+      buildGeo();
+      FIELDS.forEach(function (f) { if (!rows[f.id]) addRow(f); });
+      Object.keys(rows).forEach(function (id) { var on = FIELDS.some(function (f) { return f.id === id; }); rows[id].li.hidden = !on; labelEls[id].hidden = !on; });
+      showCount();
       FIELDS.forEach(function (f) {
         var r = rows[f.id]; if (!r) return;
         r.btn.querySelector('.fv-fname').textContent = f.name; r.btn.querySelector('.fv-acres').textContent = f.acres + ' ac';
