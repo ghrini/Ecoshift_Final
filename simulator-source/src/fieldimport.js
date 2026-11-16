@@ -256,7 +256,7 @@
           '<ul><li>Field outlines (polygons) in longitude and latitude (WGS84), as exported by geojson.io, Google Earth, QGIS, John Deere Operations Center or Climate FieldView.</li>' +
           '<li>Up to 4 fields (the largest 4 if there are more), each 1 to 5000 acres; 5 MB at most.</li>' +
           '<li>Optional: a <code>name</code> for each field and a <code>crop</code> (corn or soybean).</li>' +
-          '<li>Try one: <a href="sample-fields.geojson" download>Iowa sample</a> · <a href="california-fields.geojson" download>California sample</a></li></ul>' +
+          '<li>Try one in one click: <a href="sample-fields.geojson" class="fs-imp-sample" data-name="sample-fields.geojson">Iowa sample</a> · <a href="california-fields.geojson" class="fs-imp-sample" data-name="california-fields.geojson">California sample</a> (or download them: <a href="sample-fields.geojson" download>Iowa</a>, <a href="california-fields.geojson" download>California</a>)</li></ul>' +
           '<p id="fs-imp-status" class="fs-imp-status" role="status" hidden></p>' +
           '<div id="fs-imp-done" class="fs-imp-done" hidden><p id="fs-imp-what"></p>' +
             '<button type="button" id="fs-imp-reset" class="fs-btn-primary">Reset simulation</button>' +
@@ -270,6 +270,16 @@
     ['dragleave', 'drop'].forEach(function (ev) { zone.addEventListener(ev, function () { zone.classList.remove('fs-imp-over'); }); });
     zone.addEventListener('drop', function (e) { e.preventDefault(); if (busy) return; var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (f) readFile(f); });
     $('fs-imp-reset').addEventListener('click', reset);
+    // the sample links import the sample straight away (their own download links sit next to them)
+    Array.prototype.forEach.call(sec.querySelectorAll('.fs-imp-sample'), function (a) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault(); if (busy) return;
+        status('busy', 'Loading the ' + a.textContent + '…');
+        fetch(a.getAttribute('href')).then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+          .then(function (b) { readFile(new File([b], a.getAttribute('data-name'), { type: 'application/geo+json' })); })
+          .catch(function () { status('err', 'The sample could not be loaded. Try again, or download it and drop it in the box.'); });
+      });
+    });
     show();
   }
   // back to the start: the imported fields come out, the farm returns to what it was, every setting goes back to its default and the simulation runs again
