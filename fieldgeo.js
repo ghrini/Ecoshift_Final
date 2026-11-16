@@ -187,9 +187,9 @@ function demName(la, lo) {
   return `Copernicus_DSM_COG_10_${ns}${String(Math.abs(la)).padStart(2, "0")}_00_${ew}${String(Math.abs(lo)).padStart(3, "0")}_00_DEM`;
 }
 async function range(url, a, n) {
-  const res = await fetch(url, { headers: { ...UA, Range: `bytes=${a}-${a + n - 1}` }, signal: AbortSignal.timeout(45000) });
+  const res = await fetch(url, { headers: { ...UA, Range: `bytes=${a}-${a + n - 1}` }, signal: AbortSignal.timeout(25000) });
   if (res.status === 404 || res.status === 403) return null;   // no tile: open sea
-  if (res.status !== 206 && res.status !== 200) throw new Error(`Copernicus DEM returned ${res.status}`);
+  if (res.status !== 206 && res.status !== 200) throw new Error(`${new URL(url).host} returned ${res.status}`);
   return Buffer.from(await res.arrayBuffer());
 }
 // A Cloud Optimized GeoTIFF read in pieces: the header once, then only the 1024 x 1024 tiles that are needed.
@@ -219,7 +219,8 @@ function cogHead(url) {
     h.across = Math.ceil(h.w / h.tw);
     return h;
   })();
-  heads.set(url, p); p.catch(() => heads.delete(url));
+  // a failed header is remembered for 5 minutes, so a file host that is down does not hold up every request
+  heads.set(url, p); p.catch(() => setTimeout(() => { if (heads.get(url) === p) heads.delete(url); }, 5 * 60e3).unref?.());
   return p;
 }
 const tiles = new Map();   // decoded tiles (1 to 4 MB each): the last 16 are kept
@@ -266,19 +267,65 @@ async function cogWindow(h, b, pad) {
   return { r0, r1, c0, c1, v, lon: (c) => h.x0 + (c + 0.5) * h.sx, lat: (r) => h.y0 - (r + 0.5) * h.sy };
 }
 // groups of touching cells (8 neighbours): [{ n, lon, lat }] with each group's centre, largest first
-function clusters(cells, lonOf, latOf) {
+// (keep = true also returns each group's member cells as [[r, c], ...] in `cells`, for drawing them on a map)
+function clusters(cells, lonOf, latOf, keep) {
   const key = (r, c) => r * 1e6 + c, set = new Set(cells.map(([r, c]) => key(r, c))), out = [];
   for (const [r, c] of cells) {
     if (!set.has(key(r, c))) continue;
     set.delete(key(r, c));
-    const q = [[r, c]]; let n = 0, sr = 0, sc = 0;
+    const q = [[r, c]], mem = keep ? [] : null; let n = 0, sr = 0, sc = 0;
     while (q.length) {
-      const [a, b] = q.pop(); n++; sr += a; sc += b;
+      const [a, b] = q.pop(); n++; sr += a; sc += b; if (mem) mem.push([a, b]);
       for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) { const k = key(a + i, b + j); if (set.has(k)) { set.delete(k); q.push([a + i, b + j]); } }
     }
-    out.push({ n, lon: round(lonOf(sc / n), 5), lat: round(latOf(sr / n), 5) });
+    out.push(Object.assign({ n, lon: round(lonOf(sc / n), 5), lat: round(latOf(sr / n), 5) }, mem ? { cells: mem } : {}));
   }
   return out.sort((x, y) => y.n - x.n);
+}
+// a point that must pass ok(lon, lat): the point itself, or else the member cell nearest to it that passes (null if none does)
+function snapIn(pt, members, toLL, ok) {
+  if (ok(pt[0], pt[1])) return pt;
+  let best = null, bd = Infinity;
+  for (const [r, c] of members) {
+    const q = toLL(r, c); if (!ok(q[0], q[1])) continue;
+    const d = (q[0] - pt[0]) ** 2 + (q[1] - pt[1]) ** 2; if (d < bd) { bd = d; best = q; }
+  }
+  return best;
+}
+// Grid cells [[r, c], ...] as map squares, merged into k x k blocks (k = 1, 2, 3, ...) until there are at most `max` of them,
+// so a big lake or zone stays a small answer. Returns { k, cells: [[lon, lat], ...], grp: [...] } with each block's centre (toLL(row, col) -> [lon, lat]).
+// ok(lon, lat, group), when given, is where a block's centre must be (inside the field, or outside it for the band): a merged block
+// whose centre misses moves to the mean of its cells, else to its member cell nearest the centre; a block with no such cell is dropped.
+// grpOf(cell) keeps cells of different groups (inside the field, in the band) in separate blocks.
+function blocks(cells, toLL, max = 600, ok, grpOf) {
+  const gOf = grpOf || (() => 0);
+  let k = 1, groups;
+  for (;;) {
+    groups = new Map();
+    for (const x of cells) {
+      const g = gOf(x), br = Math.floor(x[0] / k), bc = Math.floor(x[1] / k), key = g + ":" + br + ":" + bc;
+      let o = groups.get(key); if (!o) groups.set(key, (o = { g, br, bc, m: [] }));
+      o.m.push(x);
+    }
+    if (groups.size <= max || k >= 50) break;
+    k++;
+  }
+  const out = [], grp = [];
+  for (const o of groups.values()) {
+    let p = toLL((o.br + 0.5) * k - 0.5, (o.bc + 0.5) * k - 0.5);
+    if (ok && !ok(p[0], p[1], o.g)) {
+      const pts = o.m.map(([r, c]) => toLL(r, c)), mean = [pts.reduce((s, q) => s + q[0], 0) / pts.length, pts.reduce((s, q) => s + q[1], 0) / pts.length];
+      p = snapIn(mean, o.m, toLL, (x, y) => ok(x, y, o.g));
+    }
+    if (!p) continue;
+    out.push([round(p[0], 6), round(p[1], 6)]); grp.push(o.g);
+  }
+  return { k, cells: out, grp };
+}
+// a layer's cell size in metres from its size in degrees (the larger side, so the squares meet without gaps), and both sides
+function sizeM(sx, sy, lat) {
+  const dx = sx * 111320 * Math.cos(lat * R), dy = sy * 110574;
+  return { cellM: round(Math.max(dx, dy), 1), cellMxy: [round(dx, 1), round(dy, 1)] };
 }
 
 const demHead = (la, lo) => { const name = demName(la, lo); return cogHead(`https://copernicus-dem-30m.s3.amazonaws.com/${name}/${name}.tif`); };
@@ -303,9 +350,14 @@ async function terrain(f) {
   }
   if (!n) return null;
   const cut = lo2 + Math.min(1, (hi - lo2) * 0.15), cellM2 = dx * dy;
-  const low = clusters(cells.filter((x) => x[2] <= cut && x[3] < 1.5), W.lon, W.lat).filter((k) => k.n >= 2).slice(0, 3)
-    .map((k) => ({ lon: k.lon, lat: k.lat, areaM2: Math.round(k.n * cellM2) }));
-  return { cells: n, elevationM: round(sz / n, 0), minM: round(lo2, 0), maxM: round(hi, 0), slopePct: round(ss / n, 1), steepSharePct: round(steep / n * 100, 0), lowSpots: low };
+  const toLL = (r, c) => [W.lon(c), W.lat(r)], ok = (x, y) => inField(f, x, y);
+  const lowK = clusters(cells.filter((x) => x[2] <= cut && x[3] < 1.5), W.lon, W.lat, true).filter((k) => k.n >= 2).slice(0, 3);
+  // a low spot's middle can fall outside a curved spot (or in a hole): then its cell nearest the middle is used
+  const low = lowK.map((k) => { const p = snapIn([k.lon, k.lat], k.cells, toLL, ok); return { lon: round(p[0], 5), lat: round(p[1], 5), areaM2: Math.round(k.n * cellM2) }; });
+  // the low-spot cells themselves (30 m squares), for the map: where water collects after heavy rain
+  const lb = blocks(lowK.flatMap((k) => k.cells), toLL, 400, ok);
+  return { cells: n, elevationM: round(sz / n, 0), minM: round(lo2, 0), maxM: round(hi, 0), slopePct: round(ss / n, 1), steepSharePct: round(steep / n * 100, 0), lowSpots: low,
+    lowCells: Object.assign({ stepDeg: [round(h.sx * lb.k, 7), round(h.sy * lb.k, 7)] }, sizeM(h.sx * lb.k, h.sy * lb.k, lat), { cells: lb.cells }) };
 }
 
 // ESA WorldCover 2021 (10 m land cover from Copernicus Sentinel-1 and Sentinel-2) inside the field and in a band around it:
@@ -323,9 +375,9 @@ async function landCover(f, bandM = 150) {
   const W = await cogWindow(h, b, pad);
   const count = {}, wetIn = [], wetOut = [];
   let n = 0;
-  const nearRing = (x, y) => {   // within bandM of the outline?
-    for (let i = 0; i < f.ring.length; i++) {
-      const [ax, ay] = f.ring[i], [bx, by] = f.ring[(i + 1) % f.ring.length];
+  const nearRing = (x, y) => {   // within bandM of the outline (or of a hole's edge)?
+    for (const ring of [f.ring, ...f.holes]) for (let i = 0; i < ring.length; i++) {
+      const [ax, ay] = ring[i], [bx, by] = ring[(i + 1) % ring.length];
       const px = (x - ax) * 111320 * Math.cos(lat * R), py = (y - ay) * 110574, vx = (bx - ax) * 111320 * Math.cos(lat * R), vy = (by - ay) * 110574, L = vx * vx + vy * vy;
       const t = L ? clamp((px * vx + py * vy) / L, 0, 1) : 0;
       if (Math.hypot(px - t * vx, py - t * vy) <= bandM) return true;
@@ -340,9 +392,20 @@ async function landCover(f, bandM = 150) {
   if (!n) return null;
   const cellM2 = dx * dy, share = {};
   for (const k in count) share[k] = round(count[k] / n * 100, 1);
-  const patches = (list, inside) => ["water", "wetland"].flatMap((kind) => clusters(list.filter((x) => x[2] === (kind === "water" ? 80 : 90)), W.lon, W.lat)
-    .filter((k) => k.n * cellM2 >= 150).map((k) => ({ kind, inside, lon: k.lon, lat: k.lat, areaM2: Math.round(k.n * cellM2) })));
-  return { sharePct: share, water: patches(wetIn, true).concat(patches(wetOut, false)).sort((a, z) => z.areaM2 - a.areaM2).slice(0, 8) };
+  const toLL = (r, c) => [W.lon(c), W.lat(r)], side = (x, y, g) => inField(f, x, y) === !!g;   // g = 1: inside the field, 0: in the band
+  // a patch's middle stays on its own side of the edge (a pond ringing a hole would otherwise have its middle in the hole)
+  const patches = (list, inside) => ["water", "wetland"].flatMap((kind) => clusters(list.filter((x) => x[2] === (kind === "water" ? 80 : 90)), W.lon, W.lat, true)
+    .filter((k) => k.n * cellM2 >= 150).map((k) => { const p = snapIn([k.lon, k.lat], k.cells, toLL, (x, y) => side(x, y, inside)) || [k.lon, k.lat];
+      return { kind, inside, lon: round(p[0], 5), lat: round(p[1], 5), areaM2: Math.round(k.n * cellM2) }; }));
+  // the water and wetland pixels themselves (10 m squares, merged into bigger blocks when there are many), inside the field and in the band:
+  // each cell is [lon, lat, inside] (inside = true when the square's centre is in the field, false in the band around it or in a hole)
+  const tag = (g) => (x) => [x[0], x[1], x[2], g], all = wetIn.map(tag(1)).concat(wetOut.map(tag(0)));
+  const layer = (cls) => {
+    const b = blocks(all.filter((x) => x[2] === cls), toLL, 700, side, (x) => x[3]);
+    return Object.assign({ stepDeg: [round(h.sx * b.k, 7), round(h.sy * b.k, 7)] }, sizeM(h.sx * b.k, h.sy * b.k, lat), { cells: b.cells.map((c, i) => [c[0], c[1], b.grp[i] === 1]) });
+  };
+  return { sharePct: share, water: patches(wetIn, true).concat(patches(wetOut, false)).sort((a, z) => z.areaM2 - a.areaM2).slice(0, 8),
+    cells: { water: layer(80), wetland: layer(90), bandM } };
 }
 
 /* ---------- request ---------- */
@@ -419,4 +482,4 @@ module.exports = function fieldgeo({ readBody, send }) {
   return { handleFieldConditions };
 };
 // shared with fieldlive.js (live conditions on the same outlines)
-module.exports.helpers = { terrain, landCover, interiorPoint, cleanRing, bboxOf, ringAreaM2, inField, ACRE_M2, cogHead, cogWindow, clusters };
+module.exports.helpers = { terrain, landCover, interiorPoint, cleanRing, bboxOf, ringAreaM2, inField, ACRE_M2, cogHead, cogWindow, clusters, blocks, snapIn };

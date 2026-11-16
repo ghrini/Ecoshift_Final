@@ -31,11 +31,58 @@
       if (Math.abs(x) > 180 || Math.abs(y) > 90) throw new Error('the coordinates are not longitude and latitude. Export the file in WGS84 (EPSG:4326), the GeoJSON standard');
       out.push([x, y]);
     }
-    if (out.length > 1 && out[0][0] === out[out.length - 1][0] && out[0][1] === out[out.length - 1][1]) out.pop();
+    out = dedupe(out);
+    if (out.length > 1 && Math.abs(out[0][0] - out[out.length - 1][0]) < 1e-9 && Math.abs(out[0][1] - out[out.length - 1][1]) < 1e-9) out.pop();
     return out.length >= 3 ? out : null;
   }
-  // fewer points for very detailed outlines (tractor-logged boundaries can have thousands): keeps every k-th point
-  function thin(r, max) { if (r.length <= max) return r; var k = Math.ceil(r.length / max), o = []; for (var i = 0; i < r.length; i += k) o.push(r[i]); return o; }
+  // Fewer points for very detailed outlines (curved edges, center pivots, tractor-logged boundaries with thousands of points).
+  // Douglas-Peucker in metres keeps the points that carry the shape, so curves stay curves and the area hardly changes;
+  // the tolerance grows (0.1 m, 0.2 m, 0.4 m ...) only until the outline fits in max points.
+  function simplifyAt(r, tol) {
+    var n = r.length; if (n <= 4) return r.slice();
+    var lat0 = 0; r.forEach(function (p) { lat0 += p[1]; }); lat0 /= n;
+    var kx = 111320 * Math.cos(lat0 * R), ky = 110540, P = r.map(function (p) { return [p[0] * kx, p[1] * ky]; });
+    // split the closed ring at its two farthest-apart points so both halves are simplified as open lines
+    var a = 0, b = 0, best = -1;
+    for (var i = 0; i < n; i++) { var dd = Math.pow(P[i][0] - P[0][0], 2) + Math.pow(P[i][1] - P[0][1], 2); if (dd > best) { best = dd; b = i; } }
+    var keep = new Uint8Array(n); keep[a] = keep[b] = 1;
+    function seg(p, q, i) {
+      var dx = q[0] - p[0], dy = q[1] - p[1], L = dx * dx + dy * dy, t = L ? ((i[0] - p[0]) * dx + (i[1] - p[1]) * dy) / L : 0;
+      t = Math.max(0, Math.min(1, t)); return Math.hypot(i[0] - (p[0] + t * dx), i[1] - (p[1] + t * dy));
+    }
+    function dp(s, e) {   // indexes along the ring from s to e (wrapping)
+      var stack = [[s, e]];
+      while (stack.length) {
+        var se = stack.pop(), i0 = se[0], i1 = se[1], m = -1, md = tol, len = (i1 - i0 + n) % n;
+        for (var k = 1; k < len; k++) { var j = (i0 + k) % n, d = seg(P[i0], P[i1], P[j]); if (d > md) { md = d; m = j; } }
+        if (m >= 0) { keep[m] = 1; stack.push([i0, m], [m, i1]); }
+      }
+    }
+    dp(a, b); dp(b, a);
+    var o = []; for (var j = 0; j < n; j++) if (keep[j]) o.push(r[j]);
+    return o.length >= 3 ? o : r.slice(0, 3);
+  }
+  function thin(r, max) {
+    if (r.length <= max) return r;
+    for (var tol = 0.1; tol < 5000; tol *= 2) { var o = simplifyAt(r, tol); if (o.length <= max) return o; }
+    var k = Math.ceil(r.length / max), q = []; for (var i = 0; i < r.length; i += k) q.push(r[i]); return q;   // never reached in practice
+  }
+  // A center pivot saved as a point with a radius (a common way pivots are stored): a 128-point circle.
+  var RADIUS_M = ['radius', 'Radius', 'RADIUS', 'radius_m', 'radiusM', 'radius_meters'], RADIUS_FT = ['radius_ft', 'radiusFt', 'radius_feet'];
+  function radiusOf(p) {
+    p = p || {};
+    for (var i = 0; i < RADIUS_M.length; i++) { var v = parseFloat(p[RADIUS_M[i]]); if (v > 0) return v; }
+    for (var j = 0; j < RADIUS_FT.length; j++) { var f = parseFloat(p[RADIUS_FT[j]]); if (f > 0) return f * 0.3048; }
+    return 0;
+  }
+  function circle(lon, lat, rM) {
+    var o = [], kx = 111320 * Math.cos(lat * R), ky = 110540;
+    for (var i = 0; i < 128; i++) { var t = i / 128 * 2 * Math.PI; o.push([lon + Math.cos(t) * rM / kx, lat + Math.sin(t) * rM / ky]); }
+    return o;
+  }
+  // GeoJSON has no true arcs: curved edges arrive as many short straight pieces, which is what the simplification above keeps.
+  // Repeated points and zero-length steps (common in GPS-logged outlines) are dropped.
+  function dedupe(r) { var o = []; r.forEach(function (p) { var q = o[o.length - 1]; if (!q || Math.abs(q[0] - p[0]) > 1e-9 || Math.abs(q[1] - p[1]) > 1e-9) o.push(p); }); return o; }
   function pickName(p) {
     p = p || {};
     var keys = ['name', 'Name', 'NAME', 'field_name', 'fieldName', 'FIELD_NAME', 'Field', 'field', 'title', 'label', 'id'];
@@ -57,8 +104,12 @@
       else if (o.type === 'Feature') walk(o.geometry, o.properties || {});
       else if (o.type === 'GeometryCollection') (o.geometries || []).forEach(function (g) { walk(g, props); });
       else if (o.type === 'Polygon' || o.type === 'MultiPolygon') feats.push({ g: o, p: props || {} });
+      else if ((o.type === 'Point' || o.type === 'MultiPoint') && radiusOf(props) > 0) {
+        var pts = o.type === 'Point' ? [o.coordinates] : o.coordinates || [], rM = radiusOf(props);
+        pts.forEach(function (c) { if (Array.isArray(c) && isFinite(c[0]) && isFinite(c[1])) feats.push({ g: { type: 'Polygon', coordinates: [circle(+c[0], +c[1], rM)] }, p: props || {} }); });
+      }
     })(j);
-    if (!feats.length) throw new Error('there are no field outlines (Polygon or MultiPolygon) in it');
+    if (!feats.length) throw new Error('there are no field outlines in it (Polygon or MultiPolygon, or a center pivot saved as a Point with a "radius" in metres or "radius_ft" in feet)');
     var fields = [], multi = 0;
     feats.forEach(function (x) {
       var polys = x.g.type === 'Polygon' ? [x.g.coordinates] : x.g.coordinates || [];
@@ -66,7 +117,9 @@
       polys.forEach(function (pc) {   // a field in several parts: the largest part is the field
         if (!Array.isArray(pc)) return;
         var ring = ringOf(pc[0]); if (!ring) return;
-        var holes = pc.slice(1).map(ringOf).filter(Boolean), a = areaM2(ring) - holes.reduce(function (s, h) { return s + areaM2(h); }, 0);
+        var holes = pc.slice(1).map(ringOf).filter(function (h) { return h && areaM2(h) >= 100; })
+          .sort(function (p, q) { return areaM2(q) - areaM2(p); }).slice(0, 12);
+        var a = areaM2(ring) - holes.reduce(function (s, h) { return s + areaM2(h); }, 0);
         if (!best || a > best.area) best = { ring: ring, holes: holes, area: a };
       });
       if (polys.length > 1) multi++;
@@ -88,8 +141,9 @@
     fields.forEach(function (f) { f.ring.forEach(function (p) { var x = p[0] * k, y = -p[1]; x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }); });
     var s = Math.min((VW - 2 * PAD) / Math.max(x1 - x0, 1e-9), (VH - 2 * PAD) / Math.max(y1 - y0, 1e-9));
     var ox = (VW - (x1 - x0) * s) / 2, oy = (VH - (y1 - y0) * s) / 2;
+    function px(p) { return [Math.round((ox + (p[0] * k - x0) * s) * 10) / 10, Math.round((oy + (-p[1] - y0) * s) * 10) / 10]; }
     return fields.map(function (f) {
-      return thin(f.ring, 400).map(function (p) { return [Math.round((ox + (p[0] * k - x0) * s) * 10) / 10, Math.round((oy + (-p[1] - y0) * s) * 10) / 10]; });
+      return { poly: thin(f.ring, 400).map(px), holes: (f.holes || []).map(function (h) { return thin(h, 80).map(px); }) };
     });
   }
 
@@ -100,7 +154,12 @@
     try { P = parse(text); } catch (e) { fail('I could not read ' + (fileName || 'that file') + ': ' + e.message + '.'); return; }
     var srv = base();
     if (!srv) { fail('Reading the conditions on your fields needs the EcoShift server (run npm start and open http://localhost:8787).'); return; }
-    var fields = P.fields.map(function (f, i) { return { id: IDS[i], name: f.name || ('Field ' + (i + 1)), lastCrop: f.lastCrop, ring: thin(f.ring, 1200), holes: f.holes.map(function (h) { return thin(h, 300); }), acres: f.area / ACRE }; });
+    var fields = P.fields.map(function (f, i) { return { id: IDS[i], name: f.name || ('Field ' + (i + 1)), lastCrop: f.lastCrop, ring: f.ring, holes: f.holes, acres: f.area / ACRE }; });
+    var rnd6 = function (r) { return r.map(function (p) { return [Math.round(p[0] * 1e6) / 1e6, Math.round(p[1] * 1e6) / 1e6]; }); };   // about 0.1 m
+    function sized(maxRing, maxHole) { return fields.map(function (f) { return { id: f.id, name: f.name, ring: rnd6(thin(f.ring, maxRing)), holes: f.holes.map(function (h) { return rnd6(thin(h, maxHole)); }) }; }); }
+    var sendRing = 1200, sendHole = 300, payload = sized(sendRing, sendHole);
+    while (JSON.stringify({ fields: payload }).length > 90000 && sendRing > 60) { sendRing = Math.round(sendRing * 0.7); sendHole = Math.max(12, Math.round(sendHole * 0.7)); payload = sized(sendRing, sendHole); }
+    fields.forEach(function (f, i) { f.ring = payload[i].ring; f.holes = payload[i].holes; });
     var small = fields.filter(function (f) { return f.acres < 1 || f.acres > 5000; })[0];
     if (small) { fail(small.name + ' is ' + Math.round(small.acres * 10) / 10 + ' acres. Each field must be between 1 and 5000 acres.'); return; }
     var polys = toView(fields);
@@ -109,7 +168,7 @@
       (P.total > MAX ? ' The file has ' + P.total + ' outlines; the simulator takes four, so I kept the four largest.' : '') +
       ' Getting 44 seasons of NASA POWER weather and the Copernicus elevation model for them. This takes 10 to 40 seconds.');
     fetch(srv + '/api/fieldconditions', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fields: fields.map(function (f) { return { id: f.id, name: f.name, ring: f.ring, holes: f.holes }; }) }) })
+      body: JSON.stringify({ fields: payload }) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }, function () { return { ok: false, j: {} }; }); })
       .then(function (x) {
         if (!x.ok || !x.j || !x.j.climate) throw new Error((x.j && x.j.error) || 'the server could not read the conditions just now');
@@ -143,8 +202,9 @@
     setup.geo = {
       before: before, file: String(fileName || '').slice(0, 80), at: new Date().toISOString().slice(0, 10),
       fields: fields.map(function (f, i) {
-        return { id: f.id, name: f.name, acres: Math.round(f.acres * 10) / 10, lastCrop: f.lastCrop || '', poly: polys[i],
-          ring: thin(f.ring, 400).map(function (p) { return [Math.round(p[0] * 1e6) / 1e6, Math.round(p[1] * 1e6) / 1e6]; }) };   // for the live conditions   // no crop in the file: the questionnaire's answer
+        return { id: f.id, name: f.name, acres: Math.round(f.acres * 10) / 10, lastCrop: f.lastCrop || '', poly: polys[i].poly, holes: polys[i].holes,
+          ring: thin(f.ring, 400).map(function (p) { return [Math.round(p[0] * 1e6) / 1e6, Math.round(p[1] * 1e6) / 1e6]; }),
+          holesLL: (f.holes || []).map(function (h) { return thin(h, 80).map(function (p) { return [Math.round(p[0] * 1e6) / 1e6, Math.round(p[1] * 1e6) / 1e6]; }); }) };   // the holes in longitude/latitude, for the live conditions (holes above is in view units)   // for the live conditions   // no crop in the file: the questionnaire's answer
       }),
       cond: cond
     };
@@ -191,7 +251,7 @@
     if (doc.getElementsByTagName('parsererror').length) throw new Error('the KML file could not be read');
     function ring(el) {
       var c = el && el.getElementsByTagName('coordinates')[0]; if (!c) return null;
-      return c.textContent.trim().split(/\s+/).map(function (t) { var p = t.split(','); return [+p[0], +p[1]]; }).filter(function (p) { return isFinite(p[0]) && isFinite(p[1]); });
+      return c.textContent.trim().replace(/\s*,\s*/g, ',').split(/\s+/).map(function (t) { var p = t.split(','); return [+p[0], +p[1]]; }).filter(function (p) { return isFinite(p[0]) && isFinite(p[1]); });
     }
     var feats = [];
     Array.prototype.forEach.call(doc.getElementsByTagName('Placemark'), function (pm) {

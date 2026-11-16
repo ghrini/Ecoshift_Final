@@ -39,7 +39,7 @@ function inZone(f, epsg) {
   const [lo, la] = f.center, o = to([lo, la]), ex = to([lo + 0.001, la]), ny = to([lo, la + 0.001]);
   const a = (ex[0] - o[0]) / 0.001, b = (ny[0] - o[0]) / 0.001, c = (ex[1] - o[1]) / 0.001, d = (ny[1] - o[1]) / 0.001, det = a * d - b * c;
   const back = (x, y) => { const dx = x - o[0], dy = y - o[1]; return [round(lo + (d * dx - b * dy) / det, 5), round(la + (-c * dx + a * dy) / det, 5)]; };
-  return { ring: f.ring.map(to), holes: [], back };
+  return { ring: f.ring.map(to), holes: (f.holes || []).map((h) => h.map(to)), back };   // holes (ponds, yards cut out of the field) stay out
 }
 
 const memo = new Map();
@@ -81,7 +81,18 @@ async function pixels(item, bands, f) {
     }
     if (ok) out.push(v);
   }
-  return { list: out, fu, cellM2: g.h.sx * g.h.sy, xOf: g.W.lon, yOf: g.W.lat };
+  return { list: out, f, fu, cellM2: g.h.sx * g.h.sy, cellM: g.h.sx, xOf: g.W.lon, yOf: g.W.lat };
+}
+const llOf = (P) => (r, c) => P.fu.back(P.xOf(c), P.yOf(r)), inF = (P) => (lon, lat) => G.inField(P.f, lon, lat);
+// a zone's pixels as map squares (merged into bigger squares when there are many): { cellM, cells: [[lon, lat], ...] }.
+// Every square's centre is inside the field and not in a hole (a merged square that reaches past the edge is moved onto its own pixels).
+function mapCells(cells, P, max) {
+  const b = G.blocks(cells, llOf(P), max, inF(P));
+  return { cellM: P.cellM * b.k, cells: b.cells };
+}
+// a zone's middle as [lon, lat], kept inside the field (a zone curving round a hole or a corner has its pixel nearest the middle used instead)
+function middleOf(k, P) {
+  return G.snapIn(P.fu.back(k.lon, k.lat), k.cells, llOf(P), inF(P)) || P.fu.back(k.lon, k.lat);
 }
 const clearShare = (list) => (list.length ? list.filter((p) => CLEAR.has(p.scl)).length / list.length : 0);
 // keys (r*1e6+c) of the pixels with a bad SCL pixel within `rad` pixels
@@ -104,7 +115,7 @@ async function firstClear(items, bands, fields, min) {
 async function satellite(fields, now = Date.now()) {
   const lons = fields.flatMap((f) => f.ring.map((p) => p[0])), lats = fields.flatMap((f) => f.ring.map((p) => p[1]));
   const bbox = [Math.min(...lons), Math.min(...lats), Math.max(...lons), Math.max(...lats)].map((v) => round(v, 5));
-  const key = JSON.stringify(fields.map((f) => f.ring)) + iso(now);
+  const key = JSON.stringify(fields.map((f) => [f.id, f.ring, f.holes || []])) + iso(now);   // the ids too: the answer is keyed by field id
   return cached(key, 6 * 3600e3, async () => {
     const out = { fields: {}, sources: [], gaps: [] };
     fields.forEach((f) => { out.fields[f.id] = {}; });
@@ -127,9 +138,9 @@ async function satellite(fields, now = Date.now()) {
           const d = nbr(q) - nbr(p);
           if (d >= 0.27 && nbr(q) >= 0.15 && nbr(p) < -0.1 && p.nir08 < 0.17 && q.nir08 - p.nir08 > 0.05) burned.push([p.r, p.c, d]);
         }
-        const groups = G.clusters(burned.map(([r, c]) => [r, c]), now1.xOf, now1.yOf).filter((k) => k.n >= 10);   // 0.4 ha or more
+        const groups = G.clusters(burned.map(([r, c]) => [r, c]), now1.xOf, now1.yOf, true).filter((k) => k.n >= 10);   // 0.4 ha or more
         o.burn = { from: iso(Date.parse(before.item.properties.datetime)), to: iso(t1), checkedPct: round(n / Math.max(1, now1.list.length) * 100, 0),
-          patches: groups.slice(0, 4).map((k) => { const [lon, lat] = now1.fu.back(k.lon, k.lat); return { lon, lat, areaM2: Math.round(k.n * now1.cellM2) }; }),
+          patches: groups.slice(0, 4).map((k) => { const [lon, lat] = middleOf(k, now1); return Object.assign({ lon, lat, areaM2: Math.round(k.n * now1.cellM2) }, mapCells(k.cells, now1, 250)); }),
           burnedPct: round(burned.length / Math.max(1, n) * 100, 1) };
       });
       out.sources.push(`Burned ground and bare soil: Copernicus Sentinel-2 images of ${iso(t1)}` + (before ? ` and ${iso(Date.parse(before.item.properties.datetime))} (burn ratio change).` : "."));
@@ -152,9 +163,9 @@ async function satellite(fields, now = Date.now()) {
         if (med < 0.5) return;   // the field was not a green crop then (fallow, oats already cut): no zones
         const weak = list.filter((p) => p.ndvi < med - 0.15);
         o.summer.weakPct = round(weak.length / list.length * 100, 1);
-        o.summer.weakZones = G.clusters(weak.map((p) => [p.r, p.c]), P.xOf, P.yOf).filter((k) => k.n >= 20).slice(0, 4).map((k) => {
-          const [lon, lat] = P.fu.back(k.lon, k.lat), mine = weak.filter((p) => Math.abs(p.x - k.lon) < 400 && Math.abs(p.y - k.lat) < 400);
-          return { lon, lat, areaM2: Math.round(k.n * P.cellM2), ndvi: round(mine.reduce((s, p) => s + p.ndvi, 0) / Math.max(1, mine.length), 2) };
+        o.summer.weakZones = G.clusters(weak.map((p) => [p.r, p.c]), P.xOf, P.yOf, true).filter((k) => k.n >= 20).slice(0, 4).map((k) => {
+          const [lon, lat] = middleOf(k, P), mine = weak.filter((p) => Math.abs(p.x - k.lon) < 400 && Math.abs(p.y - k.lat) < 400);
+          return Object.assign({ lon, lat, areaM2: Math.round(k.n * P.cellM2), ndvi: round(mine.reduce((s, p) => s + p.ndvi, 0) / Math.max(1, mine.length), 2) }, mapCells(k.cells, P, 300));
         });
       });
       out.sources.push(`Weak growth zones: Copernicus Sentinel-2 image of ${ts} (plant greenness, NDVI, 10 m).`);

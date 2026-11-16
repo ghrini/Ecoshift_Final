@@ -1535,6 +1535,7 @@ window.FS = window.FS || {};
       var lc = g && (g.lastCrop === 'corn' || g.lastCrop === 'soybean') ? g.lastCrop : r.lastCrop === 'corn' || r.lastCrop === 'soybean' ? r.lastCrop : o.lastCrop;
       f.acres = ac; f.lastCrop = lc; f.name = g && g.name ? String(g.name).slice(0, 28) : POS[f.id] + ' ' + ac; f.soil = clone(soils[f.id]);
       f.poly = (g && goodPoly(g.poly)) || clone(o.poly);
+      f.holes = g && goodPoly(g.poly) && Array.isArray(g.holes) ? g.holes.map(goodPoly).filter(Boolean) : [];   // ponds, farmsteads, tree islands inside an imported field
       plans[f.id] = lc === 'corn' ? 'soy' : 'corn'; trial[f.id] = ac;
       // optional current plan (for example a cover crop the farmer already plants): only one this field may choose; anything else keeps the default
       if (typeof r.currentPlan === 'string' && (D.planOptions[lc] || []).indexOf(r.currentPlan) >= 0) plans[f.id] = r.currentPlan;

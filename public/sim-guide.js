@@ -1,13 +1,25 @@
 // EcoShift guided tutorial for the simulator (Shaurya's EcoShift simulator in ./deepdive).
 // Order on the site: the farm questionnaire, then this guide, then the simulation.
 // The guide opens by itself when the farmer finishes the questionnaire, once per visit,
-// and walks through every part of the simulator, one at a time, in plain language.
+// and also from the "How To Use This Page" button in the simulator's top bar.
+// It walks through every part of the simulator, one at a time, in plain language (about 20 steps, 3 minutes):
+//  your farm and language, Run, importing your real field outlines (the real-world analysis), the Weather / Crops /
+//  Other boxes, the field picture and Play bar, the three views (Simulation, Farm Map with "Use my own photo",
+//  Advanced Near-Real-Time Conditions), the results and season strip, the chat, the Next 30 Days panel, and the
+//  Make A Box Bigger button.
 //
 // Built for farmers who are older or have a disability:
 //  - large text and large buttons, high contrast
 //  - works with the keyboard alone (Enter or Right arrow = next, Left arrow = back, Escape = stop)
 //  - works with screen readers (it is announced as a dialog and each step is read out)
 //  - optional "Read aloud" using the browser's own voice
+//
+// The guide only points at things; it never presses a button or changes the page. Parts that sit behind a tab
+// (the Farm Map and the live conditions) are explained while the tab button itself is highlighted, because opening
+// those views starts slow server work (aerial photos, satellite checks). A step marked "optional" is left out
+// when its part is not on the page (for example the language picker when the page is opened as a file).
+// Text is set in English; the simulator's language module (src/i18n.js) translates whatever text appears on the
+// page, so this guide is shown in the farmer's language too.
 //
 // The site's app.js adds this script to the simulator page, so the simulator's own file stays unchanged.
 (function () {
@@ -17,10 +29,10 @@
 
   var SPEAK_KEY = "fieldshift.guideSpeak";
 
-  // Every word the guide shows. The simulator is in English, so the guide is too.
+  // Every word the guide shows, in English. The language picker translates it with the rest of the page.
   var L = {
     introTitle: "A Short Guide Before You Start",
-    introText: "This guide shows you each part of the simulator, one at a time. It takes about two minutes. You can stop it whenever you like.",
+    introText: "This simulator lets you try a change on your farm before you spend a dollar or plant a seed, using 44 years of real NASA weather. This guide shows you each part, one at a time. It takes about three minutes, and you can stop it whenever you like.",
     start: "Start The Guide",
     skip: "Skip The Guide",
     next: "Next",
@@ -32,59 +44,73 @@
     stepOf: "Step {n} of {total}",
     launch: "How To Use This Page",
     keys: "Keyboard: Enter for next, Left arrow for back, Escape to stop.",
-    s1t: "Your Farm",
-    s1: "This shows the farm you described in the questions. Press Change to look at your answers or change them.",
-    s2t: "Run The Simulation",
-    s2: "After you change any setting, press Run Simulation. The results below then update.",
-    s3t: "Weather And Season",
-    s3: "Press here to open it. You can replay a past season, or make every year warmer or cooler, and wetter or drier.",
-    s4t: "Crops",
-    s4: "Press here to open it. Choose the plan for next season on each field, how many acres to try it on, and the planting date.",
-    s5t: "Prices And Other Conditions",
-    s5: "Press here to open it. Set crop and fertilizer prices, how much you have already sold, cover-crop cost-share, and how the options are ranked.",
-    s6t: "Your Fields From Above",
-    s6: "This picture shows your fields. The colours show what is growing: corn, soybeans, rye, oats or bare ground. Press Fields to see the list of your fields.",
-    s7t: "Simulation, Farm Map Or Live Conditions",
-    s7: "These three buttons switch the big box: the season simulation, a drawn map of your farm from above, and Advanced Near-Real-Time Conditions. That last one shows today's weather and soil, NASA's fire and soil wetness checks, and warnings pinned to the spot on your fields.",
-    s8t: "Play The Season",
-    s8: "Press Play to watch the season week by week. Drag the slider to go to any week. The speed button makes it play faster or slower.",
-    s9t: "Your Results",
-    s9: "The first lines give one answer per field: what to plant, and how it does in its worst season. Below that, how your farm does in a typical season: how much of a normal crop you get and what it earns.",
-    s10t: "Every Season Since 1982",
-    s10: "Each small square is one real season of weather on your farm. Olive means a good season, brown means a bad one, and grey means about normal. Press a square to see that season.",
-    s11t: "Ask In Your Own Words",
-    s11: "Type a what-if, for example: What if July is very dry? Then press Send. The answers also compare the options for each field. Press More to read about an option. Under each answer, a short line shows which helpers worked on it: the chat rules, the AI helper and the crop model.",
-    s12t: "The Next 30 Days",
-    s12: "This shows the weather forecast for your farm, warnings like frost or heavy rain, and a first guess at next year's harvest. Days 17 to 30 are only a rough guess.",
-    sLangT: "Your Language",
-    sLang: "Choose your language here and the whole page is shown in it. You can type your questions in your own language too.",
-    sImpT: "Import Your Real Field",
-    sImp: "Drop in a file with your real field outlines, from Google Earth or your farm software, or press Iowa sample to try one. In about 30 seconds the simulation runs on your own fields, with NASA weather for your spot and each field's own slope and soil.",
-    s13t: "Make A Box Bigger",
-    s13: "This button makes a box fill the screen, which is easier to read. Press it again to make it small. Most boxes have one.",
+    farmT: "Your Farm",
+    farm: "This shows the farm you described in the questions. Press Change to look at your answers or change them. After you import your own fields, it names them here.",
+    langT: "Your Language",
+    lang: "Choose your language here and the whole page is shown in it, this guide too. You can type your questions in your own language as well.",
+    runT: "Run The Simulation",
+    run: "After you change any setting, press Run Simulation. A small dot on the button means you have changes that have not run yet. The results then update.",
+    impT: "Import Your Real Field",
+    imp: "Use your real fields instead of the example ones. Drop a file with your field outlines in this box, or press it to choose one. Google Earth files (.kml) work, and so do .geojson and .json files from farm software like John Deere Operations Center or Climate FieldView, geojson.io or QGIS. Any shape works: curved edges, round center pivots, and fields with a pond or yard cut out of the middle. Up to 4 fields and 5 MB.",
+    impDoneT: "What You Get From Your File",
+    impDone: "No file? Press Iowa sample or California sample to try one. After 10 to 40 seconds, the simulation runs on your exact fields. It uses 44 seasons of NASA weather for your spot, the slope and height inside each field, the USDA soil in each field, and your county's harvests. The chat lists what was found. To go back to the example farm, press Reset simulation, which shows up here after an import.",
+    weatherT: "Weather And Season",
+    weather: "Press here to open it. You can replay a past season, or make every year warmer or cooler, and wetter or drier.",
+    cropsT: "Crops",
+    crops: "Press here to open it. Choose the plan for next season on each field, how many acres to try it on, and the planting date. If your farm can water its crops, you can also set the irrigation here.",
+    otherT: "Prices And Other Conditions",
+    other: "Press here to open it. Set crop and fertilizer prices, how much you have already sold, cover-crop cost-share, and how the options are ranked. Each box has a Reset button to put it back.",
+    viewT: "Your Fields From Above",
+    view: "This picture shows your fields. The colours show what is growing: corn, soybeans, rye, oats or bare ground. Press Fields to see the list, and press a field to pick it. The Add field and minus buttons change how many fields you have, up to four.",
+    playT: "Play The Season",
+    play: "Press Play to watch the season week by week. Drag the slider to go to any week. The marks on the line show events like a dry spell; press one to jump there. The speed button makes it play faster or slower.",
+    tabsT: "Three Views",
+    tabs: "These three buttons change what the big box shows: the season simulation, a map of your farm, and the conditions on your fields today. Press Simulation to come back here at any time.",
+    mapT: "Farm Map And Your Own Photo",
+    map: "Press Farm Map to see your farm drawn from above, made from a US aerial photo or a satellite image. Switch between Illustrated Map and Photo It Was Drawn From. Have a drone or aerial photo of your farm? Press Use my own photo and the map is drawn from it.",
+    nowT: "Conditions On Your Fields Today",
+    now: "Press Advanced Near-Real-Time Conditions to check your fields today. It shows the weather now and for the next days, how wet the soil is compared to normal, the air, and the soil's fertility. It also looks for NASA fire detections near your fields.",
+    warnT: "Warnings And What To Do",
+    warn: "In the same view, a map of your fields marks wet spots and puddles, low ground, bare soil, weak growth and burned ground, with numbered warnings and what to do about each. Field health this season shows how each crop is doing in satellite pictures. Press Check again for the newest news. While the view is open, it checks again by itself every 15 minutes.",
+    resultsT: "Your Results",
+    results: "The first lines give one answer per field: what to plant, and how it does in its worst season. Below that, how your farm does in a typical season: how much of a normal crop you get and what it earns. Press Show details to read more.",
+    stripT: "Every Season Since 1982",
+    strip: "Each small square is one real season of weather on your farm. Olive means a good season, brown means a bad one, and grey means about normal. Press a square to see that season.",
+    chatT: "Ask In Your Own Words",
+    chat: "Type a what-if, for example: What if July is very dry? Then press Send. The answers also compare the options for each field. Press More to read about an option. Under each answer, How This Answer Was Made shows which helpers worked on it.",
+    outlookT: "The Next 30 Days",
+    outlook: "This shows the weather forecast for your farm, warnings like frost or heavy rain, and a first guess at next year's harvest. When the AI helper is on, a short note says what it means for you. Days 17 to 30 are only a rough guess.",
+    bigT: "Make A Box Bigger",
+    big: "This button makes a box fill the screen, which is easier to read. Press it again to make it small. Most boxes have one. When a box has more to read, a Scroll down for more note shows at its bottom; press it to see the rest.",
     endTitle: "You Are Ready",
-    endText: "That is every part of the simulator. It helps you compare options. Check with someone local before you decide. To see this guide again, press \"How To Use This Page\" at the top of the screen."
+    endText: "That is every part of the simulator. Try a few what-ifs: every one is free, and each shows you how a change would have done in real seasons on your fields. Take what you find to your adviser or seed dealer, so the plan you choose fits your farm. To see this guide again, press \"How To Use This Page\" at the top of the screen."
   };
 
   // Each step points at one part of the simulator. Several parts can be named, separated by commas.
-  var STEPS = [
-    { t: "s1t", x: "s1", target: "#fs-farm-btn" },
-    { t: "sLangT", x: "sLang", target: "#fs-lang-top" },
-    { t: "s2t", x: "s2", target: "#fs-run" },
-    { t: "s3t", x: "s3", target: "#fs-ctl-weather" },
-    { t: "s4t", x: "s4", target: "#fs-ctl-crops" },
-    { t: "s5t", x: "s5", target: "#fs-ctl-other" },
-    { t: "s6t", x: "s6", target: "#fs-view .fv-stage" },
-    { t: "s7t", x: "s7", target: ".fs-fm-tabs" },
-    { t: "s8t", x: "s8", target: "#fs-view .fv-bar" },
-    { t: "s9t", x: "s9", target: "#fs-analysis" },
-    { t: "s10t", x: "s10", target: "#fs-analysis .fs-strip" },
-    { t: "s11t", x: "s11", target: "#fs-chat" },
-    { t: "sImpT", x: "sImp", target: "#fs-import" },
-    { t: "s12t", x: "s12", target: "#fs-outlook > .fs-panel-head" },
-    { t: "s13t", x: "s13", target: "#fs-analysis .fs-expand" },
+  // optional: left out when its part is not on the page when the guide starts.
+  var ALL_STEPS = [
+    { t: "farmT", x: "farm", target: "#fs-farm-btn" },
+    { t: "langT", x: "lang", target: "#fs-lang-top", optional: true },
+    { t: "runT", x: "run", target: "#fs-run" },
+    { t: "impT", x: "imp", target: "#fs-imp-zone", optional: true },
+    { t: "impDoneT", x: "impDone", target: "#fs-import .fs-imp-info", optional: true },
+    { t: "weatherT", x: "weather", target: "#fs-ctl-weather" },
+    { t: "cropsT", x: "crops", target: "#fs-ctl-crops" },
+    { t: "otherT", x: "other", target: "#fs-ctl-other" },
+    { t: "viewT", x: "view", target: "#fs-view .fv-stage" },
+    { t: "playT", x: "play", target: "#fs-view .fv-bar" },
+    { t: "tabsT", x: "tabs", target: ".fs-fm-tabs" },
+    { t: "mapT", x: "map", target: ".fs-fm-tabs button[data-t=\"map\"]", optional: true },
+    { t: "nowT", x: "now", target: ".fs-fm-tabs button[data-t=\"now\"]", optional: true },
+    { t: "warnT", x: "warn", target: ".fs-fm-tabs button[data-t=\"now\"]", optional: true },
+    { t: "resultsT", x: "results", target: "#fs-analysis" },
+    { t: "stripT", x: "strip", target: "#fs-analysis .fs-strip" },
+    { t: "chatT", x: "chat", target: "#fs-chat", guideTop: true },
+    { t: "outlookT", x: "outlook", target: "#fs-outlook > .fs-panel-head" },
+    { t: "bigT", x: "big", target: "#fs-analysis .fs-expand" },
     { t: "endTitle", x: "endText", target: null }
   ];
+  var STEPS = ALL_STEPS;         // the steps for this showing (set in start)
 
   var index = -1;                // -1 = intro, 0.. = steps
   var open = false;
@@ -188,7 +214,7 @@
     window.speechSynthesis.cancel();
     if (!speaking()) return;
     var u = new SpeechSynthesisUtterance(text);
-    u.lang = "en";
+    u.lang = document.documentElement.lang || "en"; // the page's language, set by the language picker
     u.rate = 0.9; // a little slower than normal speech
     window.speechSynthesis.speak(u);
   }
@@ -238,6 +264,8 @@
     var vw = window.innerWidth, vh = window.innerHeight, pw = els.panel.offsetWidth, ph = els.panel.offsetHeight;
     var boxLeft = (vw - pw) / 2, boxTop = vh - ph - 16;
     var covered = r.bottom + pad > boxTop && r.right + pad > boxLeft && r.left - pad < boxLeft + pw;
+    // a step whose buttons sit at the bottom of the part (the chat's Send): keep the guide at the top so they stay visible
+    if (covered && STEPS[index] && STEPS[index].guideTop) { els.panel.classList.add("fsg-top"); return; }
     if (covered) {
       if (r.left - pad > pw + 32) els.panel.classList.add("fsg-left");
       else if (vw - r.right - pad > pw + 32) els.panel.classList.add("fsg-right");
@@ -245,7 +273,9 @@
       else {
         // A short screen: put the guide just under the part, and let the guide scroll inside if it must.
         var under = Math.round(r.bottom + pad + 8), room = vh - under - 8;
-        if (room >= 150) {
+        // only when the whole guide box (or most of a tall one) fits there, so Back and Next are never cut off;
+        // otherwise it stays at the bottom of the screen, over the lower part of the highlighted area
+        if (room >= Math.min(ph, 360)) {
           els.panel.classList.add("fsg-under");
           els.panel.style.top = under + "px";
           els.panel.style.maxHeight = room + "px";
@@ -278,12 +308,15 @@
     }
     place();
     els.title.focus({ preventScroll: true });
-    say(els.title.textContent + ". " + els.text.textContent);
+    // Read it out a moment later, so a translation already kept in this browser is read instead of the English.
+    var shown = index;
+    setTimeout(function () { if (open && index === shown) say(els.title.textContent + ". " + els.text.textContent); }, 60);
   }
 
   function start() {
     if (open || !onSimulator()) return;
     build();
+    STEPS = ALL_STEPS.filter(function (s) { return !s.optional || document.querySelector(s.target); });
     open = true;
     document.body.classList.add("fsg-open");
     els.panel.hidden = false;
