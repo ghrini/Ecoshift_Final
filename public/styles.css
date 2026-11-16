@@ -569,13 +569,3 @@ body.on-sim .site-footer { display: none; }
 .valid-fig figcaption { color: var(--muted); line-height: 1.55; margin-top: 10px; font-size: 0.98rem; }
 @media (min-width: 900px) { #tab-details [id] { scroll-margin-top: calc(var(--header-h, 72px) + var(--toc-h, 110px) + 16px); } }
 
-/* Project Details: the 60-second tour */
-.tour { margin: 28px 0 8px; padding: 20px 22px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent, #9E6438); border-radius: 18px; max-width: 980px; }
-.tour-title { margin: 0 0 12px; font-weight: 600; font-size: 1.2rem; color: var(--text); }
-.tour-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.tour-steps li { display: grid; grid-template-columns: 52px 1fr; gap: 10px; color: var(--muted); line-height: 1.5; }
-.tour-steps strong { color: var(--text); font-weight: 600; }
-.tour-time { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ecru, #D3AF7C); font-size: 0.9rem; padding-top: 2px; }
-.tour-link { background: none; border: 0; padding: 0; font: inherit; color: var(--ecru, #D3AF7C); text-decoration: underline; cursor: pointer; }
-.tour-steps a { color: var(--ecru, #D3AF7C); }
-.tour-link:focus-visible, .tour-steps a:focus-visible { outline: 2px solid var(--ecru, #D3AF7C); outline-offset: 2px; }
