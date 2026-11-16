@@ -8,6 +8,7 @@
   const tabButtons = Array.from(document.querySelectorAll('.tab'));
   const panels = {
     home: document.getElementById('tab-home'),
+    details: document.getElementById('tab-details'),
     simulation: document.getElementById('tab-simulation'),
     about: document.getElementById('tab-about'),
   };
@@ -88,6 +89,17 @@
       const src = frame.dataset.src + '?county=' + encodeURIComponent(a.dataset.county);
       showTab('simulation');
       if (frame.getAttribute('src') !== src) { if (loading) loading.hidden = false; frame.setAttribute('src', src); }
+    });
+  });
+
+  // Project details: the "on this page" chips scroll to their section (the address bar keeps #details).
+  document.querySelectorAll('[data-jump]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      const target = document.getElementById(a.dataset.jump);
+      if (!target) return;
+      e.preventDefault();
+      const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
     });
   });
 
