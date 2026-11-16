@@ -38,6 +38,7 @@
 
   // ---------------------------------------------------------------- farm setup state (API_V4 section 5)
   var SETUP_KEY = 'fieldshift.farm.v1', mounted = false, fromEco = false, backDemo = false, hashP = {};
+  var fromCounty = null;   // set when opened from one of the 14 example farms (?county=<id>)
   var POS = [['north', 'North'], ['creek', 'Creek'], ['west', 'West'], ['south', 'South']];
   var IRRIGS = ['none', 'july', 'july-aug', 'jun-aug'];
   var DEFAULT_FIELDS = null;   // the example farm's fields, taken before anything changes them
@@ -253,6 +254,14 @@
     }
     return setup;
   }
+  // ?county=<site id> (from the 14 example farms on the EcoShift home page): that county's example farm, opened
+  // straight away with no questionnaire and nothing saved, so a farmer's own saved farm is untouched.
+  function countyParam() {
+    var id = null;
+    try { id = new URLSearchParams(location.search).get('county'); } catch (e) { id = null; }
+    if (!id && hashP) id = hashP.county;
+    return id && (FS.data.sites || []).some(function (x) { return x.id === id; }) ? id : null;
+  }
   function parseHash() {
     var P = hashP; if (!Object.keys(P).length) return;
     var A = FS.actions, D = FS.data;
@@ -307,6 +316,8 @@
       if (setup) needPanel = false;
       if (fromEco) needPanel = false;
       var hs = hashSetup(hashP, setup); if (hs) setup = hs;
+      fromCounty = fromEco ? null : countyParam();
+      if (fromCounty) { setup = exampleSetup(); setup.site = fromCounty; setup.example = fromCounty === 'story-ia'; needPanel = false; }
       if (setup) { var r = applySetup(setup); if (!r.ok) { console.error('[Field Shift] saved farm not applied:', r.error); setup = null; } }
       if (!setup) { FS.farmSetup.site = siteById('story-ia'); FS.farmSetup.example = true; FS.farmSetup.setup = exampleSetup(); FS.farmSetup.canIrrigate = false; }
     });
@@ -324,6 +335,10 @@
     guard('opening message', function () { FS.chat.postRecs(); });
     // last, so it is the line the farmer sees first in the chat (the chat scrolls to the newest message)
     guard('link line', function () {
+      if (fromCounty) {
+        var cs = FS.farmSetup.site || STORY();
+        FS.actions.addChat({ role: 'assistant', text: 'This is the example farm near ' + cs.name + ': four example fields on that county\'s own NASA weather (44 seasons), USDA soils and county harvests. It is not a real farmer\'s farm. To set up your own, press "Your farm · Change".' + (cs.validated === false ? ' Only Story County, Iowa has been checked against real harvests so far.' : '') });
+      }
       if (fromEco) {
         var site = FS.farmSetup.site || STORY(), story = site.id === 'story-ia';
         FS.actions.addChat({ role: 'assistant', text: (backDemo ? 'Opened from the EcoShift demo.' : 'Opened from your EcoShift brief.') + ' This is a demonstration farm in ' + site.name + ', not your field: it shows how the options behave on real ' + (story ? 'Iowa' : 'county') + ' weather and soils. Scroll up for how the options compare.' });

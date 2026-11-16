@@ -35,7 +35,8 @@
       if (!doc || doc.getElementById('fieldshift-backdrop')) return;
       const questions = doc.getElementById('fs-setup');
       const farmButton = doc.getElementById('fs-farm-btn');
-      if (questions && questions.hidden && farmButton) farmButton.click(); // opens the questionnaire at the review of saved answers
+      const fromCounty = /[?&]county=/.test(frame.getAttribute('src') || '');   // opened from one of the 14 example farms: go straight to the farm
+      if (!fromCounty && questions && questions.hidden && farmButton) farmButton.click(); // opens the questionnaire at the review of saved answers
       const at = (file) => new URL(file, location.href).href;
       const addStyle = (id, file) => {
         const link = doc.createElement('link');
@@ -77,6 +78,16 @@
       e.preventDefault();
       const dir = e.key === 'ArrowRight' ? 1 : -1;
       showTab(tabButtons[(i + dir + tabButtons.length) % tabButtons.length].dataset.tab, true);
+    });
+  });
+
+  // The 14 example farms: open that county's farm in the simulator (the frame reloads with ?county=<id>).
+  document.querySelectorAll('.farm-link[data-county]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const src = frame.dataset.src + '?county=' + encodeURIComponent(a.dataset.county);
+      showTab('simulation');
+      if (frame.getAttribute('src') !== src) { if (loading) loading.hidden = false; frame.setAttribute('src', src); }
     });
   });
 
