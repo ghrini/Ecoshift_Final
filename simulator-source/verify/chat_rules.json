@@ -1,0 +1,303 @@
+{
+ "about": "Farmer questions for the EcoShift chat rules and the control values each one should produce. Run by verify/qa2/chat_test.js, which prints the pass rate. Keys in expect: scen, temp, rain, price, nitro, prio, plant, irrig, events, plans, field (selected field id), none (no control changes), norun (no simulation run), reply and trace (regular expressions for the reply text and for the 'How This Answer Was Made' steps).",
+ "cases": [
+  {
+   "question": "What if 2012 happens again?",
+   "expect": {
+    "scen": "drought2012"
+   },
+   "note": "Replays the 2012 drought"
+  },
+  {
+   "question": "what happens in a drought",
+   "expect": {
+    "scen": "drought2012"
+   },
+   "note": "Drought maps to 2012"
+  },
+  {
+   "question": "show me 1988",
+   "expect": {
+    "scen": "drought1988"
+   },
+   "note": "Named year"
+  },
+  {
+   "question": "I want to see a wet spring",
+   "expect": {
+    "scen": [
+     "wetSpring",
+     "wet2019"
+    ]
+   },
+   "note": "Wet spring"
+  },
+  {
+   "question": "what if it is 3 degrees hotter",
+   "expect": {
+    "temp": 3
+   },
+   "note": "Temperature shift"
+  },
+  {
+   "question": "20% less rain please",
+   "expect": {
+    "rain": -20
+   },
+   "note": "Rain change"
+  },
+  {
+   "question": "rain 30% lower and 2 degrees warmer",
+   "expect": {
+    "rain": -30,
+    "temp": 2
+   },
+   "note": "Two weather changes"
+  },
+  {
+   "question": "what if corn prices drop 20%",
+   "expect": {
+    "price": -20
+   },
+   "note": "Crop price"
+  },
+  {
+   "question": "fertilizer up 30%",
+   "expect": {
+    "nitro": 30
+   },
+   "note": "Nitrogen price"
+  },
+  {
+   "question": "put rye on creek",
+   "expect": {
+    "plans": {
+     "creek": "rye-soy"
+    }
+   },
+   "note": "Cover crop on a field"
+  },
+  {
+   "question": "corn after corn on north",
+   "expect": {
+    "plans": {
+     "north": "corn-corn"
+    }
+   },
+   "note": "Corn after corn"
+  },
+  {
+   "question": "beans again on south",
+   "expect": {
+    "plans": {
+     "south": "soy-soy"
+    }
+   },
+   "note": "Soybeans after soybeans"
+  },
+  {
+   "question": "try oats on north",
+   "expect": {
+    "plans": {
+     "north": "oats-cover"
+    }
+   },
+   "note": "Oats then cover"
+  },
+  {
+   "question": "I care most about profit",
+   "expect": {
+    "prio": "profit"
+   },
+   "note": "Ranking by profit"
+  },
+  {
+   "question": "I want a safe bet",
+   "expect": {
+    "prio": "risk"
+   },
+   "note": "Ranking by risk"
+  },
+  {
+   "question": "plant 2 weeks earlier",
+   "expect": {
+    "plant": -14
+   },
+   "note": "Planting date"
+  },
+  {
+   "question": "dry July",
+   "expect": {
+    "events": [
+     "dryspell:7:moderate"
+    ]
+   },
+   "note": "Dry spell in a month"
+  },
+  {
+   "question": "heat wave in July",
+   "expect": {
+    "events": [
+     "heatwave:7:moderate"
+    ],
+    "reply": "heat alone changes little",
+    "trace": "Chat Rules.*Crop Model replayed 44"
+   },
+   "note": "Heat wave plus an honest note about heat"
+  },
+  {
+   "question": "what if there is less water this year",
+   "expect": {
+    "events": [
+     "dryspell:7:moderate",
+     "dryspell:8:moderate"
+    ],
+    "reply": "not modeled yet"
+   },
+   "note": "Water cut maps to a dry July and August"
+  },
+  {
+   "question": "my water allocation is cut",
+   "expect": {
+    "events": [
+     "dryspell:7:moderate",
+     "dryspell:8:moderate"
+    ],
+    "reply": "not modeled yet"
+   },
+   "note": "Water allocation"
+  },
+  {
+   "question": "less irrigation",
+   "expect": {
+    "events": [
+     "dryspell:7:moderate",
+     "dryspell:8:moderate"
+    ],
+    "reply": "not modeled yet"
+   },
+   "note": "Less irrigation"
+  },
+  {
+   "question": "an inch a week in July",
+   "expect": {
+    "irrig": "july"
+   },
+   "note": "Irrigation in July"
+  },
+  {
+   "question": "reset",
+   "expect": {
+    "none": 1,
+    "reply": "typical season \\(2011 weather\\)"
+   },
+   "note": "Back to the typical season (2011 weather)"
+  },
+  {
+   "question": "how reliable is this",
+   "expect": {
+    "none": 1,
+    "norun": 1,
+    "reply": "off by about \\d+ points"
+   },
+   "note": "Question, read only"
+  },
+  {
+   "question": "which field is most at risk",
+   "expect": {
+    "none": 1,
+    "norun": 1,
+    "reply": "most at risk|no field stands out"
+   },
+   "note": "Question, read only"
+  },
+  {
+   "question": "where does the data come from",
+   "expect": {
+    "none": 1,
+    "norun": 1,
+    "reply": "NASA POWER"
+   },
+   "note": "Question, read only"
+  },
+  {
+   "question": "how do I fix compacted soil on my north 80?",
+   "expect": {
+    "none": 1,
+    "norun": 1,
+    "field": "south",
+    "reply": "^(?!.*Showing selected)(?!.*person who set up)(?=.*What if 2012)",
+    "trace": "AI helper is off"
+   },
+   "note": "Not a field selection; friendly answer when the AI is off"
+  },
+  {
+   "question": "show me north",
+   "expect": {
+    "none": 1,
+    "field": "north"
+   },
+   "note": "Show plus a field name selects it"
+  },
+  {
+   "question": "north 80",
+   "expect": {
+    "none": 1,
+    "field": "south"
+   },
+   "note": "A bare field name does not select"
+  },
+  {
+   "question": "what if there is a flood",
+   "expect": {
+    "none": 1,
+    "norun": 1,
+    "reply": "flood is not modelled"
+   },
+   "note": "Event the model cannot run"
+  },
+  {
+   "question": "hail",
+   "expect": {
+    "none": 1,
+    "norun": 1,
+    "reply": "not modelled"
+   },
+   "note": "Event the model cannot run"
+  },
+  {
+   "question": "plant lavender",
+   "expect": {
+    "none": 1,
+    "reply": "only knows corn, soybeans, oats"
+   },
+   "note": "Crop the model does not have"
+  },
+  {
+   "question": "2012 and rye on south",
+   "expect": {
+    "scen": "drought2012",
+    "plans": {
+     "south": "rye-corn"
+    }
+   },
+   "note": "Weather and crop in one sentence"
+  },
+  {
+   "question": "undo",
+   "expect": {
+    "none": 1,
+    "reply": "nothing to undo",
+    "norun": 1
+   },
+   "note": "Undo with an empty history"
+  },
+  {
+   "question": "asdfghjkl",
+   "expect": {
+    "none": 1
+   },
+   "note": "Nonsense changes nothing"
+  }
+ ]
+}

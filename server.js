@@ -20,6 +20,10 @@ const PORT = Number(process.env.PORT) || 8787;
 const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
 // What farmers see when the key is missing; how to fix it is printed in the server log at startup.
 const NO_KEY = "The AI helper isn't switched on yet. Ask the person who set up EcoShifters to add its key.";
+// The chat endpoints answer farmers with this instead; NO_KEY (admin wording) stays in the server log only.
+const NO_KEY_FARMER = "The AI helper is switched off right now. The built-in chat still tests what-ifs and explains your results.";
+let noKeyLogged = false;
+function noKeyForChat() { if (!noKeyLogged) { noKeyLogged = true; console.warn("[chat] " + NO_KEY); } return NO_KEY_FARMER; }
 let geminiModel = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
 
 const MIME = {
@@ -509,7 +513,7 @@ Months follow the calendar the farmer uses; "spring" in the northern hemisphere 
 If they ask for something the simulation can't model (prices, pests, a new machine, fertilizer amounts), change nothing for it and say so kindly in one sentence, pointing to the brief or a local advisor. If they ask a question, answer briefly from the context you're given.`;
 
 async function handleSimChat(req, res) {
-  if (!GEMINI_KEY) return send(res, 500, { error: NO_KEY });
+  if (!GEMINI_KEY) return send(res, 503, { error: noKeyForChat() });
   let body;
   try { body = JSON.parse(await readBody(req, 60_000)); } catch { return send(res, 400, { error: "Bad request." }); }
   const message = String(body.message || "").slice(0, 800).trim();
@@ -617,7 +621,7 @@ function overLimit(req, kind) {
 }
 const FIT = require("./farmfit")({ geminiJSON, hasKey: () => !!GEMINI_KEY, readBody, send, UserError });
 const MAP = require("./farmmap")({ send });
-const CHAT = require("./chatai")({ geminiJSON, hasKey: () => !!GEMINI_KEY, readBody, send, UserError, noKey: NO_KEY });
+const CHAT = require("./chatai")({ geminiJSON, hasKey: () => !!GEMINI_KEY, readBody, send, UserError, noKey: noKeyForChat });
 const GEO = require("./fieldgeo")({ readBody, send });
 const LIVE = require("./fieldlive")({ readBody, send });
 const HEALTH = require("./fieldhealth")({ readBody, send });
