@@ -1,7 +1,9 @@
 // /api/fieldconditions: the farmer's own field outlines (from a GeoJSON file) -> the conditions on those exact fields.
-// - Weather: 44 seasons (16 Nov 1981 .. 15 Nov 2025) of daily Copernicus reanalysis at the farm, from Open-Meteo's archive
-//   ("era5_seamless": ERA5-Land at 0.1 degrees, about 9 km, where Open-Meteo has the variable, ERA5 at 0.25 degrees for the rest).
-//   It replaces the county's NASA POWER weather; the simulator replays it the same way.
+// - Weather: 44 seasons (16 Nov 1981 .. 15 Nov 2025) of NASA POWER daily weather at the farm's own point (the same source the
+//   crop model was calibrated and validated on: its heat and frost thresholds are POWER's), with FAO-56 Penman-Monteith ET0
+//   computed from POWER's temperature, dew point, wind and sunlight (Hargreaves where sunlight is missing, before 1984).
+//   If NASA POWER does not answer, the Copernicus reanalysis from Open-Meteo's archive is used instead ("era5_seamless":
+//   ERA5-Land at 0.1 degrees where Open-Meteo has the variable, ERA5 at 0.25 degrees for the rest), and the page says so.
 // - Terrain: the Copernicus GLO-30 digital elevation model (30 m), read straight from its public AWS bucket
 //   (Cloud Optimized GeoTIFFs: only the 1024 x 1024 tiles under the fields are downloaded). Every 30 m cell inside a field
 //   gives a slope (Horn's method), so each field gets its own mean slope and height.
@@ -95,8 +97,59 @@ async function copernicusWeather(lat, lon) {
   p.catch(() => mem.delete(key));
   return p;
 }
+/* ---------- NASA POWER daily weather at the farm (MERRA-2 meteorology, CERES / GEWEX sunlight) ---------- */
+// FAO-56 Penman-Monteith reference evapotranspiration for one day (mm), as in the simulator's own data build.
+function et0Day(tmax, tmin, tdew, u2, rs, z, latDeg, doy) {
+  const T = (tmax + tmin) / 2, P = 101.3 * Math.pow((293 - 0.0065 * z) / 293, 5.26), gam = 0.000665 * P;
+  const e0 = (t) => 0.6108 * Math.exp(17.27 * t / (t + 237.3)), D = 4098 * e0(T) / Math.pow(T + 237.3, 2);
+  const phi = latDeg * R, dr = 1 + 0.033 * Math.cos(2 * Math.PI * doy / 365), dec = 0.409 * Math.sin(2 * Math.PI * doy / 365 - 1.39);
+  const ws = Math.acos(clamp(-Math.tan(phi) * Math.tan(dec), -1, 1));
+  const Ra = 24 * 60 / Math.PI * 0.082 * dr * (ws * Math.sin(phi) * Math.sin(dec) + Math.cos(phi) * Math.cos(dec) * Math.sin(ws));
+  if (rs == null || u2 == null || tdew == null) return Math.max(0, 0.0023 * (T + 17.8) * Math.sqrt(Math.max(0, tmax - tmin)) * Ra * 0.408);   // Hargreaves
+  const es = (e0(tmax) + e0(tmin)) / 2, ea = Math.min(e0(tdew), es), Rso = (0.75 + 2e-5 * z) * Ra;
+  const Rnl = 4.903e-9 * (Math.pow(tmax + 273.16, 4) + Math.pow(tmin + 273.16, 4)) / 2 * (0.34 - 0.14 * Math.sqrt(ea)) * (1.35 * clamp(rs / Math.max(Rso, 1e-6), 0.25, 1) - 0.35);
+  const Rn = 0.77 * rs - Rnl;
+  return Math.max(0, (0.408 * D * Rn + gam * 900 / (T + 273) * u2 * (es - ea)) / (D + gam * (1 + 0.34 * u2)));
+}
+async function nasaPowerWeather(lat, lon) {
+  const key = `power_${(Math.round(lat * 20) / 20).toFixed(2)}_${(Math.round(lon * 20) / 20).toFixed(2)}.json`;
+  if (mem.has(key)) return mem.get(key);
+  const p = (async () => {
+    const disk = readDisk(key, 30 * 24 * 3600e3); if (disk) return disk;
+    const url = "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MAX,T2M_MIN,PRECTOTCORR,ALLSKY_SFC_SW_DWN,T2MDEW,WS2M" +
+      `&community=AG&longitude=${lon.toFixed(4)}&latitude=${lat.toFixed(4)}&start=${FIRST - 1}1116&end=${LAST}1115&format=JSON`;
+    const res = await fetch(url, { headers: UA, signal: AbortSignal.timeout(55000) });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok || !j.properties || !j.properties.parameter) throw new Error(`NASA POWER returned ${res.status}`);
+    const P = j.properties.parameter, z = (j.geometry && j.geometry.coordinates && j.geometry.coordinates[2]) || 0;
+    const ok = (v) => (v == null || v <= -998 ? null : v);
+    const days = Object.keys(P.T2M_MAX || {}).sort(), daily = { time: [], temperature_2m_max: [], temperature_2m_min: [], precipitation_sum: [], et0_fao_evapotranspiration: [] };
+    for (const d of days) {
+      const tmax = ok(P.T2M_MAX[d]), tmin = ok(P.T2M_MIN[d]), iso = `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`;
+      const doy = Math.round((Date.parse(iso) - Date.UTC(+d.slice(0, 4), 0, 0)) / 864e5);
+      daily.time.push(iso); daily.temperature_2m_max.push(tmax); daily.temperature_2m_min.push(tmin); daily.precipitation_sum.push(ok(P.PRECTOTCORR[d]));
+      daily.et0_fao_evapotranspiration.push(tmax == null || tmin == null ? null : round(et0Day(tmax, tmin, ok(P.T2MDEW[d]), ok(P.WS2M[d]), ok(P.ALLSKY_SFC_SW_DWN[d]), z, lat, doy), 2));
+    }
+    const out = toSeasons({ daily, latitude: lat, longitude: lon, elevation: z }, "the NASA POWER weather series");
+    out.meta.source = "NASA POWER daily weather (MERRA-2 meteorology, CERES and GEWEX sunlight), FAO-56 Penman-Monteith ET0";
+    out.meta.short = "NASA POWER";
+    writeDisk(key, out);
+    return out;
+  })();
+  mem.set(key, p); if (mem.size > 50) mem.delete(mem.keys().next().value);
+  p.catch(() => mem.delete(key));
+  return p;
+}
+// NASA POWER first; the Copernicus reanalysis only when NASA POWER does not answer
+function farmWeather(lat, lon) {
+  return nasaPowerWeather(lat, lon).catch((e) => {
+    console.warn("fieldgeo: NASA POWER did not answer (" + e.message + "); using the Copernicus reanalysis instead");
+    return copernicusWeather(lat, lon).then((c) => { c.meta.fallback = "NASA POWER did not answer, so this farm uses the Copernicus ERA5 reanalysis."; return c; });
+  });
+}
+
 // daily series -> the simulator's climate object: one 365-day season per year from 16 Nov (29 Feb dropped), values x10 as integers
-function toSeasons(j) {
+function toSeasons(j, label = "the Copernicus weather series") {
   const d = j.daily || {}, idx = new Map((d.time || []).map((t, i) => [t, i]));
   const K = { tmax: "temperature_2m_max", tmin: "temperature_2m_min", rain: "precipitation_sum", et0: "et0_fao_evapotranspiration" };
   const seasons = {}, years = [];
@@ -119,7 +172,7 @@ function toSeasons(j) {
     for (let k = 0; k < DAYS; k++) if (s.tmin[k] > s.tmax[k]) s.tmin[k] = s.tmax[k];
     seasons[y] = s; years.push(y);
   }
-  if (years.length < 30) throw new Error("the Copernicus weather series has too many gaps at this spot");
+  if (years.length < 30) throw new Error(label + " has too many gaps at this spot");
   return {
     meta: { source: "Copernicus ERA5-Land and ERA5 daily reanalysis (C3S/ECMWF) via Open-Meteo", short: "Copernicus ERA5", lat: j.latitude, lon: j.longitude,
       elevation_m: j.elevation, seasonStart: "11-16", days: DAYS, years, typicalYear: 2011, scale: { tmax: 10, tmin: 10, rain: 10, et0: 10 },
@@ -327,12 +380,12 @@ module.exports = function fieldgeo({ readBody, send }) {
 
     const sources = [], gaps = [];
     const [wx, where, ...rest] = await Promise.allSettled([
-      copernicusWeather(cy, cx),
+      farmWeather(cy, cx),
       H.countyAt(cy, cx),
       ...fields.map((f) => terrain(f)),
       ...fields.map((f) => H.soilAt(f.center[0], f.center[1]).catch(() => null)),
     ]);
-    if (wx.status !== "fulfilled") return send(res, 502, { error: "Could not get the Copernicus weather: " + (wx.reason && wx.reason.message || "no answer") + "." });
+    if (wx.status !== "fulfilled") return send(res, 502, { error: "Could not get the weather for these fields: " + (wx.reason && wx.reason.message || "no answer") + "." });
     const terr = rest.slice(0, fields.length), soils = rest.slice(fields.length);
     const county = where.status === "fulfilled" && where.value && where.value.county ? where.value : null;
     const nass = county ? await H.nassCounty(county.state, county.county).catch(() => null) : null;
@@ -349,10 +402,11 @@ module.exports = function fieldgeo({ readBody, send }) {
       if (!soil) gaps.push(`No soil survey answer inside ${f.name || f.id}, so the county's soil is used there.`);
     }
     const C = wx.value;
-    sources.push(`Weather: ${C.meta.years.length} seasons (${C.meta.years[0]}-${C.meta.years[C.meta.years.length - 1]}) of daily Copernicus ERA5-Land and ERA5 reanalysis at ${round(C.meta.lat, 2)}, ${round(C.meta.lon, 2)}, the reanalysis cell over your fields (via Open-Meteo).`);
+    sources.push(`Weather: ${C.meta.years.length} seasons (${C.meta.years[0]}-${C.meta.years[C.meta.years.length - 1]}) of ${C.meta.source} at ${round(C.meta.lat, 2)}, ${round(C.meta.lon, 2)}${C.meta.short === "NASA POWER" ? ", the NASA POWER grid cell over your fields" : ", the reanalysis cell over your fields (via Open-Meteo)"}.`);
     if (terr.some((t) => t.status === "fulfilled" && t.value)) sources.push(`Slope and height: Copernicus GLO-30 elevation model, ${terr.reduce((s, t) => s + (t.value ? t.value.cells : 0), 0)} cells of 30 m inside your outlines.`);
     if (soils.some((s) => s.status === "fulfilled" && s.value)) sources.push("Soil: USDA NRCS soil survey at a point well inside each field.");
     if (nass) sources.push(`Normal yields: USDA NASS, ${county.county} County, ${county.state}.`);
+    if (C.meta.fallback) gaps.push(C.meta.fallback);
     if (C.meta.filledDays) gaps.push(`${C.meta.filledDays} missing days in the weather series were filled with the day before.`);
     if (cy < 0) gaps.push("The simulator's season runs November to November (a northern-hemisphere calendar), so planting and harvest dates will not match a southern-hemisphere farm.");
 

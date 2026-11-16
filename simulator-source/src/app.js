@@ -155,7 +155,7 @@
     var site = FS.farmSetup.site || STORY(), loc = localOf(), p = FS.farmSetup.setup && !FS.farmSetup.example && FS.farmSetup.setup.point;
     var dataName = String(site.name).split(',')[0];
     var g = geoOf(FS.farmSetup.setup), gs = g && FS.engine && FS.engine.site ? FS.engine.site().geo : null;
-    var txt = gs ? 'Your ' + gs.fields + ' field' + (gs.fields === 1 ? '' : 's') + (g.cond.county ? ' in ' + g.cond.county : '') + ' · Copernicus weather and terrain' : loc ? 'Your farm near ' + shortLabel(loc.label) + ' · data from ' + dataName + ' (' + loc.km + ' km)'
+    var txt = gs ? 'Your ' + gs.fields + ' field' + (gs.fields === 1 ? '' : 's') + (g.cond.county ? ' in ' + g.cond.county : '') + ' · ' + ((g.cond.climate && g.cond.climate.meta && g.cond.climate.meta.short) || 'NASA POWER') + ' weather, Copernicus terrain' : loc ? 'Your farm near ' + shortLabel(loc.label) + ' · data from ' + dataName + ' (' + loc.km + ' km)'
       : p ? 'Your farm near ' + shortLabel(p.label) + ' · data from ' + dataName : 'Your farm: ' + siteShort(site);
     b.querySelector('.fs-farm-name').textContent = txt;
     b.setAttribute('aria-label', txt + '. Change');

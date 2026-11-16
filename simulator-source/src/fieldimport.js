@@ -3,7 +3,7 @@
    as exported by geojson.io, QGIS, John Deere Operations Center or Climate FieldView. Up to four fields: the largest four if there are more.
    A field's name comes from its "name" property (or Name, field_name, FIELD_NAME, title, label); its last crop from "crop" or "lastCrop" if given.
    The server (/api/fieldconditions, fieldgeo.js) then measures the conditions on those exact fields: 44 seasons of daily Copernicus
-   ERA5-Land/ERA5 weather at the farm, slope and height from the Copernicus GLO-30 elevation model inside each outline, the USDA soil
+   NASA POWER weather at the farm (Copernicus ERA5 only if NASA POWER does not answer), slope and height from the Copernicus GLO-30 elevation model inside each outline, the USDA soil
    survey well inside each field and USDA county yields. The simulator replays that weather on those fields. */
 (function () {
   'use strict';
@@ -107,7 +107,7 @@
     busy = true; setBusy(true);
     say('Reading ' + fields.length + ' field' + (fields.length === 1 ? '' : 's') + ' from ' + (fileName || 'your file') + ': ' + fields.map(function (f) { return f.name + ' (' + Math.round(f.acres) + ' ac)'; }).join(', ') + '.' +
       (P.total > MAX ? ' The file has ' + P.total + ' outlines; the simulator takes four, so I kept the four largest.' : '') +
-      ' Getting 44 seasons of Copernicus weather and the Copernicus elevation model for them. This takes 10 to 40 seconds.');
+      ' Getting 44 seasons of NASA POWER weather and the Copernicus elevation model for them. This takes 10 to 40 seconds.');
     fetch(srv + '/api/fieldconditions', { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ fields: fields.map(function (f) { return { id: f.id, name: f.name, ring: f.ring, holes: f.holes }; }) }) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }, function () { return { ok: false, j: {} }; }); })
@@ -226,7 +226,7 @@
   function setBusy(on) {
     var z = $('fs-imp-zone'); if (z) z.classList.toggle('fs-imp-busy', on);
     var i = $('fs-imp-file'); if (i) i.disabled = on;
-    if (on) status('wait', 'Reading your fields and getting 44 seasons of Copernicus weather and the elevation model… this takes 10 to 40 seconds.');
+    if (on) status('wait', 'Reading your fields and getting 44 seasons of NASA POWER weather and the elevation model… this takes 10 to 40 seconds.');
   }
   function show() {
     var cur = FS.farmSetup && FS.farmSetup.setup, g = cur && !cur.example && cur.geo, done = $('fs-imp-done');
