@@ -276,14 +276,14 @@ window.FS = window.FS || {};
   function irrCostPerAcre(mode) { return irrInches(mode) * IRR_COST_PER_ACRE_IN; }
   function shiftOf(wc, cc) {
     var ts = +(wc && wc.tempShift) || 0, pd = Math.round(+(cc && cc.plantShiftDays) || 0), ir = cc && IRR_MONTHS[cc.irrigation] && cc.irrigation !== 'none' ? cc.irrigation : 'none';
-    return { ts: ts, rs: Math.max(0, 1 + (+(wc && wc.rainChange) || 0) / 100), ef: 1 + ET_PER_C * ts, pd: clamp(pd, -21, 21), ev: cleanEvents(wc && wc.events), irr: ir };
+    return { ts: ts, rs: Math.max(0, 1 + (+(wc && wc.rainChange) || 0) / 100), ef: 1 + ET_PER_C * ts, pd: clamp(pd, -21, 21), ev: cleanEvents(wc && wc.events), irr: ir, aw: clamp(Math.round(+(cc && cc.soilWaterPct) || 0), -60, 40) };
   }
-  var NO_SHIFT = { ts: 0, rs: 1, ef: 1, pd: 0, ev: [], irr: 'none' };
+  var NO_SHIFT = { ts: 0, rs: 1, ef: 1, pd: 0, ev: [], irr: 'none', aw: 0 };
   function evKey(sh) { return sh.ev.map(function (e) { return e.type + e.month + e.severity; }).join(','); }
   function wxKey(sh) { return sh.ts + '|' + sh.rs + (sh.ev.length ? '|' + evKey(sh) : ''); }
-  function shiftKey(sh) { return wxKey(sh) + (sh.pd ? '|p' + sh.pd : '') + (sh.irr && sh.irr !== 'none' ? '|i' + sh.irr : ''); }
+  function shiftKey(sh) { return wxKey(sh) + (sh.pd ? '|p' + sh.pd : '') + (sh.irr && sh.irr !== 'none' ? '|i' + sh.irr : '') + (sh.aw ? '|a' + sh.aw : ''); }
   // the same weather and planting shift with the temperature and rain sliders at 0 (the unwarmed outcome the warming floor is measured against)
-  function unwarmed(sh) { return sh.ts === 0 && sh.rs === 1 ? sh : { ts: 0, rs: 1, ef: 1, pd: sh.pd, ev: sh.ev, irr: sh.irr }; }
+  function unwarmed(sh) { return sh.ts === 0 && sh.rs === 1 ? sh : { ts: 0, rs: 1, ef: 1, pd: sh.pd, ev: sh.ev, irr: sh.irr, aw: sh.aw }; }
   // calendar month and day of month of each season day (the 2026-27 calendar, 29 Feb never present)
   var CAL = (function () { var m = new Uint8Array(N_DAYS), dm = new Uint8Array(N_DAYS); for (var d = 0; d < N_DAYS; d++) { var t = new Date(START + d * DAY); m[d] = t.getUTCMonth() + 1; dm[d] = t.getUTCDate(); } return { m: m, d: dm }; })();
   // plan-independent daily quantities of one season under one weather shift (shared by every field and plan; cached)
@@ -743,6 +743,7 @@ window.FS = window.FS || {};
   // pct0: the same field-season's yield % at shift 0 (the warming floor needs it; computed here when the caller does not have it)
   function evalField(farm, field, planId, wx, sh, other, ref, detail, heat, shareFrac, pct0) {
     var plan = planInfo(planId), so = soilOf(field, farm), splan = planShifted(plan, sh.pd);
+    if (sh.aw) so = { awc: so.awc * (1 + sh.aw / 100), slope: so.slope, kdr: so.kdr, wt: so.wt };   // chat what-if: soil holds more or less water than the survey says
     var res = sim(splan, wx, sh, { awc: so.awc, slope: so.slope, kdr: so.kdr, wt: so.wt, prev: field.lastCrop, detail: detail, start: startFor(wx.year, field.lastCrop, sh) }, heat);
     var E = FS.data.economics, crop = plan.cashCrop, pct = crop === 'none' ? 0 : rawPct(ref, crop, res);
     if (sh.ts > 0 && WARM_LOSS[crop]) {

@@ -18,7 +18,7 @@ This is a working prototype. Simulation results are estimates for comparing opti
 ## Run it on your computer
 
 1. Install **Node.js 18 or newer** from https://nodejs.org (no `npm install` needed; there are no packages).
-2. Optional, for the AI parts (fitting the data to your farm from your land answers, and the daily outlook note): copy `.env.example` to `.env` and put your Gemini key after `GEMINI_API_KEY=` (get one at https://aistudio.google.com/apikey). Without a key everything else works.
+2. Optional, for the AI parts (the chat helper that answers any question and runs what-ifs the rules cannot read, fitting the data to your farm from your land answers, and the daily outlook note): copy `.env.example` to `.env` and put your Gemini key after `GEMINI_API_KEY=` (get one at https://aistudio.google.com/apikey). Without a key everything else works.
 3. In a terminal, in this folder:
 
    ```bash
