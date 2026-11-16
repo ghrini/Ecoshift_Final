@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="100%" role="img" aria-labelledby="t d" font-family="'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12">
+<title id="t">Real Iowa corn harvests against the EcoShift model, 1982-2025</title>
+<desc id="d">Line chart, one point per season from 1982 to 2025, of corn harvest as a percent of the yield trend. One line is the real USDA NASS Iowa state yield; the other is the model prediction made with each season left out of the fitting. The model dips in the two big droughts, 1988 (real 67, model 80) and 2012 (real 76, model 80), but underestimates how bad 1988 was and misses the 1993 flood entirely (real 59, model 84). In ordinary years the model line stays close to 100 and does not follow the real ups and downs, so it is no better than the yield trend. Correlation over all 44 seasons is 0.48.</desc>
+<line x1="64" x2="940" y1="265.5" y2="265.5" stroke="#808080" stroke-opacity="0.18" stroke-width="1"/>
+<text x="56" y="269.5" fill="#b4b2ac" text-anchor="end">60</text>
+<line x1="64" x2="940" y1="231.0" y2="231.0" stroke="#808080" stroke-opacity="0.18" stroke-width="1"/>
+<text x="56" y="235.0" fill="#b4b2ac" text-anchor="end">70</text>
+<line x1="64" x2="940" y1="196.5" y2="196.5" stroke="#808080" stroke-opacity="0.18" stroke-width="1"/>
+<text x="56" y="200.5" fill="#b4b2ac" text-anchor="end">80</text>
+<line x1="64" x2="940" y1="162.0" y2="162.0" stroke="#808080" stroke-opacity="0.18" stroke-width="1"/>
+<text x="56" y="166.0" fill="#b4b2ac" text-anchor="end">90</text>
+<line x1="64" x2="940" y1="127.5" y2="127.5" stroke="#808080" stroke-opacity="0.55" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="56" y="131.5" fill="#b4b2ac" text-anchor="end">100</text>
+<line x1="64" x2="940" y1="93.0" y2="93.0" stroke="#808080" stroke-opacity="0.18" stroke-width="1"/>
+<text x="56" y="97.0" fill="#b4b2ac" text-anchor="end">110</text>
+<line x1="64" x2="940" y1="58.5" y2="58.5" stroke="#808080" stroke-opacity="0.18" stroke-width="1"/>
+<text x="56" y="62.5" fill="#b4b2ac" text-anchor="end">120</text>
+<line x1="125.1" x2="125.1" y1="300" y2="305" stroke="#808080" stroke-opacity="0.5"/><text x="125.1" y="319" fill="#b4b2ac" text-anchor="middle">1985</text>
+<line x1="227.0" x2="227.0" y1="300" y2="305" stroke="#808080" stroke-opacity="0.5"/><text x="227.0" y="319" fill="#b4b2ac" text-anchor="middle">1990</text>
+<line x1="328.8" x2="328.8" y1="300" y2="305" stroke="#808080" stroke-opacity="0.5"/><text x="328.8" y="319" fill="#b4b2ac" text-anchor="middle">1995</text>
+<line x1="430.7" x2="430.7" y1="300" y2="305" stroke="#808080" stroke-opacity="0.5"/><text x="430.7" y="319" fill="#b4b2ac" text-anchor="middle">2000</text>
+<line x1="532.6" x2="532.6" y1="300" y2="305" stroke="#808080" stroke-opacity="0.5"/><text x="532.6" y="319" fill="#b4b2ac" text-anchor="middle">2005</text>
+<line x1="634.4" x2="634.4" y1="300" y2="305" stroke="#808080" stroke-opacity="0.5"/><text x="634.4" y="319" fill="#b4b2ac" text-anchor="middle">2010</text>
+<line x1="736.3" x2="736.3" y1="300" y2="305" stroke="#808080" stroke-opacity="0.5"/><text x="736.3" y="319" fill="#b4b2ac" text-anchor="middle">2015</text>
+<line x1="838.1" x2="838.1" y1="300" y2="305" stroke="#808080" stroke-opacity="0.5"/><text x="838.1" y="319" fill="#b4b2ac" text-anchor="middle">2020</text>
+<line x1="940.0" x2="940.0" y1="300" y2="305" stroke="#808080" stroke-opacity="0.5"/><text x="940.0" y="319" fill="#b4b2ac" text-anchor="middle">2025</text>
+<line x1="64" x2="940" y1="300" y2="300" stroke="#808080" stroke-opacity="0.5"/>
+<rect x="181.2" y="24" width="10" height="276" fill="#e8e2d8" fill-opacity="0.09"/>
+<text x="186.2" y="34" fill="#e8e2d8" text-anchor="middle" font-weight="600">1988 drought</text>
+<text x="186.2" y="48" fill="#b4b2ac" text-anchor="middle" font-size="11">real 67, model 80</text>
+<rect x="670.2" y="24" width="10" height="276" fill="#e8e2d8" fill-opacity="0.09"/>
+<text x="675.2" y="34" fill="#e8e2d8" text-anchor="middle" font-weight="600">2012 drought</text>
+<text x="675.2" y="48" fill="#b4b2ac" text-anchor="middle" font-size="11">real 76, model 80</text>
+<text x="297.1" y="272.9" fill="#b4b2ac" font-size="11">1993 flood: real 59, model 84 (the model misses floods)</text>
+<path d="M64.0,108.8 L84.4,133.9 L104.7,101.5 L125.1,149.6 L145.5,99.4 L165.9,116.9 L186.2,197.7 L206.6,119.8 L227.0,111.7 L247.3,121.6 L267.7,207.8 L288.1,183.7 L308.5,105.9 L328.8,133.6 L349.2,121.6 L369.6,124.0 L390.0,120.2 L410.3,122.8 L430.7,126.5 L451.1,127.6 L471.4,128.4 L491.8,150.4 L512.2,114.1 L532.6,142.2 L552.9,156.2 L573.3,137.3 L593.7,104.3 L614.0,123.5 L634.4,127.3 L654.8,129.0 L675.2,195.6 L695.5,144.5 L715.9,103.6 L736.3,116.6 L756.7,126.5 L777.0,144.5 L797.4,129.4 L817.8,121.7 L838.1,133.2 L858.5,147.0 L878.9,147.3 L899.3,133.6 L919.6,130.5 L940.0,117.9" fill="none" stroke="#9E6438" stroke-width="1.8" stroke-linejoin="round"/>
+<circle cx="64.0" cy="108.8" r="2.6" fill="#9E6438"/>
+<circle cx="84.4" cy="133.9" r="2.6" fill="#9E6438"/>
+<circle cx="104.7" cy="101.5" r="2.6" fill="#9E6438"/>
+<circle cx="125.1" cy="149.6" r="2.6" fill="#9E6438"/>
+<circle cx="145.5" cy="99.4" r="2.6" fill="#9E6438"/>
+<circle cx="165.9" cy="116.9" r="2.6" fill="#9E6438"/>
+<circle cx="186.2" cy="197.7" r="2.6" fill="#9E6438"/>
+<circle cx="206.6" cy="119.8" r="2.6" fill="#9E6438"/>
+<circle cx="227.0" cy="111.7" r="2.6" fill="#9E6438"/>
+<circle cx="247.3" cy="121.6" r="2.6" fill="#9E6438"/>
+<circle cx="267.7" cy="207.8" r="2.6" fill="#9E6438"/>
+<circle cx="288.1" cy="183.7" r="2.6" fill="#9E6438"/>
+<circle cx="308.5" cy="105.9" r="2.6" fill="#9E6438"/>
+<circle cx="328.8" cy="133.6" r="2.6" fill="#9E6438"/>
+<circle cx="349.2" cy="121.6" r="2.6" fill="#9E6438"/>
+<circle cx="369.6" cy="124.0" r="2.6" fill="#9E6438"/>
+<circle cx="390.0" cy="120.2" r="2.6" fill="#9E6438"/>
+<circle cx="410.3" cy="122.8" r="2.6" fill="#9E6438"/>
+<circle cx="430.7" cy="126.5" r="2.6" fill="#9E6438"/>
+<circle cx="451.1" cy="127.6" r="2.6" fill="#9E6438"/>
+<circle cx="471.4" cy="128.4" r="2.6" fill="#9E6438"/>
+<circle cx="491.8" cy="150.4" r="2.6" fill="#9E6438"/>
+<circle cx="512.2" cy="114.1" r="2.6" fill="#9E6438"/>
+<circle cx="532.6" cy="142.2" r="2.6" fill="#9E6438"/>
+<circle cx="552.9" cy="156.2" r="2.6" fill="#9E6438"/>
+<circle cx="573.3" cy="137.3" r="2.6" fill="#9E6438"/>
+<circle cx="593.7" cy="104.3" r="2.6" fill="#9E6438"/>
+<circle cx="614.0" cy="123.5" r="2.6" fill="#9E6438"/>
+<circle cx="634.4" cy="127.3" r="2.6" fill="#9E6438"/>
+<circle cx="654.8" cy="129.0" r="2.6" fill="#9E6438"/>
+<circle cx="675.2" cy="195.6" r="2.6" fill="#9E6438"/>
+<circle cx="695.5" cy="144.5" r="2.6" fill="#9E6438"/>
+<circle cx="715.9" cy="103.6" r="2.6" fill="#9E6438"/>
+<circle cx="736.3" cy="116.6" r="2.6" fill="#9E6438"/>
+<circle cx="756.7" cy="126.5" r="2.6" fill="#9E6438"/>
+<circle cx="777.0" cy="144.5" r="2.6" fill="#9E6438"/>
+<circle cx="797.4" cy="129.4" r="2.6" fill="#9E6438"/>
+<circle cx="817.8" cy="121.7" r="2.6" fill="#9E6438"/>
+<circle cx="838.1" cy="133.2" r="2.6" fill="#9E6438"/>
+<circle cx="858.5" cy="147.0" r="2.6" fill="#9E6438"/>
+<circle cx="878.9" cy="147.3" r="2.6" fill="#9E6438"/>
+<circle cx="899.3" cy="133.6" r="2.6" fill="#9E6438"/>
+<circle cx="919.6" cy="130.5" r="2.6" fill="#9E6438"/>
+<circle cx="940.0" cy="117.9" r="2.6" fill="#9E6438"/>
+<path d="M64.0,93.8 L84.4,209.9 L104.7,136.0 L125.1,99.6 L145.5,79.5 L165.9,102.9 L186.2,239.6 L206.6,152.0 L227.0,134.4 L247.3,166.3 L267.7,90.8 L288.1,268.8 L308.5,91.2 L328.8,171.3 L349.2,138.3 L369.6,143.9 L390.0,132.1 L410.3,128.3 L430.7,145.2 L451.1,145.9 L471.4,112.7 L491.8,130.7 L512.2,83.9 L532.6,106.6 L552.9,126.5 L573.3,120.7 L593.7,125.7 L614.0,110.1 L634.4,147.4 L654.8,137.5 L675.2,209.2 L695.5,162.1 L715.9,139.1 L736.3,116.5 L756.7,99.9 L777.0,106.3 L797.4,122.2 L817.8,122.8 L838.1,165.7 L858.5,120.2 L878.9,132.0 L899.3,134.5 L919.6,120.2 L940.0,126.4" fill="none" stroke="#D3AF7C" stroke-width="1.8" stroke-linejoin="round"/>
+<circle cx="64.0" cy="93.8" r="2.6" fill="#D3AF7C"/>
+<circle cx="84.4" cy="209.9" r="2.6" fill="#D3AF7C"/>
+<circle cx="104.7" cy="136.0" r="2.6" fill="#D3AF7C"/>
+<circle cx="125.1" cy="99.6" r="2.6" fill="#D3AF7C"/>
+<circle cx="145.5" cy="79.5" r="2.6" fill="#D3AF7C"/>
+<circle cx="165.9" cy="102.9" r="2.6" fill="#D3AF7C"/>
+<circle cx="186.2" cy="239.6" r="2.6" fill="#D3AF7C"/>
+<circle cx="206.6" cy="152.0" r="2.6" fill="#D3AF7C"/>
+<circle cx="227.0" cy="134.4" r="2.6" fill="#D3AF7C"/>
+<circle cx="247.3" cy="166.3" r="2.6" fill="#D3AF7C"/>
+<circle cx="267.7" cy="90.8" r="2.6" fill="#D3AF7C"/>
+<circle cx="288.1" cy="268.8" r="2.6" fill="#D3AF7C"/>
+<circle cx="308.5" cy="91.2" r="2.6" fill="#D3AF7C"/>
+<circle cx="328.8" cy="171.3" r="2.6" fill="#D3AF7C"/>
+<circle cx="349.2" cy="138.3" r="2.6" fill="#D3AF7C"/>
+<circle cx="369.6" cy="143.9" r="2.6" fill="#D3AF7C"/>
+<circle cx="390.0" cy="132.1" r="2.6" fill="#D3AF7C"/>
+<circle cx="410.3" cy="128.3" r="2.6" fill="#D3AF7C"/>
+<circle cx="430.7" cy="145.2" r="2.6" fill="#D3AF7C"/>
+<circle cx="451.1" cy="145.9" r="2.6" fill="#D3AF7C"/>
+<circle cx="471.4" cy="112.7" r="2.6" fill="#D3AF7C"/>
+<circle cx="491.8" cy="130.7" r="2.6" fill="#D3AF7C"/>
+<circle cx="512.2" cy="83.9" r="2.6" fill="#D3AF7C"/>
+<circle cx="532.6" cy="106.6" r="2.6" fill="#D3AF7C"/>
+<circle cx="552.9" cy="126.5" r="2.6" fill="#D3AF7C"/>
+<circle cx="573.3" cy="120.7" r="2.6" fill="#D3AF7C"/>
+<circle cx="593.7" cy="125.7" r="2.6" fill="#D3AF7C"/>
+<circle cx="614.0" cy="110.1" r="2.6" fill="#D3AF7C"/>
+<circle cx="634.4" cy="147.4" r="2.6" fill="#D3AF7C"/>
+<circle cx="654.8" cy="137.5" r="2.6" fill="#D3AF7C"/>
+<circle cx="675.2" cy="209.2" r="2.6" fill="#D3AF7C"/>
+<circle cx="695.5" cy="162.1" r="2.6" fill="#D3AF7C"/>
+<circle cx="715.9" cy="139.1" r="2.6" fill="#D3AF7C"/>
+<circle cx="736.3" cy="116.5" r="2.6" fill="#D3AF7C"/>
+<circle cx="756.7" cy="99.9" r="2.6" fill="#D3AF7C"/>
+<circle cx="777.0" cy="106.3" r="2.6" fill="#D3AF7C"/>
+<circle cx="797.4" cy="122.2" r="2.6" fill="#D3AF7C"/>
+<circle cx="817.8" cy="122.8" r="2.6" fill="#D3AF7C"/>
+<circle cx="838.1" cy="165.7" r="2.6" fill="#D3AF7C"/>
+<circle cx="858.5" cy="120.2" r="2.6" fill="#D3AF7C"/>
+<circle cx="878.9" cy="132.0" r="2.6" fill="#D3AF7C"/>
+<circle cx="899.3" cy="134.5" r="2.6" fill="#D3AF7C"/>
+<circle cx="919.6" cy="120.2" r="2.6" fill="#D3AF7C"/>
+<circle cx="940.0" cy="126.4" r="2.6" fill="#D3AF7C"/>
+<text x="16" y="162" fill="#b4b2ac" text-anchor="middle" transform="rotate(-90 16 162)">Harvest, % Of Trend</text>
+<text x="502" y="340" fill="#b4b2ac" text-anchor="middle">Season</text>
+<line x1="64" x2="88" y1="380" y2="380" stroke="#D3AF7C" stroke-width="1.8"/><circle cx="76" cy="380" r="2.6" fill="#D3AF7C"/><text x="96" y="384" fill="#e8e2d8">Real harvest (USDA NASS, Iowa)</text>
+<line x1="314" x2="338" y1="380" y2="380" stroke="#9E6438" stroke-width="1.8"/><circle cx="326" cy="380" r="2.6" fill="#9E6438"/><text x="346" y="384" fill="#e8e2d8">Model, each season left out of the fitting</text>
+<line x1="654" x2="678" y1="380" y2="380" stroke="#808080" stroke-opacity="0.7" stroke-dasharray="5 4"/><text x="686" y="384" fill="#e8e2d8">100% = yield trend</text>
+</svg>

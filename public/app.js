@@ -110,8 +110,19 @@
       e.preventDefault();
       const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      settle(target);
     });
   });
+
+  // Pictures above a section can finish loading while the page scrolls and push it down: check again once the scroll ends.
+  function settle(target) {
+    let n = 0;
+    const again = () => {
+      const want = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+      if (Math.abs(target.getBoundingClientRect().top - want) > 24 && n++ < 3) { target.scrollIntoView({ block: 'start' }); setTimeout(again, 400); }
+    };
+    setTimeout(again, 900);
+  }
 
   // Links from Home to one section of Project details: open the tab, then scroll to the section.
   document.querySelectorAll('[data-go-section]').forEach((a) => {
@@ -119,7 +130,7 @@
       e.preventDefault();
       showTab('details');
       const target = document.getElementById(a.dataset.goSection);
-      if (target) requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
+      if (target) requestAnimationFrame(() => { target.scrollIntoView({ block: 'start' }); settle(target); });
     });
   });
 

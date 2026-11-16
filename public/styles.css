@@ -552,3 +552,19 @@ body.on-sim .site-footer { display: none; }
 .nasa-list li { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; color: var(--muted); line-height: 1.5; }
 .nasa-list strong { display: block; color: var(--text); font-weight: 600; margin-bottom: 2px; }
 @media (max-width: 900px) { .action-grid, .nasa-list { grid-template-columns: 1fr; } }
+
+/* Judges' fixes: screenshots open full size; the page map on Project Details stays in view */
+.action-zoom { display: block; position: relative; cursor: zoom-in; }
+.action-zoom::after { content: "Open Full Size \2197"; position: absolute; right: 12px; bottom: 12px; padding: 4px 10px; border-radius: 999px; background: rgba(0,0,0,0.72); color: var(--ecru, #D3AF7C); font-size: 0.85rem; opacity: 0; transition: opacity .15s; }
+.action-zoom:hover::after, .action-zoom:focus-visible::after { opacity: 1; }
+.action-zoom:focus-visible { outline: 2px solid var(--ecru, #D3AF7C); outline-offset: -2px; }
+.toc-bar { padding: 0 0 8px; }
+.toc-bar .toc { margin-top: 0; }
+@media (min-width: 900px) {
+  .toc-bar { position: sticky; top: 73px; z-index: 20; background: rgba(0,0,0,0.9); backdrop-filter: blur(6px); padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .toc-bar .toc-chip { min-height: 32px; padding: 4px 12px; font-size: 0.85rem; }
+}
+.valid-fig { margin: 24px 0 8px; padding: 18px 18px 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; }
+.valid-fig img { display: block; width: 100%; height: auto; }
+.valid-fig figcaption { color: var(--muted); line-height: 1.55; margin-top: 10px; font-size: 0.98rem; }
+@media (min-width: 900px) { #tab-details [id] { scroll-margin-top: calc(var(--header-h, 72px) + var(--toc-h, 110px) + 16px); } }

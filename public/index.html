@@ -61,7 +61,8 @@
           <p class="statement"><strong>Farmers have no way to test a crop rotation<span class="ast" aria-hidden="true">*</span> before they plant it.</strong> The plan is chosen months ahead, on habit and rules of thumb, before anyone knows the weather. A wrong choice only shows at harvest: in the 2012 drought, Iowa's corn harvest fell to 77% of a normal year's harvest.</p>
           <p class="footnote"><span class="ast" aria-hidden="true">*</span> Crop rotation: growing different crops on the same field in planned turns, such as corn one year and soybeans the next, to keep the soil fertile and break pest and disease cycles.</p>
           <p class="kicker solution-kicker">Our Solution</p>
-          <p class="statement"><strong>EcoShift is a crop rotation testing system.</strong> Instead of guessing next year's weather, it asks how each plan would have done in every one of the last 44 seasons: a process-based crop simulation (a model of how the crop grows, day by day) grows the plan through each season of real NASA satellite-derived weather, on the farmer's own fields. A multi-agent system (a team of software agents, each with one job) then compares every rotation and recommends the plan with the best balance of yield, profit and risk. A farmer can also drop in their real field boundaries: EcoShift then reads those exact fields from orbit with Copernicus Sentinel-2 satellites, scores each field's health, and flags ponds, wet spots, burned ground and weak zones in near-real time.</p>
+          <p class="statement"><strong>EcoShift is a crop rotation testing system.</strong> Instead of guessing next year's weather, it grows each plan through every one of the last 44 seasons of real NASA weather, on the farmer's own fields, with a crop simulation that tracks the water in the soil day by day. Then it ranks every rotation by harvest, profit and risk, and checks each real field from space.</p>
+          <p class="footnote">Inside, it is a multi-agent system: ten helpers, each with one job, pass their results along. Six are plain code, such as the crop model and the adviser; four use Google's Gemini AI, and code checks everything they return.</p>
           <a class="text-link" href="#details" data-go-section="how-it-works"><span>Learn More</span> About The Technical Details <span aria-hidden="true">&rarr;</span></a>
         </div>
 
@@ -95,7 +96,7 @@
             </svg>
             <h3>Pull The Data Sets</h3>
             <p>For that exact spot, a software agent (the farm-fit agent) pulls the data sets: 44 seasons of NASA POWER daily weather, the USDA soil survey (how much water each field holds, how well it drains) and county harvest records (the farm's normal yield).</p>
-            <p class="sat-line"><span class="sat-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 6.5h5v5h-5z"/><path d="M2.5 7.5h4.5v3H2.5zM17 7.5h4.5v3H17zM7 9h2.5M14.5 9H17"/><path d="M12 11.5v3.5"/><path d="M8.5 19.5a5 5 0 0 1 7 0"/></svg></span><span><strong>Satellites behind the data:</strong> NASA Terra (MODIS, plant greenness), NASA CERES (sunlight, inside NASA POWER) and Copernicus: Sentinel-2 (field health and the farm map), ERA5 weather and the GLO-30 elevation model for imported fields.</span></p>
+            <p class="sat-line"><span class="sat-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 6.5h5v5h-5z"/><path d="M2.5 7.5h4.5v3H2.5zM17 7.5h4.5v3H17zM7 9h2.5M14.5 9H17"/><path d="M12 11.5v3.5"/><path d="M8.5 19.5a5 5 0 0 1 7 0"/></svg></span><span><strong>Satellites behind the data:</strong> NASA Terra (MODIS, plant greenness), NASA CERES (sunlight, inside NASA POWER) and Copernicus: Sentinel-2 (field health and the farm map) and the GLO-30 elevation model for imported fields.</span></p>
             <a class="text-link fig-link" href="#details" data-go-section="nasa-data"><span>See</span> Every Data Set <span aria-hidden="true">&rarr;</span></a>
           </article>
           <div class="flow-arrow" aria-hidden="true"><svg viewBox="0 0 48 24" width="48" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h42M34 3l10 9-10 9"/></svg></div>
@@ -135,6 +136,7 @@
         <div class="wrap">
           <p class="kicker flow-kicker">What You Get</p>
           <p class="statement"><strong>For every field, a ranked list of rotation options.</strong> Each shows its harvest and profit in a typical year and in the worst years, the evidence behind it, the extra work it needs and what to check with a local adviser. On the example farm in Story County, Iowa, the current plan gets about 99% of a normal crop in a typical year, but only 79% in a 2012-style drought. It is free and needs no account.</p>
+          <p class="footnote"><strong>Who it is for today:</strong> Corn Belt farms growing corn, soybeans, oats and a rye cover crop. The weather, soil and satellite checks work on any field on Earth; irrigated Western crops are next. <strong>How well it works:</strong> checked against 44 years of USDA harvests, it catches the big droughts of 1988 and 2012, but in ordinary years it is no better than the long-term yield trend. <a href="#details" data-go-section="how-well">See the check &rarr;</a></p>
         </div>
       </section>
 
@@ -144,10 +146,10 @@
           <p class="kicker">See It In Action</p>
           <p class="statement"><strong>Plan before you plant, then watch every field from space.</strong> Four real screens from EcoShift, on the example farm and on real fields near Ames, Iowa.</p>
           <div class="action-grid">
-            <figure class="action-card"><img src="images/action-simulation.jpg" width="1200" height="558" loading="lazy" decoding="async" alt="The EcoShift simulator: the farm map painted by crop and stage, the season timeline, the Sim Analysis and the chat answering a what-if about the 2012 drought."><figcaption><span class="action-tag">Before You Plant</span><strong>Ask A What-If</strong>Type "what if 2012 happens again?" and the multi-agent system replays that drought on every field: about 79% of a normal crop, about $37,200 lost. The chat's AI helper (Google Gemini) takes the questions plain code cannot.</figcaption></figure>
-            <figure class="action-card"><img src="images/action-import.jpg" width="1200" height="434" loading="lazy" decoding="async" alt="Import your real field: three field outlines from a GeoJSON file, imported and now simulated."><figcaption><span class="action-tag">Your Real Fields</span><strong>Import The Field Boundaries</strong>Drop in a GeoJSON or KML file. Each field gets 44 seasons of NASA POWER weather at its own point, its slope from the Copernicus elevation model and its USDA soil, in seconds.</figcaption></figure>
-            <figure class="action-card"><img src="images/action-conditions.jpg" width="1200" height="714" loading="lazy" decoding="async" alt="Advanced near-real-time conditions: live weather, soil moisture and air quality, and warnings numbered on a map of the fields."><figcaption><span class="action-tag">While It Grows</span><strong>Near-Real-Time Conditions</strong>Live weather, soil moisture and air quality, the latest Sentinel-2 pass, and warnings pinned to the exact spot: weak growth zones, ponds, low spots and burned ground.</figcaption></figure>
-            <figure class="action-card"><img src="images/action-health.jpg" width="1200" height="738" loading="lazy" decoding="async" alt="Field health from Sentinel-2: scores for canopy, nitrogen, moisture, leaf structure and uniformity, a yield estimate and prioritised advice."><figcaption><span class="action-tag">While It Grows</span><strong>Field Health From Space</strong>A season of Sentinel-2 images scored with published remote-sensing indices (NDVI, NDRE, NDMI, red-edge position): canopy, nitrogen, moisture, leaf structure and uniformity, a yield estimate and advice ranked by priority.</figcaption></figure>
+            <figure class="action-card"><a class="action-zoom" href="images/action-simulation.jpg" target="_blank" rel="noopener" aria-label="Open this screenshot full size"><img src="images/action-simulation.jpg" width="1200" height="558" loading="lazy" decoding="async" alt="The EcoShift simulator: the farm map painted by crop and stage, the season timeline, the Sim Analysis and the chat answering a what-if about the 2012 drought."></a><figcaption><span class="action-tag">Before You Plant</span><strong>Ask A What-If</strong>Type "what if 2012 happens again?" and the multi-agent system replays that drought on every field: about 79% of a normal crop, about $37,200 lost. The chat's AI helper (Google Gemini) takes the questions plain code cannot.</figcaption></figure>
+            <figure class="action-card"><a class="action-zoom" href="images/action-import.jpg" target="_blank" rel="noopener" aria-label="Open this screenshot full size"><img src="images/action-import.jpg" width="1200" height="434" loading="lazy" decoding="async" alt="Import your real field: three field outlines from a GeoJSON file, imported and now simulated."></a><figcaption><span class="action-tag">Your Real Fields</span><strong>Import The Field Boundaries</strong>Drop in a GeoJSON or KML file. Each field gets 44 seasons of NASA POWER weather for its spot (a grid cell about 50 km wide), its slope from the Copernicus elevation model and its USDA soil, in about 30 seconds.</figcaption></figure>
+            <figure class="action-card"><a class="action-zoom" href="images/action-conditions.jpg" target="_blank" rel="noopener" aria-label="Open this screenshot full size"><img src="images/action-conditions.jpg" width="1200" height="714" loading="lazy" decoding="async" alt="Advanced near-real-time conditions: live weather, soil moisture and air quality, and warnings numbered on a map of the fields."></a><figcaption><span class="action-tag">While It Grows</span><strong>Near-Real-Time Conditions</strong>Live weather, soil moisture and air quality, the latest Sentinel-2 pass, and warnings pinned to the exact spot: weak growth zones, ponds, low spots and burned ground.</figcaption></figure>
+            <figure class="action-card"><a class="action-zoom" href="images/action-health.jpg" target="_blank" rel="noopener" aria-label="Open this screenshot full size"><img src="images/action-health.jpg" width="1200" height="738" loading="lazy" decoding="async" alt="Field health from Sentinel-2: scores for canopy, nitrogen, moisture, leaf structure and uniformity, a yield estimate and prioritised advice."></a><figcaption><span class="action-tag">While It Grows</span><strong>Field Health From Space</strong>A season of Sentinel-2 images scored with published remote-sensing indices (NDVI, NDRE, NDMI, red-edge position): canopy, nitrogen, moisture, leaf structure and uniformity, a rough yield guide and advice ranked by priority.</figcaption></figure>
           </div>
           <p class="art-small">Real screenshots taken on 16 November 2026: the example farm in Story County, Iowa, and the Iowa sample fields that come with the simulator.</p>
         </div>
@@ -157,11 +159,11 @@
       <section class="band" id="nasa-core">
         <div class="wrap">
           <p class="kicker">NASA Data At The Core</p>
-          <p class="statement"><strong>NASA data runs every simulation.</strong> Each of the 44 seasons EcoShift replays is NASA POWER daily weather, on the example farms and on imported fields alike, and NASA's Terra satellite checks the drought years it catches. Copernicus satellites, from NASA's partner agency ESA, add field-level detail on top.</p>
+          <p class="statement"><strong>NASA data runs every simulation.</strong> Each of the 44 seasons EcoShift replays is NASA POWER daily weather, on the example farms and on imported fields alike, and NASA's Terra satellite gives an independent check on the model. Copernicus satellites, from NASA's partner agency ESA, add field-level detail on top.</p>
           <ul class="nasa-list">
             <li><span class="sat-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 6.5h5v5h-5z"/><path d="M2.5 7.5h4.5v3H2.5zM17 7.5h4.5v3H17zM7 9h2.5M14.5 9H17"/><path d="M12 11.5v3.5"/><path d="M8.5 19.5a5 5 0 0 1 7 0"/></svg></span><span><strong>NASA POWER</strong> 44 seasons (1982 to 2025) of daily temperature, rain, sunlight, humidity and wind: the input to every simulation, county or real field.</span></li>
             <li><span class="sat-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 6.5h5v5h-5z"/><path d="M2.5 7.5h4.5v3H2.5zM17 7.5h4.5v3H17zM7 9h2.5M14.5 9H17"/><path d="M12 11.5v3.5"/><path d="M8.5 19.5a5 5 0 0 1 7 0"/></svg></span><span><strong>NASA MERRA-2 and CERES</strong> Inside NASA POWER: MERRA-2 climate reanalysis gives the temperature, rain and humidity; the CERES satellite instruments give the sunlight that drives how much water the crop uses.</span></li>
-            <li><span class="sat-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 6.5h5v5h-5z"/><path d="M2.5 7.5h4.5v3H2.5zM17 7.5h4.5v3H17zM7 9h2.5M14.5 9H17"/><path d="M12 11.5v3.5"/><path d="M8.5 19.5a5 5 0 0 1 7 0"/></svg></span><span><strong>NASA Terra (MODIS), through NASA GIBS</strong> 26 seasons of satellite greenness over Story County: they track the real harvests and confirm the 2012 drought the model catches.</span></li>
+            <li><span class="sat-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 6.5h5v5h-5z"/><path d="M2.5 7.5h4.5v3H2.5zM17 7.5h4.5v3H17zM7 9h2.5M14.5 9H17"/><path d="M12 11.5v3.5"/><path d="M8.5 19.5a5 5 0 0 1 7 0"/></svg></span><span><strong>NASA Terra (MODIS), through NASA GIBS</strong> 26 seasons of satellite greenness over Story County track the real harvests (correlation 0.61), so they are our independent check: they agree with the model on the 2012 drought, not in ordinary years.</span></li>
             <li><span class="sat-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 6.5h5v5h-5z"/><path d="M2.5 7.5h4.5v3H2.5zM17 7.5h4.5v3H17zM7 9h2.5M14.5 9H17"/><path d="M12 11.5v3.5"/><path d="M8.5 19.5a5 5 0 0 1 7 0"/></svg></span><span><strong>Partner data</strong> Copernicus Sentinel-2 (field health, burned ground, weak zones), the GLO-30 elevation model and ESA WorldCover; USDA soils and harvests.</span></li>
           </ul>
           <a class="text-link" href="#details" data-go-section="nasa-data"><span>See</span> Every Data Set <span aria-hidden="true">&rarr;</span></a>
@@ -176,7 +178,7 @@
             <p class="lede">Our next step is multi-sensor satellite fusion. Sentinel-1 radar sees through clouds, Sentinel-2 reads the crop and Sentinel-3 tracks land temperature. Fused in near-real time with weather, climate and field inspections, they will train machine-learning models that forecast crop condition and yield for any field boundary, any crop and any season.</p>
             <ul class="points">
               <li><span class="num">Now</span>Real field boundaries, Sentinel-2 field health, NASA POWER weather at the fields with Copernicus terrain, ponds, burned ground and live warnings, and 44-season replays.</li>
-              <li><span class="num">Next</span>Sentinel-1 radar for cloudy weeks and Sentinel-3 land temperature, fused into one daily picture of each field.</li>
+              <li><span class="num">Next</span>Sentinel-1 radar for cloudy weeks, Sentinel-3 land temperature, NASA SMAP soil moisture and NASA HLS images, fused into one daily picture of each field.</li>
               <li><span class="num">Then</span>Models trained on real harvests and field inspections, for any crop, anywhere in the world.</li>
             </ul>
           </div>
@@ -216,11 +218,12 @@
             <p>The simulator replays 44 real growing seasons, 1982 to 2025, of NASA POWER daily weather on each field. A soil-water and crop model, built on published FAO methods and USDA soil and harvest data, works out day by day how much water the soil holds, how the crop grows, and how dry soil, wet soil, frost and heat change the harvest. Every plan ends with a harvest and a dollar figure for each of those seasons, so the farmer sees the good years and the bad years side by side.</p>
             <p>The farm is shown on an illustrated map drawn from a real aerial or satellite picture of the farm, and the fields change week by week as the season plays. A chat answers what-if questions in plain words, and a 30-day outlook warns of frost, heat, dry spells and heavy rain.</p>
             <p>A farmer can also import their real field boundaries (GeoJSON or KML). EcoShift then measures those exact fields: 44 seasons of NASA POWER weather at the fields' own point, slope from the Copernicus GLO-30 elevation model, and season-long Sentinel-2 field health with scores, a yield estimate and advice. An advanced near-real-time view adds live weather, soil moisture and air quality, and pins ponds, wet spots, burned ground and weak zones to their place on the field.</p>
-            <p>EcoShift does not tell the farmer what to plant. For every option it shows the evidence, the extra work, what is not known and what to check with a local advisor. Its model has been checked against 44 years of USDA harvests in Story County, Iowa, and NASA's Terra satellite confirms the 2012 drought it catches.</p>
+            <p>EcoShift does not tell the farmer what to plant. For every option it shows the evidence, the extra work, what is not known and what to check with a local advisor. Its model has been checked against 44 years of USDA harvests: it catches the big droughts of 1988 and 2012, but in ordinary years it is no better than the long-term yield trend, and we say so on every result. NASA's Terra satellite greenness gives an independent check.</p>
           </div>
-          <nav class="toc" aria-label="On this page"><a class="toc-chip" href="#how-it-works" data-jump="how-it-works">How It Works</a><a class="toc-chip" href="#code" data-jump="code">The Code</a><a class="toc-chip" href="#real-field" data-jump="real-field">Your Real Field</a><a class="toc-chip" href="#live" data-jump="live">Near-Real-Time Conditions</a><a class="toc-chip" href="#field-health" data-jump="field-health">Field Health</a><a class="toc-chip" href="#roadmap" data-jump="roadmap">Where We're Heading</a><a class="toc-chip" href="#art" data-jump="art">The Farm Art</a><a class="toc-chip" href="#story" data-jump="story">One Farm, 44 Summers</a><a class="toc-chip" href="#helpers" data-jump="helpers">Inside EcoShift</a><a class="toc-chip" href="#nasa-data" data-jump="nasa-data">The Data</a><a class="toc-chip" href="#satellite-check" data-jump="satellite-check">Checked From Space</a><a class="toc-chip" href="#how-well" data-jump="how-well">How Well It Works</a><a class="toc-chip" href="#trust" data-jump="trust">Why Trust It</a></nav>
         </div>
       </section>
+
+      <div class="toc-bar"><div class="wrap"><nav class="toc" aria-label="On this page"><a class="toc-chip" href="#how-it-works" data-jump="how-it-works">How It Works</a><a class="toc-chip" href="#code" data-jump="code">The Code</a><a class="toc-chip" href="#real-field" data-jump="real-field">Your Real Field</a><a class="toc-chip" href="#live" data-jump="live">Near-Real-Time Conditions</a><a class="toc-chip" href="#field-health" data-jump="field-health">Field Health</a><a class="toc-chip" href="#roadmap" data-jump="roadmap">Where We're Heading</a><a class="toc-chip" href="#art" data-jump="art">The Farm Art</a><a class="toc-chip" href="#story" data-jump="story">One Farm, 44 Summers</a><a class="toc-chip" href="#helpers" data-jump="helpers">Inside EcoShift</a><a class="toc-chip" href="#nasa-data" data-jump="nasa-data">The Data</a><a class="toc-chip" href="#satellite-check" data-jump="satellite-check">Checked From Space</a><a class="toc-chip" href="#how-well" data-jump="how-well">How Well It Works</a><a class="toc-chip" href="#trust" data-jump="trust">Why Trust It</a><a class="toc-chip" href="#next" data-jump="next">After The Hackathon</a></nav></div></div>
 
       <!-- How it works -->
       <section class="band" id="how-it-works">
@@ -258,7 +261,7 @@
 
           <div class="tech-part">
             <h3><span class="tech-num">3</span>The Crop And Soil-Water Model</h3>
-            <p>This is the core of EcoShift. For every day of every season, the model works out how much water the crop needs from that day's weather (the FAO-56 Penman-Monteith method) and keeps a water account for each field: rain fills it, the crop draws it down and extra water drains away. The soil is 1.5 m deep in two layers, and the roots grow deeper through the season. Crop stages follow growing degree days, and planting waits until the field is warm and dry enough to work. Dry soil, waterlogging and frost cut the harvest, water shortage counts most at the crop's most sensitive stages (FAO-33 yield-response factors), and hot weather shortens the time the grain has to fill. Each season starts with the soil water left at the end of the season before it. The result is a harvest for each field in each of the 44 seasons, as a percent of normal, and a dollar figure from Iowa State University crop budgets and USDA prices. The model's settings were fitted to 44 years of USDA harvest records, leaving each year out in turn, so it is never tested on a year it was fitted to.</p>
+            <p>This is the core of EcoShift. For every day of every season, the model works out how much water the crop needs from that day's weather (the FAO-56 Penman-Monteith method) and keeps a water account for each field: rain fills it, the crop draws it down and extra water drains away. The soil is 1.5 m deep in two layers, and the roots grow deeper through the season. Crop stages follow growing degree days, and planting waits until the field is warm and dry enough to work. Dry soil, waterlogging and frost cut the harvest, water shortage counts most at the crop's most sensitive stages (FAO-33 yield-response factors), and hot weather shortens the time the grain has to fill. Each season starts with the soil 75% full in mid-November; carrying over the water left from the season before was also tested and made almost no difference, because winter and spring rain refill the soil before planting. The result is a harvest for each field in each of the 44 seasons, as a percent of normal, and a dollar figure from Iowa State University crop budgets and USDA prices. The model's few settings were fitted to 44 years of USDA harvest records, leaving each year out in turn, so each year is scored with settings fitted without it. The model's design was still shaped on those same 44 years, so we treat the scores as a little optimistic (see "How well does it work?").</p>
             <div class="lane">
               <p class="lane-label"><span>Diagram 3</span> One Day On One Field</p>
               <ol class="lane-steps">
@@ -334,7 +337,7 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
           <p class="statement"><strong>From a boundary file to a simulated farm in about 30 seconds.</strong> The farmer drops in a GeoJSON file, or a KML file saved from Google Earth, with up to four field outlines. EcoShift measures each outline on the globe and fetches the conditions at that exact spot.</p>
         </div>
         <div class="wrap stats">
-          <div class="stat"><p class="stat-num">44</p><p class="stat-label">Seasons of NASA POWER daily weather (1982 to 2025) at the fields' own point, the same source the crop model is calibrated on. It replaces the county's weather.</p></div>
+          <div class="stat"><p class="stat-num">44</p><p class="stat-label">Seasons of NASA POWER daily weather (1982 to 2025) for the fields' grid cell (about 50 km), the same source the crop model is calibrated on. It replaces the county's weather; Copernicus ERA5 is used only if NASA POWER does not answer.</p></div>
           <div class="stat"><p class="stat-num">30 m</p><p class="stat-label">Copernicus GLO-30 elevation cells inside each outline give that field's own slope, height and low spots.</p></div>
           <div class="stat"><p class="stat-num">1 to 4</p><p class="stat-label">Fields per farm, named from the file. USDA soil is read well inside each field, and normal yields come from the fields' own county.</p></div>
         </div>
@@ -376,7 +379,7 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
       <section class="band" id="field-health">
         <div class="wrap">
           <p class="kicker">Field Health</p>
-          <p class="statement"><strong>A season-long satellite check-up for every field.</strong> EcoShift reads the clearest Sentinel-2 image of each field in every 8 days of the season, about 20 to 25 images, and turns them into scores, a yield estimate, likely causes and advice for the crop and its growth stage. Each field's series is saved as a CSV file.</p>
+          <p class="statement"><strong>A season-long satellite check-up for every field.</strong> EcoShift reads the clearest Sentinel-2 image of each field in every 8 days of the season, about 20 to 25 images, and turns them into a health index, scores, a rough yield guide, likely causes and advice for the crop and its growth stage. Each field's series is saved as a CSV file.</p>
           <ul class="helpers">
             <li><p class="helper-tag">NDVI · leaf area</p><strong>Canopy</strong><span>How green and full the crop is, against a healthy peak for that crop.</span></li>
             <li><p class="helper-tag">NDRE · red edge</p><strong>Nitrogen</strong><span>Chlorophyll compared with the field's own best 10%, a virtual reference strip. Soybeans make their own nitrogen and are not scored.</span></li>
@@ -385,7 +388,7 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
             <li><p class="helper-tag">NDVI spread</p><strong>Uniformity</strong><span>How even the field is, from its weakest tenth to its best.</span></li>
             <li><p class="helper-tag">Soil test</p><strong>Phosphorus</strong><span>No satellite can read phosphorus reliably, so EcoShift asks for a soil test instead of guessing.</span></li>
           </ul>
-          <p class="lanes-foot"><strong>From scores to action.</strong> Growth stage comes from degree days since planting, checked against the greenness curve; growth momentum is the change in greenness per week. The scores add up to a yield score, a quality score and a yield estimate with a range. Root causes name the likely problem with its evidence, and the advice is ranked by priority for irrigation, nutrition, soil moisture and uniformity.</p>
+          <p class="lanes-foot"><strong>From scores to action.</strong> Growth stage comes from degree days since planting, checked against the greenness curve; growth momentum is the change in greenness per week. The scores add up to a yield score and a quality score. The bushel figure is only a rough guide: the county's normal yield scaled by the health score, with a fixed design range of 15% either way, not yet checked against real harvests. Root causes name the likely problem with its evidence, and the advice is ranked by priority for irrigation, nutrition, soil moisture and uniformity.</p>
         </div>
       </section>
 
@@ -397,7 +400,7 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
             <p class="lede">We are building toward a multi-modal satellite fusion system. It will bring Sentinel-1 radar, Sentinel-2 optical and Sentinel-3 land temperature together in near-real time to see each field in finer detail than any one satellite can. Combined with weather, climate and manual field inspections, that fused record will train machine-learning models that predict crop condition and yield for any field boundary, any crop and any season.</p>
             <ul class="points">
               <li><span class="num">Built</span>Real field boundaries, NASA POWER weather at the fields with Copernicus terrain, Sentinel-2 field health, ponds and burned ground, live warnings and 44-season replays.</li>
-              <li><span class="num">Next</span>Sentinel-1 radar to keep watching through cloudy weeks, and Sentinel-3 land surface temperature for heat stress.</li>
+              <li><span class="num">Next</span>Sentinel-1 radar to keep watching through cloudy weeks, Sentinel-3 land surface temperature for heat stress, NASA SMAP soil moisture and NASA HLS (Landsat and Sentinel-2 together) images, and irrigated Western crops.</li>
               <li><span class="num">Then</span>Models trained on real harvests and field inspections, checked county by county, for any crop worldwide.</li>
             </ul>
           </div>
@@ -490,7 +493,7 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
       <section class="band" id="helpers">
         <div class="wrap">
           <p class="kicker">Inside EcoShift</p>
-          <p class="statement"><strong>EcoShift is made of helpers, each with one job.</strong> It is designed as a multi-agent system: each helper does its job and passes the result to the next. Three of them use Google's Gemini AI model, and the code checks and limits everything they return.</p>
+          <p class="statement"><strong>EcoShift is made of ten helpers, each with one job.</strong> It is designed as a multi-agent system: each helper does its job and passes the result to the next. Six are plain code; four use Google's Gemini AI model, and code checks and limits everything they return. The AI helpers can only propose changes from a fixed list: they never plan on their own or calculate a harvest. Under every chat answer, the simulator shows which helpers did the work.</p>
           <ul class="helpers">
             <li><p class="helper-tag">Plain Code</p><strong>Questionnaire</strong><span>Learns the farm: where it is, its four fields, last crops, water, land, limits and what matters most.</span></li>
             <li class="is-ai"><p class="helper-tag">AI · Google Gemini</p><strong>Farm-Fit Helper</strong><span>Reads the farmer's answers about drainage, tiles and slope and proposes small changes to the soil and the normal harvest. Code caps every change, and it switches off without a key.</span></li>
@@ -573,9 +576,9 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
             </figure>
             <div class="stats sat-stats stats-2">
               <div class="stat"><p class="stat-num">0.61</p><p class="stat-label">The satellite agrees with the real harvest: correlation with Story County corn yields, 26 seasons.</p></div>
-              <div class="stat"><p class="stat-num">2012</p><p class="stat-label">The satellite, the real harvest and the model all show the drought. The satellite saw the crop peak early, on 11 July, and fade fast in August.</p></div>
+              <div class="stat"><p class="stat-num">2012</p><p class="stat-label">The satellite saw the 2012 crop peak early, on 11 July, and fade fast in August. Its dip (94% of average) was real but no deeper than in 2000, 2013 or 2020.</p></div>
             </div>
-            <p class="data-box-sub sat-plain">In short: the satellite record agrees with the harvest records, and both show the 2012 drought that EcoShift picks out. The check covers the whole county, with 250 m pixels, from NASA GIBS (MODIS_Terra_L3_NDVI_16Day).</p>
+            <p class="data-box-sub sat-plain">In short: the satellite record tracks the harvest records, so it is a fair independent check. The model agrees with it in the 2012 drought but not in ordinary years (correlation 0.15 without 2012), the same limit our harvest check finds. The check covers the whole county, with 250 m pixels, from NASA GIBS (MODIS_Terra_L3_NDVI_16Day).</p>
           </div>
 
           <div class="callout data-why">
@@ -622,8 +625,14 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
           <p class="kicker">How Well Does It Work?</p>
           <div class="callout">
             <p class="callout-lead">EcoShift Is A Planning Tool, Not A Forecast.</p>
+            <figure class="valid-fig">
+              <img src="images/validation-corn.svg" width="960" height="400" loading="lazy" alt="Line chart, 1982 to 2025: real Iowa corn harvests (USDA NASS) and the model's prediction for each season, as a percent of the yield trend. The model dips in the 1988 and 2012 droughts but stays near 100 in ordinary years and misses the 1993 flood.">
+              <figcaption>Real Iowa corn harvests against the model, 44 seasons. Each model point was made with that season left out of the fitting. Correlation 0.48 over all 44 seasons (0 is no link, 1 a perfect match); 0.27 without 1988 and 2012. The weather is one NASA POWER grid cell in Story County and the harvests are Iowa state averages. Full numbers: <a href="https://github.com/ghrini/Ecoshift_Final/blob/main/simulator-source/VALIDATION.md" target="_blank" rel="noopener noreferrer">VALIDATION.md</a>.</figcaption>
+            </figure>
             <ul class="callout-list">
-              <li>Checked against 44 years of USDA harvests in Story County, Iowa, it picks out the big droughts of 1988 and 2012.</li>
+              <li>Checked against 44 years of USDA harvests, each season scored with settings fitted without it, it picks out the big droughts of 1988 and 2012 as two of its three worst seasons, though not as deep as they really were.</li>
+              <li>In ordinary years it is no better than the long-term yield trend: leave out those two droughts and the correlation falls from 0.48 to 0.27. Small differences between plans are not reliable, and the simulator says so.</li>
+              <li>It misses floods: in 1993 the real harvest was 59% of trend and the model said 84%.</li>
               <li>It shows how a plan does across 44 real seasons, good and bad, instead of one guess for next year.</li>
               <li>Dollar figures are rounded estimates built on Iowa State University crop budgets, for comparing plans.</li>
             </ul>
@@ -632,13 +641,29 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
 
         <div class="wrap limits">
           <p class="kicker">Who It Is For And How It Grows</p>
-          <p>EcoShift is for farmers who want to test a rotation before planting. It works at any point in the US Corn Belt, from 14 ready counties, with the farmer's own location fitted from NASA climate. Story County, Iowa has been checked against real harvests. Next steps are checking the other 13 counties the same way and adding NASA satellite soil moisture.</p>
+          <p>EcoShift is for farmers who want to test a rotation before planting. Today its crop model knows corn, soybeans, oats and a rye cover crop, and it works at any point in the US Corn Belt, from 14 ready counties, with the farmer's own location fitted from NASA climate. Imported fields get NASA POWER weather, soil and satellite checks anywhere on Earth. Story County, Iowa has been checked against real harvests. Next steps are checking the other 13 counties the same way, adding NASA satellite soil moisture, and irrigated Western crops (tomatoes, alfalfa, wheat) with water allocation limits, for farms like those in California's Central Valley.</p>
         </div>
 
         <div class="wrap limits">
           <p class="kicker">Data Coverage</p>
           <p>Its weather and soil data cover 14 Corn Belt counties and are adjusted to the farm's own point. Outside the United States, soils come from the ISRIC SoilGrids world soil map and harvests are measured against the Corn Belt. The 30-day forecast comes from Open-Meteo. Field Health scores, the yield estimate and the warnings are published satellite indices with simple rules, not yet a model trained on harvests.</p>
           <a class="text-link" href="https://power.larc.nasa.gov/" target="_blank" rel="noopener noreferrer"><span>Source</span> NASA POWER <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      </section>
+
+      <!-- After the hackathon -->
+      <section class="band" id="next">
+        <div class="wrap split">
+          <h2>After The<br>Hackathon</h2>
+          <div class="split-body">
+            <dl class="rows">
+              <div><dt>Who Uses It</dt><dd>Farmers deciding next year's rotation in the winter, and the county extension agents and crop advisers who help them. It is a web link: no account, no download, and it works on a phone.</dd></div>
+              <div><dt>What It Costs To Run</dt><dd>Every data source is public and free: NASA POWER, NASA GIBS, USDA, Copernicus. The site is static pages and a few small server functions, which fit a free hosting plan for a pilot. The Gemini AI helpers are optional; without a key, everything else works the same.</dd></div>
+              <div><dt>How It Reaches Farmers</dt><dd>Our plan is to test it with farmers and an extension office near us in California first, then bring it to Iowa extension workshops, with each county checked against its own USDA harvests before it is offered there.</dd></div>
+              <div><dt>What We Build Next</dt><dd>Irrigated crops and water allocation limits for California farms, NASA SMAP soil moisture and NASA HLS images for every field, and the same harvest check for the 13 other counties.</dd></div>
+              <div><dt>Open Source</dt><dd>All the code, the data notes and the full validation are public on GitHub, so anyone can check our numbers. <a href="https://github.com/ghrini/Ecoshift_Final" target="_blank" rel="noopener noreferrer">github.com/ghrini/Ecoshift_Final</a></dd></div>
+            </dl>
+          </div>
         </div>
       </section>
 
@@ -691,7 +716,7 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
                 <span class="member-num">01</span>
               </header>
               <h3>Shaurya</h3>
-              <p class="member-label">10Th Grade · Emerald High School</p>
+              <p class="member-label">10th Grade · Emerald High School</p>
               <p>Wants to become an AI engineer and a mechanical engineer, building machines that can sense, think and move on their own.</p>
             </article>
             <article class="member">
@@ -700,7 +725,7 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
                 <span class="member-num">02</span>
               </header>
               <h3>Arnav</h3>
-              <p class="member-label">10Th Grade · Emerald High School</p>
+              <p class="member-label">10th Grade · Emerald High School</p>
               <p>Plans a future in mechanical engineering and artificial intelligence: designing real machines and the smart software that drives them.</p>
             </article>
             <article class="member">
@@ -709,7 +734,7 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
                 <span class="member-num">03</span>
               </header>
               <h3>Ghrini</h3>
-              <p class="member-label">11Th Grade · Dougherty Valley High School</p>
+              <p class="member-label">11th Grade · Dougherty Valley High School</p>
               <p>Is heading toward AI and mechanical engineering, where code meets hardware, to build technology that solves real problems out in the field.</p>
             </article>
           </div>
@@ -739,6 +764,7 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
             <p class="lede">EcoShift answers "Field Shift: Adapting Farms with NASA Data", a challenge in the 2026 NASA Space Apps Challenge.</p>
             <p class="body-copy">The challenge asks for a decision-support tool that combines NASA Earth observations with local soil information, crop characteristics and farmer priorities, so farmers can explore rotations that strengthen soil health and adapt to changing conditions. It asks for a tool that supports farmer judgment and local expertise, and never replaces them.</p>
             <a class="text-link" href="https://www.spaceappschallenge.org/2026/challenges/adapting-farms-with-nasa-data/" target="_blank" rel="noopener noreferrer"><span>Read</span> The Challenge <span aria-hidden="true">&rarr;</span></a>
+            <a class="text-link" href="https://github.com/ghrini/Ecoshift_Final" target="_blank" rel="noopener noreferrer"><span>See</span> Our Code On GitHub <span aria-hidden="true">&rarr;</span></a>
           </div>
         </div>
       </section>
@@ -748,13 +774,19 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
         <div class="wrap">
           <p class="kicker">Data Credits</p>
           <ul class="credits">
-            <li><strong>NASA POWER</strong>, NASA Langley Research Center: daily weather. <a href="https://power.larc.nasa.gov/" target="_blank" rel="noopener noreferrer">power.larc.nasa.gov</a></li>
+            <li><strong>NASA POWER</strong> (Prediction Of Worldwide Energy Resources), NASA Langley Research Center, daily API v2.10.3, AG community: daily weather built from the NASA GMAO MERRA-2 reanalysis and NASA CERES SYN1deg sunlight. <a href="https://power.larc.nasa.gov/" target="_blank" rel="noopener noreferrer">power.larc.nasa.gov</a></li>
+            <li><strong>NASA GIBS</strong> (Global Imagery Browse Services), NASA EOSDIS: MODIS Terra 16-day NDVI, layer MODIS_Terra_L3_NDVI_16Day, for the satellite check. <a href="https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api" target="_blank" rel="noopener noreferrer">earthdata.nasa.gov</a></li>
             <li><strong>USDA NRCS Soil Data Access</strong>: soils.</li>
             <li><strong>USDA NASS Quick Stats</strong>: harvest yields.</li>
             <li><strong>USDA NAIP</strong> aerial photos via the <strong>USGS National Map</strong> (public domain).</li>
             <li><strong>Sentinel-2 cloudless</strong> by EOX IT Services (<a href="https://s2maps.eu" target="_blank" rel="noopener noreferrer">s2maps.eu</a>, CC BY-NC-SA 4.0): contains modified Copernicus Sentinel data.</li>
             <li><strong>Open-Meteo</strong> (<a href="https://open-meteo.com" target="_blank" rel="noopener noreferrer">open-meteo.com</a>, CC BY 4.0): 30-day outlook.</li>
-            <li><strong>ISRIC SoilGrids</strong> (CC BY 4.0): soils outside the United States.</li>
+            <li><strong>ISRIC SoilGrids</strong> (CC BY 4.0): soils outside the United States, and soil fertility for near-real-time conditions.</li>
+            <li><strong>Copernicus Sentinel-2</strong> Level-2A images (ESA, contains modified Copernicus Sentinel data 2025-2026), read through the Element 84 Earth Search catalog on AWS: field health, burned ground and weak zones.</li>
+            <li><strong>Copernicus DEM GLO-30</strong> (ESA and Airbus, 30 m): field slope and low spots.</li>
+            <li><strong>ESA WorldCover 2021</strong> (10 m, CC BY 4.0): ponds, streams and wetlands.</li>
+            <li><strong>ECMWF</strong> IFS forecasts, <strong>Copernicus ERA5 and ERA5-Land</strong> reanalysis and <strong>Copernicus Atmosphere Monitoring Service</strong> air quality, through Open-Meteo: near-real-time weather, soil moisture and air quality, and backup weather for imported fields.</li>
+            <li><strong>Google Gemini</strong>: the optional AI helpers (farm fit, chat, outlook note, translation).</li>
             <li>Address search by <strong>Photon</strong> and <strong>OpenStreetMap contributors</strong> (<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">ODbL</a>).</li>
             <li><strong>US Census</strong> geocoder and <strong>FCC Area API</strong>: finding the farm's county.</li>
           </ul>
@@ -773,7 +805,7 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
   <footer class="site-footer">
     <div class="wrap footer-inner">
       <span class="footer-brand"><svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M37.32 10.65A22 22 0 0 1 53.15 38.06" stroke="#E2B84C" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M57.95 39.44L51.63 43.35L48.34 36.69Z" fill="#E2B84C"/><path d="M47.83 47.28A22 22 0 0 1 16.17 47.28" stroke="#7FA35B" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M12.58 50.76L12.35 43.33L19.77 43.81Z" fill="#7FA35B"/><path d="M10.85 38.06A22 22 0 0 1 26.68 10.65" stroke="#9E6438" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M25.47 5.80L32.01 9.32L27.89 15.50Z" fill="#9E6438"/><path d="M32 42V27" stroke="#D3AF7C" stroke-width="3" stroke-linecap="round"/><path d="M32 31c-6 0-9.5-3.4-9.5-9 5.4 0 9.5 3 9.5 9Z" fill="#7FA35B"/><path d="M32 28c0-6 3.6-9.6 9.6-9.6 0 5.8-3.8 9.6-9.6 9.6Z" fill="#D3AF7C"/></svg><span class="brand-name">EcoShift</span></span>
-      <p>A working prototype for the 2026 NASA Space Apps Challenge. Simulation results are estimates for comparing options, not guaranteed predictions. Confirm planting decisions with local agronomic advice.</p>
+      <p>A working prototype for the 2026 NASA Space Apps Challenge. Simulation results are estimates for comparing options, not guaranteed predictions. Confirm planting decisions with local agronomic advice. <a href="https://github.com/ghrini/Ecoshift_Final" target="_blank" rel="noopener noreferrer">Code on GitHub</a>.</p>
     </div>
   </footer>
 
