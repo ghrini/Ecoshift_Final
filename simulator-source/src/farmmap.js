@@ -25,13 +25,17 @@
   }
   function render() {
     if (!layer) return;
-    var w = where(), d = state.data, h = '', bi = !w.own && !state.upload ? builtIn() : null;
+    var w = where(), d = state.data, h = '', bi = !w.own && !state.upload && (!base() || !d) ? builtIn() : null;
     if (bi) {
+      var sig = (bi.site || '') + '|' + (state.busy ? 1 : 0);   // the busy timer ticks every second: keep the picture steady
+      if (layer.getAttribute('data-bi') === sig) return;
+      layer.setAttribute('data-bi', sig);
       layer.innerHTML = '<div class="fs-fm-top"><p class="fs-fm-where">From above: example farm near ' + esc(bi.name || w.label) + ' (add your address under “Your farm · Change” to draw your own farm)</p>' +
         '<label class="fs-fm-up"><input type="file" accept="image/jpeg,image/png,image/webp" id="fs-fm-file"' + (base() ? '' : ' disabled') + '><span>Use my own photo</span></label></div>' +
         '<figure class="fs-fm-fig"><img src="' + bi.img + '" alt="Illustrated map of an example farm from above: fields, trees, water and roads"></figure>' +
         '<p class="fs-fm-note">About ' + (bi.widthKm || 1.6) + ' km across. Drawn by the team\'s farm map converter from ' + (bi.source === 's2' ? 'Sentinel-2 satellite images' : 'USDA aerial photos') +
-        '; the four simulation fields were found automatically. The map is a drawing made by image processing, not a field survey. Imagery: ' + esc(bi.credit || '') + '.</p>';
+        '; the four simulation fields were found automatically. The map is a drawing made by image processing, not a field survey. Imagery: ' + esc(bi.credit || '') + '.</p>' +
+        (state.busy ? '<p class="fs-fm-faint" role="status">Getting the aerial photo this map is drawn from…</p>' : '');
       var f0 = layer.querySelector('#fs-fm-file'); if (f0) f0.addEventListener('change', function () { if (f0.files && f0.files[0]) upload(f0.files[0]); });
       return;
     }
@@ -49,6 +53,7 @@
           (d.scores ? ' Sharpness score ' + Object.keys(d.scores).map(function (k) { return (k === 'usgs' ? 'USGS aerial ' : k === 's2' ? 'Sentinel-2 ' : k + ' ') + (d.scores[k] == null ? 'no image' : d.scores[k]); }).join(', ') + '; the sharper one was used.' : '')) +
         ' The map is a drawing made by image processing, not a field survey; the simulation paints its four fields on the matching map in the Simulation view and uses your answers for their size and crops. ' + esc(d.credit) + '.</p>';
     }
+    layer.removeAttribute('data-bi');
     layer.innerHTML = h;
     var f = layer.querySelector('#fs-fm-file'); if (f) f.addEventListener('change', function () { if (f.files && f.files[0]) upload(f.files[0]); });
     var r = layer.querySelector('#fs-fm-retry'); if (r) r.addEventListener('click', function () { state.key = ''; load(); });
@@ -71,7 +76,6 @@
   function load() {
     if (!open || !base()) { render(); return; }
     var w = where(); if (!isFinite(w.lat) || !isFinite(w.lon)) return;
-    if (!w.own && builtIn() && !state.upload) { render(); return; }
     var key = w.lat.toFixed(3) + ',' + w.lon.toFixed(3);
     if (key === state.key && (state.data || state.busy)) { render(); return; }
     state.key = key; state.data = null; state.upload = false;
