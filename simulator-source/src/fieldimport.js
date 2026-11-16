@@ -240,7 +240,7 @@
   }
   function mount() {
     if ($('fs-import')) return;
-    var anchor = $('fs-outlook') || $('fs-foot'); if (!anchor) return;
+    var anchor = $('fs-app') || $('fs-outlook') || $('fs-foot'); if (!anchor) return;   // at the top, above Weather / Season
     var sec = document.createElement('section'); sec.className = 'fs-panel'; sec.id = 'fs-import'; sec.setAttribute('aria-label', 'Import your real field');
     sec.innerHTML =
       '<div class="fs-panel-head"><h2 class="fs-panel-title">Import your real field</h2></div>' +

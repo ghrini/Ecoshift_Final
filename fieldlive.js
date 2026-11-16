@@ -197,13 +197,17 @@ module.exports = function fieldlive({ readBody, send }) {
     if (fields.some((f) => Math.hypot((f.center[0] - cx) * Math.cos(cy * R), f.center[1] - cy) * 111 > 30)) return send(res, 400, { error: "The fields are more than 30 km apart." });
 
     const sources = [], gaps = [];
+    // Every source gets the same deadline, so the answer always comes back inside a hosting time limit
+    // (Vercel stops a request at 60 s): a source that is still busy is listed as not answering in time.
+    const LIMIT = 40000, late = new Error(`no answer within ${LIMIT / 1000} s`);
+    const within = (p) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(late), LIMIT).unref?.())]);
     const [now, e5, air, pw, fnow, ...rest] = await Promise.allSettled([
       weatherNow(cy, cx), era5Soil(cy, cx), airNow(cy, cx), powerSoil(cy, cx), fireCheck(fields, Date.now() - 27 * 864e5, Date.now()),
       ...fields.map((f) => fertility(f.center[1], f.center[0])),
       ...fields.map((f) => G.landCover(f)),
       ...fields.map((f) => G.terrain(f)),
       satellite(fields),
-    ]);
+    ].map(within));
     const val = (p, what) => { if (p.status === "fulfilled") return p.value; gaps.push(`${what} did not answer (${p.reason && p.reason.message || "no answer"}).`); return null; };
     const SAT = val(rest.pop(), "Copernicus Sentinel-2 imagery");
     if (SAT) { sources.push(...SAT.sources); gaps.push(...SAT.gaps); }

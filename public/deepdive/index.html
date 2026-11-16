@@ -705,6 +705,10 @@ textarea.fs-q-text { resize: vertical; min-height: 3.4em; }
 .fs-cn-nasa ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: 15px; line-height: 1.45; }
 .fs-cn-nasa li.fs-cn-warn { font-weight: 600; }
 
+/* the import box sits at the top, above Weather / Season: compact so the simulation stays in view */
+#fs-import { margin: 0 0 var(--gap, 16px); }
+#fs-import .fs-imp-zone { min-height: 120px; padding: 22px 20px; }
+
 /* Bird's-eye view styles. Every selector is scoped under #fs-view or starts with .fv- (tokens only for color). */
 #fs-view { position: relative; display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: var(--panel); color: var(--text); font-family: var(--font-sans); }
 #fs-view .fv-stage { position: relative; flex: 1 1 auto; min-height: 0; outline: none; background: var(--panel); touch-action: pan-y; }
@@ -6760,7 +6764,7 @@ window.FS = window.FS || {};
   }
   function mount() {
     if ($('fs-import')) return;
-    var anchor = $('fs-outlook') || $('fs-foot'); if (!anchor) return;
+    var anchor = $('fs-app') || $('fs-outlook') || $('fs-foot'); if (!anchor) return;   // at the top, above Weather / Season
     var sec = document.createElement('section'); sec.className = 'fs-panel'; sec.id = 'fs-import'; sec.setAttribute('aria-label', 'Import your real field');
     sec.innerHTML =
       '<div class="fs-panel-head"><h2 class="fs-panel-title">Import your real field</h2></div>' +
