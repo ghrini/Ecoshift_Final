@@ -1053,6 +1053,10 @@
   function send(text) {
     text = String(text || '').trim(); if (!text) return;
     A.addChat({ role: 'user', text: text });
+    if (FS.i18n && FS.i18n.active()) { FS.i18n.toEnglish(text).then(answer); return; }   // the farmer's own language: read it in English
+    answer(text);
+  }
+  function answer(text) {
     var out;
     try { out = FS.chat.interpret(text, S.get()); } catch (e) { console.error(e); out = { reply: 'Sorry, I could not read that.\n' + examples(), actions: [] }; }
     if (out.reply || out.items) A.addChat({ role: 'assistant', text: out.reply, items: out.items, kind: out.kind, foot: out.foot, actions: out.actions });
