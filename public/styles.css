@@ -467,6 +467,32 @@ body.on-sim .site-footer { display: none; }
 .toc-chip:focus-visible { outline: 2px solid var(--ecru); outline-offset: 3px; }
 #tab-details [id] { scroll-margin-top: calc(var(--header-h, 72px) + 16px); }
 
+/* Project details: the synopsis at the top */
+.synopsis { margin-top: 28px; max-width: 80ch; }
+.synopsis p { color: var(--text-soft); font-size: 1.1rem; line-height: 1.6; }
+.synopsis p + p { margin-top: 16px; }
+
+/* Project details: the five technical parts, each with its diagram */
+.tech-part { margin-top: 72px; }
+.tech-part h3 { font-size: clamp(1.35rem, 2.2vw, 1.75rem); line-height: 1.25; letter-spacing: -0.02em; margin-bottom: 16px; }
+.tech-num { display: inline-block; min-width: 1.6em; font-family: var(--mono); color: var(--ecru); }
+.tech-part > p { max-width: 80ch; color: var(--muted); }
+.tech-part .lane { margin-top: 28px; }
+
+/* Project details: the code behind the simulator */
+.code-box { margin-top: 72px; }
+.code-lead { margin-top: 22px; }
+.code-block {
+  margin: 12px 0 0; padding: 18px 20px; overflow-x: auto;
+  background: #000000; border: 1px solid var(--line-strong); border-radius: 12px;
+  font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; color: var(--text-soft);
+}
+.code-block .c { color: var(--faint); }
+.code-block:focus-visible { outline: 2px solid var(--ecru); outline-offset: 3px; }
+
+/* Checked from space: two figures side by side on wide screens */
+@media (min-width: 1001px) { .stats.stats-2 { grid-template-columns: repeat(2, 1fr); } }
+
 /* ---------- Home: learn more about the project ---------- */
 .learn-more { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 48px; align-items: center; }
 .learn-text .btn { margin-top: 28px; }

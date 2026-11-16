@@ -52,6 +52,16 @@
       script.id = 'fieldshift-guide';
       script.src = at('sim-guide.js');
       doc.body.appendChild(script);
+      // When the server has no Gemini key, the 30-day panel would print "The AI helper is off."
+      // Hide only that line (and the "could not" variants): the forecast, warnings and harvest estimate stay.
+      const hideAiOff = () => {
+        doc.querySelectorAll('#fs-outlook .fs-ol-faint').forEach((p) => {
+          if (/^The AI helper (is off|could not)/.test(p.textContent.trim())) p.hidden = true;
+        });
+      };
+      const outlook = doc.getElementById('fs-outlook');
+      if (outlook) new MutationObserver(hideAiOff).observe(outlook, { childList: true, subtree: true });
+      hideAiOff();
     } catch (e) { /* the simulation still works without the photo and the guide */ }
   });
 
