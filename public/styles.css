@@ -161,7 +161,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   display: flex; gap: 20px; align-items: baseline;
   padding: 16px 0; border-top: 1px solid var(--line); color: var(--text-soft);
 }
-.num { font-family: var(--mono); font-size: 0.78rem; color: var(--ecru); flex: none; }
+.num { font-family: var(--mono); font-size: 0.78rem; color: var(--ecru); flex: none; min-width: 3.2em; }
 
 .rows { margin: 0; }
 .rows > div {
