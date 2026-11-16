@@ -25,6 +25,7 @@
       </button>
       <nav class="tabs" aria-label="Main">
         <button class="tab" role="tab" id="tab-btn-home" aria-controls="tab-home" aria-selected="true" data-tab="home">Home</button>
+        <button class="tab" role="tab" id="tab-btn-details" aria-controls="tab-details" aria-selected="false" data-tab="details" tabindex="-1" aria-label="Project details"><span class="tab-long">Project details</span><span class="tab-short" aria-hidden="true">Details</span></button>
         <button class="tab" role="tab" id="tab-btn-simulation" aria-controls="tab-simulation" aria-selected="false" data-tab="simulation" tabindex="-1">Simulation</button>
         <button class="tab" role="tab" id="tab-btn-about" aria-controls="tab-about" aria-selected="false" data-tab="about" tabindex="-1">About us</button>
       </nav>
@@ -103,6 +104,54 @@
         </div>
       </section>
 
+
+      <!-- Why it matters -->
+      <section class="band">
+        <div class="wrap split">
+          <h2>Why it<br>matters</h2>
+          <div class="split-body">
+            <p class="lede">A rotation is a bet placed years ahead. Temperatures are shifting, rain arrives less predictably, water runs short and soil wears down. A choice that looks right this spring can take several seasons to show its cost.</p>
+            <ul class="points">
+              <li><span class="num">01</span>Planting decisions are made before the weather is known.</li>
+              <li><span class="num">02</span>A crop that helps one field can drain water or miss the market on the next.</li>
+              <li><span class="num">03</span>Soil health is slow to build and quick to lose.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Learn more: the full story is on the Project details page -->
+      <section class="band" id="learn-more">
+        <div class="wrap learn-more">
+          <div class="learn-text">
+            <p class="kicker">The project</p>
+            <p class="statement"><strong>How we built it, and how well it holds up.</strong> The farm drawn from real aerial photos, one farm through 44 summers, the NASA data behind every number, a check from NASA satellites, and the honest limits.</p>
+            <button class="btn btn-pill" type="button" data-go="details">Learn more about the project <span aria-hidden="true">&rarr;</span></button>
+          </div>
+          <button class="learn-pic" type="button" data-go="details" aria-label="Learn more about the project">
+            <img src="images/compare-map.jpg" width="900" height="900" loading="lazy" decoding="async" alt="">
+          </button>
+        </div>
+      </section>
+
+      <section class="band closing">
+        <div class="wrap">
+          <h2>Test a rotation on your own field</h2>
+          <button class="btn btn-pill" type="button" data-go="simulation">Open simulation</button>
+        </div>
+      </section>
+    </section>
+
+    <!-- ============ TAB 2: PROJECT DETAILS ============ -->
+    <section class="tab-panel" id="tab-details" role="tabpanel" aria-labelledby="tab-btn-details" hidden>
+      <section class="hero hero-small">
+        <div class="wrap">
+          <p class="kicker">Project details</p>
+          <h1>How EcoShift works</h1>
+          <p class="hero-sub">The farm art, the NASA data, the model and how well it holds up, in detail.</p>
+          <nav class="toc" aria-label="On this page"><a class="toc-chip" href="#art" data-jump="art">The farm art</a><a class="toc-chip" href="#story" data-jump="story">One farm, 44 summers</a><a class="toc-chip" href="#how-it-works" data-jump="how-it-works">How it works</a><a class="toc-chip" href="#helpers" data-jump="helpers">Inside EcoShift</a><a class="toc-chip" href="#nasa-data" data-jump="nasa-data">The data</a><a class="toc-chip" href="#satellite-check" data-jump="satellite-check">Checked from space</a><a class="toc-chip" href="#how-well" data-jump="how-well">How well it works</a><a class="toc-chip" href="#trust" data-jump="trust">Why trust it</a></nav>
+        </div>
+      </section>
 
       <!-- From a photo to a living farm -->
       <section class="band" id="art">
@@ -217,6 +266,24 @@
         </div>
       </section>
 
+      <!-- Inside EcoShift: a team of helpers -->
+      <section class="band" id="helpers">
+        <div class="wrap">
+          <p class="kicker">Inside EcoShift</p>
+          <p class="statement"><strong>A team of helpers, each with one job.</strong> EcoShift is designed like a small multi-agent system: each helper does one job and hands its result to the next. Two of them use an AI model, and code checks and limits everything they return.</p>
+          <ul class="helpers">
+            <li><p class="helper-tag">Plain code</p><strong>Questionnaire</strong><span>Learns the farm: where it is, its four fields, last crops, water, land, limits and what matters most.</span></li>
+            <li class="is-ai"><p class="helper-tag">AI · Google Gemini</p><strong>Farm-fit helper</strong><span>Reads the farmer's answers about drainage, tiles and slope and proposes soil adjustments. Code caps every change, and it switches off without a key.</span></li>
+            <li><p class="helper-tag">Plain code · NASA data</p><strong>Crop model</strong><span>Replays 44 seasons of NASA POWER weather on each field: soil water, growth stages, frost, heat, harvest.</span></li>
+            <li><p class="helper-tag">Plain code</p><strong>Adviser</strong><span>Compares every option on every field and gives each one its evidence, extra work, information gaps and what to check with an adviser.</span></li>
+            <li><p class="helper-tag">Plain code</p><strong>Chat assistant</strong><span>Turns plain-English what-ifs ("what if 2012 happens again?") into simulator actions, runs them and answers in plain words.</span></li>
+            <li class="is-ai"><p class="helper-tag">AI · Google Gemini</p><strong>Outlook explainer</strong><span>Turns the 30-day forecast numbers into a short note for the farmer.</span></li>
+            <li><p class="helper-tag">Image processing</p><strong>Map maker</strong><span>Draws the farm from aerial photos and finds the four fields the simulation is painted on.</span></li>
+          </ul>
+          <p class="lanes-foot"><strong>AI on a short leash.</strong> Every harvest and dollar figure comes from NASA and USDA data and the crop model. The AI helpers only adjust soil settings within fixed limits and write notes; without a key, EcoShift works the same, minus those two.</p>
+        </div>
+      </section>
+
       <!-- The data behind EcoShift -->
       <section class="band" id="nasa-data">
         <div class="wrap">
@@ -295,23 +362,8 @@
         </div>
       </section>
 
-      <!-- Why it matters -->
-      <section class="band">
-        <div class="wrap split">
-          <h2>Why it<br>matters</h2>
-          <div class="split-body">
-            <p class="lede">A rotation is a bet placed years ahead. Temperatures are shifting, rain arrives less predictably, water runs short and soil wears down. A choice that looks right this spring can take several seasons to show its cost.</p>
-            <ul class="points">
-              <li><span class="num">01</span>Planting decisions are made before the weather is known.</li>
-              <li><span class="num">02</span>A crop that helps one field can drain water or miss the market on the next.</li>
-              <li><span class="num">03</span>Soil health is slow to build and quick to lose.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
       <!-- Why farmers can trust us -->
-      <section class="band">
+      <section class="band" id="trust">
         <div class="wrap split">
           <h2>Why farmers<br>can trust it</h2>
           <div class="split-body">
@@ -373,7 +425,7 @@
       </section>
     </section>
 
-    <!-- ============ TAB 2: SIMULATION ============ -->
+    <!-- ============ TAB 3: SIMULATION ============ -->
     <!-- The EcoShift simulator (in ./deepdive), with its farm questionnaire, loads here the first time the tab is opened. -->
     <section class="tab-panel tab-sim" id="tab-simulation" role="tabpanel" aria-labelledby="tab-btn-simulation" hidden>
       <div class="sim-loading" id="sim-loading" role="status" aria-live="polite">
@@ -383,7 +435,7 @@
       <iframe id="sim-frame" class="sim-frame" title="Farm questionnaire and simulator" data-src="deepdive/index.html"></iframe>
     </section>
 
-    <!-- ============ TAB 3: ABOUT US ============ -->
+    <!-- ============ TAB 4: ABOUT US ============ -->
     <section class="tab-panel" id="tab-about" role="tabpanel" aria-labelledby="tab-btn-about" hidden>
       <section class="hero hero-small">
         <div class="wrap">
@@ -475,24 +527,6 @@
             <p class="body-copy">The challenge asks for a decision-support tool that combines NASA Earth observations with local soil information, crop characteristics and farmer priorities, so farmers can explore rotations that strengthen soil health and adapt to changing conditions. It asks for a tool that supports farmer judgment and local expertise, and never replaces them.</p>
             <a class="text-link" href="https://www.spaceappschallenge.org/2026/challenges/adapting-farms-with-nasa-data/" target="_blank" rel="noopener noreferrer"><span>Read</span> The challenge <span aria-hidden="true">&rarr;</span></a>
           </div>
-        </div>
-      </section>
-
-      <!-- Inside EcoShift: a team of helpers -->
-      <section class="band" id="helpers">
-        <div class="wrap">
-          <p class="kicker">Inside EcoShift</p>
-          <p class="statement"><strong>A team of helpers, each with one job.</strong> EcoShift is designed like a small multi-agent system: each helper does one job and hands its result to the next. Two of them use an AI model, and code checks and limits everything they return.</p>
-          <ul class="helpers">
-            <li><p class="helper-tag">Plain code</p><strong>Questionnaire</strong><span>Learns the farm: where it is, its four fields, last crops, water, land, limits and what matters most.</span></li>
-            <li class="is-ai"><p class="helper-tag">AI · Google Gemini</p><strong>Farm-fit helper</strong><span>Reads the farmer's answers about drainage, tiles and slope and proposes soil adjustments. Code caps every change, and it switches off without a key.</span></li>
-            <li><p class="helper-tag">Plain code · NASA data</p><strong>Crop model</strong><span>Replays 44 seasons of NASA POWER weather on each field: soil water, growth stages, frost, heat, harvest.</span></li>
-            <li><p class="helper-tag">Plain code</p><strong>Adviser</strong><span>Compares every option on every field and gives each one its evidence, extra work, information gaps and what to check with an adviser.</span></li>
-            <li><p class="helper-tag">Plain code</p><strong>Chat assistant</strong><span>Turns plain-English what-ifs ("what if 2012 happens again?") into simulator actions, runs them and answers in plain words.</span></li>
-            <li class="is-ai"><p class="helper-tag">AI · Google Gemini</p><strong>Outlook explainer</strong><span>Turns the 30-day forecast numbers into a short note for the farmer.</span></li>
-            <li><p class="helper-tag">Image processing</p><strong>Map maker</strong><span>Draws the farm from aerial photos and finds the four fields the simulation is painted on.</span></li>
-          </ul>
-          <p class="lanes-foot"><strong>AI on a short leash.</strong> Every harvest and dollar figure comes from NASA and USDA data and the crop model. The AI helpers only adjust soil settings within fixed limits and write notes; without a key, EcoShift works the same, minus those two.</p>
         </div>
       </section>
 

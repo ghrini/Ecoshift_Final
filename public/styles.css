@@ -458,3 +458,24 @@ body.on-sim .site-footer { display: none; }
 .farm-link:hover .farm-open, .farm-link:focus-visible .farm-open { opacity: 1; }
 @media (hover: none) { .farm-open { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .farm-link img, .farm-open { transition: none; } .farm-link:hover img, .farm-link:focus-visible img { transform: none; } }
+
+/* ---------- Project details page ---------- */
+#tab-details .hero-small h1 { margin-top: 6px; }
+.toc { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+.toc-chip { display: inline-flex; align-items: center; min-height: 40px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--text-soft); text-decoration: none; font-size: 0.95rem; background: var(--surface); }
+.toc-chip:hover, .toc-chip:focus-visible { border-color: var(--accent); color: var(--text); }
+.toc-chip:focus-visible { outline: 2px solid var(--ecru); outline-offset: 3px; }
+#tab-details [id] { scroll-margin-top: calc(var(--header-h, 72px) + 16px); }
+
+/* ---------- Home: learn more about the project ---------- */
+.learn-more { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 48px; align-items: center; }
+.learn-text .btn { margin-top: 28px; }
+.learn-pic { padding: 0; border: 1px solid var(--line); border-radius: 20px; overflow: hidden; background: var(--surface); cursor: pointer; display: block; }
+.learn-pic img { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; transition: transform .3s; }
+.learn-pic:hover img, .learn-pic:focus-visible img { transform: scale(1.03); }
+.learn-pic:focus-visible { outline: 2px solid var(--ecru); outline-offset: 4px; }
+@media (max-width: 860px) { .learn-more { grid-template-columns: 1fr; gap: 28px; } .learn-pic { max-width: 420px; } }
+@media (prefers-reduced-motion: reduce) { .learn-pic img { transition: none; } .learn-pic:hover img, .learn-pic:focus-visible img { transform: none; } }
+/* the Project details tab is "Details" on narrow phones, so all four tabs fit */
+.tab-short { display: none; }
+@media (max-width: 440px) { .tab-long { display: none; } .tab-short { display: inline; } }
