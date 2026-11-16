@@ -48,15 +48,37 @@
         </div>
       </section>
 
-      <!-- What our project is -->
-      <section class="band">
-        <div class="wrap">
-          <p class="kicker">What EcoShift is</p>
-          <p class="statement"><strong>A place to test a crop rotation before the season starts.</strong> EcoShift takes what a farmer knows about their fields and 44 seasons of NASA weather, and shows how each crop plan would have held up, season by season.</p>
+      <!-- The problem and our solution (right below the hero), then the flow of the tool -->
+      <section class="band" id="problem-solution">
+        <div class="wrap ps">
+          <article class="ps-card ps-problem">
+            <p class="ps-label"><span class="ps-badge" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.3-2.5 3.9M12 17.2h.01"/></svg></span>The Problem</p>
+            <h2 class="ps-title">Farmers Have No Way To Test A Crop Rotation Before They Plant It</h2>
+            <ul class="ps-list">
+              <li><span class="ps-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span><span><strong>Decided months ahead.</strong> Next season's crops are chosen before anyone knows the weather that will come.</span></li>
+              <li><span class="ps-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18c3-8 13-8 16 0"/><path d="M12 6v3M6.5 8.5l1.5 2M17.5 8.5 16 10.5"/></svg></span><span><strong>Made on rules of thumb.</strong> Habit, last year's result or a neighbor's advice. A wrong choice shows up only at harvest, sometimes years later.</span></li>
+              <li><span class="ps-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h4l4 8 3-4 7 8"/><path d="M17 18h4v-4"/></svg></span><span><strong>One summer changes everything.</strong> In the 2012 drought, Iowa's corn harvest fell to 77% of its normal trend (USDA NASS).</span></li>
+              <li><span class="ps-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9l6 6M15 9l-6 6"/></svg></span><span><strong>No testing ground.</strong> Few tools let a farmer try a rotation on their own fields against decades of real weather, in plain words.</span></li>
+            </ul>
+          </article>
+          <div class="ps-arrow" aria-hidden="true"><svg viewBox="0 0 48 24" width="48" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h42M34 3l10 9-10 9"/></svg></div>
+          <article class="ps-card ps-solution">
+            <p class="ps-label"><span class="ps-badge" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V10"/><path d="M12 13c-4.5 0-7-2.7-7-7 4.3 0 7 2.5 7 7Z"/><path d="M12 10c0-3.8 2.4-6 6.5-6 0 4-2.4 6-6.5 6Z"/></svg></span>Our Solution</p>
+            <h2 class="ps-title">EcoShift: A Crop Rotation Testing System For Your Own Fields</h2>
+            <ul class="ps-list">
+              <li><span class="ps-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12.5 7.5 4 4-5 5-4-4z"/><path d="M8.5 6.5 6 4 3 7l2.5 2.5M15.5 17.5 18 20l3-3-2.5-2.5"/><path d="M14 21a6 6 0 0 0 7-7"/></svg></span><span><strong>NASA satellite-derived weather.</strong> 44 seasons (1982 to 2025) of NASA POWER daily data, built from satellite observations and climate reanalysis, with USDA soil and harvest records.</span></li>
+              <li><span class="ps-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span><strong>Process-based crop simulation.</strong> An FAO-56 soil water balance, growing degree days, and frost and heat stress replay every rotation through every season, week by week.</span></li>
+              <li><span class="ps-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6" r="2.5"/><circle cx="5" cy="17" r="2.5"/><circle cx="19" cy="17" r="2.5"/><path d="M10.5 8 6.5 15M13.5 8l4 7M7.5 17h9"/></svg></span><span><strong>A multi-agent system.</strong> Specialised agents (farm fit, crop model, adviser, chat and map maker) work together to test, compare and rank every option on every field.</span></li>
+              <li><span class="ps-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.8" fill="currentColor"/></svg></span><span><strong>An optimized plan.</strong> The rotation with the best balance of expected yield, profit and risk in bad years, with the evidence behind it.</span></li>
+            </ul>
+          </article>
         </div>
 
-        <div class="wrap figs">
-          <article class="fig">
+        <div class="wrap">
+          <p class="kicker flow-kicker">How It Works, Step By Step</p>
+        </div>
+        <div class="wrap figs flow" role="list" aria-label="How EcoShift works, step by step">
+          <article class="fig" role="listitem">
             <p class="fig-label">Fig 0.1</p>
             <svg class="fig-art" viewBox="0 0 240 200" aria-hidden="true">
               <path d="M120 86 220 133 120 180 20 133Z"/>
@@ -65,11 +87,12 @@
               <circle cx="120" cy="43" r="7"/>
               <path d="M120 79v54" class="faint"/>
             </svg>
-            <h3>Describe your farm</h3>
+            <h3>Describe Your Farm</h3>
             <p>13 short questions: where the farm is, its fields and last crops, water, land, limits and what matters most. Every question can be skipped, or start with the example farm.</p>
           </article>
 
-          <article class="fig">
+          <div class="flow-arrow" aria-hidden="true"><svg viewBox="0 0 48 24" width="48" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h42M34 3l10 9-10 9"/></svg></div>
+          <article class="fig" role="listitem">
             <p class="fig-label">Fig 0.2</p>
             <svg class="fig-art" viewBox="0 0 240 200" aria-hidden="true">
               <!-- Three fields, each under a different crop, joined in a cycle: a rotation. -->
@@ -87,38 +110,25 @@
               <path d="M152 158Q120 180 88 158M91.400 165.200 88 158 96 158.600"/>
               <path d="M36 98Q34 52 68 52M61.100 48 68 52 61.100 56"/>
             </svg>
-            <h3>Compare rotation plans</h3>
+            <h3>Compare Rotation Plans</h3>
             <p>The current plan for each field against the alternatives: corn, soybeans, a rye cover crop, oats. Each comes with why, evidence, extra work, information gaps and what to check with an adviser.</p>
           </article>
 
-          <article class="fig">
+          <div class="flow-arrow" aria-hidden="true"><svg viewBox="0 0 48 24" width="48" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h42M34 3l10 9-10 9"/></svg></div>
+          <article class="fig" role="listitem">
             <p class="fig-label">Fig 0.3</p>
             <svg class="fig-art" viewBox="0 0 240 200" aria-hidden="true">
               <path d="M20 160h200" class="faint"/>
               <path d="M32 160v-52M46 160v-70M60 160v-44M74 160v-82M88 160v-20M102 160v-64M116 160v-90M130 160v-58M144 160v-76M158 160v-30M172 160v-68M186 160v-84M200 160v-50"/>
               <circle cx="88" cy="128" r="6"/><circle cx="158" cy="118" r="6"/>
             </svg>
-            <h3>Replay every season</h3>
+            <h3>Replay Every Season</h3>
             <p>Each plan runs through 44 real seasons of weather, 1982 to 2025, in harvest and in dollars. The seasons well above or well below the farm's usual harvest are marked, so the bad years are easy to find. Most seasons are about normal and show grey.</p>
           </article>
         </div>
       </section>
 
 
-      <!-- Why it matters -->
-      <section class="band">
-        <div class="wrap split">
-          <h2>Why it<br>matters</h2>
-          <div class="split-body">
-            <p class="lede">A rotation is a bet placed years ahead. Temperatures are shifting, rain arrives less predictably, water runs short and soil wears down. A choice that looks right this spring can take several seasons to show its cost.</p>
-            <ul class="points">
-              <li><span class="num">01</span>Planting decisions are made before the weather is known.</li>
-              <li><span class="num">02</span>A crop that helps one field can drain water or miss the market on the next.</li>
-              <li><span class="num">03</span>Soil health is slow to build and quick to lose.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
 
       <!-- Learn more: the full story is on the Project details page -->
       <section class="band" id="learn-more">
