@@ -219,7 +219,7 @@
         if (!f.grain || !(f.normal > 0)) return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td colspan="2">No grain harvest on this plan</td></tr>';
         return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td>' + r0(f.normal) + '</td><td>' + r0(f.p10) + '–' + r0(f.p90) + '</td></tr>';
       }).join('');
-      return '<h3 class="fs-ol-h">Next harvest (' + model.year + '), bushels per acre</h3>' +
+      return '<h3 class="fs-ol-h">Next Harvest (' + model.year + '), Bushels Per Acre</h3>' +
         '<div class="fs-ol-tablewrap"><table class="fs-ol-table fs-ol-harvest"><thead><tr><th scope="col">Field</th><th scope="col">Plan</th><th scope="col">Normal (median)</th><th scope="col">Range (10th–90th)</th></tr></thead><tbody>' + rowsE + '</tbody></table></div>' +
         '<p class="fs-ol-plain">Plainly: these 30 days come before planting. In this model, weather before spring does not change the ' + model.year + ' harvest (each season starts from the same spring soil water), so this table is the spread of all ' + nY + ' past seasons on your current plan, not a forecast. Check back in spring.</p>';
     }
@@ -228,13 +228,13 @@
       var pr = f.pct == null ? null : r1(f.pct), pc = pr == null ? '–' : (pr > 0 ? '+' : pr < 0 ? '−' : '') + Math.abs(pr) + '%';
       return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td>' + r0(f.normal) + '</td><td>' + r0(f.med) + '</td><td>' + r0(f.p10) + '–' + r0(f.p90) + '</td><td class="' + (f.pct <= -1 ? 'is-down' : f.pct >= 1 ? 'is-up' : '') + '">' + pc + '</td></tr>';
     }).join('');
-    return '<h3 class="fs-ol-h">Next harvest (' + model.year + '), bushels per acre</h3>' +
+    return '<h3 class="fs-ol-h">Next Harvest (' + model.year + '), Bushels Per Acre</h3>' +
       '<div class="fs-ol-tablewrap"><table class="fs-ol-table fs-ol-harvest"><thead><tr><th scope="col">Field</th><th scope="col">Plan</th><th scope="col">Normal (median)</th><th scope="col">With these 30 days (median)</th><th scope="col">Range (10th–90th)</th><th scope="col">Change</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
       '<p class="fs-ol-plain">Only these 30 days are known; the rest of the season comes from replaying every past season (' + nY + ' of them), which is where most of the range comes from.' +
       ' Each field keeps its current plan. Days 17–30 are a rough average of many forecasts, so a single frost, heat wave or downpour on those days will not show.</p>';
   }
   function noteHTML() {
-    if (note && note.summary) return '<div class="fs-ol-note"><h3 class="fs-ol-h">What this means <span class="fs-ol-tag">written by Gemini from the numbers above</span></h3><p>' + esc(note.summary) + '</p>' +
+    if (note && note.summary) return '<div class="fs-ol-note"><h3 class="fs-ol-h">What This Means <span class="fs-ol-tag">written by Gemini from the numbers above</span></h3><p>' + esc(note.summary) + '</p>' +
       (note.actions && note.actions.length ? '<ul>' + note.actions.map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') + '</ul>' : '') + '</div>';
     if (noteErr) return '<p class="fs-ol-faint">' + esc(noteErr) + '</p>';
     return model && !model.error && apiBase() ? '<p class="fs-ol-faint">Asking the AI helper for a short note…</p>' : '';
@@ -286,7 +286,7 @@
   }
   function mount(node) {
     el = node; if (!el) return;
-    el.innerHTML = '<div class="fs-panel-head"><h2 class="fs-panel-title">Next 30 days</h2></div><div class="fs-panel-body" aria-live="polite"></div>';
+    el.innerHTML = '<div class="fs-panel-head"><h2 class="fs-panel-title">Next 30 Days</h2></div><div class="fs-panel-body" aria-live="polite"></div>';
     refresh();
   }
 

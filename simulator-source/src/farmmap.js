@@ -47,7 +47,7 @@
       h += '<div class="fs-fm-busy" role="status"><span class="fs-fm-spin" aria-hidden="true"></span>' + (state.upload ? 'Turning your photo into a map' : 'Getting aerial and satellite images, keeping the sharper one, and drawing your map') + '… ' + s + ' s <span class="fs-fm-faint">(usually 20–40 s)</span></div>';
     } else if (state.err) h += '<p class="fs-fm-msg fs-fm-err">' + esc(state.err) + '</p><button type="button" class="fs-fm-btn" id="fs-fm-retry">Try again</button>';
     else if (d) {
-      h += '<div class="fs-fm-seg" role="group" aria-label="Show"><button type="button" data-v="map" aria-pressed="' + (view === 'map') + '">Illustrated map</button><button type="button" data-v="photo" aria-pressed="' + (view === 'photo') + '">Photo it was drawn from</button></div>' +
+      h += '<div class="fs-fm-seg" role="group" aria-label="Show"><button type="button" data-v="map" aria-pressed="' + (view === 'map') + '">Illustrated Map</button><button type="button" data-v="photo" aria-pressed="' + (view === 'photo') + '">Photo It Was Drawn From</button></div>' +
         '<figure class="fs-fm-fig"><img src="' + esc(base() + (view === 'map' ? d.map : d.photo)) + '" alt="' + esc(view === 'map' ? 'Illustrated map of the farm from above: fields, trees, water and roads' : 'Aerial view of the farm from above') + '"></figure>' +
         '<p class="fs-fm-note">' + (d.source === 'upload' ? 'Drawn from your photo.' : 'About ' + (d.widthKm || 1.6) + ' km across, centred on the point. Source: ' + esc(d.detail) + '.' +
           (d.scores ? ' Sharpness score ' + Object.keys(d.scores).map(function (k) { return (k === 'usgs' ? 'USGS aerial ' : k === 's2' ? 'Sentinel-2 ' : k + ' ') + (d.scores[k] == null ? 'no image' : d.scores[k]); }).join(', ') + '; the sharper one was used.' : '')) +
@@ -98,7 +98,7 @@
     panel = p; if (!panel) return;
     body = panel.querySelector('.fs-view-body'); var right = panel.querySelector('.fs-head-right'); if (!body || !right) return;
     tabs = document.createElement('div'); tabs.className = 'fs-fm-tabs'; tabs.setAttribute('role', 'group'); tabs.setAttribute('aria-label', 'View');
-    tabs.innerHTML = '<button type="button" data-t="sim" aria-pressed="true">Simulation</button><button type="button" data-t="map" aria-pressed="false">Farm map</button>';
+    tabs.innerHTML = '<button type="button" data-t="sim" aria-pressed="true">Simulation</button><button type="button" data-t="map" aria-pressed="false">Farm Map</button>';
     right.insertBefore(tabs, right.firstChild);
     layer = document.createElement('section'); layer.className = 'fs-fm'; layer.hidden = true; layer.setAttribute('aria-label', 'Farm map');
     body.appendChild(layer);
