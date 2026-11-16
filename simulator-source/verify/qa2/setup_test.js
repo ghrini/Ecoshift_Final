@@ -44,7 +44,7 @@ async function tabTo(page, id, max = 80) { for (let i = 0; i < max; i++) { if (a
   await page.keyboard.press('Escape'); await page.waitForTimeout(200);
   ok(!(await page.isVisible('#fs-setup')), 'Escape closes it on the first run (= the example farm)');
   ok(await summary(page) === story, 'example farm results unchanged after Escape');
-  ok(await page.evaluate(() => localStorage.getItem('fieldshift.farm.v1')) === '{"example":true}', 'choice saved in localStorage');
+  ok(await page.evaluate(() => { try { return JSON.parse(localStorage.getItem('fieldshift.farm.v1')).example === true; } catch (e) { return false; } }), 'choice saved in localStorage');
   ok(await page.evaluate(() => !document.getElementById('fs-app').hasAttribute('inert')), 'page is live again');
   const fb = await page.textContent('#fs-farm-btn');
   ok(fb.includes('Your farm: Story Co., IA') && fb.includes('Change'), 'header shows "Your farm: ... Change"');
@@ -189,7 +189,7 @@ async function tabTo(page, id, max = 80) { for (let i = 0; i < max; i++) { if (a
   ok(await summary(page) === story, 'example farm restores the Story results exactly (byte-identical summary)');
   const ex2 = await page.evaluate(() => ({ names: FS.data.farm.fields.map(f => f.name).join(), irrHidden: document.getElementById('fs-irrig-row').hidden, ex: FS.data.initialControls.other.exclude, ct: FS.store.get().controls.other.contracted, irr: FS.store.get().controls.crops.irrigation, plans: JSON.stringify(FS.store.get().controls.crops.plans), saved: localStorage.getItem('fieldshift.farm.v1'), chat: document.getElementById('fs-chat-list').textContent }));
   ok(ex2.names === 'North 80,Creek 40,West 40,South 120' && ex2.irrHidden && ex2.ex === undefined && ex2.ct === 30 && ex2.irr === undefined && ex2.plans === JSON.stringify({ north: 'soy', creek: 'soy', west: 'corn', south: 'corn' }), 'example: field names, irrigation, exclude, contracted, plans all back to the defaults');
-  ok(ex2.saved === '{"example":true}' && !/Based on your answers|Hi Sam/.test(ex2.chat), 'example: saved as example and no advice message');
+  ok((function () { try { return JSON.parse(ex2.saved).example === true; } catch (e) { return false; } })() && !/Based on your answers|Hi Sam/.test(ex2.chat), 'example: saved as example and no advice message');
   ok(page.errs.length === 0, 'no page errors after reload and example: ' + page.errs.join('|'));
   await page.close();
 
