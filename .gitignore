@@ -15,3 +15,6 @@ simulator-source/dist/
 
 # Vercel CLI
 .vercel
+
+# per-field Sentinel-2 series written by /api/fieldhealth
+data/*.csv

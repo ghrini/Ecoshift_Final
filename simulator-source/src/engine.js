@@ -1357,7 +1357,8 @@ window.FS = window.FS || {};
     if (ORIG) return ORIG;
     var D = FS.data, f = D.farm;
     ORIG = { climate: D.climate, place: f.place, lat: f.lat, lon: f.lon, county: f.countyAwcMmPerM,
-             fields: f.fields.map(function (x) { return { id: x.id, name: x.name, acres: x.acres, lastCrop: x.lastCrop, soil: clone(x.soil) }; }),
+             fields: f.fields.map(function (x) { return { id: x.id, name: x.name, acres: x.acres, lastCrop: x.lastCrop, soil: clone(x.soil), poly: clone(x.poly) }; }),
+             objs: f.fields.slice(), scenery: clone(f.scenery),
              plans: clone(D.initialControls.crops.plans), trial: clone(D.initialControls.crops.trialAcres), normal: clone(D.economics.normalYield),
              scenarios: clone(D.weatherScenarios || []) };
     return ORIG;
@@ -1384,13 +1385,14 @@ window.FS = window.FS || {};
     for (d = IDX.fallFrost; d < N_DAYS; d++) if (w.tmin[d] <= FROST_C) { fall = d; break; }
     return { spring: spring < 0 ? null : realDayWords(spring, year), fall: fall < 0 ? null : realDayWords(fall, year) };
   }
+  function WXN() { var m = climate().meta || {}; return m.short || 'NASA POWER'; }
   function setScenarios(isStory) {
     var list = FS.data.weatherScenarios || [], O = ORIG.scenarios;
     if (isStory) { list.forEach(function (s, i) { var k; for (k in s) delete s[k]; for (k in O[i]) s[k] = O[i][k]; }); return; }
     var T = pickTypical(), yrs = T.years, span = yrs[0] + '-' + yrs[yrs.length - 1];
     function rn(a, z, y) { return Math.round(sumRain(baseWx(y), a, z)); }
     function rmed(a, z) { return Math.round(median(yrs.map(function (y) { return sumRain(baseWx(y), a, z); }))); }
-    function jjaNote(y, what) { return what + ' Real ' + y + ' weather from NASA POWER at this location: June-August rain ' + rn(IDX.jun1, IDX.aug31, y) + ' mm against a ' + span + ' median of ' + rmed(IDX.jun1, IDX.aug31) + ' mm.'; }
+    function jjaNote(y, what) { return what + ' Real ' + y + ' weather from ' + WXN() + ' at this location: June-August rain ' + rn(IDX.jun1, IDX.aug31, y) + ' mm against a ' + span + ' median of ' + rmed(IDX.jun1, IDX.aug31) + ' mm.'; }
     list.forEach(function (s) {
       var o = O.filter(function (x) { return x.id === s.id; })[0] || s, k; for (k in s) delete s[k]; for (k in o) s[k] = o[k];
       var fw;
@@ -1398,9 +1400,9 @@ window.FS = window.FS || {};
         s.note = 'Closest of the ' + yrs.length + ' seasons to the middle of the record in both June-August rain (' + Math.round(T.jja) + ' mm here against a ' + span + ' median of ' + Math.round(T.medJJA) + ' mm) and summer warmth.'; }
       else if (s.id === 'drought2012' || s.id === 'drought1988') s.note = jjaNote(s.year, 'Drought and heat across the Corn Belt.');
       else if (s.id === 'dry2023') s.note = jjaNote(s.year, 'A dry summer.');
-      else if (s.id === 'wetSpring') s.note = 'Real ' + s.year + ' weather from NASA POWER at this location: April-June rain ' + rn(IDX.apr1, IDX.jun30, s.year) + ' mm against a ' + span + ' median of ' + rmed(IDX.apr1, IDX.jun30) + ' mm.';
-      else if (s.id === 'lateFreeze') { fw = frostWords(s.year); s.phrase = 'the ' + s.year + ' season'; s.note = fw.spring ? 'Last spring frost night here (0 C or colder in NASA POWER): ' + fw.spring + '.' : 'No spring frost night at this location in ' + s.year + '.'; }
-      else if (s.id === 'earlyFrost') { fw = frostWords(s.year); s.phrase = 'the ' + s.year + ' season'; s.note = fw.fall ? 'First fall frost night here (0 C or colder in NASA POWER): ' + fw.fall + '.' : 'No fall frost night at this location in ' + s.year + '.'; }
+      else if (s.id === 'wetSpring') s.note = 'Real ' + s.year + ' weather from ' + WXN() + ' at this location: April-June rain ' + rn(IDX.apr1, IDX.jun30, s.year) + ' mm against a ' + span + ' median of ' + rmed(IDX.apr1, IDX.jun30) + ' mm.';
+      else if (s.id === 'lateFreeze') { fw = frostWords(s.year); s.phrase = 'the ' + s.year + ' season'; s.note = fw.spring ? 'Last spring frost night here (0 C or colder in ' + WXN() + '): ' + fw.spring + '.' : 'No spring frost night at this location in ' + s.year + '.'; }
+      else if (s.id === 'earlyFrost') { fw = frostWords(s.year); s.phrase = 'the ' + s.year + ' season'; s.note = fw.fall ? 'First fall frost night here (0 C or colder in ' + WXN() + '): ' + fw.fall + '.' : 'No fall frost night at this location in ' + s.year + '.'; }
     });
   }
   // ---------------------------------------------------------------- fitting a county's data to one farm (API: setFarm opts.local)
@@ -1487,6 +1489,15 @@ window.FS = window.FS || {};
   }
 
   var POS = { north: 'North', creek: 'Creek', west: 'West', south: 'South' };
+  // A whole climate from elsewhere (imported fields: Copernicus reanalysis at the farm), checked before it replaces the county's.
+  // The heat calibration stays the county's: it is a property of the crop model, not of the weather source.
+  function goodClimate(C, base) {
+    if (!C || !C.meta || !C.seasons || !Array.isArray(C.meta.years) || C.meta.years.length < 30) return null;
+    var ok = C.meta.years.every(function (y) { var s = C.seasons[y]; return s && ['tmax', 'tmin', 'rain', 'et0'].every(function (k) { return Array.isArray(s[k]) && s[k].length === N_DAYS; }); });
+    if (!ok) return null;
+    return { meta: Object.assign({}, base.meta, C.meta, { heatMatch: base.meta.heatMatch, scale: Object.assign({}, base.meta.scale, C.meta.scale) }), seasons: C.seasons };
+  }
+  function goodPoly(p) { return Array.isArray(p) && p.length >= 3 && p.every(function (q) { return Array.isArray(q) && isFinite(q[0]) && isFinite(q[1]); }) ? p.map(function (q) { return [+q[0], +q[1]]; }) : null; }
   function setFarm(opts) {
     opts = opts || {};
     var O = origFarm(), D = FS.data, id = opts.site || 'story-ia', st = null, i;
@@ -1495,8 +1506,18 @@ window.FS = window.FS || {};
     var isStory = !st || id === 'story-ia';
     var farm = D.farm, req = {};
     (opts.fields || []).forEach(function (x) { if (x && x.id) req[x.id] = x; });
+    // imported field outlines (GeoJSON): only those fields, with their own names, shapes and acres, and the climate measured at them
+    var G = opts.geo && typeof opts.geo === 'object' && Array.isArray(opts.geo.fields) && opts.geo.fields.length ? opts.geo : null, gf = {};
+    if (G) G.fields.forEach(function (x) { if (x && POS[x.id]) gf[x.id] = x; });
+    if (G && !Object.keys(gf).length) G = null;
+    farm.fields.length = 0;   // in place: the UI holds this array
+    // how many fields (1 to 4, opts.count): the first N of the layout; imported outlines bring their own
+    var NF = clamp(Math.round(+opts.count) || O.objs.length, 1, O.objs.length);
+    O.objs.forEach(function (o, i) { if (G ? gf[o.id] : i < NF) farm.fields.push(o); });
     // site data into the shared objects (in place: the UI holds references)
     D.climate = isStory || !st.climate ? O.climate : st.climate;
+    var GC = G ? goodClimate(G.climate, D.climate) : null;
+    if (GC) D.climate = GC;
     var L = opts.local && typeof opts.local === 'object' && (opts.local.tempC || opts.local.rainRatio || opts.local.soils || opts.local.normalYield || opts.local.ai) ? opts.local : null;   // a fit with no data is no fit
     if (L) D.climate = localClimate(D.climate, L);
     resetCaches();
@@ -1509,9 +1530,10 @@ window.FS = window.FS || {};
     var plans = D.initialControls.crops.plans, trial = D.initialControls.crops.trialAcres;
     farm.fields.forEach(function (f) {
       var o = O.fields.filter(function (x) { return x.id === f.id; })[0], r = req[f.id] || {};
-      var ac = r.acres == null ? o.acres : clamp(Math.round(+r.acres) || o.acres, 10, 640);
-      var lc = r.lastCrop === 'corn' || r.lastCrop === 'soybean' ? r.lastCrop : o.lastCrop;
-      f.acres = ac; f.lastCrop = lc; f.name = POS[f.id] + ' ' + ac; f.soil = clone(soils[f.id]);
+      var g = gf[f.id], ac = g && +g.acres > 0 ? clamp(Math.round(+g.acres), 1, 5000) : r.acres == null ? o.acres : clamp(Math.round(+r.acres) || o.acres, 10, 640);
+      var lc = g && (g.lastCrop === 'corn' || g.lastCrop === 'soybean') ? g.lastCrop : r.lastCrop === 'corn' || r.lastCrop === 'soybean' ? r.lastCrop : o.lastCrop;
+      f.acres = ac; f.lastCrop = lc; f.name = g && g.name ? String(g.name).slice(0, 28) : POS[f.id] + ' ' + ac; f.soil = clone(soils[f.id]);
+      f.poly = (g && goodPoly(g.poly)) || clone(o.poly);
       plans[f.id] = lc === 'corn' ? 'soy' : 'corn'; trial[f.id] = ac;
       // optional current plan (for example a cover crop the farmer already plants): only one this field may choose; anything else keeps the default
       if (typeof r.currentPlan === 'string' && (D.planOptions[lc] || []).indexOf(r.currentPlan) >= 0) plans[f.id] = r.currentPlan;
@@ -1523,11 +1545,14 @@ window.FS = window.FS || {};
       ny[c] = Math.round(base * (1 + adj / 100) * 10) / 10;
     });
     if (L && L.label) farm.place = L.label;
-    setScenarios(isStory);
+    farm.imported = !!G;
+    setScenarios(isStory && !GC);
     SITE = isStory ? { id: 'story-ia', name: O.place, short: 'Story Co., IA', state: 'IA', validated: true } : { id: st.id, name: st.name, short: st.short, state: st.state, validated: st.validated !== false && !!st.validated, lat: st.lat, lon: st.lon };
     if (st && isStory) { SITE.name = st.name || SITE.name; SITE.short = st.short || SITE.short; }
     SITE.local = L ? { label: L.label || '', km: L.km, dataFrom: isStory ? 'Story County, Iowa' : st.name, lat: L.lat, lon: L.lon } : null;
     if (L) { SITE.name = L.label || SITE.name; SITE.validated = false; }
+    SITE.geo = G ? { fields: farm.fields.length, weather: GC ? (GC.meta.short || 'imported') : null } : null;
+    if (G) SITE.validated = false;
     return { ok: true, site: { id: SITE.id, name: SITE.name, short: SITE.short, state: SITE.state, validated: SITE.validated, typicalYear: typicalYear() } };
   }
 
@@ -1546,7 +1571,7 @@ window.FS = window.FS || {};
     if (!other && sh.irr !== 'none') o = otherOf({ other: o, crops: { irrigation: sh.irr } });
     return evalField(farm, f, planId, baseWx(year), sh, o, ref, false, heatOf(), 1);
   }
-  FS.engine = { setFarm: setFarm, outlook: outlook, site: function () { return { id: SITE.id, name: SITE.name, short: SITE.short, state: SITE.state, validated: SITE.validated, local: SITE.local || null }; }, run: run, evalYear: evalYear, scenario: scenario, compare: compare, seasons: seasons, warm: warm, sample: false, N_WEEKS: N_WEEKS,
+  FS.engine = { setFarm: setFarm, outlook: outlook, site: function () { return { id: SITE.id, name: SITE.name, short: SITE.short, state: SITE.state, validated: SITE.validated, local: SITE.local || null, geo: SITE.geo || null }; }, run: run, evalYear: evalYear, scenario: scenario, compare: compare, seasons: seasons, warm: warm, sample: false, N_WEEKS: N_WEEKS,
                 validation: function () { return VALIDATION; },
                 _ref: function () { return getRef(FS.data.farm); }, _setParams: setParams, _components: components, _hybrids: hybrids,
                 _irrigation: function () { return { kwhPerAcreInch: IRR_KWH_PER_ACRE_IN, dollarsPerKwh: IRR_DOLLARS_PER_KWH, dollarsPerAcreInch: IRR_COST_PER_ACRE_IN, inches: { july: irrInches('july'), 'july-aug': irrInches('july-aug'), 'jun-aug': irrInches('jun-aug') } }; },

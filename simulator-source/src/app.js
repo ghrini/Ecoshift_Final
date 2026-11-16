@@ -56,7 +56,7 @@
       return Q().normalize(JSON.parse(raw));
     } catch (e) { return null; }
   }
-  function saveSetup(setup) { try { localStorage.setItem(SETUP_KEY, JSON.stringify(setup.example ? { example: true } : setup)); } catch (e) { /* storage may be blocked: the questionnaire just shows again next time */ } }
+  function saveSetup(setup) { try { localStorage.setItem(SETUP_KEY, JSON.stringify(setup.example ? { example: true, fieldCount: setup.fieldCount } : setup)); } catch (e) { /* storage may be blocked: the questionnaire just shows again next time */ } }
 
   function localOf() { var l = FS.engine && FS.engine.site ? FS.engine.site().local : null; return l && !FS.farmSetup.example ? l : null; }
   function shortLabel(s) { s = String(s || 'your location'); return s.split(',').slice(0, 2).join(',').slice(0, 48); }
@@ -68,11 +68,19 @@
     return JSON.stringify([Math.round(p.lat * 1e4) / 1e4, Math.round(p.lon * 1e4) / 1e4, s.site, s.drainage, s.tile, s.slope, s.soilTest, s.limits, s.limitsNote, s.practices]);
   }
   function fitOf(s) { return s && !s.example && s.point && s.fit && s.fit.local && s.fit.key === fitKey(s) ? s.fit.local : null; }
+  // imported field outlines (fieldimport.js): the conditions measured at those fields replace the county fit
+  function geoOf(s) { var g = s && !s.example && s.geo; return g && Array.isArray(g.fields) && g.fields.length && g.cond && g.cond.climate ? g : null; }
+  function geoLocal(g) {
+    var c = g.cond, soils = {};
+    Object.keys(c.fields || {}).forEach(function (id) { var x = c.fields[id]; if (x && x.soil && x.soil.awcMmPerM) soils[id] = x.soil; });
+    return { label: (c.county ? 'your fields in ' + c.county : 'your fields'), lat: c.center ? c.center[1] : null, lon: c.center ? c.center[0] : null, km: 0,
+      soils: soils, normalYield: c.normalYield || null };
+  }
   function apiBase() { return /^https?:$/.test(location.protocol) ? location.origin : null; }
   var fitting = '';
   var farTold = '';
   function maybeFit(setup) {
-    if (!setup || setup.example || !setup.point || fitOf(setup)) return;
+    if (!setup || setup.example || !setup.point || fitOf(setup) || geoOf(setup)) return;
     var key = fitKey(setup), base = apiBase(), site = siteById(setup.site) || STORY(), p = setup.point;
     if (!base) { guard('fit note', function () { FS.actions.addChat({ role: 'assistant', text: 'Your farm\'s spot is saved, but fitting ' + site.name + '\'s data to it needs the EcoShift server (run npm start and open http://localhost:8787). For now the county\'s data is used as it is.' }); }); return; }
     if (fitting === key) return;
@@ -146,7 +154,8 @@
     var b = $('fs-farm-btn'); if (!b) return;
     var site = FS.farmSetup.site || STORY(), loc = localOf(), p = FS.farmSetup.setup && !FS.farmSetup.example && FS.farmSetup.setup.point;
     var dataName = String(site.name).split(',')[0];
-    var txt = loc ? 'Your farm near ' + shortLabel(loc.label) + ' · data from ' + dataName + ' (' + loc.km + ' km)'
+    var g = geoOf(FS.farmSetup.setup), gs = g && FS.engine && FS.engine.site ? FS.engine.site().geo : null;
+    var txt = gs ? 'Your ' + gs.fields + ' field' + (gs.fields === 1 ? '' : 's') + (g.cond.county ? ' in ' + g.cond.county : '') + ' · Copernicus weather and terrain' : loc ? 'Your farm near ' + shortLabel(loc.label) + ' · data from ' + dataName + ' (' + loc.km + ' km)'
       : p ? 'Your farm near ' + shortLabel(p.label) + ' · data from ' + dataName : 'Your farm: ' + siteShort(site);
     b.querySelector('.fs-farm-name').textContent = txt;
     b.setAttribute('aria-label', txt + '. Change');
@@ -156,11 +165,12 @@
   function applySetup(setup, o) {
     o = o || {};
     var site = siteById(setup.site) || STORY(), d = Q().derive(setup);
-    var skipEngine = setup.example && !mounted && FS.farmSetup.site == null;   // the example is what is already loaded
+    var skipEngine = setup.example && !mounted && FS.farmSetup.site == null && !(setup.fieldCount < 4);   // the example is what is already loaded
     if (!skipEngine) {
       if (FS.engine && FS.engine.setFarm) {
         var res;
-        try { res = FS.engine.setFarm({ site: site.id, fields: d.fields, local: fitOf(setup) }); }
+        var g = geoOf(setup);
+        try { res = FS.engine.setFarm({ site: site.id, fields: d.fields, count: setup.fieldCount, local: g ? geoLocal(g) : fitOf(setup), geo: g ? { fields: g.fields, climate: g.cond.climate } : null }); }
         catch (e) { console.error(e); res = { ok: false, error: String(e && e.message || e) }; }
         if (res && res.ok === false) return { ok: false, error: res.error || 'That farm could not be set up.' };
       } else if (site.id !== 'story-ia') return { ok: false, error: 'This location is not available yet.' };
@@ -171,7 +181,8 @@
     ic.other.contracted = d.contracted != null ? d.contracted : BASE_CONTRACTED;
     if (d.exclude.length) ic.other.exclude = d.exclude.slice(); else delete ic.other.exclude;
     if (d.irrigation !== 'none') ic.crops.irrigation = d.irrigation; else delete ic.crops.irrigation;   // irrigated: the farm's normal practice, baseline and options alike
-    st.farm = FS.data.farm; st.controls = clone(ic); st.selectedField = FS.data.farm.fields[1].id; st.dirty = true;
+    var ff = FS.data.farm.fields;
+    st.farm = FS.data.farm; st.controls = clone(ic); st.selectedField = ff[Math.min(1, ff.length - 1)].id; st.dirty = true;
     if (d.trial === 'patch') {   // a small test patch: 10% of the selected field, at least 5 acres
       var sf = FS.data.farm.fields.filter(function (f) { return f.id === st.selectedField; })[0];
       if (sf) st.controls.crops.trialAcres[sf.id] = Math.min(sf.acres, Math.max(5, Math.round(sf.acres * 0.1)));
@@ -189,6 +200,7 @@
     guard('recs', function () { FS.chat.postRecs(); });
     guard('outlook', function () { if (FS.outlook) FS.outlook.refresh(); });
     guard('farm map', function () { if (FS.farmMap) FS.farmMap.refresh(); });
+    guard('conditions', function () { if (FS.conditions) FS.conditions.refresh(); });
     return { ok: true };
   }
 
@@ -219,6 +231,14 @@
     if (!r.ok) return r;
     saveSetup(setup); closePanel(); maybeFit(setup); return { ok: true };
   }
+  // fieldimport.js hands over a whole setup (the farm's own outlines and the conditions at them)
+  FS.farmSetup.use = function (setup) { var r = applySetup(setup); if (r.ok) saveSetup(setup); return r; };
+  FS.farmSetup.blank = function () { return Q().blank(); };
+  // the field list's + and − buttons: one field more or less (1 to 4), kept with the farm
+  FS.farmSetup.setFieldCount = function (n) {
+    var s = clone(FS.farmSetup.setup || exampleSetup()); s.fieldCount = Math.max(1, Math.min(4, Math.round(n)));
+    var r = applySetup(s); if (r.ok) saveSetup(s); return r;
+  };
   function onExample() {
     var wasFirst = firstOpen;
     // untouched example farm on first open: just close. From "Change" it restores the example and runs it again.

@@ -60,7 +60,7 @@ if only == 'ui':
 else:
     js += [eng, view]
 if only in ('all', 'ui'):
-    js += [rd('i18n.js'), rd('controls.js'), rd('analysis.js'), rd('chat.js'), rd('questionnaire.js'), rd('outlook.js'), rd('farmmap.js'), rd('app.js')]
+    js += [rd('i18n.js'), rd('controls.js'), rd('analysis.js'), rd('chat.js'), rd('questionnaire.js'), rd('outlook.js'), rd('farmmap.js'), rd('conditions.js'), rd('fieldimport.js'), rd('app.js'), rd('scrollhint.js')]
 for j in js:
     assert '</script' not in j.lower(), 'a JS file contains </script'
 scripts = '\n'.join('<script>\n' + j + '\n</script>' for j in js if j.strip())

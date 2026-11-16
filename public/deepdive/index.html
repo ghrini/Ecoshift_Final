@@ -550,6 +550,110 @@ textarea.fs-q-text { resize: vertical; min-height: 3.4em; }
 .fs-q-langhint { font-size: 14px; color: var(--text-muted); }
 .fs-lang-note { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 9999; max-width: min(92vw, 560px); margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--panel); border: 1px solid var(--border); color: var(--text); font-size: 14px; box-shadow: var(--shadow-card); }
 @media (max-width: 560px) { #fs-header .fs-lang-select { max-width: 110px; font-size: 13px; } }
+.fs-scrollhint { position: absolute; left: 50%; z-index: 3; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
+  border: 1px solid var(--on-bg-accent, var(--border)); border-radius: 999px; background: var(--panel); color: var(--text); font: 600 13px/1.3 var(--font-sans);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); cursor: pointer; white-space: nowrap; }
+.fs-scrollhint-down { transform: translate(-50%, -100%); }
+.fs-scrollhint:hover { color: var(--on-bg-accent, var(--text)); }
+.fs-scrollhint[hidden] { display: none; }
+@media (prefers-reduced-motion: no-preference) { .fs-scrollhint { animation: fs-hint-in 0.2s ease-out; } }
+@keyframes fs-hint-in { from { opacity: 0; } to { opacity: 1; } }
+.fs-cn-note { margin: 0; padding: 8px 12px; border-left: 3px solid var(--info); background: var(--surface-2, transparent); color: var(--text-muted); font-size: 15px; }
+.fs-cn-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.fs-cn-card { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.fs-cn-card strong { font: 700 22px/1.2 var(--font-sans); color: var(--text); }
+.fs-cn-t { font: 600 13px var(--font-sans); color: var(--text-muted); }
+.fs-cn-s { font-size: 13px; color: var(--text-muted); }
+.fs-cn-main { display: grid; grid-template-columns: minmax(220px, 360px) 1fr; gap: 14px; align-items: start; }
+@media (max-width: 760px) { .fs-cn-main { grid-template-columns: 1fr; } }
+.fs-cn-map { width: 100%; height: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); }
+.fs-cn-field { fill: rgba(150, 170, 90, 0.25); stroke: var(--text-muted); stroke-width: 1.5; }
+.fs-cn-flabel { fill: var(--text); font: 600 11px var(--font-sans); text-anchor: middle; }
+.fs-cn-water { fill: rgba(70, 140, 220, 0.6); stroke: rgba(70, 140, 220, 0.9); }
+.fs-cn-wetland { fill: rgba(70, 180, 170, 0.45); stroke: rgba(70, 180, 170, 0.9); stroke-dasharray: 3 2; }
+.fs-cn-pin { cursor: pointer; }
+.fs-cn-pin circle { fill: var(--panel); stroke-width: 2; }
+.fs-cn-pin text { font: 700 10px var(--font-sans); text-anchor: middle; fill: var(--text); }
+.fs-cn-pin.fs-cn-warn circle { stroke: #e07a3f; }
+.fs-cn-pin.fs-cn-info circle { stroke: var(--info); }
+.fs-cn-pin.fs-cn-on circle { fill: #e07a3f; }
+.fs-cn-pin.fs-cn-info.fs-cn-on circle { fill: var(--info); }
+.fs-cn-warns h3 { margin: 0 0 6px; font: 700 16px var(--font-sans); }
+.fs-cn-warns ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }
+.fs-cn-warns li::marker { font-weight: 700; color: var(--text-muted); }
+.fs-cn-warns button { all: unset; box-sizing: border-box; display: block; width: 100%; cursor: pointer; padding: 6px 8px; border-radius: 6px; font-size: 15px; line-height: 1.45; color: var(--text); }
+.fs-cn-warns button:disabled { cursor: default; }
+.fs-cn-warns button:hover:not(:disabled), .fs-cn-warns .fs-cn-on button { background: rgba(255, 255, 255, 0.06); }
+.fs-cn-warns button:focus-visible { outline: 2px solid var(--info); outline-offset: 1px; }
+.fs-cn-badge { display: inline-block; padding: 0 6px; border-radius: 4px; font: 700 11px/1.6 var(--font-sans); text-transform: uppercase; letter-spacing: 0.03em; }
+.fs-cn-warn .fs-cn-badge { background: #e07a3f; color: #1b1b1b; }
+.fs-cn-info .fs-cn-badge { background: var(--info); color: #1b1b1b; }
+.fs-cn-tablewrap { overflow-x: auto; }
+.fs-cn-table { border-collapse: collapse; width: 100%; font-size: 14px; }
+.fs-cn-table th, .fs-cn-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+.fs-cn-table thead th { color: var(--text-muted); font-weight: 600; }
+.fs-hl { display: flex; flex-direction: column; gap: 12px; }
+.fs-hl h3 { margin: 6px 0 0; font: 700 18px var(--font-sans); }
+.fs-hl h4 { margin: 0 0 4px; font: 700 14px var(--font-sans); color: var(--text-muted); }
+.fs-hl-field { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.fs-hl-line, .fs-hl-small { margin: 0; font-size: 14px; }
+.fs-hl-grid { display: grid; grid-template-columns: minmax(200px, 300px) 1fr; gap: 14px; align-items: start; }
+.fs-hl-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .fs-hl-grid, .fs-hl-cols { grid-template-columns: 1fr; } }
+.fs-hl-cols ul { margin: 0; padding-left: 18px; font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+.fs-hl-spark { width: 100%; height: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; }
+.fs-hl-ndvi { fill: none; stroke: #7fbf5a; stroke-width: 2; }
+.fs-hl-ndmi { fill: none; stroke: #5aa0e0; stroke-width: 1.5; stroke-dasharray: 4 3; }
+.fs-hl-zero { stroke: var(--border); }
+.fs-hl-ax { fill: var(--text-muted); font: 10px var(--font-sans); }
+.fs-hl-key { margin: 2px 0 0; font-size: 12px; color: var(--text-muted); display: flex; gap: 10px; align-items: center; }
+.fs-hl-key i { display: inline-block; width: 14px; height: 3px; margin-right: 4px; }
+.fs-hl-key i.g { background: #7fbf5a; } .fs-hl-key i.b { background: #5aa0e0; }
+.fs-hl-bars { display: flex; flex-direction: column; gap: 5px; }
+.fs-hl-bar { display: grid; grid-template-columns: 104px 1fr 34px; grid-template-rows: auto auto; column-gap: 8px; align-items: center; font-size: 14px; }
+.fs-hl-bl { font-weight: 600; }
+.fs-hl-track { height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; }
+.fs-hl-track i { display: block; height: 100%; }
+.fs-hl-track i.ok { background: #6fb35a; } .fs-hl-track i.mid { background: #d9a43a; } .fs-hl-track i.bad { background: #e07a3f; }
+.fs-hl-v { text-align: right; font-weight: 700; }
+.fs-hl-d { grid-column: 2 / 4; font-size: 12px; color: var(--text-muted); }
+.fs-hl-scores { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 15px; }
+.fs-hl-scores b { font-size: 18px; }
+.fs-hl-pr { display: inline-block; min-width: 52px; text-align: center; padding: 0 6px; border-radius: 4px; font: 700 11px/1.6 var(--font-sans); text-transform: uppercase; color: #1b1b1b; }
+.fs-hl-high { background: #e07a3f; } .fs-hl-medium { background: #d9a43a; } .fs-hl-low { background: var(--border); color: var(--text); }
+.fs-hl-adv { list-style: none; padding-left: 0 !important; }
+.fs-hl a { color: var(--accent-strong); }
+#fs-import { margin-top: var(--gap); }
+.fs-imp-body { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(0, 1.3fr); gap: 20px; padding: 6px 18px 20px; align-items: stretch; }
+@media (max-width: 800px) { .fs-imp-body { grid-template-columns: 1fr; } }
+.fs-imp-zone { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 220px; padding: 70px 24px 24px; text-align: center;
+  border: 2px dashed var(--border-strong); border-radius: var(--radius-lg); color: var(--accent-strong); cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+.fs-imp-zone:hover, .fs-imp-zone:focus-within, .fs-imp-zone.fs-imp-over { border-color: var(--accent); background: rgba(255, 255, 255, 0.04); }
+.fs-imp-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.fs-imp-zone.fs-imp-busy { cursor: progress; opacity: 0.6; }
+.fs-imp-big { font: 700 20px/1.3 var(--font-sans); color: var(--text); max-width: 26ch; }
+.fs-imp-tip { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 6; padding: 8px 12px; border-radius: 8px; background: var(--text); color: var(--bg);
+  font: 500 14px/1.4 var(--font-sans); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.12s; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35); }
+.fs-imp-tip b { color: inherit; }
+.fs-imp-zone:hover .fs-imp-tip, .fs-imp-zone:focus-within .fs-imp-tip { opacity: 1; }
+.fs-imp-info { display: flex; flex-direction: column; gap: 8px; font: 400 16px/1.5 var(--font-sans); color: var(--text); }
+.fs-imp-info p { margin: 0; }
+.fs-imp-info ul { margin: 0; padding-left: 20px; color: var(--text-muted); font-size: 15px; }
+.fs-imp-info a { color: var(--accent-strong); }
+.fs-imp-status { padding: 8px 12px; border-radius: 8px; border-left: 3px solid var(--border-strong); }
+.fs-imp-status[hidden] { display: none; }
+.fs-imp-err { border-left-color: #e07a3f; background: rgba(224, 122, 63, 0.12); }
+.fs-imp-ok { border-left-color: #6fb35a; background: rgba(111, 179, 90, 0.12); }
+.fs-imp-wait { border-left-color: var(--info); }
+.fs-imp-done { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding-top: 4px; }
+.fs-imp-done[hidden] { display: none; }
+.fs-imp-done p { flex: 1 0 100%; }
+.fs-cn-fresh { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 13px; color: var(--text-muted); }
+.fs-cn-fresh span { padding: 4px 10px; border: 1px solid var(--border); border-radius: 999px; }
+.fs-cn-fresh b { color: var(--text); font-weight: 600; }
+.fs-cn-fresh i { font-style: normal; opacity: 0.8; }
+.fs-cn-fresh .fs-cn-auto { border-style: dashed; }
+.fs-fm-tabs button { white-space: nowrap; }
 
 /* Bird's-eye view styles. Every selector is scoped under #fs-view or starts with .fv- (tokens only for color). */
 #fs-view { position: relative; display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: var(--panel); color: var(--text); font-family: var(--font-sans); }
@@ -580,6 +684,12 @@ textarea.fs-q-text { resize: vertical; min-height: 3.4em; }
 #fs-view .fv-fcrop { font-size: 13px; color: var(--text-muted); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #fs-view .fv-row.fv-flagged .fv-fcrop { color: var(--warn); }
 #fs-view .fv-acres { font: 12px var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-muted); }
+#fs-view .fv-count { display: flex; align-items: center; gap: 8px; padding: 4px 10px 8px; font-size: 12px; color: var(--text-muted); }
+#fs-view .fv-count-btn { min-width: 28px; height: 26px; padding: 0 8px; border: 1px solid var(--border); border-radius: 999px; background: none; color: var(--text); font: 600 12px/1 var(--font-sans); cursor: pointer; }
+#fs-view .fv-count-add { margin-left: auto; }
+#fs-view .fv-count-btn:hover:not(:disabled) { border-color: var(--text-muted); }
+#fs-view .fv-count-btn:disabled { opacity: 0.4; cursor: default; }
+#fs-view .fv-count-btn:focus-visible { outline: 2px solid var(--focus-edge); outline-offset: 1px; }
 #fs-view .fv-key { display: flex; flex-wrap: wrap; gap: 4px 10px; padding: 6px 10px 8px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); }
 #fs-view .fv-key-i { display: inline-flex; align-items: center; gap: 4px; }
 #fs-view .fv-key .fv-chip { width: 9px; height: 9px; }
@@ -2292,7 +2402,8 @@ window.FS = window.FS || {};
     if (ORIG) return ORIG;
     var D = FS.data, f = D.farm;
     ORIG = { climate: D.climate, place: f.place, lat: f.lat, lon: f.lon, county: f.countyAwcMmPerM,
-             fields: f.fields.map(function (x) { return { id: x.id, name: x.name, acres: x.acres, lastCrop: x.lastCrop, soil: clone(x.soil) }; }),
+             fields: f.fields.map(function (x) { return { id: x.id, name: x.name, acres: x.acres, lastCrop: x.lastCrop, soil: clone(x.soil), poly: clone(x.poly) }; }),
+             objs: f.fields.slice(), scenery: clone(f.scenery),
              plans: clone(D.initialControls.crops.plans), trial: clone(D.initialControls.crops.trialAcres), normal: clone(D.economics.normalYield),
              scenarios: clone(D.weatherScenarios || []) };
     return ORIG;
@@ -2319,13 +2430,14 @@ window.FS = window.FS || {};
     for (d = IDX.fallFrost; d < N_DAYS; d++) if (w.tmin[d] <= FROST_C) { fall = d; break; }
     return { spring: spring < 0 ? null : realDayWords(spring, year), fall: fall < 0 ? null : realDayWords(fall, year) };
   }
+  function WXN() { var m = climate().meta || {}; return m.short || 'NASA POWER'; }
   function setScenarios(isStory) {
     var list = FS.data.weatherScenarios || [], O = ORIG.scenarios;
     if (isStory) { list.forEach(function (s, i) { var k; for (k in s) delete s[k]; for (k in O[i]) s[k] = O[i][k]; }); return; }
     var T = pickTypical(), yrs = T.years, span = yrs[0] + '-' + yrs[yrs.length - 1];
     function rn(a, z, y) { return Math.round(sumRain(baseWx(y), a, z)); }
     function rmed(a, z) { return Math.round(median(yrs.map(function (y) { return sumRain(baseWx(y), a, z); }))); }
-    function jjaNote(y, what) { return what + ' Real ' + y + ' weather from NASA POWER at this location: June-August rain ' + rn(IDX.jun1, IDX.aug31, y) + ' mm against a ' + span + ' median of ' + rmed(IDX.jun1, IDX.aug31) + ' mm.'; }
+    function jjaNote(y, what) { return what + ' Real ' + y + ' weather from ' + WXN() + ' at this location: June-August rain ' + rn(IDX.jun1, IDX.aug31, y) + ' mm against a ' + span + ' median of ' + rmed(IDX.jun1, IDX.aug31) + ' mm.'; }
     list.forEach(function (s) {
       var o = O.filter(function (x) { return x.id === s.id; })[0] || s, k; for (k in s) delete s[k]; for (k in o) s[k] = o[k];
       var fw;
@@ -2333,9 +2445,9 @@ window.FS = window.FS || {};
         s.note = 'Closest of the ' + yrs.length + ' seasons to the middle of the record in both June-August rain (' + Math.round(T.jja) + ' mm here against a ' + span + ' median of ' + Math.round(T.medJJA) + ' mm) and summer warmth.'; }
       else if (s.id === 'drought2012' || s.id === 'drought1988') s.note = jjaNote(s.year, 'Drought and heat across the Corn Belt.');
       else if (s.id === 'dry2023') s.note = jjaNote(s.year, 'A dry summer.');
-      else if (s.id === 'wetSpring') s.note = 'Real ' + s.year + ' weather from NASA POWER at this location: April-June rain ' + rn(IDX.apr1, IDX.jun30, s.year) + ' mm against a ' + span + ' median of ' + rmed(IDX.apr1, IDX.jun30) + ' mm.';
-      else if (s.id === 'lateFreeze') { fw = frostWords(s.year); s.phrase = 'the ' + s.year + ' season'; s.note = fw.spring ? 'Last spring frost night here (0 C or colder in NASA POWER): ' + fw.spring + '.' : 'No spring frost night at this location in ' + s.year + '.'; }
-      else if (s.id === 'earlyFrost') { fw = frostWords(s.year); s.phrase = 'the ' + s.year + ' season'; s.note = fw.fall ? 'First fall frost night here (0 C or colder in NASA POWER): ' + fw.fall + '.' : 'No fall frost night at this location in ' + s.year + '.'; }
+      else if (s.id === 'wetSpring') s.note = 'Real ' + s.year + ' weather from ' + WXN() + ' at this location: April-June rain ' + rn(IDX.apr1, IDX.jun30, s.year) + ' mm against a ' + span + ' median of ' + rmed(IDX.apr1, IDX.jun30) + ' mm.';
+      else if (s.id === 'lateFreeze') { fw = frostWords(s.year); s.phrase = 'the ' + s.year + ' season'; s.note = fw.spring ? 'Last spring frost night here (0 C or colder in ' + WXN() + '): ' + fw.spring + '.' : 'No spring frost night at this location in ' + s.year + '.'; }
+      else if (s.id === 'earlyFrost') { fw = frostWords(s.year); s.phrase = 'the ' + s.year + ' season'; s.note = fw.fall ? 'First fall frost night here (0 C or colder in ' + WXN() + '): ' + fw.fall + '.' : 'No fall frost night at this location in ' + s.year + '.'; }
     });
   }
   // ---------------------------------------------------------------- fitting a county's data to one farm (API: setFarm opts.local)
@@ -2422,6 +2534,15 @@ window.FS = window.FS || {};
   }
 
   var POS = { north: 'North', creek: 'Creek', west: 'West', south: 'South' };
+  // A whole climate from elsewhere (imported fields: Copernicus reanalysis at the farm), checked before it replaces the county's.
+  // The heat calibration stays the county's: it is a property of the crop model, not of the weather source.
+  function goodClimate(C, base) {
+    if (!C || !C.meta || !C.seasons || !Array.isArray(C.meta.years) || C.meta.years.length < 30) return null;
+    var ok = C.meta.years.every(function (y) { var s = C.seasons[y]; return s && ['tmax', 'tmin', 'rain', 'et0'].every(function (k) { return Array.isArray(s[k]) && s[k].length === N_DAYS; }); });
+    if (!ok) return null;
+    return { meta: Object.assign({}, base.meta, C.meta, { heatMatch: base.meta.heatMatch, scale: Object.assign({}, base.meta.scale, C.meta.scale) }), seasons: C.seasons };
+  }
+  function goodPoly(p) { return Array.isArray(p) && p.length >= 3 && p.every(function (q) { return Array.isArray(q) && isFinite(q[0]) && isFinite(q[1]); }) ? p.map(function (q) { return [+q[0], +q[1]]; }) : null; }
   function setFarm(opts) {
     opts = opts || {};
     var O = origFarm(), D = FS.data, id = opts.site || 'story-ia', st = null, i;
@@ -2430,8 +2551,18 @@ window.FS = window.FS || {};
     var isStory = !st || id === 'story-ia';
     var farm = D.farm, req = {};
     (opts.fields || []).forEach(function (x) { if (x && x.id) req[x.id] = x; });
+    // imported field outlines (GeoJSON): only those fields, with their own names, shapes and acres, and the climate measured at them
+    var G = opts.geo && typeof opts.geo === 'object' && Array.isArray(opts.geo.fields) && opts.geo.fields.length ? opts.geo : null, gf = {};
+    if (G) G.fields.forEach(function (x) { if (x && POS[x.id]) gf[x.id] = x; });
+    if (G && !Object.keys(gf).length) G = null;
+    farm.fields.length = 0;   // in place: the UI holds this array
+    // how many fields (1 to 4, opts.count): the first N of the layout; imported outlines bring their own
+    var NF = clamp(Math.round(+opts.count) || O.objs.length, 1, O.objs.length);
+    O.objs.forEach(function (o, i) { if (G ? gf[o.id] : i < NF) farm.fields.push(o); });
     // site data into the shared objects (in place: the UI holds references)
     D.climate = isStory || !st.climate ? O.climate : st.climate;
+    var GC = G ? goodClimate(G.climate, D.climate) : null;
+    if (GC) D.climate = GC;
     var L = opts.local && typeof opts.local === 'object' && (opts.local.tempC || opts.local.rainRatio || opts.local.soils || opts.local.normalYield || opts.local.ai) ? opts.local : null;   // a fit with no data is no fit
     if (L) D.climate = localClimate(D.climate, L);
     resetCaches();
@@ -2444,9 +2575,10 @@ window.FS = window.FS || {};
     var plans = D.initialControls.crops.plans, trial = D.initialControls.crops.trialAcres;
     farm.fields.forEach(function (f) {
       var o = O.fields.filter(function (x) { return x.id === f.id; })[0], r = req[f.id] || {};
-      var ac = r.acres == null ? o.acres : clamp(Math.round(+r.acres) || o.acres, 10, 640);
-      var lc = r.lastCrop === 'corn' || r.lastCrop === 'soybean' ? r.lastCrop : o.lastCrop;
-      f.acres = ac; f.lastCrop = lc; f.name = POS[f.id] + ' ' + ac; f.soil = clone(soils[f.id]);
+      var g = gf[f.id], ac = g && +g.acres > 0 ? clamp(Math.round(+g.acres), 1, 5000) : r.acres == null ? o.acres : clamp(Math.round(+r.acres) || o.acres, 10, 640);
+      var lc = g && (g.lastCrop === 'corn' || g.lastCrop === 'soybean') ? g.lastCrop : r.lastCrop === 'corn' || r.lastCrop === 'soybean' ? r.lastCrop : o.lastCrop;
+      f.acres = ac; f.lastCrop = lc; f.name = g && g.name ? String(g.name).slice(0, 28) : POS[f.id] + ' ' + ac; f.soil = clone(soils[f.id]);
+      f.poly = (g && goodPoly(g.poly)) || clone(o.poly);
       plans[f.id] = lc === 'corn' ? 'soy' : 'corn'; trial[f.id] = ac;
       // optional current plan (for example a cover crop the farmer already plants): only one this field may choose; anything else keeps the default
       if (typeof r.currentPlan === 'string' && (D.planOptions[lc] || []).indexOf(r.currentPlan) >= 0) plans[f.id] = r.currentPlan;
@@ -2458,11 +2590,14 @@ window.FS = window.FS || {};
       ny[c] = Math.round(base * (1 + adj / 100) * 10) / 10;
     });
     if (L && L.label) farm.place = L.label;
-    setScenarios(isStory);
+    farm.imported = !!G;
+    setScenarios(isStory && !GC);
     SITE = isStory ? { id: 'story-ia', name: O.place, short: 'Story Co., IA', state: 'IA', validated: true } : { id: st.id, name: st.name, short: st.short, state: st.state, validated: st.validated !== false && !!st.validated, lat: st.lat, lon: st.lon };
     if (st && isStory) { SITE.name = st.name || SITE.name; SITE.short = st.short || SITE.short; }
     SITE.local = L ? { label: L.label || '', km: L.km, dataFrom: isStory ? 'Story County, Iowa' : st.name, lat: L.lat, lon: L.lon } : null;
     if (L) { SITE.name = L.label || SITE.name; SITE.validated = false; }
+    SITE.geo = G ? { fields: farm.fields.length, weather: GC ? (GC.meta.short || 'imported') : null } : null;
+    if (G) SITE.validated = false;
     return { ok: true, site: { id: SITE.id, name: SITE.name, short: SITE.short, state: SITE.state, validated: SITE.validated, typicalYear: typicalYear() } };
   }
 
@@ -2481,7 +2616,7 @@ window.FS = window.FS || {};
     if (!other && sh.irr !== 'none') o = otherOf({ other: o, crops: { irrigation: sh.irr } });
     return evalField(farm, f, planId, baseWx(year), sh, o, ref, false, heatOf(), 1);
   }
-  FS.engine = { setFarm: setFarm, outlook: outlook, site: function () { return { id: SITE.id, name: SITE.name, short: SITE.short, state: SITE.state, validated: SITE.validated, local: SITE.local || null }; }, run: run, evalYear: evalYear, scenario: scenario, compare: compare, seasons: seasons, warm: warm, sample: false, N_WEEKS: N_WEEKS,
+  FS.engine = { setFarm: setFarm, outlook: outlook, site: function () { return { id: SITE.id, name: SITE.name, short: SITE.short, state: SITE.state, validated: SITE.validated, local: SITE.local || null, geo: SITE.geo || null }; }, run: run, evalYear: evalYear, scenario: scenario, compare: compare, seasons: seasons, warm: warm, sample: false, N_WEEKS: N_WEEKS,
                 validation: function () { return VALIDATION; },
                 _ref: function () { return getRef(FS.data.farm); }, _setParams: setParams, _components: components, _hybrids: hybrids,
                 _irrigation: function () { return { kwhPerAcreInch: IRR_KWH_PER_ACRE_IN, dollarsPerKwh: IRR_DOLLARS_PER_KWH, dollarsPerAcreInch: IRR_COST_PER_ACRE_IN, inches: { july: irrInches('july'), 'july-aug': irrInches('july-aug'), 'jun-aug': irrInches('jun-aug') } }; },
@@ -2581,7 +2716,8 @@ window.FS = window.FS || {};
   function polyPath(c, poly) { c.beginPath(); poly.forEach(function (p, i) { if (i) c.lineTo(p[0], p[1]); else c.moveTo(p[0], p[1]); }); c.closePath(); }
 
   var GEO = {};   // per field: bbox, label point, dry and wet blobs
-  FIELDS.forEach(function (f, idx) {
+  function buildGeo() { GEO = {}; FIELDS.forEach(geoField); }
+  function geoField(f, idx) {
     var r = mulberry(hash(f.id) + 11), b = bbox(f.poly), dry = [], wet = [], tries = 0;
     function blobs(list, n, rmin, rmax) {
       while (list.length < n && tries++ < 400) {
@@ -2591,7 +2727,9 @@ window.FS = window.FS || {};
     }
     blobs(dry, 9, 22, 55); blobs(wet, 5, 16, 34);
     GEO[f.id] = { bb: b, lp: labelPoint(f.poly), dry: dry, wet: wet, dir: ROW_DIR[f.id] || (idx % 2 ? 'v' : 'h') };
-  });
+  }
+  buildGeo();
+  function imported() { return !!DATA.farm.imported; }   // the farmer's own outlines (GeoJSON): no drawn farmstead, roads or creek
 
   // Geometry of a real farm map's fields in map units (0..MAPSIZE), or null when the record cannot paint all four simulator fields.
   function buildMapGeo(rec) {
@@ -2668,23 +2806,25 @@ window.FS = window.FS || {};
     // base: ground, farmstead lawn, pond, roads
     var base = mkCanvas(W, H), c = base.getContext('2d'); c.setTransform(k, 0, 0, k, 0, 0);
     c.fillStyle = rgba(T.ground); c.fillRect(0, 0, VW, VH); blotches(c, 311, 1.15);
+    if (!imported()) {
     var fs = SCN.farmstead; c.fillStyle = rgba(T.lawn); c.fillRect(fs[0][0], fs[0][1], fs[2][0] - fs[0][0], fs[2][1] - fs[0][1]); blotches(c, 5, 0.0);
     c.fillStyle = rgba(T.lawn, 0.9); c.fillRect(fs[0][0], fs[0][1], fs[2][0] - fs[0][0], fs[2][1] - fs[0][1]);
     c.fillStyle = rgba(T.road, 0.55); c.fillRect(60, 150, 150, 120);              // yard gravel
     c.fillStyle = rgba(T.water, 0.9); c.beginPath(); c.ellipse(180, 470, 38, 15, -0.2, 0, 7); c.fill();   // pond
     c.strokeStyle = rgba(T.soilDark, 0.5); c.lineWidth = 2; c.stroke();
     c.fillStyle = rgba(light(T.water, 0.3), 0.3); c.beginPath(); c.ellipse(172, 466, 22, 6, -0.2, 0, 7); c.fill();
+    }
     grain(c, W, H, 9, 0.2);
     c.setTransform(k, 0, 0, k, 0, 0);
     // driveway and gravel roads
-    var roads = SCN.roads.concat([[[130, 270], [130, 325]]]);
+    var roads = imported() ? [] : SCN.roads.concat([[[130, 270], [130, 325]]]);
     roads.forEach(function (rd) {
       c.lineCap = 'butt'; c.strokeStyle = rgba(T.shadow, 0.35); c.lineWidth = 15; c.beginPath(); rd.forEach(function (p, i) { i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1]); }); c.stroke();
       c.strokeStyle = rgba(T.road, 0.92); c.lineWidth = 11; c.stroke();
       c.strokeStyle = rgba(T.soilDark, 0.18); c.lineWidth = 1.5; c.setLineDash([]);
       [-3, 3].forEach(function (o) { c.beginPath(); rd.forEach(function (p, i) { var q = rd[0][1] === rd[rd.length - 1][1] ? [p[0], p[1] + o] : [p[0] + o, p[1]]; i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1]); }); c.stroke(); });
     });
-    for (var i = 0; i < 500; i++) {                                                // gravel speckle
+    for (var i = 0; i < (roads.length ? 500 : 0); i++) {                                                // gravel speckle
       var rd = roads[i % roads.length], a = rd[0], b = rd[rd.length - 1], t = r(); c.fillStyle = rgba(r() > 0.5 ? light(T.road, 0.4) : T.soilDark, 0.35);
       c.fillRect(lerp(a[0], b[0], t) + (a[0] === b[0] ? (r() - 0.5) * 10 : 0), lerp(a[1], b[1], t) + (a[1] === b[1] ? (r() - 0.5) * 10 : 0), 1, 1);
     }
@@ -2694,6 +2834,7 @@ window.FS = window.FS || {};
     var top = mkCanvas(W, H), t2 = top.getContext('2d'); t2.setTransform(k, 0, 0, k, 0, 0);
     var rnd = mulberry(99);
     FIELDS.forEach(function (f) { polyPath(t2, f.poly); t2.strokeStyle = rgba(T.shadow, 0.55); t2.lineWidth = 2.6; t2.stroke(); t2.strokeStyle = rgba(light(T.crop.oats, 0.4), 0.55); t2.lineWidth = 1; t2.stroke(); });
+    if (!imported()) {
     var cp = creekPts();                                                            // creek
     smoothPath(t2, cp); t2.lineCap = 'round'; t2.lineJoin = 'round';
     t2.strokeStyle = rgba(T.soilDark, 0.4); t2.lineWidth = 20; t2.stroke();
@@ -2725,6 +2866,7 @@ window.FS = window.FS || {};
       t2.fillStyle = g; t2.beginPath(); t2.arc(s[0], s[1], 10, 0, 7); t2.fill();
     });
     [[40, 44], [100, 44], [200, 40], [214, 110], [40, 150], [48, 186], [60, 232], [110, 258], [196, 232], [212, 270], [32, 280], [150, 290], [210, 170], [34, 100]].forEach(function (p) { tree(t2, p[0] + (rnd() - 0.5) * 6, p[1] + (rnd() - 0.5) * 6, 8 + rnd() * 6, rnd); });
+    }
     // photo-like vignette and grain
     var vg = t2.createRadialGradient(VW / 2, VH / 2, VH * 0.45, VW / 2, VH / 2, VW * 0.65); vg.addColorStop(0, rgba(T.shadow, 0)); vg.addColorStop(1, rgba(T.shadow, 0.38));
     t2.fillStyle = vg; t2.fillRect(0, 0, VW, VH);
@@ -2775,7 +2917,7 @@ window.FS = window.FS || {};
 
     // legend rows and labels
     var rows = {}, labelEls = {}, ul = $('.fv-fields');
-    FIELDS.forEach(function (f) {
+    function addRow(f) {
       var li = document.createElement('li'), b = document.createElement('button');
       b.type = 'button'; b.className = 'fv-row'; b.setAttribute('data-id', f.id);
       b.innerHTML = '<span class="fv-chip"></span><span class="fv-ftxt"><span class="fv-fname"></span><span class="fv-fcrop"></span></span><span class="fv-acres"></span>';
@@ -2783,7 +2925,25 @@ window.FS = window.FS || {};
       b.addEventListener('click', function () { FS.actions.selectField(f.id, 'map'); setSelected(f.id); });
       li.appendChild(b); ul.appendChild(li); rows[f.id] = { btn: b, chip: b.querySelector('.fv-chip'), crop: b.querySelector('.fv-fcrop') };
       var lb = document.createElement('span'); lb.className = 'fv-label'; lb.textContent = f.name; labelsEl.appendChild(lb); labelEls[f.id] = lb;
+      rows[f.id].li = li;
+    }
+    FIELDS.forEach(addRow);
+    // how many fields: add one more (up to four) or take the last one away; imported outlines set their own number
+    var cnt = document.createElement('div'); cnt.className = 'fv-count';
+    cnt.innerHTML = '<button type="button" class="fv-count-btn" data-d="-1" aria-label="Remove the last field">\u2212</button>' +
+      '<span class="fv-count-n" aria-live="polite"></span><button type="button" class="fv-count-btn fv-count-add" data-d="1">+ Add field</button>';
+    ul.parentNode.insertBefore(cnt, ul.nextSibling);
+    cnt.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b || b.disabled || !FS.farmSetup.setFieldCount) return;
+      FS.farmSetup.setFieldCount(FIELDS.length + Number(b.getAttribute('data-d')));
     });
+    function showCount() {
+      var n = FIELDS.length, imp = imported(), bs = cnt.querySelectorAll('button');
+      cnt.querySelector('.fv-count-n').textContent = n + (n === 1 ? ' field' : ' fields');
+      bs[0].disabled = imp || n <= 1; bs[1].disabled = imp || n >= 4;
+      cnt.title = imp ? 'Your imported outlines set the fields. Press "Use example fields" to change the number.' : '';
+    }
+    showCount();
     var keyEl = $('.fv-key');
     ['corn', 'soybean', 'rye', 'oats', 'none'].forEach(function (c) {
       var s = document.createElement('span'); s.className = 'fv-key-i'; s.innerHTML = '<i class="fv-chip fv-chip-' + c + '"></i>' + (c === 'none' ? 'bare' : c === 'soybean' ? 'soy' : c); keyEl.appendChild(s);
@@ -3206,6 +3366,7 @@ window.FS = window.FS || {};
       liveSt = { key: key, status: 'ok', rec: rec }; useMap(rec, true, 'live', rec.img);
     }
     function pickMap() {
+      if (imported()) { liveSt = { key: '', status: '', rec: null }; fallBack(0, false, 'county'); credEl.textContent = 'Your own field outlines · Copernicus weather and terrain'; return; }
       var pt = ownPoint(), base = serverBase(), c = countyRec();
       if (pt && base) {
         var key = pt.lat.toFixed(3) + ',' + pt.lon.toFixed(3);
@@ -3223,6 +3384,10 @@ window.FS = window.FS || {};
     // A new farm was set up (names, acres, place): re-read the field list and relabel the legend, the labels and the caption.
     function refresh() {
       FIELDS = DATA.farm.fields;
+      buildGeo();
+      FIELDS.forEach(function (f) { if (!rows[f.id]) addRow(f); });
+      Object.keys(rows).forEach(function (id) { var on = FIELDS.some(function (f) { return f.id === id; }); rows[id].li.hidden = !on; labelEls[id].hidden = !on; });
+      showCount();
       FIELDS.forEach(function (f) {
         var r = rows[f.id]; if (!r) return;
         r.btn.querySelector('.fv-fname').textContent = f.name; r.btn.querySelector('.fv-acres').textContent = f.acres + ' ac';
@@ -3925,10 +4090,22 @@ window.FS = window.FS || {};
     if (CROP_EXACT[w]) return CROP_EXACT[w];
     return fuzzy(w, CROP_DICT, CROP_STOP);
   }
+  // imported fields have the farmer's own names ("Home quarter"): a word that belongs to one field's name finds it
+  var NAME_SKIP = ['field', 'fields', 'the', 'and', 'farm', 'acre', 'acres', 'plot', 'lot'];
+  function nameWords() {
+    var seen = {}, out = {};
+    D.farm.fields.forEach(function (f) {
+      String(f.name || '').toLowerCase().split(/[^a-z0-9]+/).forEach(function (w) {
+        if (w.length < 3 || NAME_SKIP.indexOf(w) >= 0 || /^\d+$/.test(w)) return;
+        if (seen[w] && seen[w] !== f.id) out[w] = null; else { seen[w] = f.id; if (out[w] !== null) out[w] = f.id; }
+      });
+    });
+    return out;
+  }
   function fieldOf(w) {
-    if (FIELD_EXACT[w]) return FIELD_EXACT[w];
-    if (FIELD_STOP.indexOf(w) >= 0) return null;
-    return fuzzy(w, FIELD_DICT, FIELD_STOP);
+    var nw = nameWords()[w]; if (nw) return nw;
+    var id = FIELD_EXACT[w] || (FIELD_STOP.indexOf(w) >= 0 ? null : fuzzy(w, FIELD_DICT, FIELD_STOP));
+    return id && fieldById(id) ? id : null;   // only fields this farm has
   }
 
   // ---------- vocabulary ----------
@@ -4151,7 +4328,7 @@ window.FS = window.FS || {};
     return 'yields are ' + sel.join(', ') + ' of a normal crop';
   }
 
-  function examples() { return 'Type a change to the weather, crops or prices. Examples:\n• "What if 2012 happens again?"\n• "Try corn after corn on ' + fieldById('north').name + '"\n• "Rain −20% and +2°C"\n• "What should I plant on ' + fieldById('creek').name + '?"\n• "I care most about profit"'; }
+  function examples() { return 'Type a change to the weather, crops or prices. Examples:\n• "What if 2012 happens again?"\n• "Try corn after corn on ' + D.farm.fields[0].name + '"\n• "Rain −20% and +2°C"\n• "What should I plant on ' + D.farm.fields[D.farm.fields.length > 1 ? 1 : 0].name + '?"\n• "I care most about profit"'; }
 
   // ================================================================= the interpreter
   FS.chat = FS.chat || {};
@@ -4194,7 +4371,7 @@ window.FS = window.FS || {};
       if (w === 'cover' && tk[i + 1] && tk[i + 1].k === 'word' && /^crops?$/.test(tk[i + 1].w)) { T.c = 'rye'; tk[i + 1].c = '-'; T.coverCrop = true; continue; }
       if (tk[i].c) continue;
       var c = cropOf(w); if (c) { T.c = c; T.fuzzyFrom = (c === CROP_EXACT[w] ? null : w); continue; }
-      var fo = fieldOf(w); if (fo) { T.f = fo; T.fuzzyFrom = (FIELD_EXACT[w] ? null : w); continue; }
+      var fo = fieldOf(w); if (fo) { T.f = fo; T.fuzzyFrom = (FIELD_EXACT[w] || nameWords()[w] ? null : w); continue; }
       if (KW[w]) T.kw = KW[w];
       if (/^(prices?|costs?)$/.test(w) && tk[i - 1] && tk[i - 1].kw === 'NITRO') { T.kw = null; T.used = true; T.w = '_'; continue; }   // "fertilizer prices" is one thing
       if (IMPLICIT[w]) { T.imp = IMPLICIT[w]; }
@@ -4467,7 +4644,7 @@ window.FS = window.FS || {};
 
     if (prevCropRef && !fieldsNamed.length) {
       var fol = D.farm.fields.filter(function (f) { return prevCropRef === 'soy' ? f.lastCrop === 'soybean' : f.lastCrop === 'corn'; }).map(function (f) { return f.name; });
-      return { reply: 'Which field do you mean? ' + (fol.length ? 'The fields that followed ' + (prevCropRef === 'soy' ? 'soybeans' : 'corn') + ' are ' + fol.join(' and ') + '. ' : '') + 'Name one, for example "corn on ' + (fol[0] || fieldById('south').name) + '".', actions: [] };
+      return { reply: 'Which field do you mean? ' + (fol.length ? 'The fields that followed ' + (prevCropRef === 'soy' ? 'soybeans' : 'corn') + ' are ' + fol.join(' and ') + '. ' : '') + 'Name one, for example "corn on ' + (fol[0] || D.farm.fields[D.farm.fields.length - 1].name) + '".', actions: [] };
     }
     // ---- 4. questions: compare / what should I plant
     var isCmp = /\bcompar\w*|\bversus\b|\bvs\b|side by side/.test(t);
@@ -4671,7 +4848,7 @@ window.FS = window.FS || {};
     if (selectTo && selectTo !== state.selectedField) actions.push({ type: 'selectField', id: selectTo });
 
     // fuzzy matches said back to the user
-    var fz = []; tk.forEach(function (x) { if (x.fuzzyFrom && x.used) fz.push('"' + x.fuzzyFrom + '" as ' + (x.c ? (x.c === 'soy' ? 'soybeans' : x.c) : x.f)); });
+    var fz = []; tk.forEach(function (x) { if (x.fuzzyFrom && x.used) fz.push('"' + x.fuzzyFrom + '" as ' + (x.c ? (x.c === 'soy' ? 'soybeans' : x.c) : ((fieldById(x.f) || {}).name || x.f))); });
     if (fz.length && actions.length) notes.push('I read ' + fz.join(' and ') + '.');
 
     // ---- 8. answer
@@ -4713,7 +4890,7 @@ window.FS = window.FS || {};
         var sf = (state.selectedField || D.farm.fields[0].id), cmpR = compareReply(sf, simState, state, '');
         res2.reply = (lead || '') + plainSpeak((sm && sm.recommendationNote) || 'No alternative beats your current plans on this ranking.') + '\nHere is how the other options on ' + fieldById(sf).name + ' compare:';
         if (cmpR.items && cmpR.items.length) { res2.items = cmpR.items; res2.kind = 'cmp'; }
-        else res2.reply += ' Name a field to compare its plans, for example "compare plans for ' + fieldById('creek').name + '".';
+        else res2.reply += ' Name a field to compare its plans, for example "compare plans for ' + D.farm.fields[0].name + '".';
       }
       if (actions.length) res2.actions = actions.concat([{ type: 'run', label: labelBits.join(' · ') || 'Chat run' }]);
       return finish(res2);
@@ -5091,7 +5268,7 @@ window.FS = window.FS || {};
   Q.setDefaultFields = function (f) { DEFAULT_FIELDS = f.map(function (x) { return { id: x.id, acres: x.acres, lastCrop: x.lastCrop }; }); };
   function defaultFields() { return clone(DEFAULT_FIELDS || [{ id: 'north', acres: 80, lastCrop: 'corn' }, { id: 'creek', acres: 40, lastCrop: 'corn' }, { id: 'west', acres: 40, lastCrop: 'soybean' }, { id: 'south', acres: 120, lastCrop: 'soybean' }]); }
   Q.blank = function () {
-    return { v: 2, example: false, name: '', site: 'story-ia', point: null, fit: null, fields: defaultFields(), tenure: '', lease: '', experience: '', practices: [], livestock: [], water: '', drainage: '', tile: '', slope: '', soilTest: '',
+    return { v: 2, example: false, name: '', site: 'story-ia', point: null, fit: null, fields: defaultFields(), fieldCount: 4, tenure: '', lease: '', experience: '', practices: [], livestock: [], water: '', drainage: '', tile: '', slope: '', soilTest: '',
       limits: [], limitsNote: '', wont: [], contracted: null, budget: '', costShare: '', priorities: [], trial: '', worries: '', buyers: [], buyersNote: '', other: '' };
   };
   Q.example = function () { var a = Q.blank(); a.example = true; return a; };
@@ -5099,20 +5276,24 @@ window.FS = window.FS || {};
   function siteById(id) { return sites().filter(function (s) { return s.id === id; })[0] || null; }
   function pick(v, list) { return typeof v === 'string' && vals(list).indexOf(v) >= 0 ? v : ''; }
   function pickMany(v, list) { var ok = vals(list); return Array.isArray(v) ? v.filter(function (x, i) { return ok.indexOf(x) >= 0 && v.indexOf(x) === i; }) : []; }
+  function countOf(v) { var n = Math.round(Number(v)); return n >= 1 && n <= 4 ? n : 4; }   // how many fields the farm has (1 to 4)
   function text(v, n) { return typeof v === 'string' ? v.replace(/[\u0000-\u001f]+/g, ' ').trim().slice(0, n) : ''; }
 
   // Anything stored or linked is checked here; returns answers or null when it is not a usable farm. Old saves (one panel) are converted.
   Q.normalize = function (raw) {
     try {
       if (!raw || typeof raw !== 'object') return null;
-      if (raw.example) return Q.example();
+      if (raw.example) { var ex = Q.example(); ex.fieldCount = countOf(raw.fieldCount); return ex; }
       var a = Q.blank();
       if (!siteById(raw.site) || !Array.isArray(raw.fields) || raw.fields.length !== 4) return null;
       var okF = POS.every(function (p) { var f = raw.fields.filter(function (x) { return x && x.id === p[0]; })[0]; return f && f.acres >= 10 && f.acres <= 640 && (f.lastCrop === 'corn' || f.lastCrop === 'soybean'); });
       if (!okF) return null;
       a.site = raw.site;
+      a.fieldCount = countOf(raw.fieldCount);
       a.point = normPoint(raw.point);
       a.fit = a.point && raw.fit && typeof raw.fit === 'object' && raw.fit.local && typeof raw.fit.key === 'string' ? raw.fit : null;   // checked again against the answers in app.js
+      // imported field outlines and the conditions at them (fieldimport.js): kept as they are, checked in app.js and the engine
+      a.geo = raw.geo && typeof raw.geo === 'object' && Array.isArray(raw.geo.fields) && raw.geo.fields.length && raw.geo.cond && typeof raw.geo.cond === 'object' ? raw.geo : null;
       a.fields = POS.map(function (p) { var f = raw.fields.filter(function (x) { return x.id === p[0]; })[0]; return { id: p[0], acres: Math.round(f.acres), lastCrop: f.lastCrop }; });
       if (raw.v !== 2) {   // the one-panel save: priority, costShare, irrigate
         var lp = { profit: ['Profit'], risk: ['Low risk / steady income'], cover: ['Soil health'] }[raw.priority];
@@ -5947,7 +6128,6 @@ window.FS = window.FS || {};
   function setOpen(on) {
     open = on;
     layer.hidden = !on;
-    Array.prototype.forEach.call(tabs.querySelectorAll('button'), function (b) { b.setAttribute('aria-pressed', String((b.getAttribute('data-t') === 'map') === on)); });
     if (on) load(); else window.dispatchEvent(new Event('resize'));
   }
 
@@ -5955,16 +6135,521 @@ window.FS = window.FS || {};
     panel = p; if (!panel) return;
     body = panel.querySelector('.fs-view-body'); var right = panel.querySelector('.fs-head-right'); if (!body || !right) return;
     tabs = document.createElement('div'); tabs.className = 'fs-fm-tabs'; tabs.setAttribute('role', 'group'); tabs.setAttribute('aria-label', 'View');
-    tabs.innerHTML = '<button type="button" data-t="sim" aria-pressed="true">Simulation</button><button type="button" data-t="map" aria-pressed="false">Farm map</button>';
+    tabs.innerHTML = '<button type="button" data-t="sim" aria-pressed="true">Simulation</button><button type="button" data-t="map" aria-pressed="false">Farm map</button><button type="button" data-t="now" aria-pressed="false">Advanced near-real-time conditions</button>';
     right.insertBefore(tabs, right.firstChild);
     layer = document.createElement('section'); layer.className = 'fs-fm'; layer.hidden = true; layer.setAttribute('aria-label', 'Farm map');
     body.appendChild(layer);
-    tabs.addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) setOpen(b.getAttribute('data-t') === 'map'); });
+    // three views: the simulation, the farm map, and the conditions on the fields now (conditions.js)
+    tabs.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      var t = b.getAttribute('data-t');
+      Array.prototype.forEach.call(tabs.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', String(x.getAttribute('data-t') === t)); });
+      setOpen(t === 'map');
+      if (FS.conditions) FS.conditions.show(t === 'now', body);
+    });
   }
   // the farm moved: a new map next time the switch is on (or now, if it is on); an uploaded photo stays until then
   function refresh() { if (state.upload) return; if (open) load(); }
 
   FS.farmMap = { mount: mount, refresh: refresh };
+})();
+
+</script>
+<script>
+/* "Advanced near-real-time conditions": a third view in the Simulation panel (next to Simulation and Farm map). It asks the server (/api/liveconditions,
+   fieldlive.js and fieldsat.js) what is happening on the fields today: ECMWF weather, Copernicus ERA5-Land soil moisture and CAMS air,
+   SoilGrids fertility, ESA WorldCover ponds and wet ground, Copernicus elevation low spots, and Sentinel-2 burned ground, bare soil and
+   last summer's weak growth zones. Warnings that belong to a place are numbered on a small map of the fields.
+   With imported outlines the checks run on the exact fields; otherwise on a square of each field's size around its soil survey point. */
+(function () {
+  'use strict';
+  var FS = window.FS = window.FS || {};
+  var layer = null, open = false, seq = 0, timer = null, st = { key: '', data: null, err: null, busy: false, t0: 0, req: null }, pick = -1;
+  var hs = { key: '', data: null, err: null, busy: false, t0: 0 }, hseq = 0;   // field health (this season's Sentinel-2 series)
+  var R = Math.PI / 180;
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function base() { return /^https?:$/.test(location.protocol) ? location.origin : null; }
+  function num(v, unit, k) { return v == null || !isFinite(v) ? '–' : (Math.round(v * Math.pow(10, k || 0)) / Math.pow(10, k || 0)) + (unit || ''); }
+
+  // the fields to check: imported outlines when there are some, else a square of each field's acres around its soil point
+  function request() {
+    var su = FS.farmSetup && FS.farmSetup.setup, g = su && !su.example && su.geo, F = FS.data.farm.fields;
+    if (g && g.fields.every(function (f) { return Array.isArray(f.ring) && f.ring.length >= 3; })) {
+      return { approximate: false, fields: g.fields.filter(function (f) { return F.some(function (x) { return x.id === f.id; }); }).map(function (f) { return { id: f.id, name: f.name, ring: f.ring }; }) };
+    }
+    return { approximate: true, fields: F.map(function (f) {
+      var p = f.soil && f.soil.point; if (!p) return null;
+      var half = Math.sqrt(f.acres * 4046.86) / 2, dy = half / 110574, dx = half / (111320 * Math.cos(p[1] * R));
+      return { id: f.id, name: f.name, ring: [[p[0] - dx, p[1] - dy], [p[0] + dx, p[1] - dy], [p[0] + dx, p[1] + dy], [p[0] - dx, p[1] + dy]] };
+    }).filter(Boolean) };
+  }
+
+  var auto = null;
+  function load(force, quiet) {
+    if (!open || !layer) return;
+    if (!base()) { st.err = 'Live conditions need the EcoShift server (run npm start and open http://localhost:8787).'; render(); return; }
+    var req = request(), key = JSON.stringify(req);
+    if (!req.fields.length) { st.err = 'These fields have no location to check.'; render(); return; }
+    if (!force && key === st.key && (st.data || st.busy)) { render(); return; }
+    loadHealth(req, force && !quiet);
+    var my = ++seq; st = { key: key, data: null, err: null, busy: true, t0: Date.now(), req: req }; pick = -1;
+    clearInterval(timer); timer = setInterval(render, 1000); render();
+    fetch(base() + '/api/liveconditions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }, function () { return { ok: false, j: {} }; }); })
+      .then(function (x) { if (my !== seq) return; st.busy = false; if (!x.ok) st.err = (x.j && x.j.error) || 'The conditions could not be read just now.'; else { st.data = x.j; st.at = new Date(); } })
+      .catch(function () { if (my !== seq) return; st.busy = false; st.err = 'Could not reach the EcoShift server.'; })
+      .then(function () { if (my !== seq) return; if (!hs.busy) clearInterval(timer); render(); });
+  }
+
+  // ---------------------------------------------------------------- field health: crop and planting date of the season just grown
+  function healthRequest(req) {
+    var F = FS.data.farm.fields, E = FS.data.economics || {}, now = new Date(), y = now.getUTCMonth() >= 2 ? now.getUTCFullYear() : now.getUTCFullYear() - 1;
+    var irr = !!(FS.farmSetup && FS.farmSetup.canIrrigate);
+    return { normalYield: E.normalYield || {}, fields: req.fields.map(function (x) {
+      var f = F.filter(function (q) { return q.id === x.id; })[0] || {}, crop = f.lastCrop === 'soybean' ? 'soybean' : 'corn';
+      return { id: x.id, name: x.name, ring: x.ring, crop: crop, plantDate: y + (crop === 'corn' ? '-04-28' : '-05-15'), irrigable: irr };
+    }) };
+  }
+  function loadHealth(req, force) {
+    var body = healthRequest(req), key = JSON.stringify(body);
+    if (!force && key === hs.key && (hs.data || hs.busy)) return;
+    var my = ++hseq; hs = { key: key, data: null, err: null, busy: true, t0: Date.now() };
+    fetch(base() + '/api/fieldhealth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: key })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }, function () { return { ok: false, j: {} }; }); })
+      .then(function (x) { if (my !== hseq) return; hs.busy = false; if (!st.busy) clearInterval(timer); if (!x.ok) hs.err = (x.j && x.j.error) || 'Field health could not be read just now.'; else hs.data = x.j; })
+      .catch(function () { if (my !== hseq) return; hs.busy = false; hs.err = 'Could not reach the EcoShift server.'; })
+      .then(function () { if (my !== hseq || !open) return; if (!st.busy) render(); });
+  }
+  // NDVI (green) and leaf water NDMI (blue, dashed) through the season
+  function spark(rows) {
+    if (!rows || rows.length < 2) return '';
+    var W = 300, H = 80, t0 = Date.parse(rows[0].date), t1 = Date.parse(rows[rows.length - 1].date), sx = function (d) { return 6 + (Date.parse(d) - t0) / Math.max(1, t1 - t0) * (W - 12); }, sy = function (v) { return H - 6 - (v + 0.2) / 1.2 * (H - 12); };
+    function line(k, cls) { return '<polyline class="' + cls + '" points="' + rows.filter(function (r) { return r[k] != null; }).map(function (r) { return sx(r.date).toFixed(1) + ',' + sy(r[k]).toFixed(1); }).join(' ') + '"/>'; }
+    return '<svg class="fs-hl-spark" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Greenness (NDVI) and leaf water (NDMI) through the season">' +
+      '<line x1="6" x2="' + (W - 6) + '" y1="' + sy(0).toFixed(1) + '" y2="' + sy(0).toFixed(1) + '" class="fs-hl-zero"/>' + line('ndvi', 'fs-hl-ndvi') + line('ndmi', 'fs-hl-ndmi') +
+      '<text x="6" y="11" class="fs-hl-ax">' + esc(rows[0].date.slice(5)) + '</text><text x="' + (W - 6) + '" y="11" class="fs-hl-ax" text-anchor="end">' + esc(rows[rows.length - 1].date.slice(5)) + '</text></svg>';
+  }
+  function bar(label, sc, detail) {
+    return '<div class="fs-hl-bar"><span class="fs-hl-bl">' + label + '</span><span class="fs-hl-track">' + (sc == null ? '' : '<i class="' + (sc >= 70 ? 'ok' : sc >= 45 ? 'mid' : 'bad') + '" style="width:' + sc + '%"></i>') + '</span>' +
+      '<span class="fs-hl-v">' + (sc == null ? 'n/a' : sc) + '</span><span class="fs-hl-d">' + detail + '</span></div>';
+  }
+  function csvHref(rows) {
+    var cols = ['date', 'clear_pct', 'ndvi', 'ndvi_p10', 'ndvi_p90', 'ndvi_cv', 'ndre', 'ndre_p90', 'n_sufficiency', 'ndmi', 's2rep_nm', 'savi', 'lai', 'fvc'];
+    var t = cols.join(',') + '\n' + rows.map(function (r) { return cols.map(function (k) { return r[k] == null ? '' : r[k]; }).join(','); }).join('\n') + '\n';
+    return 'data:text/csv;charset=utf-8,' + encodeURIComponent(t);
+  }
+  function healthHTML() {
+    var h = '<section class="fs-hl"><h3>Field health this season <span class="fs-fm-faint">(Copernicus Sentinel-2)</span></h3>';
+    if (hs.busy) return h + '<div class="fs-fm-busy" role="status"><span class="fs-fm-spin" aria-hidden="true"></span>Reading this season\u2019s Sentinel-2 images of each field\u2026 ' + Math.round((Date.now() - hs.t0) / 1000) + ' s <span class="fs-fm-faint">(15 to 60 s the first time)</span></div></section>';
+    if (hs.err) return h + '<p class="fs-fm-msg fs-fm-err">' + esc(hs.err) + '</p></section>';
+    if (!hs.data) return h + '</section>';
+    var D = hs.data;
+    Object.keys(D.fields).forEach(function (id) {
+      var f = D.fields[id], H = f.health;
+      h += '<article class="fs-hl-field"><header><strong>' + esc(f.name) + '</strong> <span class="fs-fm-faint">' + esc(f.crop === 'soybean' ? 'soybeans' : f.crop) + ' · ' + f.observations + ' clear images</span></header>';
+      if (f.error) { h += '<p>' + esc(f.error) + '</p></article>'; return; }
+      var M = f.momentum || {};
+      h += '<p class="fs-hl-line">Stage: <b>' + esc(f.stage) + '</b>' + (f.gdd != null ? ' (' + f.gdd + ' degree days since planting)' : '') + ' · Growth momentum: <b>' + esc(M.word) + '</b>' + (M.perWeek != null ? ' (NDVI ' + (M.perWeek > 0 ? '+' : '') + M.perWeek + ' a week' + (M.accel ? ', ' + esc(M.accel) : '') + ')' : '') + ' · Peak NDVI ' + f.peak.ndvi + ' on ' + esc(f.peak.date) + '</p>';
+      h += '<div class="fs-hl-grid"><div>' + spark(f.series) + '<p class="fs-hl-key"><i class="g"></i>greenness NDVI <i class="b"></i>leaf water NDMI</p></div><div class="fs-hl-bars">' +
+        bar('Canopy', H.canopy.score, 'NDVI ' + H.canopy.ndvi + ', ' + Math.round(H.canopy.cover * 100) + '% cover, leaf area ~' + H.canopy.lai) +
+        bar('Nitrogen', H.nitrogen.score, H.nitrogen.note ? esc(H.nitrogen.note) : 'red edge ' + Math.round(H.nitrogen.sufficiency * 100) + '% of the field\u2019s best') +
+        bar('Phosphorus', null, esc(H.phosphorus.note)) +
+        bar('Moisture', H.moisture.score, 'leaf water NDMI ' + H.moisture.ndmi) +
+        bar('Leaf structure', H.leaf.score, 'red-edge position ' + H.leaf.redEdgeNm + ' nm') +
+        bar('Uniformity', H.uniformity.score, 'spread ' + Math.round(H.uniformity.cv * 100) + '% across the field') + '</div></div>';
+      var Y = f.yieldEstimate || {};
+      h += '<div class="fs-hl-scores"><span>Yield score <b>' + f.yieldScore + '</b>/100</span><span>Quality score <b>' + f.qualityScore + '</b>/100</span><span>Yield estimate <b>' + (Y.bu ? Y.bu + ' bu/acre' : '–') + '</b>' + (Y.bu ? ' (' + Y.low + ' to ' + Y.high + '; county normal ' + Y.normal + ')' : '') + '</span></div>' +
+        (Y.note ? '<p class="fs-fm-faint fs-hl-small">' + esc(Y.note) + '</p>' : '');
+      h += '<div class="fs-hl-cols"><div><h4>Root causes</h4><ul>' + f.causes.map(function (c) { return '<li><b>' + esc(c.cause) + '</b> <span class="fs-fm-faint">(' + esc(c.confidence) + ' confidence)</span>: ' + esc(c.why) + '</li>'; }).join('') + '</ul></div>' +
+        '<div><h4>What to do</h4><ul class="fs-hl-adv">' + f.advice.map(function (a) { return '<li><span class="fs-hl-pr fs-hl-' + a.priority + '">' + a.priority + '</span> <b>' + esc(a.topic) + ':</b> ' + esc(a.text) + '</li>'; }).join('') + '</ul></div></div>';
+      h += '<p class="fs-hl-small"><a download="' + esc((f.name || id).replace(/[^\w-]+/g, '_')) + '_sentinel2.csv" href="' + csvHref(f.series || []) + '">Download this field\u2019s data (CSV)</a>' + (f.csv ? ' · also saved on the server as <code>' + esc(f.csv) + '</code>' : '') + '</p></article>';
+    });
+    return h + '<p class="fs-fm-note">' + esc((D.sources || []).join(' ')) + ' Scores, the yield estimate, causes and advice are rules on published satellite indices (NDVI, NDRE, NDMI, red-edge position), not a model trained on harvests. Crop and planting date come from the farm setup (the last crop on each field; corn 28 April, soybeans 15 May). Sentinel-1 radar and Sentinel-3 are not used: Sentinel-3 pixels (300 m) are bigger than most fields.</p></section>';
+  }
+
+  // ---------------------------------------------------------------- small map: fields, ponds and numbered warnings
+  function miniMap(d, req, list) {
+    var pts = []; req.fields.forEach(function (f) { pts = pts.concat(f.ring); });
+    Object.keys(d.fields).forEach(function (id) { var c = d.fields[id].cover; (c && c.water || []).forEach(function (w) { pts.push([w.lon, w.lat]); }); });
+    var lat0 = pts.reduce(function (s, p) { return s + p[1]; }, 0) / pts.length, k = Math.cos(lat0 * R);
+    var xs = pts.map(function (p) { return p[0] * k; }), ys = pts.map(function (p) { return -p[1]; });
+    var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+    var W = 360, H = 240, pad = 22, s = Math.min((W - 2 * pad) / Math.max(x1 - x0, 1e-9), (H - 2 * pad) / Math.max(y1 - y0, 1e-9));
+    var ox = (W - (x1 - x0) * s) / 2, oy = (H - (y1 - y0) * s) / 2, mPerDeg = 110574;
+    function P(lon, lat) { return [ox + (lon * k - x0) * s, oy + (-lat - y0) * s]; }
+    var svg = '<svg class="fs-cn-map" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Map of the fields with the numbered warnings">';
+    req.fields.forEach(function (f) {
+      var pp = f.ring.map(function (q) { return P(q[0], q[1]).map(function (v) { return v.toFixed(1); }).join(','); }).join(' '), c = f.ring.reduce(function (a, q) { return [a[0] + q[0] / f.ring.length, a[1] + q[1] / f.ring.length]; }, [0, 0]), cp = P(c[0], c[1]);
+      svg += '<polygon points="' + pp + '" class="fs-cn-field"/><text x="' + cp[0].toFixed(1) + '" y="' + (cp[1] - 10).toFixed(1) + '" class="fs-cn-flabel">' + esc(f.name) + '</text>';
+    });
+    Object.keys(d.fields).forEach(function (id) {
+      var c = d.fields[id].cover;
+      (c && c.water || []).forEach(function (w) { var p = P(w.lon, w.lat), r = Math.max(3, Math.sqrt(w.areaM2 / Math.PI) / mPerDeg * s); svg += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="' + r.toFixed(1) + '" class="fs-cn-' + w.kind + '"/>'; });
+    });
+    list.forEach(function (w, i) {
+      if (w.lon == null) return;
+      var p = P(w.lon, w.lat);
+      svg += '<g class="fs-cn-pin fs-cn-' + w.level + (i === pick ? ' fs-cn-on' : '') + '" data-i="' + i + '"><circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="9"/><text x="' + p[0].toFixed(1) + '" y="' + (p[1] + 4).toFixed(1) + '">' + (i + 1) + '</text></g>';
+    });
+    return svg + '</svg>';
+  }
+
+  function render() {
+    if (!layer) return;
+    var h = '<div class="fs-fm-top"><p class="fs-fm-where"><b>Advanced near-real-time conditions</b> on your fields' + (st.at ? ' · checked ' + st.at.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '') + '</p>' +
+      '<button type="button" class="fs-fm-btn" id="fs-cn-refresh"' + (st.busy ? ' disabled' : '') + '>Check again</button></div>';
+    if (st.busy) h += '<div class="fs-fm-busy" role="status"><span class="fs-fm-spin" aria-hidden="true"></span>Reading satellites and weather for your fields… ' + Math.round((Date.now() - st.t0) / 1000) + ' s <span class="fs-fm-faint">(10 to 40 s the first time)</span></div>';
+    else if (st.err) h += '<p class="fs-fm-msg fs-fm-err">' + esc(st.err) + '</p>';
+    else if (st.data) {
+      var d = st.data, n = d.now || {}, e5 = d.era5Soil, a = d.air || {}, req = st.req, list = d.warnings || [];
+      h += fresh(d);
+      if (req.approximate) h += '<p class="fs-cn-note">These fields are the example layout, so each is checked as a square of its size around its soil survey point. Import your real field (the section below the simulation) for checks on your exact fields.</p>';
+      h += '<div class="fs-cn-cards">' +
+        card('Air', num(n.tempC, ' °C', 1), 'humidity ' + num(n.rhPct, '%')) +
+        card('Wind', num(n.windKmh, ' km/h'), 'gusts ' + num(n.gustKmh, ' km/h')) +
+        card('Rain', num(n.rainPast7Mm, ' mm', 1), 'past 7 days · next 3 days ' + num(n.rainNext3Mm, ' mm', 1)) +
+        card('Topsoil water', n.soilMoist == null ? '–' : Math.round(n.soilMoist * 100) + '%', 'by volume, now' + (e5 ? ' · ERA5-Land ' + Math.round(e5.top7 * 100) + '% on ' + esc(e5.time.slice(5, 10)) : '')) +
+        card('Air quality', num(a.pm25, ' µg/m³'), 'fine dust PM2.5 · UV ' + num(a.uv, '', 1)) + '</div>';
+      h += '<div class="fs-cn-main">' + miniMap(d, req, list) + '<div class="fs-cn-warns"><h3>Warnings</h3>' +
+        (list.length ? '<ol>' + list.map(function (w, i) {
+          return '<li class="fs-cn-' + w.level + (i === pick ? ' fs-cn-on' : '') + '"><button type="button" data-i="' + i + '"' + (w.lon == null ? ' disabled' : '') + '><span class="fs-cn-badge">' + (w.level === 'warn' ? 'Warning' : 'Note') + '</span> ' + esc(w.text) + '</button></li>';
+        }).join('') + '</ol>' : '<p>Nothing to warn about on these fields right now.</p>') + '</div></div>';
+      h += '<div class="fs-cn-tablewrap"><table class="fs-cn-table"><thead><tr><th>Field</th><th>Organic carbon</th><th>Nitrogen</th><th>pH</th><th>CEC</th><th>Cropland · water · wetland</th><th>Slope</th><th>Bare soil now</th><th>Summer greenness</th></tr></thead><tbody>' +
+        req.fields.map(function (f) {
+          var x = d.fields[f.id] || {}, s = x.fertility || {}, c = (x.cover && x.cover.sharePct) || {}, t = x.terrain || {}, sat = x.satellite || {};
+          return '<tr><th>' + esc(f.name) + '</th><td>' + num(s.organicCarbonGkg, ' g/kg', 1) + '</td><td>' + num(s.nitrogenGkg, ' g/kg', 2) + '</td><td>' + num(s.ph, '', 1) + '</td><td>' + num(s.cecCmolKg, '', 0) + '</td>' +
+            '<td>' + num(c.cropland, '%', 0) + ' · ' + num(c.water || 0, '%', 1) + ' · ' + num(c.wetland || 0, '%', 1) + '</td><td>' + num(t.slopePct, '%', 1) + '</td>' +
+            '<td>' + (sat.ground ? sat.ground.bareSoilPct + '%' : '–') + '</td><td>' + (sat.summer ? 'NDVI ' + sat.summer.ndviMedian : '–') + '</td></tr>';
+        }).join('') + '</tbody></table></div>';
+      h += healthHTML();
+      h += '<p class="fs-fm-note">Sources: ' + esc((d.sources || []).join(' ')) + (d.gaps && d.gaps.length ? ' Gaps: ' + esc(d.gaps.join(' ')) : '') +
+        ' Organic carbon, nitrogen, pH and CEC (how much nutrient the soil holds) are model estimates for the top 30 cm; a lab soil test is more exact. Warnings are simple rules on these numbers, not an agronomist\'s visit.</p>';
+    }
+    layer.innerHTML = h;
+    var rf = layer.querySelector('#fs-cn-refresh'); if (rf) rf.addEventListener('click', function () { load(true); });
+    Array.prototype.forEach.call(layer.querySelectorAll('.fs-cn-warns button, .fs-cn-pin'), function (b) {
+      b.addEventListener('click', function () { var i = +b.getAttribute('data-i'); pick = pick === i ? -1 : i; render(); });
+    });
+  }
+  // how old each source is: weather hourly, soil moisture days behind, Sentinel-2 every few days, maps fixed
+  function ago(t) {
+    var ms = Date.now() - Date.parse(t); if (!isFinite(ms)) return '';
+    var m = Math.round(ms / 60e3); if (m < 90) return Math.max(0, m) + ' min ago';
+    var h = Math.round(m / 60); if (h < 48) return h + ' h ago';
+    return Math.round(h / 24) + ' days ago';
+  }
+  function fresh(d) {
+    var rows = [], n = d.now, sat = null;
+    Object.keys(d.fields || {}).forEach(function (id) { var g = d.fields[id].satellite; if (g && g.ground && (!sat || g.ground.date > sat)) sat = g.ground.date; });
+    if (n && n.time) rows.push(['Weather (ECMWF)', n.time.replace('T', ' ') + ' local', 'updated hourly']);
+    if (d.air && d.air.time) rows.push(['Air (Copernicus CAMS)', d.air.time.replace('T', ' ') + ' local', 'updated hourly']);
+    if (d.era5Soil) rows.push(['Soil moisture (ERA5-Land)', d.era5Soil.time.slice(0, 10), ago(d.era5Soil.time + 'Z') + ', runs about 5 days behind']);
+    if (sat) rows.push(['Last clear Sentinel-2 pass', sat, ago(sat + 'T12:00:00Z') + ', a new pass every 2 to 5 days']);
+    rows.push(['Ponds and land cover', 'ESA WorldCover 2021', 'fixed map'], ['Soil fertility', 'ISRIC SoilGrids', 'fixed map']);
+    return '<div class="fs-cn-fresh" aria-label="How recent each source is">' + rows.map(function (r) { return '<span><b>' + esc(r[0]) + '</b> ' + esc(r[1]) + ' <i>' + esc(r[2]) + '</i></span>'; }).join('') +
+      '<span class="fs-cn-auto">Checks again by itself every 15 minutes while this view is open.</span></div>';
+  }
+  function card(t, big, small) { return '<div class="fs-cn-card"><span class="fs-cn-t">' + t + '</span><strong>' + big + '</strong><span class="fs-cn-s">' + small + '</span></div>'; }
+
+  function show(on, body) {
+    if (!layer && on) { layer = document.createElement('section'); layer.className = 'fs-fm fs-cn'; layer.setAttribute('aria-label', 'Advanced near-real-time conditions'); body.appendChild(layer); }
+    if (!layer) return;
+    open = on; layer.hidden = !on;
+    clearInterval(auto); auto = null;
+    if (on) { load(); auto = setInterval(function () { if (!st.busy) load(true, true); }, 15 * 60e3); } else clearInterval(timer);
+  }
+  // the farm changed: check again next time the view is open (now, if it is open)
+  function refresh() { if (open) load(); }
+  FS.conditions = { show: show, refresh: refresh };
+})();
+
+</script>
+<script>
+/* Field outlines from a GeoJSON file: the farm's own fields instead of the example layout.
+   Takes a FeatureCollection, Feature or bare geometry of Polygons or MultiPolygons in longitude/latitude (WGS84, the GeoJSON standard),
+   as exported by geojson.io, QGIS, John Deere Operations Center or Climate FieldView. Up to four fields: the largest four if there are more.
+   A field's name comes from its "name" property (or Name, field_name, FIELD_NAME, title, label); its last crop from "crop" or "lastCrop" if given.
+   The server (/api/fieldconditions, fieldgeo.js) then measures the conditions on those exact fields: 44 seasons of daily Copernicus
+   ERA5-Land/ERA5 weather at the farm, slope and height from the Copernicus GLO-30 elevation model inside each outline, the USDA soil
+   survey well inside each field and USDA county yields. The simulator replays that weather on those fields. */
+(function () {
+  'use strict';
+  var FS = window.FS = window.FS || {};
+  var IDS = ['north', 'creek', 'west', 'south'], MAX = 4, ACRE = 4046.8564224, R = Math.PI / 180, VW = 1000, VH = 640, PAD = 48;
+  var busy = false;
+
+  function $(id) { return document.getElementById(id); }
+  function fail(t) { say(t); status('err', t); }
+  function say(t) { try { FS.actions.addChat({ role: 'assistant', text: t }); } catch (e) { console.log(t); } }
+  function base() { return /^https?:$/.test(location.protocol) ? location.origin : null; }
+
+  // ---------------------------------------------------------------- GeoJSON -> rings
+  function areaM2(ring) {
+    var s = 0;
+    for (var i = 0; i < ring.length; i++) { var a = ring[i], b = ring[(i + 1) % ring.length]; s += (b[0] - a[0]) * R * (2 + Math.sin(a[1] * R) + Math.sin(b[1] * R)); }
+    return Math.abs(s * 6378137 * 6378137 / 2);
+  }
+  function ringOf(r) {
+    if (!Array.isArray(r)) return null;
+    var out = [];
+    for (var i = 0; i < r.length; i++) {
+      var p = r[i]; if (!Array.isArray(p) || p.length < 2) return null;
+      var x = +p[0], y = +p[1]; if (!isFinite(x) || !isFinite(y)) return null;
+      if (Math.abs(x) > 180 || Math.abs(y) > 90) throw new Error('the coordinates are not longitude and latitude. Export the file in WGS84 (EPSG:4326), the GeoJSON standard');
+      out.push([x, y]);
+    }
+    if (out.length > 1 && out[0][0] === out[out.length - 1][0] && out[0][1] === out[out.length - 1][1]) out.pop();
+    return out.length >= 3 ? out : null;
+  }
+  // fewer points for very detailed outlines (tractor-logged boundaries can have thousands): keeps every k-th point
+  function thin(r, max) { if (r.length <= max) return r; var k = Math.ceil(r.length / max), o = []; for (var i = 0; i < r.length; i += k) o.push(r[i]); return o; }
+  function pickName(p) {
+    p = p || {};
+    var keys = ['name', 'Name', 'NAME', 'field_name', 'fieldName', 'FIELD_NAME', 'Field', 'field', 'title', 'label', 'id'];
+    for (var i = 0; i < keys.length; i++) if (p[keys[i]] != null && String(p[keys[i]]).trim()) return String(p[keys[i]]).trim().slice(0, 28);
+    return '';
+  }
+  function pickCrop(p) {
+    p = p || {};
+    var v = String(p.lastCrop || p.last_crop || p.crop || p.Crop || p.CROP || '').toLowerCase();
+    return /corn|maize/.test(v) ? 'corn' : /soy/.test(v) ? 'soybean' : '';
+  }
+  function parse(text) {
+    var j;
+    try { j = JSON.parse(text); } catch (e) { throw new Error('the file is not valid JSON'); }
+    var feats = [];
+    (function walk(o, props) {
+      if (!o || typeof o !== 'object') return;
+      if (o.type === 'FeatureCollection') (o.features || []).forEach(function (f) { walk(f); });
+      else if (o.type === 'Feature') walk(o.geometry, o.properties || {});
+      else if (o.type === 'GeometryCollection') (o.geometries || []).forEach(function (g) { walk(g, props); });
+      else if (o.type === 'Polygon' || o.type === 'MultiPolygon') feats.push({ g: o, p: props || {} });
+    })(j);
+    if (!feats.length) throw new Error('there are no field outlines (Polygon or MultiPolygon) in it');
+    var fields = [], multi = 0;
+    feats.forEach(function (x) {
+      var polys = x.g.type === 'Polygon' ? [x.g.coordinates] : x.g.coordinates || [];
+      var best = null;
+      polys.forEach(function (pc) {   // a field in several parts: the largest part is the field
+        if (!Array.isArray(pc)) return;
+        var ring = ringOf(pc[0]); if (!ring) return;
+        var holes = pc.slice(1).map(ringOf).filter(Boolean), a = areaM2(ring) - holes.reduce(function (s, h) { return s + areaM2(h); }, 0);
+        if (!best || a > best.area) best = { ring: ring, holes: holes, area: a };
+      });
+      if (polys.length > 1) multi++;
+      if (best && best.area > 0) fields.push({ name: pickName(x.p), lastCrop: pickCrop(x.p), ring: best.ring, holes: best.holes, area: best.area });
+    });
+    if (!fields.length) throw new Error('none of its outlines has an area');
+    var total = fields.length;
+    fields.sort(function (a, b) { return b.area - a.area; });
+    fields = fields.slice(0, MAX);
+    return { fields: fields, total: total, multi: multi };
+  }
+
+  // ---------------------------------------------------------------- outlines -> the field view's 1000 x 640 canvas (north up, true shape)
+  function toView(fields) {
+    var lat0 = 0, n = 0;
+    fields.forEach(function (f) { f.ring.forEach(function (p) { lat0 += p[1]; n++; }); });
+    lat0 /= n;
+    var k = Math.cos(lat0 * R), x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    fields.forEach(function (f) { f.ring.forEach(function (p) { var x = p[0] * k, y = -p[1]; x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }); });
+    var s = Math.min((VW - 2 * PAD) / Math.max(x1 - x0, 1e-9), (VH - 2 * PAD) / Math.max(y1 - y0, 1e-9));
+    var ox = (VW - (x1 - x0) * s) / 2, oy = (VH - (y1 - y0) * s) / 2;
+    return fields.map(function (f) {
+      return thin(f.ring, 400).map(function (p) { return [Math.round((ox + (p[0] * k - x0) * s) * 10) / 10, Math.round((oy + (-p[1] - y0) * s) * 10) / 10]; });
+    });
+  }
+
+  // ---------------------------------------------------------------- import
+  function importText(text, fileName) {
+    if (busy) return;
+    var P;
+    try { P = parse(text); } catch (e) { fail('I could not read ' + (fileName || 'that file') + ': ' + e.message + '.'); return; }
+    var srv = base();
+    if (!srv) { fail('Reading the conditions on your fields needs the EcoShift server (run npm start and open http://localhost:8787).'); return; }
+    var fields = P.fields.map(function (f, i) { return { id: IDS[i], name: f.name || ('Field ' + (i + 1)), lastCrop: f.lastCrop, ring: thin(f.ring, 1200), holes: f.holes.map(function (h) { return thin(h, 300); }), acres: f.area / ACRE }; });
+    var small = fields.filter(function (f) { return f.acres < 1 || f.acres > 5000; })[0];
+    if (small) { fail(small.name + ' is ' + Math.round(small.acres * 10) / 10 + ' acres. Each field must be between 1 and 5000 acres.'); return; }
+    var polys = toView(fields);
+    busy = true; setBusy(true);
+    say('Reading ' + fields.length + ' field' + (fields.length === 1 ? '' : 's') + ' from ' + (fileName || 'your file') + ': ' + fields.map(function (f) { return f.name + ' (' + Math.round(f.acres) + ' ac)'; }).join(', ') + '.' +
+      (P.total > MAX ? ' The file has ' + P.total + ' outlines; the simulator takes four, so I kept the four largest.' : '') +
+      ' Getting 44 seasons of Copernicus weather and the Copernicus elevation model for them. This takes 10 to 40 seconds.');
+    fetch(srv + '/api/fieldconditions', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: fields.map(function (f) { return { id: f.id, name: f.name, ring: f.ring, holes: f.holes }; }) }) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }, function () { return { ok: false, j: {} }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j || !x.j.climate) throw new Error((x.j && x.j.error) || 'the server could not read the conditions just now');
+        apply(fields, polys, x.j, fileName);
+      })
+      .catch(function (e) { fail('I could not get the conditions for your fields: ' + String(e && e.message || e) + ' Nothing was changed.'); })
+      .then(function () { busy = false; setBusy(false); });
+  }
+
+  function nearestSite(lat, lon) {
+    var best = 'story-ia', bd = Infinity;
+    (FS.data.sites || []).forEach(function (s) {
+      if (!isFinite(s.lat) || !isFinite(s.lon)) return;
+      var d = Math.pow(s.lat - lat, 2) + Math.pow((s.lon - lon) * Math.cos(lat * R), 2); if (d < bd) { bd = d; best = s.id; }
+    });
+    return best;
+  }
+
+  function apply(fields, polys, cond, fileName) {
+    var cur = FS.farmSetup.setup, setup = cur && !cur.example ? JSON.parse(JSON.stringify(cur)) : FS.farmSetup.blank();
+    var before = setup.geo ? setup.geo.before : { fields: JSON.parse(JSON.stringify(setup.fields)), point: setup.point, site: setup.site, example: !cur || !!cur.example };   // put back by "Use example fields"
+    setup.example = false;
+    setup.site = nearestSite(cond.center[1], cond.center[0]);
+    setup.point = { lat: cond.center[1], lon: cond.center[0], label: cond.county ? 'Your fields, ' + cond.county : 'Your fields', county: '', state: '' };
+    setup.fit = null;
+    // the questionnaire keeps four acre answers: the imported fields' own, kept in its range
+    setup.fields.forEach(function (q) {
+      var f = fields.filter(function (x) { return x.id === q.id; })[0];
+      if (f) { q.acres = Math.max(10, Math.min(640, Math.round(f.acres))); if (f.lastCrop) q.lastCrop = f.lastCrop; }
+    });
+    setup.geo = {
+      before: before, file: String(fileName || '').slice(0, 80), at: new Date().toISOString().slice(0, 10),
+      fields: fields.map(function (f, i) {
+        return { id: f.id, name: f.name, acres: Math.round(f.acres * 10) / 10, lastCrop: f.lastCrop || '', poly: polys[i],
+          ring: thin(f.ring, 400).map(function (p) { return [Math.round(p[0] * 1e6) / 1e6, Math.round(p[1] * 1e6) / 1e6]; }) };   // for the live conditions   // no crop in the file: the questionnaire's answer
+      }),
+      cond: cond
+    };
+    var r = FS.farmSetup.use(setup);
+    if (!r.ok) { fail('Your fields could not be set up: ' + (r.error || 'unknown error') + '.'); return; }
+    say(report(setup.geo, setup));
+    status('ok', 'Imported. The simulation now runs on your fields; the details are in the chat and the Advanced near-real-time conditions tab.');
+    show();
+  }
+
+  function report(g, setup) {
+    var c = g.cond, t = [], crop = function (id) { var f = (FS.data.farm.fields || []).filter(function (x) { return x.id === id; })[0]; return f ? f.lastCrop : 'corn'; };
+    t.push('Your fields are in the simulator, drawn from their real outlines.');
+    g.fields.forEach(function (f) {
+      var x = (c.fields || {})[f.id] || {}, tr = x.terrain, so = x.soil, bits = [Math.round(f.acres) + ' acres', 'last crop ' + (crop(f.id) === 'soybean' ? 'soybeans' : 'corn')];
+      if (tr) bits.push(tr.slopePct + '% average slope, ' + tr.elevationM + ' m high (' + tr.minM + ' to ' + tr.maxM + ' m)');
+      if (so) bits.push(so.name + ', ' + String(so.drainage || '').toLowerCase() + ', holds ' + so.awcMmPerM + ' mm of water per metre');
+      t.push(f.name + ': ' + bits.join('; ') + '.');
+    });
+    if (c.sources && c.sources.length) t.push('Used: ' + c.sources.join(' '));
+    if (c.gaps && c.gaps.length) t.push('Gaps: ' + c.gaps.join(' '));
+    t.push('Set each field\'s last crop with a "crop" property in the file (corn or soybean), or change it under "Your farm · Change". This farm has not been checked against its own harvests.');
+    return t.join('\n');
+  }
+
+  function remove() {
+    var cur = FS.farmSetup.setup; if (!cur || !cur.geo) return;
+    var b = cur.geo.before || {}, setup = b.example ? FS.farmSetup.blank() : JSON.parse(JSON.stringify(cur));
+    delete setup.geo; setup.fit = null;
+    if (b.example) setup.example = true;
+    else { if (Array.isArray(b.fields) && b.fields.length === 4) setup.fields = b.fields; setup.point = b.point || null; if (b.site) setup.site = b.site; }
+    var r = FS.farmSetup.use(setup);
+    say(r.ok ? 'Back to the example field layout with the county\'s NASA weather.' : 'That did not work: ' + (r.error || 'unknown error') + '.');
+    show();
+  }
+
+  // ---------------------------------------------------------------- the "Import your real field" section (below the simulation)
+  var TYPES = ['.geojson', '.json', '.kml'];
+  var TYPES_WORDS = 'GeoJSON (.geojson or .json) or KML (.kml, as saved by Google Earth)';
+  function extOf(name) { var m = /\.[^.]+$/.exec(String(name || '').toLowerCase()); return m ? m[0] : ''; }
+  // KML (Google Earth): every Placemark with a Polygon becomes a GeoJSON feature; its name and an optional "crop" value come along
+  function kmlToGeoJSON(text) {
+    var doc = new DOMParser().parseFromString(text, 'application/xml');
+    if (doc.getElementsByTagName('parsererror').length) throw new Error('the KML file could not be read');
+    function ring(el) {
+      var c = el && el.getElementsByTagName('coordinates')[0]; if (!c) return null;
+      return c.textContent.trim().split(/\s+/).map(function (t) { var p = t.split(','); return [+p[0], +p[1]]; }).filter(function (p) { return isFinite(p[0]) && isFinite(p[1]); });
+    }
+    var feats = [];
+    Array.prototype.forEach.call(doc.getElementsByTagName('Placemark'), function (pm) {
+      var nm = pm.getElementsByTagName('name')[0], props = { name: nm ? nm.textContent.trim() : '' };
+      Array.prototype.forEach.call(pm.getElementsByTagName('Data'), function (d) { var v = d.getElementsByTagName('value')[0]; if (v) props[d.getAttribute('name')] = v.textContent.trim(); });
+      Array.prototype.forEach.call(pm.getElementsByTagName('SimpleData'), function (d) { props[d.getAttribute('name')] = d.textContent.trim(); });
+      Array.prototype.forEach.call(pm.getElementsByTagName('Polygon'), function (pg) {
+        var outer = ring(pg.getElementsByTagName('outerBoundaryIs')[0]); if (!outer) return;
+        var holes = Array.prototype.map.call(pg.getElementsByTagName('innerBoundaryIs'), ring).filter(Boolean);
+        feats.push({ type: 'Feature', properties: props, geometry: { type: 'Polygon', coordinates: [outer].concat(holes) } });
+      });
+    });
+    return JSON.stringify({ type: 'FeatureCollection', features: feats });
+  }
+  function readFile(f) {
+    var ext = extOf(f.name);
+    if (TYPES.indexOf(ext) < 0) { status('err', (ext ? 'A ' + ext + ' file' : 'That file') + ' can’t be used. Only ' + TYPES_WORDS + ' files work.'); return; }
+    if (f.size > 5 * 1024 * 1024) { status('err', 'That file is over 5 MB. Export only the field boundaries, or simplify them, and try again.'); return; }
+    var rd = new FileReader();
+    rd.onload = function () {
+      var t = String(rd.result || '');
+      if (ext === '.kml') { try { t = kmlToGeoJSON(t); } catch (e) { status('err', 'I could not read ' + f.name + ': ' + e.message + '.'); return; } }
+      importText(t, f.name);
+    };
+    rd.onerror = function () { status('err', 'I could not open ' + f.name + '.'); };
+    rd.readAsText(f);
+  }
+  function status(kind, text) {
+    var el = $('fs-imp-status'); if (!el) return;
+    el.className = 'fs-imp-status' + (kind ? ' fs-imp-' + kind : ''); el.textContent = text || ''; el.hidden = !text;
+  }
+  function setBusy(on) {
+    var z = $('fs-imp-zone'); if (z) z.classList.toggle('fs-imp-busy', on);
+    var i = $('fs-imp-file'); if (i) i.disabled = on;
+    if (on) status('wait', 'Reading your fields and getting 44 seasons of Copernicus weather and the elevation model… this takes 10 to 40 seconds.');
+  }
+  function show() {
+    var cur = FS.farmSetup && FS.farmSetup.setup, g = cur && !cur.example && cur.geo, done = $('fs-imp-done');
+    if (!done) return;
+    done.hidden = !g;
+    if (g) {
+      $('fs-imp-what').textContent = 'Simulating your ' + g.fields.length + ' imported field' + (g.fields.length === 1 ? '' : 's') + (g.file ? ' from ' + g.file : '') + ': ' +
+        g.fields.map(function (f) { return f.name + ' (' + Math.round(f.acres) + ' ac)'; }).join(', ') + '.';
+      var st = $('fs-imp-status'); if (st && /wait/.test(st.className)) status('', '');
+    }
+  }
+  function mount() {
+    if ($('fs-import')) return;
+    var anchor = $('fs-outlook') || $('fs-foot'); if (!anchor) return;
+    var sec = document.createElement('section'); sec.className = 'fs-panel'; sec.id = 'fs-import'; sec.setAttribute('aria-label', 'Import your real field');
+    sec.innerHTML =
+      '<div class="fs-panel-head"><h2 class="fs-panel-title">Import your real field</h2></div>' +
+      '<div class="fs-imp-body">' +
+        '<label id="fs-imp-zone" class="fs-imp-zone" data-tip="Import your real field. Accepted: .geojson, .json or .kml">' +
+          '<input type="file" id="fs-imp-file" accept=".geojson,.json,.kml,application/geo+json,application/vnd.google-earth.kml+xml" aria-describedby="fs-imp-types">' +
+          '<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>' +
+          '<span class="fs-imp-big">Drop your field boundary file here, or click to choose one</span>' +
+          '<span class="fs-imp-tip" role="tooltip">Import your real field<br><b>Accepted:</b> .geojson, .json, .kml</span>' +
+        '</label>' +
+        '<div class="fs-imp-info">' +
+          '<p id="fs-imp-types"><b>Files that work:</b> ' + TYPES_WORDS + '. Other files (shapefiles, KMZ, CSV, images) are not accepted.</p>' +
+          '<ul><li>Field outlines (polygons) in longitude and latitude (WGS84), as exported by geojson.io, Google Earth, QGIS, John Deere Operations Center or Climate FieldView.</li>' +
+          '<li>Up to 4 fields (the largest 4 if there are more), each 1 to 5000 acres; 5 MB at most.</li>' +
+          '<li>Optional: a <code>name</code> for each field and a <code>crop</code> (corn or soybean).</li>' +
+          '<li>Try one: <a href="sample-fields.geojson" download>Iowa sample</a> · <a href="california-fields.geojson" download>California sample</a></li></ul>' +
+          '<p id="fs-imp-status" class="fs-imp-status" role="status" hidden></p>' +
+          '<div id="fs-imp-done" class="fs-imp-done" hidden><p id="fs-imp-what"></p>' +
+            '<button type="button" id="fs-imp-reset" class="fs-btn-primary">Reset simulation</button>' +
+            '<span class="fs-fm-faint">Takes the imported fields out and starts the simulation again from the beginning, with every setting back to its start.</span></div>' +
+        '</div>' +
+      '</div>';
+    anchor.parentNode.insertBefore(sec, anchor);
+    var inp = $('fs-imp-file'), zone = $('fs-imp-zone');
+    inp.addEventListener('change', function () { var f = inp.files && inp.files[0]; inp.value = ''; if (f) readFile(f); });
+    ['dragenter', 'dragover'].forEach(function (ev) { zone.addEventListener(ev, function (e) { e.preventDefault(); zone.classList.add('fs-imp-over'); }); });
+    ['dragleave', 'drop'].forEach(function (ev) { zone.addEventListener(ev, function () { zone.classList.remove('fs-imp-over'); }); });
+    zone.addEventListener('drop', function (e) { e.preventDefault(); if (busy) return; var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (f) readFile(f); });
+    $('fs-imp-reset').addEventListener('click', reset);
+    show();
+  }
+  // back to the start: the imported fields come out, the farm returns to what it was, every setting goes back to its default and the simulation runs again
+  function reset() {
+    remove();
+    try { FS.fieldView.pause(); FS.fieldView.setWeek(0); } catch (e) { /* the view may not be ready */ }
+    status('ok', 'Reset: the imported fields are out and every setting is back to its start.');
+    var top = $('fs-app'); if (top && top.scrollIntoView) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(mount, 0); }); else setTimeout(mount, 0);
+
+  FS.fieldImport = { importText: importText, parse: parse, remove: remove, reset: reset, kmlToGeoJSON: kmlToGeoJSON };
 })();
 
 </script>
@@ -6027,7 +6712,7 @@ window.FS = window.FS || {};
       return Q().normalize(JSON.parse(raw));
     } catch (e) { return null; }
   }
-  function saveSetup(setup) { try { localStorage.setItem(SETUP_KEY, JSON.stringify(setup.example ? { example: true } : setup)); } catch (e) { /* storage may be blocked: the questionnaire just shows again next time */ } }
+  function saveSetup(setup) { try { localStorage.setItem(SETUP_KEY, JSON.stringify(setup.example ? { example: true, fieldCount: setup.fieldCount } : setup)); } catch (e) { /* storage may be blocked: the questionnaire just shows again next time */ } }
 
   function localOf() { var l = FS.engine && FS.engine.site ? FS.engine.site().local : null; return l && !FS.farmSetup.example ? l : null; }
   function shortLabel(s) { s = String(s || 'your location'); return s.split(',').slice(0, 2).join(',').slice(0, 48); }
@@ -6039,11 +6724,19 @@ window.FS = window.FS || {};
     return JSON.stringify([Math.round(p.lat * 1e4) / 1e4, Math.round(p.lon * 1e4) / 1e4, s.site, s.drainage, s.tile, s.slope, s.soilTest, s.limits, s.limitsNote, s.practices]);
   }
   function fitOf(s) { return s && !s.example && s.point && s.fit && s.fit.local && s.fit.key === fitKey(s) ? s.fit.local : null; }
+  // imported field outlines (fieldimport.js): the conditions measured at those fields replace the county fit
+  function geoOf(s) { var g = s && !s.example && s.geo; return g && Array.isArray(g.fields) && g.fields.length && g.cond && g.cond.climate ? g : null; }
+  function geoLocal(g) {
+    var c = g.cond, soils = {};
+    Object.keys(c.fields || {}).forEach(function (id) { var x = c.fields[id]; if (x && x.soil && x.soil.awcMmPerM) soils[id] = x.soil; });
+    return { label: (c.county ? 'your fields in ' + c.county : 'your fields'), lat: c.center ? c.center[1] : null, lon: c.center ? c.center[0] : null, km: 0,
+      soils: soils, normalYield: c.normalYield || null };
+  }
   function apiBase() { return /^https?:$/.test(location.protocol) ? location.origin : null; }
   var fitting = '';
   var farTold = '';
   function maybeFit(setup) {
-    if (!setup || setup.example || !setup.point || fitOf(setup)) return;
+    if (!setup || setup.example || !setup.point || fitOf(setup) || geoOf(setup)) return;
     var key = fitKey(setup), base = apiBase(), site = siteById(setup.site) || STORY(), p = setup.point;
     if (!base) { guard('fit note', function () { FS.actions.addChat({ role: 'assistant', text: 'Your farm\'s spot is saved, but fitting ' + site.name + '\'s data to it needs the EcoShift server (run npm start and open http://localhost:8787). For now the county\'s data is used as it is.' }); }); return; }
     if (fitting === key) return;
@@ -6117,7 +6810,8 @@ window.FS = window.FS || {};
     var b = $('fs-farm-btn'); if (!b) return;
     var site = FS.farmSetup.site || STORY(), loc = localOf(), p = FS.farmSetup.setup && !FS.farmSetup.example && FS.farmSetup.setup.point;
     var dataName = String(site.name).split(',')[0];
-    var txt = loc ? 'Your farm near ' + shortLabel(loc.label) + ' · data from ' + dataName + ' (' + loc.km + ' km)'
+    var g = geoOf(FS.farmSetup.setup), gs = g && FS.engine && FS.engine.site ? FS.engine.site().geo : null;
+    var txt = gs ? 'Your ' + gs.fields + ' field' + (gs.fields === 1 ? '' : 's') + (g.cond.county ? ' in ' + g.cond.county : '') + ' · Copernicus weather and terrain' : loc ? 'Your farm near ' + shortLabel(loc.label) + ' · data from ' + dataName + ' (' + loc.km + ' km)'
       : p ? 'Your farm near ' + shortLabel(p.label) + ' · data from ' + dataName : 'Your farm: ' + siteShort(site);
     b.querySelector('.fs-farm-name').textContent = txt;
     b.setAttribute('aria-label', txt + '. Change');
@@ -6127,11 +6821,12 @@ window.FS = window.FS || {};
   function applySetup(setup, o) {
     o = o || {};
     var site = siteById(setup.site) || STORY(), d = Q().derive(setup);
-    var skipEngine = setup.example && !mounted && FS.farmSetup.site == null;   // the example is what is already loaded
+    var skipEngine = setup.example && !mounted && FS.farmSetup.site == null && !(setup.fieldCount < 4);   // the example is what is already loaded
     if (!skipEngine) {
       if (FS.engine && FS.engine.setFarm) {
         var res;
-        try { res = FS.engine.setFarm({ site: site.id, fields: d.fields, local: fitOf(setup) }); }
+        var g = geoOf(setup);
+        try { res = FS.engine.setFarm({ site: site.id, fields: d.fields, count: setup.fieldCount, local: g ? geoLocal(g) : fitOf(setup), geo: g ? { fields: g.fields, climate: g.cond.climate } : null }); }
         catch (e) { console.error(e); res = { ok: false, error: String(e && e.message || e) }; }
         if (res && res.ok === false) return { ok: false, error: res.error || 'That farm could not be set up.' };
       } else if (site.id !== 'story-ia') return { ok: false, error: 'This location is not available yet.' };
@@ -6142,7 +6837,8 @@ window.FS = window.FS || {};
     ic.other.contracted = d.contracted != null ? d.contracted : BASE_CONTRACTED;
     if (d.exclude.length) ic.other.exclude = d.exclude.slice(); else delete ic.other.exclude;
     if (d.irrigation !== 'none') ic.crops.irrigation = d.irrigation; else delete ic.crops.irrigation;   // irrigated: the farm's normal practice, baseline and options alike
-    st.farm = FS.data.farm; st.controls = clone(ic); st.selectedField = FS.data.farm.fields[1].id; st.dirty = true;
+    var ff = FS.data.farm.fields;
+    st.farm = FS.data.farm; st.controls = clone(ic); st.selectedField = ff[Math.min(1, ff.length - 1)].id; st.dirty = true;
     if (d.trial === 'patch') {   // a small test patch: 10% of the selected field, at least 5 acres
       var sf = FS.data.farm.fields.filter(function (f) { return f.id === st.selectedField; })[0];
       if (sf) st.controls.crops.trialAcres[sf.id] = Math.min(sf.acres, Math.max(5, Math.round(sf.acres * 0.1)));
@@ -6160,6 +6856,7 @@ window.FS = window.FS || {};
     guard('recs', function () { FS.chat.postRecs(); });
     guard('outlook', function () { if (FS.outlook) FS.outlook.refresh(); });
     guard('farm map', function () { if (FS.farmMap) FS.farmMap.refresh(); });
+    guard('conditions', function () { if (FS.conditions) FS.conditions.refresh(); });
     return { ok: true };
   }
 
@@ -6190,6 +6887,14 @@ window.FS = window.FS || {};
     if (!r.ok) return r;
     saveSetup(setup); closePanel(); maybeFit(setup); return { ok: true };
   }
+  // fieldimport.js hands over a whole setup (the farm's own outlines and the conditions at them)
+  FS.farmSetup.use = function (setup) { var r = applySetup(setup); if (r.ok) saveSetup(setup); return r; };
+  FS.farmSetup.blank = function () { return Q().blank(); };
+  // the field list's + and − buttons: one field more or less (1 to 4), kept with the farm
+  FS.farmSetup.setFieldCount = function (n) {
+    var s = clone(FS.farmSetup.setup || exampleSetup()); s.fieldCount = Math.max(1, Math.min(4, Math.round(n)));
+    var r = applySetup(s); if (r.ok) saveSetup(s); return r;
+  };
   function onExample() {
     var wasFirst = firstOpen;
     // untouched example farm on first open: just close. From "Change" it restores the example and runs it again.
@@ -6321,6 +7026,46 @@ window.FS = window.FS || {};
     guard('fit', function () { if (!needPanel && !fromEco) maybeFit(FS.farmSetup.setup); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+
+</script>
+<script>
+/* "Scroll down for more" / "Scroll up for more": a small note at the bottom or top of any panel that has more to read out of view
+   (Sim analysis, Chat, or any other panel body once it overflows). Pressing a note scrolls that way by most of a screenful. */
+(function () {
+  'use strict';
+  var FS = window.FS = window.FS || {};
+  var boxes = [];
+
+  function attach(box) {
+    if (box.__hint) return;
+    var host = box.parentElement; if (!host) return;
+    if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+    function mk(dir) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'fs-scrollhint fs-scrollhint-' + dir; b.hidden = true; b.tabIndex = -1;
+      b.innerHTML = '<span aria-hidden="true">' + (dir === 'up' ? '↑' : '↓') + '</span> Scroll ' + dir + ' for more';
+      b.addEventListener('click', function () { box.scrollBy({ top: (dir === 'up' ? -1 : 1) * box.clientHeight * 0.8, behavior: 'smooth' }); });
+      host.appendChild(b); return b;
+    }
+    var h = box.__hint = { up: mk('up'), down: mk('down') };
+    function update() {
+      var over = /(auto|scroll)/.test(getComputedStyle(box).overflowY) && box.scrollHeight > box.clientHeight + 4;
+      var top = box.offsetTop, bottom = top + box.offsetHeight;
+      h.up.style.top = (top + 6) + 'px';
+      h.down.style.top = (bottom - 6) + 'px';
+      h.up.hidden = !(over && box.scrollTop > 4);
+      h.down.hidden = !(over && box.scrollTop + box.clientHeight < box.scrollHeight - 4);
+    }
+    box.addEventListener('scroll', update, { passive: true });
+    if (window.ResizeObserver) new ResizeObserver(update).observe(box);
+    new MutationObserver(function () { requestAnimationFrame(update); }).observe(box, { childList: true, subtree: true, characterData: true });
+    boxes.push(update); update();
+  }
+  function scan() { Array.prototype.forEach.call(document.querySelectorAll('.fs-panel-body'), attach); boxes.forEach(function (u) { u(); }); }
+
+  function start() { scan(); window.addEventListener('resize', scan); setTimeout(scan, 1500); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else setTimeout(start, 0);
+  FS.scrollHints = { refresh: scan };
 })();
 
 </script>

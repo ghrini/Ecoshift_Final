@@ -92,10 +92,22 @@
     if (CROP_EXACT[w]) return CROP_EXACT[w];
     return fuzzy(w, CROP_DICT, CROP_STOP);
   }
+  // imported fields have the farmer's own names ("Home quarter"): a word that belongs to one field's name finds it
+  var NAME_SKIP = ['field', 'fields', 'the', 'and', 'farm', 'acre', 'acres', 'plot', 'lot'];
+  function nameWords() {
+    var seen = {}, out = {};
+    D.farm.fields.forEach(function (f) {
+      String(f.name || '').toLowerCase().split(/[^a-z0-9]+/).forEach(function (w) {
+        if (w.length < 3 || NAME_SKIP.indexOf(w) >= 0 || /^\d+$/.test(w)) return;
+        if (seen[w] && seen[w] !== f.id) out[w] = null; else { seen[w] = f.id; if (out[w] !== null) out[w] = f.id; }
+      });
+    });
+    return out;
+  }
   function fieldOf(w) {
-    if (FIELD_EXACT[w]) return FIELD_EXACT[w];
-    if (FIELD_STOP.indexOf(w) >= 0) return null;
-    return fuzzy(w, FIELD_DICT, FIELD_STOP);
+    var nw = nameWords()[w]; if (nw) return nw;
+    var id = FIELD_EXACT[w] || (FIELD_STOP.indexOf(w) >= 0 ? null : fuzzy(w, FIELD_DICT, FIELD_STOP));
+    return id && fieldById(id) ? id : null;   // only fields this farm has
   }
 
   // ---------- vocabulary ----------
@@ -318,7 +330,7 @@
     return 'yields are ' + sel.join(', ') + ' of a normal crop';
   }
 
-  function examples() { return 'Type a change to the weather, crops or prices. Examples:\n• "What if 2012 happens again?"\n• "Try corn after corn on ' + fieldById('north').name + '"\n• "Rain −20% and +2°C"\n• "What should I plant on ' + fieldById('creek').name + '?"\n• "I care most about profit"'; }
+  function examples() { return 'Type a change to the weather, crops or prices. Examples:\n• "What if 2012 happens again?"\n• "Try corn after corn on ' + D.farm.fields[0].name + '"\n• "Rain −20% and +2°C"\n• "What should I plant on ' + D.farm.fields[D.farm.fields.length > 1 ? 1 : 0].name + '?"\n• "I care most about profit"'; }
 
   // ================================================================= the interpreter
   FS.chat = FS.chat || {};
@@ -361,7 +373,7 @@
       if (w === 'cover' && tk[i + 1] && tk[i + 1].k === 'word' && /^crops?$/.test(tk[i + 1].w)) { T.c = 'rye'; tk[i + 1].c = '-'; T.coverCrop = true; continue; }
       if (tk[i].c) continue;
       var c = cropOf(w); if (c) { T.c = c; T.fuzzyFrom = (c === CROP_EXACT[w] ? null : w); continue; }
-      var fo = fieldOf(w); if (fo) { T.f = fo; T.fuzzyFrom = (FIELD_EXACT[w] ? null : w); continue; }
+      var fo = fieldOf(w); if (fo) { T.f = fo; T.fuzzyFrom = (FIELD_EXACT[w] || nameWords()[w] ? null : w); continue; }
       if (KW[w]) T.kw = KW[w];
       if (/^(prices?|costs?)$/.test(w) && tk[i - 1] && tk[i - 1].kw === 'NITRO') { T.kw = null; T.used = true; T.w = '_'; continue; }   // "fertilizer prices" is one thing
       if (IMPLICIT[w]) { T.imp = IMPLICIT[w]; }
@@ -634,7 +646,7 @@
 
     if (prevCropRef && !fieldsNamed.length) {
       var fol = D.farm.fields.filter(function (f) { return prevCropRef === 'soy' ? f.lastCrop === 'soybean' : f.lastCrop === 'corn'; }).map(function (f) { return f.name; });
-      return { reply: 'Which field do you mean? ' + (fol.length ? 'The fields that followed ' + (prevCropRef === 'soy' ? 'soybeans' : 'corn') + ' are ' + fol.join(' and ') + '. ' : '') + 'Name one, for example "corn on ' + (fol[0] || fieldById('south').name) + '".', actions: [] };
+      return { reply: 'Which field do you mean? ' + (fol.length ? 'The fields that followed ' + (prevCropRef === 'soy' ? 'soybeans' : 'corn') + ' are ' + fol.join(' and ') + '. ' : '') + 'Name one, for example "corn on ' + (fol[0] || D.farm.fields[D.farm.fields.length - 1].name) + '".', actions: [] };
     }
     // ---- 4. questions: compare / what should I plant
     var isCmp = /\bcompar\w*|\bversus\b|\bvs\b|side by side/.test(t);
@@ -838,7 +850,7 @@
     if (selectTo && selectTo !== state.selectedField) actions.push({ type: 'selectField', id: selectTo });
 
     // fuzzy matches said back to the user
-    var fz = []; tk.forEach(function (x) { if (x.fuzzyFrom && x.used) fz.push('"' + x.fuzzyFrom + '" as ' + (x.c ? (x.c === 'soy' ? 'soybeans' : x.c) : x.f)); });
+    var fz = []; tk.forEach(function (x) { if (x.fuzzyFrom && x.used) fz.push('"' + x.fuzzyFrom + '" as ' + (x.c ? (x.c === 'soy' ? 'soybeans' : x.c) : ((fieldById(x.f) || {}).name || x.f))); });
     if (fz.length && actions.length) notes.push('I read ' + fz.join(' and ') + '.');
 
     // ---- 8. answer
@@ -880,7 +892,7 @@
         var sf = (state.selectedField || D.farm.fields[0].id), cmpR = compareReply(sf, simState, state, '');
         res2.reply = (lead || '') + plainSpeak((sm && sm.recommendationNote) || 'No alternative beats your current plans on this ranking.') + '\nHere is how the other options on ' + fieldById(sf).name + ' compare:';
         if (cmpR.items && cmpR.items.length) { res2.items = cmpR.items; res2.kind = 'cmp'; }
-        else res2.reply += ' Name a field to compare its plans, for example "compare plans for ' + fieldById('creek').name + '".';
+        else res2.reply += ' Name a field to compare its plans, for example "compare plans for ' + D.farm.fields[0].name + '".';
       }
       if (actions.length) res2.actions = actions.concat([{ type: 'run', label: labelBits.join(' · ') || 'Chat run' }]);
       return finish(res2);

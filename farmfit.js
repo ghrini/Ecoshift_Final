@@ -401,3 +401,5 @@ Plain words, short sentences, no hype. summary: 2-3 sentences on what the next 3
 
   return { handleLocalFit, handleOutlook, handleOutlookNote, handleGeocode };
 };
+// shared with fieldgeo.js (GeoJSON fields): the same soil, county and yield lookups, with the same caches
+module.exports.helpers = { soilAt, soilGrids, countyAt, nassCounty, getJSON, okLatLon };

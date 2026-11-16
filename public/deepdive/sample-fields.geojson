@@ -1,0 +1,11 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "properties": { "name": "Home quarter", "crop": "corn" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-93.4800, 42.0400], [-93.4705, 42.0400], [-93.4705, 42.0472], [-93.4800, 42.0472], [-93.4800, 42.0400]]] } },
+    { "type": "Feature", "properties": { "name": "Creek bottom", "crop": "soybean" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-93.4800, 42.0328], [-93.4705, 42.0328], [-93.4705, 42.0364], [-93.4752, 42.0364], [-93.4752, 42.0394], [-93.4800, 42.0394], [-93.4800, 42.0328]]] } },
+    { "type": "Feature", "properties": { "name": "East forty", "crop": "soybean" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-93.4698, 42.0400], [-93.4650, 42.0400], [-93.4650, 42.0436], [-93.4698, 42.0436], [-93.4698, 42.0400]]] } }
+  ]
+}

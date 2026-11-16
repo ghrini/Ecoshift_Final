@@ -27,6 +27,7 @@ const MIME = {
   ".css": "text/css; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  ".geojson": "application/geo+json; charset=utf-8",
   ".svg": "image/svg+xml",
   ".png": "image/png",
   ".jpg": "image/jpeg",
@@ -114,7 +115,7 @@ class UserError extends Error {}
 /* ---------------- HTTP ---------------- */
 // Only the app's own web files: no hidden folders (.git, .env, .devcontainer), no server code, no other file types.
 // Text files are gzipped once and kept in memory (keyed by path, modified time and size).
-const GZIP_TYPES = new Set([".html", ".js", ".css", ".json", ".svg"]);
+const GZIP_TYPES = new Set([".html", ".js", ".css", ".json", ".geojson", ".svg"]);
 const gzCache = new Map();
 function serveStatic(req, res) {
   let urlPath;
@@ -122,7 +123,7 @@ function serveStatic(req, res) {
   const file = path.normalize(path.join(PUBLIC, urlPath.endsWith("/") ? urlPath + "index.html" : urlPath));
   const rel = path.relative(PUBLIC, file);
   const hidden = rel.split(path.sep).some((part) => part.startsWith("."));
-  const serverOnly = /^(server|farmfit|farmmap|chatai|sim\.test)\.js$/i.test(path.basename(file));
+  const serverOnly = /^(server|farmfit|farmmap|chatai|fieldgeo|fieldlive|fieldsat|fieldhealth|sim\.test)\.js$/i.test(path.basename(file));
   const ext = path.extname(file).toLowerCase();
   if (rel.startsWith("..") || path.isAbsolute(rel) || hidden || serverOnly || !MIME[ext]) return send(res, 404, "Not found");
   fs.stat(file, (err, st) => {
@@ -174,7 +175,7 @@ function send(res, status, body) {
 }
 
 // Each visitor gets a fair number of AI calls, so a shared link can't run up the key's bill.
-const AI_LIMIT = { localfit: 10, outlooknote: 12, chat: 40, translate: 120, geocode: 150, farmmap: 20, all: 600 }; // calls per visitor per 10 minutes; "all" = everyone together
+const AI_LIMIT = { localfit: 10, outlooknote: 12, chat: 40, fields: 10, live: 30, health: 10, translate: 120, geocode: 150, farmmap: 20, all: 600 }; // calls per visitor per 10 minutes; "all" = everyone together
 const WINDOW = 10 * 60_000;
 // X-Forwarded-For is only believed when TRUST_PROXY says how many proxies of ours sit in front of the server (0 = none: use the socket address).
 // With N hops the visitor is the Nth address from the right; anything further left was written by the visitor and can be faked.
@@ -203,6 +204,9 @@ function overLimit(req, kind) {
 const FIT = require("./farmfit")({ geminiJSON, hasKey: () => !!GEMINI_KEY, readBody, send, UserError });
 const MAP = require("./farmmap")({ send });
 const CHAT = require("./chatai")({ geminiJSON, hasKey: () => !!GEMINI_KEY, readBody, send, UserError, noKey: NO_KEY });
+const GEO = require("./fieldgeo")({ readBody, send });
+const LIVE = require("./fieldlive")({ readBody, send });
+const HEALTH = require("./fieldhealth")({ readBody, send });
 const TOO_MANY = { error: "That's a lot of requests in a short time. Wait a few minutes and try again." };
 const oops = (res) => (e) => { console.error(e); send(res, 500, { error: "Something went wrong on our side. Try again in a minute." }); };
 
@@ -255,6 +259,9 @@ function handle(req, res) {
   if (req.method === "GET" && req.url.startsWith("/api/farmmap/img/")) return MAP.handleImage(req, res);
   if (req.method === "GET" && req.url.startsWith("/api/geocode?")) return overLimit(req, "geocode") ? send(res, 429, TOO_MANY) : FIT.handleGeocode(req, res).catch(oops(res));
   if (req.method === "POST" && req.url === "/api/translate") return overLimit(req, "translate") ? send(res, 429, TOO_MANY) : handleTranslate(req, res).catch(oops(res));
+  if (req.method === "POST" && req.url === "/api/fieldhealth") return overLimit(req, "health") ? send(res, 429, TOO_MANY) : HEALTH.handleHealth(req, res).catch(oops(res));
+  if (req.method === "POST" && req.url === "/api/liveconditions") return overLimit(req, "live") ? send(res, 429, TOO_MANY) : LIVE.handleLive(req, res).catch(oops(res));
+  if (req.method === "POST" && req.url === "/api/fieldconditions") return overLimit(req, "fields") ? send(res, 429, TOO_MANY) : GEO.handleFieldConditions(req, res).catch(oops(res));
   if (req.method === "POST" && req.url === "/api/chat") return overLimit(req, "chat") ? send(res, 429, TOO_MANY) : CHAT.handleChat(req, res).catch(oops(res));
   if (req.method === "POST" && req.url === "/api/outlooknote") return overLimit(req, "outlooknote") ? send(res, 429, TOO_MANY) : FIT.handleOutlookNote(req, res).catch(oops(res));
   if (req.method === "GET" || req.method === "HEAD") return serveStatic(req, res);
