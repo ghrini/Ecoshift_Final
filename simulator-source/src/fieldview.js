@@ -103,6 +103,8 @@ window.FS = window.FS || {};
   }
   buildGeo();
   function imported() { return !!DATA.farm.imported; }   // the farmer's own outlines (GeoJSON): no drawn farmstead, roads or creek
+  // the weather behind an imported farm: NASA POWER, or the Copernicus ERA5 fallback when NASA POWER did not answer
+  function importedWeatherName() { try { var g = FS.engine && FS.engine.site && FS.engine.site().geo; return (g && g.weather) || 'NASA POWER'; } catch (e) { return 'NASA POWER'; } }
 
   // Geometry of a real farm map's fields in map units (0..MAPSIZE), or null when the record cannot paint all four simulator fields.
   function buildMapGeo(rec) {
@@ -739,7 +741,7 @@ window.FS = window.FS || {};
       liveSt = { key: key, status: 'ok', rec: rec }; useMap(rec, true, 'live', rec.img);
     }
     function pickMap() {
-      if (imported()) { liveSt = { key: '', status: '', rec: null }; fallBack(0, false, 'county'); credEl.textContent = 'Your own field outlines · Copernicus weather and terrain'; return; }
+      if (imported()) { liveSt = { key: '', status: '', rec: null }; fallBack(0, false, 'county'); credEl.textContent = 'Your own field outlines · ' + importedWeatherName() + ' weather · Copernicus terrain'; return; }
       var pt = ownPoint(), base = serverBase(), c = countyRec();
       if (pt && base) {
         var key = pt.lat.toFixed(3) + ',' + pt.lon.toFixed(3);

@@ -217,7 +217,8 @@
   var STEPS = [
     { id: 'welcome', title: "Let's Get To Know Your Farm", noSkip: true, next: 'Start',
       hint: function () { return STEPS.filter(function (q) { return !q.noSkip; }).length + ' quick questions. Most are optional. Then the simulator replays ' + years() + ' real seasons of NASA weather on your farm.'; },
-      render: function () { return (FS.i18n && /^https?:$/.test(location.protocol) ? '<div class="fs-q-langrow">' + FS.i18n.selectHTML('fs-q-lang') + '<span class="fs-q-langhint" translate="no">Choose your language · Elige tu idioma · Escolha seu idioma · Choisissez votre langue</span></div>' : '') + '<p class="fs-q-plain">Your answers are saved in this browser. To fit the data to your farm, its location is sent to NASA POWER, USDA (soils and yields), ISRIC SoilGrids, the FCC and US Census lookups and the Open-Meteo forecast. Addresses you type go to the Photon address search (OpenStreetMap). If the server has an AI key, your land answers go to Google Gemini.</p>'; } },
+      render: function () { return (FS.i18n && /^https?:$/.test(location.protocol) ? '<div class="fs-q-langrow">' + FS.i18n.selectHTML('fs-q-lang') + '<span class="fs-q-langhint" translate="no">Choose your language · Elige tu idioma · Escolha seu idioma · Choisissez votre langue</span></div>' : '') + '<p class="fs-q-plain">Your answers stay in this browser. Only your farm\'s location is sent out, to fetch weather and soil data.</p>' +
+        '<details class="fs-q-priv"><summary>How We Use Your Answers</summary><p class="fs-q-plain">Your answers are saved in this browser. To fit the data to your farm, its location is sent to NASA POWER, USDA (soils and yields), ISRIC SoilGrids, the FCC and US Census lookups and the Open-Meteo forecast. Addresses you type go to the Photon address search (OpenStreetMap). If the server has an AI key, your land answers go to Google Gemini.</p></details>'; } },
     { id: 'name', short: 'Name', title: 'What Should We Call You?', hint: 'Optional. Just used to say hello in the chat.',
       render: function (a) { return '<label class="fs-q-label" for="fs-q-name">Name or farm name</label><input type="text" id="fs-q-name" class="fs-q-text" maxlength="40" autocomplete="name" value="' + esc(a.name) + '">'; },
       collect: function (a, r) { a.name = text(val(r, 'fs-q-name'), 40); } },
@@ -462,7 +463,7 @@
       '<div class="fs-q-top"><div class="fs-q-bar" id="fs-q-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progress"><i></i></div><p class="fs-q-count" id="fs-q-count"></p></div>' +
       '<form class="fs-q-form" id="fs-setup-form" novalidate><div class="fs-q-scroll" id="fs-q-scroll"><h2 id="fs-q-title" tabindex="-1"></h2><p class="fs-q-hint" id="fs-q-hint"></p><div class="fs-q-body" id="fs-q-body"></div>' +
       '<p id="fs-setup-err" class="fs-setup-err" role="alert" hidden></p></div>' +
-      '<div class="fs-q-nav"><button type="button" class="fs-q-btn" id="fs-q-back">Back</button><button type="button" class="fs-q-btn" id="fs-q-skip">Skip</button><span class="fs-q-spacer"></span>' +
+      '<div class="fs-q-nav" id="fs-q-nav"><button type="button" class="fs-q-btn" id="fs-q-back">Back</button><button type="button" class="fs-q-btn" id="fs-q-skip">Skip</button><span class="fs-q-spacer"></span>' +
       '<button type="submit" class="fs-btn-primary fs-setup-go" id="fs-q-next">Next</button></div>' +
       '<div class="fs-q-foot"><button type="button" class="fs-setup-alt" id="fs-setup-example">Use The Example Farm</button></div></form></div>';
     card = host.querySelector('.fs-q'); root = host.querySelector('#fs-q-body');
@@ -482,6 +483,10 @@
       $('fs-q-back').hidden = idx === 0 || fromReview; $('fs-q-skip').hidden = !!s.noSkip;
       $('fs-q-next').textContent = fromReview && s.id !== 'review' ? 'Back to review' : s.next || 'Next';
       $('fs-q-skip').textContent = fromReview ? 'Skip' : 'Skip';
+      // on the welcome screen the example farm is a clear second button beside Start; on later steps it stays a quiet link at the bottom
+      var exBtn = $('fs-setup-example'), onWelcome = s.id === 'welcome';
+      exBtn.className = onWelcome ? 'fs-q-btn fs-setup-example-btn' : 'fs-setup-alt';
+      if (onWelcome) $('fs-q-nav').insertBefore(exBtn, $('fs-q-next')); else host.querySelector('.fs-q-foot').appendChild(exBtn);
       var sc = $('fs-q-scroll'); sc.scrollTop = 0; host.scrollTop = 0;
       if (focus !== false) $('fs-q-title').focus();
     }

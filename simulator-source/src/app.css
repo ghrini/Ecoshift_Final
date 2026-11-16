@@ -215,15 +215,17 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px var(
 .fs-adjust-title { display: inline-flex; align-items: center; gap: 10px; padding-left: 4px; font: 600 18px/1.2 var(--font-sans); letter-spacing: 0; color: var(--on-bg); }
 .fs-adjust-title svg { flex: none; color: var(--umber); }
 
-/* ===== Inside text at 22px (team request): controls, Sim analysis and Chat ===== */
-.fs-row-head label, .fs-label, .fs-val, .fs-check, .fs-check span { font-size: 22px; line-height: 1.35; }
-.fs-select { font-size: 22px; padding: 8px 12px; }
+/* size of the text inside the setting boxes, Sim analysis and Chat: 16px on phones, about 18px on a 1440 laptop, 22px from 1760px up */
+:root { --fs-inner: clamp(16px, 1.25vw, 22px); }
+/* ===== Inside text: controls, Sim analysis and Chat ===== */
+.fs-row-head label, .fs-label, .fs-val, .fs-check, .fs-check span { font-size: var(--fs-inner); line-height: 1.35; }
+.fs-select { font-size: var(--fs-inner); padding: 8px 12px; }
 .fs-ctl-row .fs-panel-body { gap: 16px; }
-.fs-body-tools .fs-reset { font-size: 22px; }
+.fs-body-tools .fs-reset { font-size: var(--fs-inner); }
 #fs-chat .fs-panel-body, #fs-analysis .fs-panel-body,
-#fs-analysis .fs-panel-body *, #fs-chat .fs-panel-body * { font-size: 22px; line-height: 1.45; }
-#fs-chat-input { font-size: 22px; min-height: 50px; }
-#fs-chat-send { font-size: 20px; height: 50px; }
+#fs-analysis .fs-panel-body *, #fs-chat .fs-panel-body * { font-size: var(--fs-inner); line-height: 1.45; }
+#fs-chat-input { font-size: var(--fs-inner); min-height: 50px; }
+#fs-chat-send { font-size: calc(var(--fs-inner) - 2px); height: 50px; }
 /* bullets that expand */
 .fs-detail-list { margin: 6px 0 0; padding-left: 26px; display: grid; gap: 6px; }
 .fs-detail-list li::marker { color: var(--umber); }
@@ -614,3 +616,40 @@ textarea.fs-q-text { resize: vertical; min-height: 3.4em; }
 .fs-cn-fresh i { font-style: normal; opacity: 0.8; }
 .fs-cn-fresh .fs-cn-auto { border-style: dashed; }
 .fs-fm-tabs button { white-space: nowrap; }
+
+/* ===== Phones: the Simulation / Farm Map / Conditions switcher gets its own row under the panel title ===== */
+@media (max-width: 700px) {
+  #fs-view-panel .fs-panel-head { height: auto; min-height: 56px; flex-wrap: wrap; align-items: center; row-gap: 8px; padding: 10px 14px; }
+  #fs-view-panel .fs-panel-title { flex: 1 1 auto; font-size: 22px; }
+  #fs-view-panel .fs-head-right { display: contents; }
+  #fs-view-panel .fs-expand { order: 2; }
+  #fs-view-panel .fs-fm-tabs { order: 3; flex: 1 1 100%; display: flex; max-width: 100%; }
+  #fs-view-panel .fs-fm-tabs button { flex: 1 1 0; min-width: 0; white-space: normal; line-height: 1.15; padding: 7px 6px; font-size: 13px; }
+}
+
+/* ===== Welcome screen: privacy note folded, the example farm is a clear second button ===== */
+.fs-q-priv { margin-top: 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--panel-2); }
+.fs-q-priv > summary { cursor: pointer; padding: 10px 14px; font-weight: 600; color: var(--on-bg-accent); }
+.fs-q-priv[open] > summary { border-bottom: 1px solid var(--divider); }
+.fs-q-priv > .fs-q-plain { margin: 0; padding: 12px 14px; font-size: 17px; line-height: 1.5; color: var(--text-muted); }
+.fs-q-btn.fs-setup-example-btn { display: inline-block; text-decoration: none; font-family: var(--font-sans); font-size: 20px; padding: 10px 22px; border-radius: 10px; border: 1px solid var(--accent); background: transparent; color: var(--on-bg-accent); cursor: pointer; font-weight: 600; }
+.fs-setup-example-btn:hover { background: var(--umber-glow); color: var(--brown-strong); }
+.fs-setup-example-btn:focus-visible { outline: 2px solid var(--info); outline-offset: 3px; }
+@media (max-width: 700px) { .fs-q-nav { flex-wrap: wrap; } .fs-setup-example-btn { font-size: 18px; padding: 8px 14px; } }
+
+/* ===== Laptop sizing: the field view gets the height, headings are a little tighter ===== */
+@media (min-width: 1001px) {
+  .fs-panel-head { height: 60px; }
+  .fs-panel-title { font-size: 24px; }
+  #fs-app { min-height: 800px; grid-template-columns: minmax(0, 2fr) minmax(380px, 1fr); }
+  #fs-right { grid-template-rows: minmax(0, 1.25fr) minmax(0, 1fr); }
+  #fs-analysis .fs-panel-body, #fs-chat .fs-panel-body { padding: 12px 16px 14px; }
+}
+
+/* one verdict line per field at the top of Sim analysis */
+#fs-analysis .fs-verdicts { list-style: none; margin: 0 0 10px; padding: 0 0 8px; border-bottom: 1px solid var(--divider); display: grid; gap: 2px; }
+#fs-analysis .fs-verdicts, #fs-analysis .fs-verdicts * { font-size: calc(var(--fs-inner) - 1px); line-height: 1.35; }
+#fs-analysis .fs-verdicts b { color: var(--on-bg-accent); font-weight: 700; }
+
+/* laptop: the whole farm map picture fits in the box without scrolling */
+@media (min-width: 1001px) { .fs-fm-fig img { width: auto; height: min(640px, calc(100dvh - 430px)); min-height: 280px; max-width: 100%; } }

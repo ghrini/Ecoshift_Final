@@ -120,7 +120,7 @@ test('3. compare(fieldId, controls) lists every plan, current first', () => {
     assert.equal(rows[0].isCurrent, true); assert.equal(rows[0].plan, FS.data.initialControls.crops.plans[id]);
     assert.equal(rows[0].deltaPerAcre, 0); assert.equal(rows[0].deltaThisSeason, 0);
     rows.forEach((x) => { checkItem(x, false); assert.equal(typeof x.label, 'string'); assert.ok(Number.isFinite(x.yieldPctThisSeason)); });
-    rows.filter((x) => FS.data.plans[x.plan].sequence.some((s) => s.crop === 'oats')).forEach((x) => assert.match(x.moneyNote, /placeholder/));
+    rows.filter((x) => FS.data.plans[x.plan].sequence.some((s) => s.crop === 'oats')).forEach((x) => assert.match(x.moneyNote, /rough guesses with no source/));
   });
 });
 
@@ -253,7 +253,7 @@ test('13. money rules: cost-share cap, 0 trial acres, no single-dataset temperat
     assert.ok(!/\d\s*°?\s*C\b(?! or colder)/.test(txt.replace(/[+−-]\d°C/g, '')), id + ': no printed temperatures in events/why');
   }
   const oats = controls('typical'); oats.crops.plans.north = 'oats-cover';
-  assert.match(run(oats).summary.fields.north.moneyNote, /placeholder/);
+  assert.match(run(oats).summary.fields.north.moneyNote, /rough guesses with no source/);
 });
 
 test('14. warming slider: published floor on the loss, shift 0 and cooling unchanged', () => {

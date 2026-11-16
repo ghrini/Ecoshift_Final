@@ -65,8 +65,8 @@
 
   var PLAN_PHRASE = {
     'rye-soy': 'planting cereal rye before soybeans', 'rye-corn': 'planting cereal rye before corn',
-    'corn-corn': 'planting corn again', 'oats-cover': 'planting oats with a summer cover crop',
-    'soy-soy': 'planting soybeans again', 'corn': 'planting corn after soybeans', 'soy': 'planting soybeans after corn'
+    'corn-corn': 'planting corn after corn', 'oats-cover': 'planting oats with a summer cover crop',
+    'soy-soy': 'planting soybeans after soybeans', 'corn': 'planting corn after soybeans', 'soy': 'planting soybeans after corn'
   };
   function planPhrase(id, x) { return PLAN_PHRASE[id] || ('going with ' + planName(x)); }
   function sentence(s) { s = String(s).trim(); return /[.!?]$/.test(s) ? s : s + '.'; }
@@ -76,6 +76,24 @@
   // mislead; differences between plans hold up much better and are still shown.
   FS.absMoneyOk = function () { try { var st = FS.engine && FS.engine.site && FS.engine.site(); return !st || !st.state || st.state === 'IA'; } catch (e) { return true; } };
   function earns(tot) { var v = round10(tot); return v < 50 ? 'about breaks even' : tot > 0 ? 'earns about ' + money(v) : 'loses about ' + money(v); }
+
+  // One line per field in farmer words, from the same past-season table the strip uses: "North 80: keep soybeans · worst season 87% of normal"
+  var CROP_OF = { 'soy': 'soybeans', 'soy-soy': 'soybeans', 'rye-soy': 'soybeans', 'corn': 'corn', 'corn-corn': 'corn', 'rye-corn': 'corn', 'oats-cover': 'oats' };
+  function verdictsHtml(r, fields, cur0) {
+    var rows = '';
+    fields.forEach(function (f) {
+      var plan = r.inputs.crops && r.inputs.crops.plans[f.id], data = null;
+      try { if (FS.engine && FS.engine.seasons) data = FS.engine.seasons(f.id, r.inputs); } catch (e) { data = null; }
+      if (!data || !data.years || !data.plan || !data.plan.pct) return;
+      var worst = null, wy = null;
+      data.plan.pct.forEach(function (v, i) { if (v != null && isFinite(v) && (worst == null || v < worst)) { worst = v; wy = data.years[i]; } });
+      if (worst == null) return;
+      var keep = !plan || plan === cur0[f.id];
+      var what = keep ? 'keep ' + (CROP_OF[cur0[f.id]] || 'your plan') : 'try ' + (PLAN_SHORT[plan] || 'your plan');
+      rows += '<li><b>' + esc(f.name) + ':</b> ' + esc(what) + ' \u00b7 <span title="The worst of the ' + data.years.length + ' past seasons (' + wy + ')">worst season ' + Math.round(worst) + '% of normal</span></li>';
+    });
+    return rows ? '<ul class="fs-verdicts" aria-label="One line per field">' + rows + '</ul>' : '';
+  }
 
   function runHtml(r) {
     var s = r.summary, delta = s.farm.returnVsBaselineTotal, cur0 = D.initialControls.crops.plans;
@@ -91,18 +109,18 @@
     var pctNormal = Math.round(tot / (ac || 1));
     // Visible part: ONE short sentence. Everything else sits behind "Show details".
     var oats = all.some(function (f) { return s.fields[f.id].moneyNote; });
-    // group changed fields by plan: "planting corn again on North 80 and Creek 40"
+    // group changed fields by plan: "planting corn after corn on North 80 and Creek 40"
     var groups = [], byPlan = {};
     changed.forEach(function (f) { var p = r.inputs.crops.plans[f.id]; if (!byPlan[p]) { byPlan[p] = { p: p, x: s.fields[f.id], names: [] }; groups.push(byPlan[p]); } byPlan[p].names.push(esc(f.name)); });
     var who = groups.length > 2 ? 'your changes on ' + changed.length + ' fields' : joinAnd(groups.map(function (g) { return planPhrase(g.p, g.x) + ' on ' + joinAnd(g.names); }));
     if (oats) {
-      open = 'In ' + esc(sc) + ', your farm gets about ' + pctNormal + '% of a normal crop. Money is not shown while oats is in the plan, because oats prices are placeholders.';
+      open = 'In ' + esc(sc) + ', your farm gets about ' + pctNormal + '% of a normal crop. Money is not shown while oats is in the plan, because oats price and cost are rough guesses with no source yet.';
     } else if (changed.length && Math.round(delta) !== 0) {
       open = 'In ' + esc(sc) + ', ' + who + (groups.length > 1 ? ' earn' : ' earns') + ' about ' + money(round10(delta)) + (delta < 0 ? ' less' : ' more') + ' than your current plan.';
     } else {
       open = 'In ' + esc(sc) + ', your farm gets about ' + pctNormal + '% of a normal crop' + (FS.absMoneyOk() ? ' and ' + earns(s.farm.returnTotal) : '') + (changed.length ? ', about the same as your current plan' : '') + '.';
     }
-    h = '<p>' + open + '</p><div class="fs-strip-wrap"></div>';
+    h = verdictsHtml(r, all, cur0) + '<p>' + open + '</p><div class="fs-strip-wrap"></div>';
 
     // Details: plain sentences, a farmer can read them top to bottom.
     var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -142,7 +160,7 @@
   }
 
   // ---- season strip: one square per past season for the selected field (API_V3 section 3)
-  var PLAN_SHORT = { 'rye-soy': 'rye then soybeans', 'rye-corn': 'rye then corn', 'corn-corn': 'corn again', 'soy-soy': 'soybeans again', 'oats-cover': 'oats then a cover crop', 'corn': 'corn', 'soy': 'soybeans' };
+  var PLAN_SHORT = { 'rye-soy': 'rye then soybeans', 'rye-corn': 'rye then corn', 'corn-corn': 'corn after corn', 'soy-soy': 'soybeans after soybeans', 'oats-cover': 'oats then a cover crop', 'corn': 'corn', 'soy': 'soybeans' };
   var focusYear = null;
   function yearOf(id) {
     var sc = scen(id); if (sc && sc.year) return Number(sc.year);

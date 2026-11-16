@@ -59,7 +59,7 @@ FS.data = {
   // typical = the season closest to the 1982-2025 median in BOTH June-August rain and May-September growing degree-days (seasons
   // 1982-83 skipped: no radiation, so ET0 is Hargreaves). 1984, the earlier choice, matched rain only and is the 4th coolest season.
   weatherScenarios: [
-    { id: 'typical', label: 'Typical year (2011)', phrase: 'a typical year (2011 weather)', year: 2011,
+    { id: 'typical', label: 'Typical season (2011 weather)', phrase: 'a typical season\'s weather (2011)', year: 2011,
       note: 'Closest of the 44 seasons to the middle of the record in both June-August rain (293 mm here against a 1982-2025 median of 322 mm) and summer warmth; Iowa corn 172 bu/acre (USDA NASS).' },
     { id: 'drought2012', label: '2012 drought and heat', phrase: 'a 2012-style drought', year: 2012,
       note: 'Iowa corn 137 bu/acre vs 172 in 2011 (USDA NASS); the 2nd driest June-August of the 44 seasons here.' },
@@ -86,8 +86,8 @@ FS.data = {
     costShareCapAcres: 160,                                        // IDALS 2026: cost-share is paid on at most 160 acres per farm
     asOf: '2026-11-14',
     sources: {
-      price: 'Corn $4.60 and soybean $12.10 per bushel: USDA WASDE November 2026, 2026/27 season-average farm price (reported by DTN, 10 Nov 2026). Oats $3.50 is a placeholder, not sourced.',
-      costs: 'Corn $911.98, corn after corn $960.02 and the 211 bu/acre budget yield: Iowa State University Ag Decision Maker A1-20, January 2026, read through secondary summaries (Fencerow, Iowa Farm Bureau). Soybean about $680 at 61 bu/acre: Iowa Soybean Association summary of the same budgets, sources conflict. Oats $420 and 80 bu/acre are placeholders. Rye $37 is a placeholder.',
+      price: 'Corn $4.60 and soybean $12.10 per bushel: USDA WASDE November 2026, 2026/27 season-average farm price (reported by DTN, 10 Nov 2026). Oats $3.50 is a rough guess with no source.',
+      costs: 'Corn $911.98, corn after corn $960.02 and the 211 bu/acre budget yield: Iowa State University Ag Decision Maker A1-20, January 2026, read through secondary summaries (Fencerow, Iowa Farm Bureau). Soybean about $680 at 61 bu/acre: Iowa Soybean Association summary of the same budgets, sources conflict. Oats $420 and 80 bu/acre are rough guesses with no source. Rye $37 is a rough guess with no source.',
       nitrogen: '146 lb N/acre for corn after soybean: Iowa State MRTN 2022. 190 lb for corn after corn is a working figure. $0.57 per lb N from anhydrous at $938/ton (DTN, November 2026).',
       volatility: 'RMA 2026 volatility factors, via farmdoc daily (March 2026).',
       costShare: 'Iowa Department of Agriculture and Land Stewardship cover crop cost-share 2026: $30/acre first-time, 160-acre cap; not combinable with the crop insurance discount.'
