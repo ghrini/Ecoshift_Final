@@ -155,7 +155,7 @@
     var site = FS.farmSetup.site || STORY(), loc = localOf(), p = FS.farmSetup.setup && !FS.farmSetup.example && FS.farmSetup.setup.point;
     var dataName = String(site.name).split(',')[0];
     var g = geoOf(FS.farmSetup.setup), gs = g && FS.engine && FS.engine.site ? FS.engine.site().geo : null;
-    var txt = gs ? 'Your ' + gs.fields + ' field' + (gs.fields === 1 ? '' : 's') + (g.cond.county ? ' in ' + g.cond.county : '') + ' · ' + ((g.cond.climate && g.cond.climate.meta && g.cond.climate.meta.short) || 'NASA POWER') + ' weather, Copernicus terrain' : loc ? 'Your farm near ' + shortLabel(loc.label) + ' · data from ' + dataName + ' (' + loc.km + ' km)'
+    var txt = gs ? 'Your ' + gs.fields + ' field' + (gs.fields === 1 ? '' : 's') + (g.cond.county ? ' in ' + g.cond.county : '') + ' · ' + ((g.cond.climate && g.cond.climate.meta && g.cond.climate.meta.short) || 'NASA POWER') + ' weather · Copernicus terrain' : loc ? 'Your farm near ' + shortLabel(loc.label) + ' · data from ' + dataName + ' (' + loc.km + ' km)'
       : p ? 'Your farm near ' + shortLabel(p.label) + ' · data from ' + dataName : 'Your farm: ' + siteShort(site);
     b.querySelector('.fs-farm-name').textContent = txt;
     b.setAttribute('aria-label', txt + '. Change');
@@ -196,7 +196,7 @@
     guard('footer', function () { wireFooter(); wireFarmLine(); });
     guard('chat reset', function () { FS.chat.reset(); });
     guard('select', function () { FS.store.emit('field:select', { id: st.selectedField, source: 'setup' }); });
-    guard('run', function () { FS.actions.runSimulation('setup', 'Typical year · current plans'); });
+    guard('run', function () { FS.actions.runSimulation('setup', 'Typical season · current plans'); });
     guard('recs', function () { FS.chat.postRecs(); });
     guard('outlook', function () { if (FS.outlook) FS.outlook.refresh(); });
     guard('farm map', function () { if (FS.farmMap) FS.farmMap.refresh(); });
@@ -210,7 +210,7 @@
   function setInert(on) { INERT.forEach(function (id) { var e = $(id); if (!e) return; if (on) { e.setAttribute('inert', ''); e.setAttribute('aria-hidden', 'true'); } else { e.removeAttribute('inert'); e.removeAttribute('aria-hidden'); } }); }
   function buildPanel() {
     var host = $('fs-setup'); if (!host || ctrl) return;
-    ctrl = Q().create(host, { onStart: onStart, onExample: onExample, onEscape: function () { if (firstOpen) onExample(); else closePanel(); } });
+    ctrl = Q().create(host, { onStart: onStart, onExample: onExample, onEscape: function () { if (firstOpen && FS.farmSetup.example) onExample(); else closePanel(); } });
     panel = host;
   }
   // step: 'welcome' on the first run, 'review' from "Change" in the header
@@ -232,7 +232,8 @@
     saveSetup(setup); closePanel(); maybeFit(setup); return { ok: true };
   }
   // fieldimport.js hands over a whole setup (the farm's own outlines and the conditions at them)
-  FS.farmSetup.use = function (setup) { var r = applySetup(setup); if (r.ok) saveSetup(setup); return r; };
+  // an imported farm replaces the example, so a welcome screen that is still open closes (Escape then keeps that farm too)
+  FS.farmSetup.use = function (setup) { var r = applySetup(setup); if (r.ok) { saveSetup(setup); closePanel(); } return r; };
   FS.farmSetup.blank = function () { return Q().blank(); };
   // the field list's + and − buttons: one field more or less (1 to 4), kept with the farm
   FS.farmSetup.setFieldCount = function (n) {
@@ -351,7 +352,7 @@
     guard('footer', function () { wireFooter(); wireFarmLine(); });
     guard('farm button', function () { var b = $('fs-farm-btn'); if (b) b.addEventListener('click', function () { openPanel(false, 'review'); }); });
     guard('link', function () { parseHash(); if (fromEco) wireBack(); });
-    guard('first run', function () { FS.actions.runSimulation('boot', 'Typical year · current plans'); });
+    guard('first run', function () { FS.actions.runSimulation('boot', 'Typical season · current plans'); });
     guard('opening message', function () { FS.chat.postRecs(); });
     // last, so it is the line the farmer sees first in the chat (the chat scrolls to the newest message)
     guard('link line', function () {

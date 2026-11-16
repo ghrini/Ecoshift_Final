@@ -366,7 +366,8 @@ module.exports = function farmfit({ geminiJSON, hasKey, readBody, send, UserErro
 Plain words, short sentences, no hype. summary: 2-3 sentences on what the next 30 days mean for this farm. actions: up to 4 short practical things to do or check, tied to the warnings and the season (for example field work, fall nitrogen timing, cover crop, grain storage, planting). Say plainly that days 17-30 are a rough estimate.`;
   const NOTE_SCHEMA = { type: "OBJECT", properties: { summary: { type: "STRING" }, actions: { type: "ARRAY", items: { type: "STRING" } } }, required: ["summary", "actions"] };
   async function handleOutlookNote(req, res) {
-    if (!hasKey()) return send(res, 500, { error: "The AI helper is off." });
+    // no AI key: a normal answer ("off"), not an error, so the page stays quiet
+    if (!hasKey()) return send(res, 200, { off: true });
     let b;
     try { b = JSON.parse(await readBody(req, 30_000)); } catch (e) { return bodyFail(res, e); }
     try {

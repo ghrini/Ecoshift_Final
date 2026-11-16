@@ -66,7 +66,7 @@ const P0 = [
  ['hail', { none: 1, norun: 1, reply: /not modelled/i }], ['what about tornado', { none: 1, norun: 1, reply: /not modelled/i }],
  ['rain 20% less and 30% less rain', { rain: -20, reply: /two rain changes/ }], ['2012 2012', { scen: 'drought2012', noreply_re: /not 2012/ }],
  // ---- oats money (finding 2)
- ['put all my fields in oats', { plans: { north: 'oats-cover', creek: 'oats-cover' }, reply: /Money is not shown while oats is in the plan, because oats prices are placeholders\./, nodollar: 1 }],
+ ['put all my fields in oats', { plans: { north: 'oats-cover', creek: 'oats-cover' }, reply: /Money is not shown while oats is in the plan, because oats price and cost are rough guesses with no source yet\./, nodollar: 1 }],
 
  // ---- planting date and weather events (API_V3)
  ['plant 2 weeks earlier', { plant: -14, reply: /14 days earlier/ }], ['plant a week later', { plant: 7, reply: /7 days later/ }], ['plant on time', { plant: 0 }, [['crops.plantShiftDays', 14]]],

@@ -154,6 +154,7 @@
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
         if (my !== seq) return;
+        if (x.ok && x.j && x.j.off) return;   // the server has no AI key: leave the note out quietly
         if (!x.ok) { noteErr = x.j && x.j.error || 'The AI helper could not write a note just now.'; render(); return; }
         note = x.j; try { sessionStorage.setItem(key, JSON.stringify(note)); } catch (e) { /* ignore */ }
         render();

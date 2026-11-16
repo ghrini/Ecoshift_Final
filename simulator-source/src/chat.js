@@ -30,12 +30,12 @@
   var NAMED = function () { return D.weatherScenarios || []; };
   function climYears() { var c = D.climate && D.climate.meta; return (c && c.years) || []; }
 
-  var SHORT_PLAN = { 'soy': 'soybeans (current plan)', 'rye-soy': 'rye after harvest, then soybeans', 'corn-corn': 'corn again',
-    'oats-cover': 'oats, then a summer cover crop', 'corn': 'corn (current plan)', 'rye-corn': 'rye after harvest, then corn', 'soy-soy': 'soybeans again' };
+  var SHORT_PLAN = { 'soy': 'soybeans (current plan)', 'rye-soy': 'rye after harvest, then soybeans', 'corn-corn': 'corn after corn',
+    'oats-cover': 'oats, then a summer cover crop', 'corn': 'corn (current plan)', 'rye-corn': 'rye after harvest, then corn', 'soy-soy': 'soybeans after soybeans' };
   var PLAN_PHRASE = {
-    'soy': 'plant soybeans (your current plan)', 'rye-soy': 'plant cereal rye after harvest, then soybeans in spring', 'corn-corn': 'plant corn again',
+    'soy': 'plant soybeans (your current plan)', 'rye-soy': 'plant cereal rye after harvest, then soybeans in spring', 'corn-corn': 'plant corn after corn (a second year of corn)',
     'oats-cover': 'plant oats in spring, then a summer cover crop', 'corn': 'plant corn (your current plan)',
-    'rye-corn': 'plant cereal rye after harvest, then corn in spring', 'soy-soy': 'plant soybeans again'
+    'rye-corn': 'plant cereal rye after harvest, then corn in spring', 'soy-soy': 'plant soybeans after soybeans (a second year of soybeans)'
   };
   // "(current plan)" is only true while some field is on that plan (a farmer who already plants rye has another current plan)
   function isCurrentSomewhere(p) { var pl = D.initialControls.crops.plans; return D.farm.fields.some(function (f) { return pl[f.id] === p; }); }
@@ -198,7 +198,7 @@
     var f = (summary && summary.fields) || {};
     return Object.keys(f).some(function (id) { return f[id] && f[id].moneyNote; });
   }
-  var OATS_MONEY = 'Money is not shown while oats is in the plan, because oats prices are placeholders.';
+  var OATS_MONEY = 'Money is not shown while oats is in the plan, because oats price and cost are rough guesses with no source yet.';
   function errPoints(summary) {
     var m = /typical error (?:of )?(\d+) points?/.exec((summary && summary.validation && summary.validation.text) || '');
     return m ? +m[1] : null;
@@ -293,7 +293,7 @@
     var ys = climYears(), span = ys.length ? ys[0] + '-' + ys[ys.length - 1] : '1982-2025', site = FS.farmSetup && FS.farmSetup.site;
     var notChecked = site && site.validated === false ? ' This location was not checked against its own county\'s harvests; the yield check was done for Story County, Iowa.' : '';
     return 'The weather is NASA POWER daily weather for ' + span + ' for this grid square (about 50 km wide), and the soils are from the USDA NRCS soil survey. The yield model is checked against USDA NASS Iowa yields.' + notChecked + ' ' +
-      (prices ? cap(prices) + (E.asOf ? ' (as of ' + E.asOf + ')' : '') + '; oats and rye prices are placeholders.' : 'Prices and costs are listed in the data notes.');
+      (prices ? cap(prices) + (E.asOf ? ' (as of ' + E.asOf + ')' : '') + '; oats and rye prices are rough guesses with no source yet.' : 'Prices and costs are listed in the data notes.');
   }
   function answerQuestion(t, state) {
     var r = state.current, sm = r && r.summary, fid = fieldFromText(t) || state.selectedField || D.farm.fields[0].id;
@@ -317,7 +317,7 @@
       var parts = [], pw = PLAN_WORDS.filter(function (w) { return w[0].test(t); })[0];
       if (pw) {
         var rows = compareRows(fid, state.controls), row = rows && rows.filter(function (x) { return !x.isCurrent && pw[1](x.plan); })[0];
-        if (row) { parts.push(cap(planPlain(row.plan)) + ' on ' + fieldById(fid).name + ' ' + (row.moneyNote ? 'has no reliable money figure (oats prices are placeholders)' : moneyVs(row.deltaPerAcre)) + '.'); }
+        if (row) { parts.push(cap(planPlain(row.plan)) + ' on ' + fieldById(fid).name + ' ' + (row.moneyNote ? 'has no reliable money figure (oats prices are rough guesses with no source yet)' : moneyVs(row.deltaPerAcre)) + '.'); }
       }
       var why = (sm.why || []).map(function (w) { return typeof w === 'string' ? w : w && w.text; }).filter(Boolean);
       if (!parts.length) parts = why.slice(0, 2); else if (why[0]) parts.push('For this run: ' + why[0].replace(/^./, function (c) { return c.toLowerCase(); }));
@@ -354,7 +354,7 @@
 
     // quick intents on the whole text
     if (/\breset\b|start over|back to normal|clear (?:everything|all)(?! (?:the |my )?(?:weather )?(?:events?|spells?))|\bdefaults?\b/.test(t))
-      return { reply: 'Reset all controls to your current plans in a typical season (2011 weather). Running.', actions: resetActions().concat([{ type: 'run', label: 'Typical Season (2011 Weather) · Current Plans' }]) };
+      return { reply: 'Reset all controls to your current plans in a typical season (2011 weather). Running.', actions: resetActions().concat([{ type: 'run', label: 'Typical season · current plans' }]) };
     if (/^\s*undo\b|\bundo (?:that|it|the last)|^\s*(?:go back|take that back|revert)\b/.test(t)) {
       if (!undoStack.length) return { reply: 'There is nothing to undo.', actions: [] };
       var what = undoDiff(controls, undoStack[undoStack.length - 1]);

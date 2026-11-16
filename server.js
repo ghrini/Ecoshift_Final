@@ -593,7 +593,7 @@ function send(res, status, body) {
 }
 
 // Each visitor gets a fair number of AI calls, so a shared link can't run up the key's bill.
-const AI_LIMIT = { brief: 8, simchat: 40, localfit: 10, outlooknote: 12, chat: 40, fields: 10, live: 30, health: 10, translate: 120, geocode: 150, farmmap: 20, all: 600 }; // calls per visitor per 10 minutes; "all" = everyone together
+const AI_LIMIT = { brief: 8, simchat: 40, localfit: 10, outlooknote: 12, chat: 40, fields: 10, live: 30, health: 10, translate: 120, geocode: 150, farmmap: 20, outlook: 60, climate: 60, all: 600 }; // calls per visitor per 10 minutes; "all" = everyone together
 const WINDOW = 10 * 60_000;
 // X-Forwarded-For is only believed when TRUST_PROXY says how many proxies of ours sit in front of the server (0 = none: use the socket address).
 // With N hops the visitor is the Nth address from the right; anything further left was written by the visitor and can be faked.
@@ -606,13 +606,15 @@ function clientIp(req) {
   }
   return req.socket.remoteAddress || "";
 }
+// NOTE: these counters live in this process's memory. On serverless hosts (Vercel) every instance has its own copy and instances come and go,
+// so the limit is per instance there: a soft guard against a runaway page, not a hard quota. Use a shared store if a hard quota is needed.
 const aiCalls = new Map(); // "visitor|kind" → recent call times
 function overLimit(req, kind) {
   const who = clientIp(req);
   const now = Date.now();
   const recent = (key) => (aiCalls.get(key) || []).filter((t) => now - t < WINDOW);
   const mine = recent(`${who}|${kind}`), everyone = recent("*");
-  const shared = kind !== "geocode" && kind !== "farmmap";   // address lookups are not AI calls: they do not use the shared AI budget
+  const shared = !["geocode", "farmmap", "outlook", "climate"].includes(kind);   // address, map, forecast and climate lookups are not AI calls: they do not use the shared AI budget
   if (mine.length >= AI_LIMIT[kind] || (shared && everyone.length >= AI_LIMIT.all)) return true;
   aiCalls.set(`${who}|${kind}`, [...mine, now]);
   if (shared) aiCalls.set("*", [...everyone, now]);
@@ -671,10 +673,10 @@ If a text is already in ${language}, return it unchanged. Return the same keys w
 // One handler for every request. `node server.js` serves it on a port; on Vercel, api/*.js hand their requests to it.
 function handle(req, res) {
   if (req.method === "POST" && req.url === "/api/brief") return overLimit(req, "brief") ? send(res, 429, TOO_MANY) : handleBrief(req, res).catch(oops(res));
-  if (req.method === "GET" && req.url.startsWith("/api/climate?")) return handleClimate(req, res).catch(oops(res));
+  if (req.method === "GET" && req.url.startsWith("/api/climate?")) return overLimit(req, "climate") ? send(res, 429, TOO_MANY) : handleClimate(req, res).catch(oops(res));
   if (req.method === "POST" && req.url === "/api/simchat") return overLimit(req, "simchat") ? send(res, 429, TOO_MANY) : handleSimChat(req, res).catch(oops(res));
   if (req.method === "POST" && req.url === "/api/localfit") return overLimit(req, "localfit") ? send(res, 429, TOO_MANY) : FIT.handleLocalFit(req, res).catch(oops(res));
-  if (req.method === "GET" && req.url.startsWith("/api/outlook?")) return FIT.handleOutlook(req, res).catch(oops(res));
+  if (req.method === "GET" && req.url.startsWith("/api/outlook?")) return overLimit(req, "outlook") ? send(res, 429, TOO_MANY) : FIT.handleOutlook(req, res).catch(oops(res));
   if (req.method === "GET" && req.url.startsWith("/api/farmmap?")) return overLimit(req, "farmmap") ? send(res, 429, TOO_MANY) : MAP.handleFarmMap(req, res).catch(oops(res));
   if (req.method === "POST" && req.url === "/api/farmmap/upload") return overLimit(req, "farmmap") ? send(res, 429, TOO_MANY) : MAP.handleUpload(req, res).catch(oops(res));
   if (req.method === "GET" && req.url.startsWith("/api/farmmap/img/")) return MAP.handleImage(req, res);

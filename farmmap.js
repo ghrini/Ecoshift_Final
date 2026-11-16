@@ -107,13 +107,15 @@ module.exports = function farmmap({ send }) {
   // FARMMAP_URL: another EcoShift server that runs the Python map tools (for example the same app on Hugging Face Spaces).
   // When it is set, map requests are passed on to it. That is how the farm map works on Vercel, which cannot run Python.
   const REMOTE = String(process.env.FARMMAP_URL || "").trim().replace(/\/+$/, "");
+  // Vercel's request body limit is 4.5 MB, so uploads are capped at 4 MB there; elsewhere 8 MB
+  const UPLOAD_MAX = process.env.VERCEL ? 4 * 1024 * 1024 : 8 * 1024 * 1024, UPLOAD_MB = UPLOAD_MAX / 1048576;
   const NO_PY = "Drawing a new farm map isn't switched on for this site yet. The example county maps still work.";
   async function forward(req, res, body) {
     try {
       const r = await fetch(REMOTE + req.url, {
         method: req.method, body,
         headers: body ? { "Content-Type": String(req.headers["content-type"] || "application/octet-stream") } : {},
-        signal: AbortSignal.timeout(110000),
+        signal: AbortSignal.timeout(55000),   // Vercel stops a function at 60 s, so give up a little before that and answer with a clear message
       });
       const buf = Buffer.from(await r.arrayBuffer()), h = { "Content-Type": r.headers.get("content-type") || "application/json; charset=utf-8" };
       if (/^image\//.test(h["Content-Type"])) h["Cache-Control"] = "public, max-age=86400";
@@ -159,11 +161,11 @@ module.exports = function farmmap({ send }) {
     try {
       buf = await new Promise((resolve, reject) => {
         let size = 0, over = false; const chunks = [];
-        req.on("data", (c) => { size += c.length; if (over) return; if (size > 8 * 1024 * 1024) { over = true; reject(new Error("big")); } else chunks.push(c); });
+        req.on("data", (c) => { size += c.length; if (over) return; if (size > UPLOAD_MAX) { over = true; reject(new Error("big")); } else chunks.push(c); });
         req.on("end", () => resolve(Buffer.concat(chunks)));
         req.on("error", reject);
       });
-    } catch { return send(res, 413, { error: "That photo is over 8 MB. Make it smaller and try again." }); }
+    } catch { return send(res, 413, { error: `That photo is over ${UPLOAD_MB} MB${process.env.VERCEL ? " (the limit on this site)" : ""}. Make it smaller and try again.` }); }
     const png = buf.length > 4 && buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47;
     const jpg = buf.length > 3 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff;
     const webp = buf.length > 12 && buf.toString("latin1", 0, 4) === "RIFF" && buf.toString("latin1", 8, 12) === "WEBP";

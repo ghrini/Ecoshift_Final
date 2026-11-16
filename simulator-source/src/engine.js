@@ -931,8 +931,8 @@ window.FS = window.FS || {};
   var PRIORITIES = { balanced: 1, profit: 1, risk: 1, cover: 1 };
   // plans the farmer will not grow: controls.other.exclude, an array of plan ids ([] or missing = none). A field's current plan is never dropped by callers.
   function excluded(controls, pid) { var x = controls && controls.other && controls.other.exclude; return Array.isArray(x) && x.length > 0 && x.indexOf(pid) >= 0; }
-  var PLAN_WORDS = { 'soy': 'soybeans', 'rye-soy': 'a cereal rye cover crop, then soybeans', 'corn-corn': 'corn again (corn after corn)', 'oats-cover': 'oats, then a summer cover crop',
-                     'corn': 'corn', 'rye-corn': 'a cereal rye cover crop, then corn', 'soy-soy': 'soybeans again (soybeans after soybeans)' };
+  var PLAN_WORDS = { 'soy': 'soybeans', 'rye-soy': 'a cereal rye cover crop, then soybeans', 'corn-corn': 'corn after corn (a second year of corn)', 'oats-cover': 'oats, then a summer cover crop',
+                     'corn': 'corn', 'rye-corn': 'a cereal rye cover crop, then corn', 'soy-soy': 'soybeans after soybeans (a second year of soybeans)' };
   function planWords(pid) { return PLAN_WORDS[pid] || (FS.data.plans[pid] ? FS.data.plans[pid].label.toLowerCase() : pid); }
   function money0(v) { return '$' + Math.abs(Math.round(v)).toLocaleString('en-US'); }
   function moreLess(v) { return Math.round(v) === 0 ? 'about the same money' : 'about ' + money0(v) + (v > 0 ? ' more' : ' less') + ' per acre'; }
@@ -947,7 +947,7 @@ window.FS = window.FS || {};
     return e;
   }
   function riskOf(w5) { return w5 < RISK_HIGH ? 'high' : w5 < RISK_LOW ? 'medium' : 'low'; }
-  function moneyNoteFor(crop) { return crop === 'oats' ? 'Oats price and cost are placeholders, so money is not shown.' : null; }
+  function moneyNoteFor(crop) { return crop === 'oats' ? 'Oats price and cost are rough guesses with no source yet, so money is not shown.' : null; }
 
   // cost-share share for this field's rye acres when the other fields' rye acres (from controls) are counted first
   function shareFor(farm, controls, fieldId, acres) {
@@ -1045,10 +1045,10 @@ window.FS = window.FS || {};
     'current': 'No change to your rotation, equipment or marketing.'
   };
   var GAPS = {
-    'rye': 'This tool does not put a dollar value on less nitrate loss, less erosion or weed control, and the $37 per acre rye cost is a placeholder.',
+    'rye': 'This tool does not put a dollar value on less nitrate loss, less erosion or weed control, and the $37 per acre rye cost is a rough guess with no source yet.',
     'corn-corn': 'The corn-after-corn yield drag (about 8%) comes from Iowa State budgets, not from your fields; rootworm and residue problems are not modelled separately.',
     'soy-soy': 'The soybean-after-soybean drag (7%) is a working value with no published source; disease and nematode build-up are not modelled.',
-    'oats-cover': 'Oats price, cost and yield are placeholders, so the money result is not reliable.',
+    'oats-cover': 'Oats price, cost and yield are rough guesses with no source yet, so the money result is not reliable.',
     'current': 'All results use one weather grid square of about 50 km and hold prices at today\'s levels.'
   };
   var RISKS = {
@@ -1265,7 +1265,7 @@ window.FS = window.FS || {};
         var cs = { frost: 'Frost during', heat: 'Heat during', drought: 'Dry soil during', wet: 'Waterlogged soil during' }[worst.cause], sg = STAGE_TEXT[wf.weeks[worst.w].stage] || 'growth';
         note = cs + ' ' + cropName + ' ' + sg + (res.late > PLANT_LATE_FLAG ? '; planted ' + Math.round(res.late) + ' days after the target date' : '');
       }
-      if (cropName === 'oats') note += '; oats price and cost are placeholders, needs a local buyer';
+      if (cropName === 'oats') note += '; oats price and cost are rough guesses with no source yet, needs a local buyer';
       fieldsOut[f.id] = { plan: planId, planLabel: ev.plan.label, crop: cropName, acres: f.acres, trialAcres: planId === cur && planReq !== cur ? 0 : trial,
         yieldPctOfNormal: Math.round(ev.pct), yieldBuPerAcre: r1(ev.bu), returnPerAcre: retField, returnVsBaselinePerAcre: vs,
         greenCoverMonths: r1(res.rootDays / 30.4), worstWeek: wDate, note: note, moneyNote: moneyNoteFor(cropName) };
@@ -1324,7 +1324,7 @@ window.FS = window.FS || {};
       why.push({ text: it0 ? 'A hard frost on ' + realDayWords(it0.fr.d, year) + ' caught the crop before it finished (' + frostStageWords(it0.fr) + '), which cost the most yield.' : 'A killing frost caught the crop before it finished, which cost the most yield.', source: 'power' });
     } else if (best === 'wet') why.push({ text: 'Soils the soil survey rates as slow to drain stayed saturated in May and June, which cost the most yield. ' + tileWords(), source: 'nrcs' });
     else why.push({ text: 'Planting went in late because fields were too wet or too cold in spring, which cost the most yield.', source: 'power' });
-    var yl = sc.id === 'typical' ? 'the ' + year + ' season (a typical year)' : 'the real ' + year + ' season';
+    var yl = sc.id === 'typical' ? 'the ' + year + ' season (a typical season\'s weather)' : 'the real ' + year + ' season';
     why.push({ text: 'Weather is ' + yl + ' from NASA POWER for one ~50 km grid square shared by all four fields; soils from NRCS; costs from Iowa State 2026 budgets at today\'s prices; before insurance; not a forecast.' +
       (sc.id === 'drought2012' || sc.id === 'drought1988' ? ' Prices are held at today\'s level; in the real ' + year + ' drought prices rose sharply, which softened the losses.' : ''), source: 'power' });
     why.push({ text: 'The weather response was checked against Iowa yields from USDA NASS: it catches the big droughts but is no better than the yield trend in ordinary years, and heat damage cannot be estimated from that data. The rotation, cover-crop and planting-date effects come from Iowa State trials and are not covered by that check.', source: 'isu' });
@@ -1396,7 +1396,7 @@ window.FS = window.FS || {};
     list.forEach(function (s) {
       var o = O.filter(function (x) { return x.id === s.id; })[0] || s, k; for (k in s) delete s[k]; for (k in o) s[k] = o[k];
       var fw;
-      if (s.id === 'typical') { s.year = T.year; s.label = 'Typical year (' + T.year + ')'; s.phrase = 'a typical year (' + T.year + ' weather)';
+      if (s.id === 'typical') { s.year = T.year; s.label = 'Typical season (' + T.year + ' weather)'; s.phrase = 'a typical season\'s weather (' + T.year + ')';
         s.note = 'Closest of the ' + yrs.length + ' seasons to the middle of the record in both June-August rain (' + Math.round(T.jja) + ' mm here against a ' + span + ' median of ' + Math.round(T.medJJA) + ' mm) and summer warmth.'; }
       else if (s.id === 'drought2012' || s.id === 'drought1988') s.note = jjaNote(s.year, 'Drought and heat across the Corn Belt.');
       else if (s.id === 'dry2023') s.note = jjaNote(s.year, 'A dry summer.');
