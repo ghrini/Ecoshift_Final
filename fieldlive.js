@@ -19,22 +19,28 @@ const { fireCheck } = require("./fieldfire");
 const UA = { "User-Agent": "fieldshift-simulator" };
 const round = (x, k = 1) => (x == null || !isFinite(x) ? null : Math.round(x * 10 ** k) / 10 ** k);
 const R = Math.PI / 180;
-async function getJSON(url, ms = 30000) {
+async function getJSON(url, ms = 15000) {
   const res = await fetch(url, { headers: UA, signal: AbortSignal.timeout(ms) });
   if (!res.ok) throw new Error(`${new URL(url).host} returned ${res.status}`);
   return res.json();
 }
-// small time-limited caches: weather 15 minutes, soil a month
-function cache(ms) {
+// small time-limited caches: weather 15 minutes, soil a month. A failure is remembered for failMs (2 minutes), so a service
+// that is down or slow is not waited on again by every request in a row.
+function cache(ms, failMs = 2 * 60e3) {
   const m = new Map();
   return (key, make) => {
-    const hit = m.get(key); if (hit && Date.now() - hit.t < ms) return hit.p;
-    const p = make(); m.set(key, { t: Date.now(), p }); p.catch(() => m.delete(key));
+    const hit = m.get(key); if (hit && Date.now() - hit.t < (hit.failed ? failMs : ms)) return hit.p;
+    const p = make(), e = { t: Date.now(), p }; m.set(key, e);
+    p.catch(() => { e.failed = true; e.t = Date.now(); });
     if (m.size > 300) m.delete(m.keys().next().value);
     return p;
   };
 }
 const shortC = cache(15 * 60e3), longC = cache(30 * 24 * 3600e3);
+// ISRIC SoilGrids is often down or very slow. One failed or late answer marks it as down for 10 minutes: until then every
+// request skips it at once (no 12 s wait) and the page says soil fertility is unavailable right now.
+const SG_TIMEOUT = 12000, SG_DOWN_MS = 10 * 60e3;
+let sgDownUntil = 0, sgWhy = "";
 
 function weatherNow(lat, lon) {
   const ll = `latitude=${lat.toFixed(3)}&longitude=${lon.toFixed(3)}`;
@@ -52,6 +58,9 @@ function weatherNow(lat, lon) {
       rainPast7Mm: round(sum(past.map((i) => d.precipitation_sum[i]))), rainNext3Mm: round(sum(next.map((i) => d.precipitation_sum[i]))),
       minNext3C: next.length ? round(Math.min(...next.map((i) => d.temperature_2m_min[i]))) : null,
       maxWindNext3Kmh: next.length ? round(Math.max(...next.map((i) => d.wind_speed_10m_max[i])), 0) : null,
+      rainPast3Mm: round(sum(past.slice(-3).map((i) => d.precipitation_sum[i]))),
+      // day by day, for the 7-day past + 3-day forecast chart ("when": past, today or next)
+      daily: t.map((day, i) => ({ date: day, when: day < today ? "past" : day > today ? "next" : "today", rainMm: round(d.precipitation_sum[i]), minC: round(d.temperature_2m_min[i]), maxC: round(d.temperature_2m_max[i]) })),
     };
   });
 }
@@ -102,9 +111,17 @@ function airNow(lat, lon) {
 }
 // top 30 cm, weighted by layer thickness; SoilGrids stores whole numbers (d_factor) that are divided back here
 function fertility(lat, lon) {
+  if (Date.now() < sgDownUntil) return Promise.reject(Object.assign(new Error(sgWhy), { sgDown: true }));
   return longC(`sg${lat.toFixed(3)},${lon.toFixed(3)}`, async () => {
-    const j = await getJSON(`https://rest.isric.org/soilgrids/v2.0/properties/query?lon=${lon.toFixed(4)}&lat=${lat.toFixed(4)}` +
-      "&property=soc&property=nitrogen&property=phh2o&property=cec&depth=0-5cm&depth=5-15cm&depth=15-30cm&value=mean", 60000);
+    let j;
+    try {
+      j = await getJSON(`https://rest.isric.org/soilgrids/v2.0/properties/query?lon=${lon.toFixed(4)}&lat=${lat.toFixed(4)}` +
+        "&property=soc&property=nitrogen&property=phh2o&property=cec&depth=0-5cm&depth=5-15cm&depth=15-30cm&value=mean", SG_TIMEOUT);
+    } catch (e) {
+      sgDownUntil = Date.now() + SG_DOWN_MS;
+      sgWhy = /timeout|abort/i.test(e.message) ? `no answer within ${SG_TIMEOUT / 1000} s` : e.message;
+      throw Object.assign(new Error(sgWhy), { sgDown: true });
+    }
     const W = { "0-5cm": 5, "5-15cm": 10, "15-30cm": 15 }, out = {};
     for (const l of j.properties.layers) {
       let s = 0, w = 0;
@@ -124,40 +141,89 @@ function where(f, lon, lat) {
   return dir ? dir : "middle";
 }
 const acres = (m2) => round(m2 / G.ACRE_M2, m2 < 4000 ? 2 : 1);
+// distance and compass direction from the field's middle (the point well inside it), e.g. "about 180 m north-east of the field's middle"
+function fromMiddle(f, lon, lat) {
+  const [cx, cy] = f.center, dx = (lon - cx) * 111320 * Math.cos(cy * R), dy = (lat - cy) * 110574, d = Math.hypot(dx, dy);
+  if (d < 25) return "at the field's middle";
+  const dirs = ["north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west"];
+  const dir = dirs[Math.round(((Math.atan2(dx, dy) * 180 / Math.PI + 360) % 360) / 45) % 8];
+  return `about ${d < 1000 ? Math.round(d / 10) * 10 + " m" : round(d / 1000, 1) + " km"} ${dir} of the field's middle`;
+}
+// rough boxes for the United States (lower 48, Alaska, Hawaii), for advice that only applies there (NRCS wetland rules)
+function inUS(lon, lat) {
+  if (lat >= 24.5 && lat <= 49.0 && lon >= -124.8 && lon <= -66.9) return !(lat < 31.8 && lon < -106.5 && lon > -117.2 && lat < 32.7);
+  if (lat >= 51 && lat <= 71.5 && (lon <= -129.9 || lon >= 172)) return true;
+  return lat >= 18.9 && lat <= 22.3 && lon >= -160.3 && lon <= -154.8;
+}
+
+// Is water likely standing in the low and wet spots now? A rule on recent rain and soil wetness (no satellite sees today's puddles here).
+// Heavy rain = 25 mm or more in 7 days, or 15 mm in 3. Wet topsoil: ECMWF 0.38 or more by volume now, ERA5-Land 0.40 or more on its latest day.
+// "likely" needs the evidence to agree: both models say wet topsoil, or ERA5-Land says wet and there was heavy rain (ECMWF plus heavy
+// rain only when ERA5-Land has no value). One model alone, or the models disagreeing, or heavy rain alone = "possible"; else "unlikely".
+// NASA MERRA-2 soil wetter than its 2001-2025 normal by 0.08 or more is listed as support (score + 1) but does not decide on its own.
+function wetNow(now, e5, pw) {
+  if (!now && !e5) return null;
+  const why = [], pct = (v) => Math.round(v * 100);
+  const heavy = !!(now && (now.rainPast7Mm >= 25 || now.rainPast3Mm >= 15));
+  const ec = now && now.soilMoist != null ? now.soilMoist >= 0.38 : null, er = e5 && e5.top7 != null ? e5.top7 >= 0.4 : null;
+  const pwWet = !!(pw && pw.avgRoot != null && pw.root - pw.avgRoot >= 0.08);
+  const ecTxt = now && now.soilMoist != null ? `ECMWF says ${pct(now.soilMoist)}% water by volume now` : "";
+  const erTxt = e5 && e5.top7 != null ? `ERA5-Land said ${pct(e5.top7)}% on ${String(e5.time || "").slice(0, 10)}` : "";
+  if (now) why.push(heavy ? `heavy rain: ${now.rainPast7Mm} mm in the past 7 days` : `little rain: ${now.rainPast7Mm} mm in the past 7 days`);
+  let level;
+  if (ec && er) { level = "likely"; why.push(`both soil-moisture models agree the topsoil is wet (${ecTxt}; ${erTxt})`); }
+  else if (er && heavy) { level = "likely"; why.push(`wet topsoil on ERA5-Land (${erTxt}) and heavy rain since`); }
+  else if (ec && er == null && heavy) { level = "likely"; why.push(`wet topsoil (${ecTxt}; ERA5-Land had no value) after heavy rain`); }
+  else if (ec || er) {
+    level = "possible";
+    why.push(ec && er === false ? `the two soil-moisture models disagree: ${ecTxt} (wet), but ${erTxt} (not wet), so standing water is only possible`
+      : ec ? `only the ECMWF model says the topsoil is wet (${ecTxt}), with no heavy rain to back it up, so standing water is only possible`
+      : `the two soil-moisture models disagree: ${erTxt} (wet), but ${ecTxt || "ECMWF has no value now"}, and there was no heavy rain since, so standing water is only possible`);
+  } else if (heavy) { level = "possible"; why.push(`the topsoil is not saturated (${[ecTxt, erTxt].filter(Boolean).join("; ")}), but the heavy rain may still pool in low spots`); }
+  else { level = "unlikely"; why.push(`topsoil not saturated (${[ecTxt, erTxt].filter(Boolean).join("; ") || "no value"})`); }
+  if (pwWet) why.push(`soil wetter than normal for the time of year (NASA MERRA-2 root zone ${pw.root} against ${pw.avgRoot})`);
+  const score = (heavy ? 2 : 0) + (ec || er ? 2 : 0) + (pwWet ? 1 : 0);
+  return { level, score, agree: ec != null && er != null ? ec === er : null, why };
+}
 
 const dayList = (a, z) => { const o = []; for (let t = Date.parse(a); t <= Date.parse(z); t += 864e5) o.push(new Date(t).toISOString().slice(0, 10)); return o; };
-function warningsFor(f, x, now, e5, month, fire) {
+function warningsFor(f, x, now, e5, month, fire, wn) {
   const W = [], name = f.name || "this field";
-  const add = (level, text, at) => { const w = Object.assign({ level, field: f.id, text }, at ? { lon: at.lon, lat: at.lat } : {}); W.push(w); return w; };
-  const wet = (now && (now.soilMoist >= 0.38 || now.rainPast7Mm >= 25)) || (e5 && e5.top7 >= 0.4);
+  // topic: water, soil, crop, fire, weather (the page groups the warnings by it); kind: what the map marks there
+  const add = (level, text, at, topic, kind) => { const w = Object.assign({ level, field: f.id, text, topic: topic || "soil" }, kind ? { kind } : {}, at ? { lon: at.lon, lat: at.lat } : {}); W.push(w); return w; };
+  const wet = wn ? wn.level === "likely" : (now && (now.soilMoist >= 0.38 || now.rainPast7Mm >= 25)) || (e5 && e5.top7 >= 0.4);
+  const WCMAP = "the ESA WorldCover 2021 land-cover map (from Sentinel satellites)", us = inUS(f.center[0], f.center[1]);
+  // a pond or wetland outside the field but inside its outline sits in a hole cut out of it
+  const off = (p) => (f.holes.some((h) => G.inField({ ring: h, holes: [] }, p.lon, p.lat)) ? `in the area cut out of the ${where(f, p.lon, p.lat)} part of ${name}` : null);
   for (const p of (x.cover && x.cover.water) || []) {
-    const sz = `about ${acres(p.areaM2)} acres (${p.areaM2.toLocaleString("en-US")} m²)`;
-    if (p.kind === "water" && p.inside) add("warn", `Open water, ${sz}, in the ${where(f, p.lon, p.lat)} part of ${name} on the Sentinel satellite land-cover map. Crop there drowns out; keep sprayers, manure and fertiliser back from the water's edge (state setbacks are often 30 to 60 m).`, p);
-    else if (p.kind === "water") add("info", `A pond or stream, ${sz}, just off the ${where(f, p.lon, p.lat)} side of ${name}. Runoff and spray drift from this edge reach it: a grass buffer strip along it helps.`, p);
-    else if (p.inside) add("warn", `Wet ground (wetland on the satellite map), ${sz}, in the ${where(f, p.lon, p.lat)} part of ${name}. Expect planting delays there in wet springs. In US farm programs, draining or cropping a wetland can break the wetland conservation rules: check with your NRCS office first.`, p);
-    else add("info", `Wetland, ${sz}, beside the ${where(f, p.lon, p.lat)} side of ${name}. It holds water in wet spells; keep chemicals back from it.`, p);
+    const sz = `about ${acres(p.areaM2)} acres (${p.areaM2.toLocaleString("en-US")} m²)`, hole = p.inside ? null : off(p);
+    if (p.kind === "water" && p.inside) add("warn", `Open water, ${sz}, in the ${where(f, p.lon, p.lat)} part of ${name} on ${WCMAP}. Crops can't grow under water, so that patch is better left out of the plan; keeping sprayers, manure and fertiliser back from the water's edge protects it (${us ? "state setbacks are often 30 to 60 m" : "local rules often set a strip of 30 to 60 m"}).`, p, "water", "water");
+    else if (p.kind === "water") add("info", `A pond or stream, ${sz}, ${hole || `just off the ${where(f, p.lon, p.lat)} side of ${name}`}, on ${WCMAP}. Runoff and spray drift from this edge reach it: a grass buffer strip along it keeps the water clean and often qualifies for conservation cost-share.`, p, "water", "water");
+    else if (p.inside) add("warn", `Wet ground (wetland on ${WCMAP}), ${sz}, in the ${where(f, p.lon, p.lat)} part of ${name}. Expect planting delays there in wet springs; planting it last, or leaving it in grass, saves time and seed.` + (us ? " In US farm programs, draining or cropping a wetland can break the wetland conservation rules: check with your NRCS office first." : " Draining or cropping a wetland is often restricted: check the local rules first."), p, "water", "wetland");
+    else add("info", `Wetland, ${sz}, ${hole || `beside the ${where(f, p.lon, p.lat)} side of ${name}`}, on ${WCMAP}. It holds water in wet spells; keep chemicals back from it.`, p, "water", "wetland");
   }
-  for (const s of (x.terrain && x.terrain.lowSpots) || []) {
-    if (s.areaM2 < 1500) continue;
-    add(wet ? "warn" : "info", `Low, flat spot of about ${acres(s.areaM2)} acres in the ${where(f, s.lon, s.lat)} part of ${name} (Copernicus elevation model).` +
-      (wet ? ` With ${now ? now.rainPast7Mm : "?"} mm of rain in the past week and wet topsoil, water is likely standing there now: keep heavy machinery off to avoid compaction.` : " Water gathers there after heavy rain."), s);
-  }
+  const lows = ((x.terrain && x.terrain.lowSpots) || []).filter((s) => s.areaM2 >= 1500);
+  lows.forEach((s, i) => {
+    const num = lows.length > 1 ? ` (low spot ${i + 1} of ${lows.length})` : "";
+    add(wet ? "warn" : "info", `Low, flat spot${num} of about ${acres(s.areaM2)} acres in the ${where(f, s.lon, s.lat)} part of ${name}, ${fromMiddle(f, s.lon, s.lat)} (Copernicus elevation model).` +
+      (wet ? ` With ${now ? now.rainPast7Mm : "?"} mm of rain in the past week and wet topsoil, water is likely standing there now: keeping heavy machinery off for a few dry days protects the soil you have built up.` : wn && wn.level === "possible" ? " Water gathers there after heavy rain, and the soil may be wet now: puddles are possible, so look before driving on it." : " Water gathers there after heavy rain."), s, "water", "low");
+  });
   const sat = x.satellite || {};
   const fd = fire && fire.days || [], sat1 = sat.burn, effects = "Burning crop residue sends most of its nitrogen and sulfur into the air and burns off organic matter, so the soil there is less fertile and bare to wind and water erosion. If it was burned: plan extra nitrogen, test the soil, and next time leave or work in the residue.";
   for (const p of (sat1 && sat1.patches) || []) {
     const sz = `about ${acres(p.areaM2)} acres, in the ${where(f, p.lon, p.lat)} part of ${name}`, win = `between ${sat1.from} and ${sat1.to}`;
     if (fd.length) {
       const names = [...new Set(fd.flatMap((d) => d.sensors))].join(" and ");
-      add("warn", `Burned ground, ${sz}, confirmed by fire: NASA ${names} saw active fire over this field on ${fd.map((d) => d.date).join(", ")} (NASA GIBS), and ${win} Sentinel-2 saw the burn ratio drop sharply and the ground turn dark like charred residue. ${effects}`, p);
+      add("warn", `Burned ground, ${sz}, confirmed by fire: NASA ${names} saw active fire over this field on ${fd.map((d) => d.date).join(", ")} (NASA GIBS), and ${win} Sentinel-2 saw the burn ratio drop sharply and the ground turn dark like charred residue. ${effects}`, p, "fire", "burn");
     } else if (fire && fire.complete && fire.answeredTo && fire.answeredTo >= sat1.to) {
-      add("info", `Possible burned ground or bare soil after harvest, ${sz}: ${win} Sentinel-2 saw the burn ratio drop and the ground turn dark. NASA's fire satellites (VIIRS and MODIS maps from NASA GIBS) saw no fire here from ${fire.from} to ${fire.answeredTo}, so this may be harvest, tillage or dark wet soil (a short fire or one under cloud can be missed). Check it on the ground before acting on it.`, p);
+      add("info", `Possible burned ground or bare soil after harvest, ${sz}: ${win} Sentinel-2 saw the burn ratio drop and the ground turn dark. NASA's fire satellites (VIIRS and MODIS maps from NASA GIBS) saw no fire here from ${fire.from} to ${fire.answeredTo}, so this may be harvest, tillage or dark wet soil (a short fire or one under cloud can be missed). Check it on the ground before acting on it.`, p, "fire", "burn");
     } else {
-      add("warn", `Possible burned ground, ${sz}: ${win} Sentinel-2 saw the burn ratio drop sharply and the ground turn dark like charred residue. NASA's fire satellite check could not be completed for those days, so this is not confirmed. ${effects} Check it on the ground first (harvest, fresh tillage or dark wet soil can look alike).`, p);
+      add("warn", `Possible burned ground, ${sz}: ${win} Sentinel-2 saw the burn ratio drop sharply and the ground turn dark like charred residue. NASA's fire satellite check could not be completed for those days, so this is not confirmed. ${effects} Check it on the ground first (harvest, fresh tillage or dark wet soil can look alike).`, p, "fire", "burn");
     }
   }
   const zones = (sat.summer && sat.summer.weakZones) || [];
-  zones.slice(0, 2).forEach((z) => { const w = add(z.areaM2 >= 10000 ? "warn" : "info", `Weak growth zone from last summer's image (${sat.summer.date}, not today's crop), about ${acres(z.areaM2)} acres, in the ${where(f, z.lon, z.lat)} part of ${name}: plants there were much less green (NDVI ${z.ndvi}) than the rest of the field (${sat.summer.ndviMedian}). Common causes are low fertility, an eroded knoll, compaction or a wet spot. Soil-test this zone on its own.`, z); w.imageDate = sat.summer.date; });
-  if (sat.ground && sat.ground.bareSoilPct >= 60 && (month >= 10 || month <= 4)) add("info", `${name} was ${sat.ground.bareSoilPct}% bare soil on ${sat.ground.date}. Bare soil over winter loses topsoil to wind and water; a cover crop or leaving residue protects it.`);
+  zones.slice(0, 2).forEach((z) => { const w = add(z.areaM2 >= 10000 ? "warn" : "info", `Weak growth zone from last summer's image (${sat.summer.date}, not today's crop), about ${acres(z.areaM2)} acres, in the ${where(f, z.lon, z.lat)} part of ${name}, ${fromMiddle(f, z.lon, z.lat)}: plants there were much less green (NDVI ${z.ndvi}) than the rest of the field (${sat.summer.ndviMedian}). Common causes are low fertility, an eroded knoll, compaction or a wet spot. Soil-test this zone on its own.`, z, "crop", "weak"); w.imageDate = sat.summer.date; });
+  if (sat.ground && sat.ground.bareSoilPct >= 60 && (month >= 10 || month <= 4)) add("info", `${name} was ${sat.ground.bareSoilPct}% bare soil on ${sat.ground.date}. Bare soil over winter loses topsoil to wind and water; a cover crop or leaving residue protects it, and the simulator can show what a rye cover crop does for this field.`, null, "soil");
   const s = x.fertility;
   if (s) {
     if (s.ph != null && s.ph < 5.8) add("warn", `${name}: topsoil pH about ${s.ph} (acidic). Corn and soybeans do best near 6.0 to 7.0; a soil test will say how much lime to spread.`);
@@ -168,17 +234,17 @@ function warningsFor(f, x, now, e5, month, fire) {
   return W;
 }
 function farmWarnings(now, e5, air, month) {
-  const W = [], add = (level, text) => W.push({ level, text });
+  const W = [], add = (level, text, topic) => W.push({ level, text, topic: topic || "weather" });
   if (now) {
     if (now.windKmh >= 16) add("warn", `Wind ${now.windKmh} km/h now (gusts ${now.gustKmh}): too windy for most spraying. Many labels allow about 5 to 16 km/h (3 to 10 mph).`);
     else if (now.windKmh != null && now.windKmh < 3) add("info", `Almost no wind (${now.windKmh} km/h): spray can hang in the air and drift on calm, still evenings.`);
     if (now.minNext3C != null && now.minNext3C <= 0 && [4, 5, 6, 9, 10].includes(month)) add("warn", `Frost likely: down to ${now.minNext3C} °C in the next 3 days. Young or late crops can be damaged.`);
     if (now.rhPct >= 90 && now.tempC >= 15 && now.tempC <= 30 && month >= 6 && month <= 9) add("warn", `Humid and warm (${now.rhPct}% humidity, ${now.tempC} °C): good weather for leaf diseases such as gray leaf spot in corn. Scout the lower leaves.`);
-    if (now.soilMoist != null && now.soilMoist >= 0.4) add("warn", `Topsoil is very wet (${Math.round(now.soilMoist * 100)}% water by volume): driving on it now compacts the soil.`);
-    else if (now.soilMoist != null && now.soilMoist < 0.15 && now.rainPast7Mm < 3) add("info", `Topsoil is dry (${Math.round(now.soilMoist * 100)}% water) with ${now.rainPast7Mm} mm of rain in the past week.`);
+    if (now.soilMoist != null && now.soilMoist >= 0.4) add("warn", `Topsoil is very wet (${Math.round(now.soilMoist * 100)}% water by volume): waiting for it to dry before driving on it keeps the soil from compacting.`, "soil");
+    else if (now.soilMoist != null && now.soilMoist < 0.15 && now.rainPast7Mm < 3) add("info", `Topsoil is dry (${Math.round(now.soilMoist * 100)}% water) with ${now.rainPast7Mm} mm of rain in the past week: a good window for field work, and rain will be welcome.`, "soil");
     if (now.rainNext3Mm >= 25) add("warn", `${now.rainNext3Mm} mm of rain expected in the next 3 days: hold off on fertiliser and manure that could wash off.`);
   }
-  if (air && air.pm25 >= 35) add("warn", `Poor air (fine dust PM2.5 ${air.pm25} µg/m³, Copernicus CAMS): limit long hard work outdoors.`);
+  if (air && air.pm25 >= 35) add("warn", `Poor air (fine dust PM2.5 ${air.pm25} µg/m³, Copernicus CAMS): plan long hard work outdoors for a cleaner-air day if you can.`, "air");
   return W;
 }
 
@@ -188,7 +254,13 @@ module.exports = function fieldlive({ readBody, send }) {
     try { b = JSON.parse(await readBody(req, 400000)); } catch (e) { return send(res, 400, { error: "Bad request." }); }
     const fields = (Array.isArray(b && b.fields) ? b.fields : []).slice(0, 4).map((x) => {
       const ring = G.cleanRing(x && x.ring); if (!ring) return null;
-      const f = { id: String(x.id || "").replace(/\W/g, "").slice(0, 20), name: String(x.name || "").slice(0, 40), ring, holes: [] };
+      // holes (ponds, yards, tree lines cut out of the field): up to 12, each thinned to 300 points at most
+      const holes = (Array.isArray(x.holes) ? x.holes : []).slice(0, 12).map((h) => {
+        if (!Array.isArray(h)) return null;
+        const step = Math.ceil(h.length / 300);
+        return G.cleanRing(step > 1 ? h.filter((_, i) => i % step === 0) : h);
+      }).filter(Boolean);
+      const f = { id: String(x.id || "").replace(/\W/g, "").slice(0, 20), name: String(x.name || "").slice(0, 40), ring, holes };
       f.center = G.interiorPoint(f);
       return f;
     }).filter(Boolean);
@@ -208,7 +280,15 @@ module.exports = function fieldlive({ readBody, send }) {
       ...fields.map((f) => G.terrain(f)),
       satellite(fields),
     ].map(within));
-    const val = (p, what) => { if (p.status === "fulfilled") return p.value; gaps.push(`${what} did not answer (${p.reason && p.reason.message || "no answer"}).`); return null; };
+    let sgGap = false;
+    const val = (p, what) => {
+      if (p.status === "fulfilled") return p.value;
+      if (p.reason && p.reason.sgDown) {   // SoilGrids down: one line for all the fields
+        if (!sgGap) gaps.push(`Soil fertility is unavailable right now: ISRIC SoilGrids is not answering (${p.reason.message}). It will be tried again after ${new Date(sgDownUntil).toISOString().slice(11, 16)} UTC.`);
+        sgGap = true; return null;
+      }
+      gaps.push(`${what} did not answer (${p.reason && p.reason.message || "no answer"}).`); return null;
+    };
     const SAT = val(rest.pop(), "Copernicus Sentinel-2 imagery");
     if (SAT) { sources.push(...SAT.sources); gaps.push(...SAT.gaps); }
     const N = fields.length, W = val(now, "The ECMWF weather"), E = val(e5, "Copernicus ERA5-Land soil moisture"), A = val(air, "Copernicus CAMS air quality");
@@ -222,6 +302,7 @@ module.exports = function fieldlive({ readBody, send }) {
       try { FB = await fireCheck(fields, Math.max(from, Date.now() - 45 * 864e5), to, 6000); } catch (e) { gaps.push(`NASA fire detections for the burn check did not answer (${e.message}).`); }
       if (FB && FB.skipped) gaps.push("NASA fire check did not answer in time for some of the burn-check days.");
     }
+    const WN = wetNow(W, E, PW);
     const out = {}, warnings = farmWarnings(W, E, A, month);
     fields.forEach((f, i) => {
       const x = { name: f.name, center: [round(f.center[0], 5), round(f.center[1], 5)],
@@ -229,7 +310,7 @@ module.exports = function fieldlive({ readBody, send }) {
       const bw = x.satellite && x.satellite.burn, ff = FB && bw ? { from: FB.from, to: FB.to, answeredTo: FB.answeredTo, complete: bw.from >= FB.from && dayList(bw.from, bw.to).every((d) => FB.answered.includes(d)), days: FB.fields[f.id].days.filter((d) => d.date >= bw.from && d.date <= bw.to) } : null;
       if (ff) x.satellite.burn.fire = ff;
       out[f.id] = x;
-      warnings.push(...warningsFor(f, x, W, E, month, ff));
+      warnings.push(...warningsFor(f, x, W, E, month, ff, WN));
     });
     // NASA lines: fire detections in the last two weeks, and MERRA-2 soil wetness against its 25-year normal
     const nasa = {};
@@ -244,7 +325,7 @@ module.exports = function fieldlive({ readBody, send }) {
       nasa.fire.line = hits.length
         ? `NASA fire satellites (VIIRS/MODIS, via NASA GIBS): fire detected over or within 400 m of ${hits.map((f) => `${f.name || f.id} on ${recent(f).map((d) => d.date).join(", ")}`).join("; ")} (${from} to ${FN.answeredTo}).${late}`
         : `NASA fire satellites (VIIRS/MODIS, via NASA GIBS): no fire detected over these fields in the last ${span} days (${from} to ${FN.answeredTo}).${late}`;
-      if (hits.length) warnings.push({ level: "warn", text: nasa.fire.line });
+      if (hits.length) warnings.push({ level: "warn", text: nasa.fire.line, topic: "fire" });
     } else if (FN) gaps.push(FN.skipped || FN.failed ? "NASA fire check did not answer in time." : "NASA GIBS had no fire-detection maps for the last two weeks yet.");
     if (PW) {
       const d = PW.avgRoot == null ? null : PW.root - PW.avgRoot, word = d == null ? "" : d > 0.08 ? "wetter than normal" : d < -0.08 ? "drier than normal" : "close to normal";
@@ -261,7 +342,7 @@ module.exports = function fieldlive({ readBody, send }) {
     if (fields.some((f) => out[f.id].terrain)) sources.push("Low spots: Copernicus GLO-30 elevation model.");
     const order = { warn: 0, info: 1 };
     warnings.sort((a, z) => order[a.level] - order[z.level]);
-    send(res, 200, { checkedAt: new Date().toISOString(), center: [round(cx, 5), round(cy, 5)], now: W, era5Soil: E, nasa, air: A, fields: out, warnings, sources, gaps, approximate: !!b.approximate });
+    send(res, 200, { checkedAt: new Date().toISOString(), center: [round(cx, 5), round(cy, 5)], now: W, era5Soil: E, nasa, air: A, wetNow: WN, fields: out, warnings, sources, gaps, approximate: !!b.approximate });
   }
   return { handleLive };
 };

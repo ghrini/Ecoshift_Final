@@ -66,6 +66,10 @@ window.FS = window.FS || {};
   // ------------------------------------------------------------------ geometry
   function bbox(poly) { var b = { x0: 1e9, y0: 1e9, x1: -1e9, y1: -1e9 }; poly.forEach(function (p) { b.x0 = Math.min(b.x0, p[0]); b.y0 = Math.min(b.y0, p[1]); b.x1 = Math.max(b.x1, p[0]); b.y1 = Math.max(b.y1, p[1]); }); return b; }
   function inPoly(poly, x, y) {
+    if (poly.holes && poly.holes.length && poly.holes.some(function (h) { return inRing(h, x, y); })) return false;
+    return inRing(poly, x, y);
+  }
+  function inRing(poly, x, y) {
     var c = false;
     for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
       var a = poly[i], b = poly[j];
@@ -81,15 +85,24 @@ window.FS = window.FS || {};
     var b = bbox(poly), best = null, bd = -1;
     for (var x = b.x0; x <= b.x1; x += 5) for (var y = b.y0; y <= b.y1; y += 5) {
       if (!inPoly(poly, x, y)) continue;
-      var d = 1e9; for (var i = 0; i < poly.length; i++) d = Math.min(d, distSeg(x, y, poly[i], poly[(i + 1) % poly.length]));
+      var d = 1e9; [poly].concat(poly.holes || []).forEach(function (r) { for (var i = 0; i < r.length; i++) d = Math.min(d, distSeg(x, y, r[i], r[(i + 1) % r.length])); });
       if (d > bd) { bd = d; best = [x, y]; }
     }
     return best || [(b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2];
   }
-  function polyPath(c, poly) { c.beginPath(); poly.forEach(function (p, i) { if (i) c.lineTo(p[0], p[1]); else c.moveTo(p[0], p[1]); }); c.closePath(); }
+  function signedArea(r) { var s = 0; for (var i = 0; i < r.length; i++) { var a = r[i], b = r[(i + 1) % r.length]; s += a[0] * b[1] - b[0] * a[1]; } return s; }
+  // the outline, then each hole drawn the other way round, so fill() and clip() leave the holes empty (nonzero rule)
+  function polyPath(c, poly) {
+    c.beginPath(); poly.forEach(function (p, i) { if (i) c.lineTo(p[0], p[1]); else c.moveTo(p[0], p[1]); }); c.closePath();
+    var dir = signedArea(poly) > 0;
+    (poly.holes || []).forEach(function (h) {
+      var r = (signedArea(h) > 0) === dir ? h.slice().reverse() : h;
+      r.forEach(function (p, i) { if (i) c.lineTo(p[0], p[1]); else c.moveTo(p[0], p[1]); }); c.closePath();
+    });
+  }
 
   var GEO = {};   // per field: bbox, label point, dry and wet blobs
-  function buildGeo() { GEO = {}; FIELDS.forEach(geoField); }
+  function buildGeo() { GEO = {}; FIELDS.forEach(function (f) { if (f.poly) f.poly.holes = Array.isArray(f.holes) ? f.holes : []; }); FIELDS.forEach(geoField); }
   function geoField(f, idx) {
     var r = mulberry(hash(f.id) + 11), b = bbox(f.poly), dry = [], wet = [], tries = 0;
     function blobs(list, n, rmin, rmax) {
