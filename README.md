@@ -2,6 +2,8 @@
 
 A farmer-focused crop-rotation decision-support prototype for the 2026 NASA Space Apps Challenge ("Field Shift: Adapting Farms with NASA Data").
 
+**Live site:** https://ecoshift-final-8dsi.vercel.app/
+
 This folder is everything in one place: the website, its server, the simulator with its farm questionnaire, and the simulator's full source and data.
 
 The site has three tabs:
