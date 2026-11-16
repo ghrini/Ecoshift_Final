@@ -5,7 +5,8 @@
    Model (see VALIDATION.md for how it was checked):
    - FAO-56 daily soil-water balance over a 1.5 m soil profile in two layers: the root zone, which deepens as the crop
      grows, and the soil below the roots, which is refilled by water draining from above and is taken into the root
-     zone as roots reach it. Each season starts from the soil water left at the end of the real season before it.
+     zone as roots reach it. Each season starts 75% full on 16 November (FIT.startMode 'fixed'); carrying the
+     soil water over from the season before ('spinup') was tested in every fold and gave the same error (VALIDATION.md).
    - Growing-degree-day crop stages; the corn hybrid and soybean variety are matched to this location's season length.
    - Planting waits for a workable field: warm enough, no rain on the day and the day before, and a topsoil that has
      dried after rain (FAO-56 chapter 7 evaporation layer).
