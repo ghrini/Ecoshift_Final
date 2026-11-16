@@ -103,6 +103,16 @@
     });
   });
 
+  // Links from Home to one section of Project details: open the tab, then scroll to the section.
+  document.querySelectorAll('[data-go-section]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      showTab('details');
+      const target = document.getElementById(a.dataset.goSection);
+      if (target) requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
+    });
+  });
+
   document.querySelectorAll('[data-go]').forEach((el) => {
     el.addEventListener('click', () => showTab(el.dataset.go));
   });
