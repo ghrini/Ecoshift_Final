@@ -481,30 +481,16 @@ body.on-sim .site-footer { display: none; }
 @media (max-width: 440px) { .tab-long { display: none; } .tab-short { display: inline; } }
 
 /* ---------- Home: the problem, our solution, and the flow ---------- */
-.ps { display: grid; grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr); align-items: stretch; }
-.ps-card { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 34px 34px 30px; }
-.ps-problem { border-top: 3px solid var(--line-strong); }
-.ps-solution { border-top: 3px solid var(--accent); }
-.ps-label { display: flex; align-items: center; gap: 12px; margin: 0 0 18px; font-family: var(--mono); font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
-.ps-solution .ps-label { color: var(--ecru); }
-.ps-badge { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line-strong); color: var(--text-soft); }
-.ps-solution .ps-badge { border-color: var(--accent); color: var(--ecru); }
-.ps-title { font-size: clamp(1.5rem, 2.2vw, 2rem); line-height: 1.2; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 22px; }
-.ps-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
-.ps-list li { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; color: var(--muted); line-height: 1.5; }
-.ps-list strong { color: var(--text); font-weight: 600; }
-.ps-ic { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--ecru); }
-.ps-problem .ps-ic { background: color-mix(in srgb, var(--text) 7%, transparent); color: var(--text-soft); }
-.ps-arrow, .flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent-edge); }
+.solution-kicker { margin-top: 72px; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent-edge); }
 .flow-kicker { margin-top: 88px; }
 .figs.flow { grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr) 56px minmax(0, 1fr); margin-top: 28px; align-items: start; }
 .figs.flow .fig { border-left: 0; padding: 0; }
 .figs.flow .flow-arrow { padding-top: 120px; }
 @media (max-width: 900px) {
-  .ps { grid-template-columns: 1fr; gap: 0; }
-  .ps-arrow, .flow-arrow { padding: 14px 0 !important; }
-  .ps-arrow svg, .flow-arrow svg { transform: rotate(90deg); }
+  .flow-arrow { padding: 14px 0 !important; }
+  .flow-arrow svg { transform: rotate(90deg); }
   .figs.flow { grid-template-columns: 1fr; gap: 0; }
-  .ps-card { padding: 26px 22px 24px; }
+  .solution-kicker { margin-top: 48px; }
   .flow-kicker { margin-top: 64px; }
 }
