@@ -90,7 +90,7 @@
   function fieldOptions() { return D.farm.fields.map(function (f) { return '<option value="' + f.id + '">' + esc(f.name) + ' · ' + f.acres + ' ac</option>'; }).join(''); }
 
   function build() {
-    root.weather.innerHTML = head('Weather / season', 'fs-reset-weather') + '<div class="fs-panel-body">' +
+    root.weather.innerHTML = head('Weather / Season', 'fs-reset-weather') + '<div class="fs-panel-body">' +
       '<div class="fs-row" data-path="weather.scenario"><div class="fs-row-head"><label for="fs-weather-scenario">Scenario</label></div>' +
       '<select id="fs-weather-scenario" class="fs-select">' + scenarioOptions() + '</select></div>' +
       slider('fs-weather-temp', 'Temperature shift', 'weather.tempShift', -2, 4, 0.5, 'temp') +
@@ -107,7 +107,7 @@
       '<div class="fs-row" id="fs-irrig-row" data-path="crops.irrigation" hidden><div class="fs-row-head"><label for="fs-crops-irrigation">Irrigation, 1 inch a week</label></div>' +
       '<select id="fs-crops-irrigation" class="fs-select">' + IRRIG.map(function (p) { return '<option value="' + p[0] + '">' + p[1] + '</option>'; }).join('') + '</select></div></div>';
 
-    root.other.innerHTML = head('Other conditions', 'fs-reset-other') + '<div class="fs-panel-body">' +
+    root.other.innerHTML = head('Other Conditions', 'fs-reset-other') + '<div class="fs-panel-body">' +
       slider('fs-other-price', 'Crop price', 'other.priceChange', -40, 40, 5, 'pct') +
       slider('fs-other-nitrogen', 'Nitrogen price', 'other.nitrogenChange', -30, 80, 5, 'pct') +
       slider('fs-other-contracted', 'Already contracted', 'other.contracted', 0, 100, 5, 'plain') +
@@ -224,7 +224,7 @@
       root = els;
       build();
       // Reset lives inside each open box (top right), so the title bar only holds the title and the open/close arrow.
-      [['weather', 'Weather / season'], ['crops', 'Crops'], ['other', 'Other conditions']].forEach(function (p) {
+      [['weather', 'Weather / Season'], ['crops', 'Crops'], ['other', 'Other Conditions']].forEach(function (p) {
         root[p[0]].querySelector('.fs-panel-body').insertAdjacentHTML('afterbegin',
           '<div class="fs-body-tools"><button type="button" class="fs-linkbtn fs-reset" id="fs-reset-' + p[0] + '" aria-label="Reset ' + p[1] + '">Reset</button></div>');
       });

@@ -467,6 +467,32 @@ body.on-sim .site-footer { display: none; }
 .toc-chip:focus-visible { outline: 2px solid var(--ecru); outline-offset: 3px; }
 #tab-details [id] { scroll-margin-top: calc(var(--header-h, 72px) + 16px); }
 
+/* Project details: the synopsis at the top */
+.synopsis { margin-top: 28px; max-width: 80ch; }
+.synopsis p { color: var(--text-soft); font-size: 1.1rem; line-height: 1.6; }
+.synopsis p + p { margin-top: 16px; }
+
+/* Project details: the five technical parts, each with its diagram */
+.tech-part { margin-top: 72px; }
+.tech-part h3 { font-size: clamp(1.35rem, 2.2vw, 1.75rem); line-height: 1.25; letter-spacing: -0.02em; margin-bottom: 16px; }
+.tech-num { display: inline-block; min-width: 1.6em; font-family: var(--mono); color: var(--ecru); }
+.tech-part > p { max-width: 80ch; color: var(--muted); }
+.tech-part .lane { margin-top: 28px; }
+
+/* Project details: the code behind the simulator */
+.code-box { margin-top: 72px; }
+.code-lead { margin-top: 22px; }
+.code-block {
+  margin: 12px 0 0; padding: 18px 20px; overflow-x: auto;
+  background: #000000; border: 1px solid var(--line-strong); border-radius: 12px;
+  font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; color: var(--text-soft);
+}
+.code-block .c { color: var(--faint); }
+.code-block:focus-visible { outline: 2px solid var(--ecru); outline-offset: 3px; }
+
+/* Checked from space: two figures side by side on wide screens */
+@media (min-width: 1001px) { .stats.stats-2 { grid-template-columns: repeat(2, 1fr); } }
+
 /* ---------- Home: learn more about the project ---------- */
 .learn-more { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 48px; align-items: center; }
 .learn-text .btn { margin-top: 28px; }
@@ -479,3 +505,38 @@ body.on-sim .site-footer { display: none; }
 /* the Project details tab is "Details" on narrow phones, so all four tabs fit */
 .tab-short { display: none; }
 @media (max-width: 440px) { .tab-long { display: none; } .tab-short { display: inline; } }
+
+/* ---------- Home: the problem, our solution, and the flow ---------- */
+.solution-kicker { margin-top: 72px; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent-edge); }
+.flow-kicker { margin-top: 88px; }
+.figs.flow { grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr) 56px minmax(0, 1fr); margin-top: 28px; align-items: start; }
+.figs.flow .fig { border-left: 0; padding: 0; }
+.figs.flow .flow-arrow { padding-top: 120px; }
+@media (max-width: 900px) {
+  .flow-arrow { padding: 14px 0 !important; }
+  .flow-arrow svg { transform: rotate(90deg); }
+  .figs.flow { grid-template-columns: 1fr; gap: 0; }
+  .solution-kicker { margin-top: 48px; }
+  .flow-kicker { margin-top: 64px; }
+}
+
+/* Home: the footnote under the problem, the 4-step flow, the satellites line */
+.ast { color: var(--ecru); margin-left: 1px; }
+.footnote { max-width: 78ch; margin: 22px 0 0; font-size: 0.92rem; line-height: 1.5; color: var(--faint); }
+#problem-solution .statement + .text-link { margin-top: 28px; }
+.figs.flow.flow-4 { grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr) 40px minmax(0, 1fr) 40px minmax(0, 1fr); }
+.flow-4 .flow-arrow svg { width: 36px; }
+.sat-line { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; margin-top: 14px; font-size: 0.95rem; color: var(--muted); }
+.sat-line strong { color: var(--text-soft); font-weight: 600; }
+.sat-ic { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; color: var(--ecru); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.fig-link { margin-top: 14px; font-size: 0.98rem; }
+@media (max-width: 1100px) and (min-width: 901px) { .figs.flow.flow-4 { grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr); row-gap: 40px; } .flow-4 > .flow-arrow:nth-of-type(2) { display: none; } }
+@media (max-width: 900px) { .figs.flow.flow-4 { grid-template-columns: 1fr; } }
+/* About: three team members side by side */
+.team.team-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 1000px) { .team.team-3 { grid-template-columns: 1fr; } }
+/* the EcoShift logo (Rotation Cycle) */
+.brand-mark { width: 32px; height: 32px; }
+.footer-brand { display: inline-flex; align-items: center; gap: 8px; }
+.site-footer .brand-mark { width: 24px; height: 24px; }

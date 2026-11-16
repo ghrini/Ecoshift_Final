@@ -151,7 +151,7 @@
     var r = FS.farmSetup.use(setup);
     if (!r.ok) { fail('Your fields could not be set up: ' + (r.error || 'unknown error') + '.'); return; }
     say(report(setup.geo, setup));
-    status('ok', 'Imported. The simulation now runs on your fields; the details are in the chat and the Advanced near-real-time conditions tab.');
+    status('ok', 'Imported. The simulation now runs on your fields; the details are in the chat and the Advanced Near-Real-Time Conditions tab.');
     show();
   }
 

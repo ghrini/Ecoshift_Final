@@ -4,11 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#000000">
-  <title>EcoShift | Crop rotation planning tool</title>
-  <meta name="description" content="EcoShift reads a farmer's real field with NASA and Copernicus satellites and tests crop rotations against 44 seasons of weather.">
+  <title>EcoShift | Crop Rotation Planning Tool</title>
+  <meta name="description" content="EcoShift helps farmers test crop rotations against NASA weather records for their own field.">
+  <!-- Browser-tab icon: the EcoShift mark, drawn inline so no extra file is needed -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='1' y='1' width='22' height='22' rx='6' fill='%23f4f4f2'/%3E%3Cpath d='M5 8h9M8 12h11M5 16h9' stroke='%23000' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+  <!-- Link preview when the site is shared (submission page, chat apps) -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="EcoShift | Crop rotation planning tool">
+  <meta property="og:description" content="Test a crop rotation against 44 seasons of NASA weather before planting it. NASA Space Apps Challenge 2026.">
+  <meta property="og:image" content="https://ecoshift-three.vercel.app/images/hero-fields.jpg">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="images/logo.svg">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -17,19 +26,16 @@
   <header class="site-header">
     <div class="wrap header-inner">
       <button class="brand" type="button" data-go="home" aria-label="EcoShift home">
-        <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="1" y="1" width="22" height="22" rx="6" fill="currentColor"/>
-          <path d="M5 8h9M8 12h11M5 16h9" stroke="#000000" stroke-width="2" stroke-linecap="round"/>
-        </svg>
+        <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M37.32 10.65A22 22 0 0 1 53.15 38.06" stroke="#E2B84C" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M57.95 39.44L51.63 43.35L48.34 36.69Z" fill="#E2B84C"/><path d="M47.83 47.28A22 22 0 0 1 16.17 47.28" stroke="#7FA35B" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M12.58 50.76L12.35 43.33L19.77 43.81Z" fill="#7FA35B"/><path d="M10.85 38.06A22 22 0 0 1 26.68 10.65" stroke="#9E6438" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M25.47 5.80L32.01 9.32L27.89 15.50Z" fill="#9E6438"/><path d="M32 42V27" stroke="#D3AF7C" stroke-width="3" stroke-linecap="round"/><path d="M32 31c-6 0-9.5-3.4-9.5-9 5.4 0 9.5 3 9.5 9Z" fill="#7FA35B"/><path d="M32 28c0-6 3.6-9.6 9.6-9.6 0 5.8-3.8 9.6-9.6 9.6Z" fill="#D3AF7C"/></svg>
         <span class="brand-name">EcoShift</span>
       </button>
       <nav class="tabs" aria-label="Main">
         <button class="tab" role="tab" id="tab-btn-home" aria-controls="tab-home" aria-selected="true" data-tab="home">Home</button>
-        <button class="tab" role="tab" id="tab-btn-details" aria-controls="tab-details" aria-selected="false" data-tab="details" tabindex="-1" aria-label="Project details"><span class="tab-long">Project details</span><span class="tab-short" aria-hidden="true">Details</span></button>
+        <button class="tab" role="tab" id="tab-btn-details" aria-controls="tab-details" aria-selected="false" data-tab="details" tabindex="-1" aria-label="Project details"><span class="tab-long">Project Details</span><span class="tab-short" aria-hidden="true">Details</span></button>
         <button class="tab" role="tab" id="tab-btn-simulation" aria-controls="tab-simulation" aria-selected="false" data-tab="simulation" tabindex="-1">Simulation</button>
-        <button class="tab" role="tab" id="tab-btn-about" aria-controls="tab-about" aria-selected="false" data-tab="about" tabindex="-1">About us</button>
+        <button class="tab" role="tab" id="tab-btn-about" aria-controls="tab-about" aria-selected="false" data-tab="about" tabindex="-1">About Us</button>
       </nav>
-      <button class="btn btn-pill header-cta" type="button" data-go="simulation">Open simulation</button>
+      <button class="btn btn-pill header-cta" type="button" data-go="simulation">Open Simulation</button>
     </div>
   </header>
 
@@ -40,24 +46,31 @@
       <!-- Background photo: "Sunlit crop rows beneath rolling hills", added to the team repo by Ghrini. -->
       <section class="hero hero-photo">
         <div class="wrap">
-          <h1>Your field,<br>seen from space</h1>
+          <h1>A Crop Rotation<br>Planning Tool</h1>
           <div class="hero-foot">
-            <p class="hero-sub">Bring your real field. EcoShift reads it with NASA and Copernicus satellites, replays 44 seasons of weather on it and shows which crop plan holds up.</p>
-            <button class="text-link" type="button" data-go="simulation"><span>Start</span> Open the simulation <span aria-hidden="true">&rarr;</span></button>
+            <p class="hero-sub">Bring your real fields, see them from space and test every crop rotation against 44 seasons of real weather,<br>then get a ranked plan before you plant.</p>
+            <button class="text-link" type="button" data-go="simulation"><span>Start</span> The Questionnaire <span aria-hidden="true">&rarr;</span></button>
           </div>
         </div>
       </section>
 
-      <!-- What our project is, in three steps -->
-      <section class="band">
+      <!-- The problem and our solution (right below the hero), then the flow of the tool -->
+      <section class="band" id="problem-solution">
         <div class="wrap">
-          <p class="kicker">What EcoShift is</p>
-          <p class="statement"><strong>A farm planner that watches your field from orbit and tests next season before you plant it.</strong> A farmer brings their field boundaries, EcoShift checks how the field is doing today, then runs every crop plan through 44 real seasons of weather, in bushels and in dollars.</p>
+          <p class="kicker">The Problem</p>
+          <p class="statement"><strong>Farmers have no way to test a crop rotation<span class="ast" aria-hidden="true">*</span> before they plant it.</strong> The plan is chosen months ahead, on habit and rules of thumb, before anyone knows the weather. A wrong choice only shows at harvest: in the 2012 drought, Iowa's corn harvest fell to 77% of a normal year's harvest.</p>
+          <p class="footnote"><span class="ast" aria-hidden="true">*</span> Crop rotation: growing different crops on the same field in planned turns, such as corn one year and soybeans the next, to keep the soil fertile and break pest and disease cycles.</p>
+          <p class="kicker solution-kicker">Our Solution</p>
+          <p class="statement"><strong>EcoShift is a crop rotation testing system.</strong> Instead of guessing next year's weather, it asks how each plan would have done in every one of the last 44 seasons: a process-based crop simulation (a model of how the crop grows, day by day) grows the plan through each season of real NASA satellite-derived weather, on the farmer's own fields. A multi-agent system (a team of software agents, each with one job) then compares every rotation and recommends the plan with the best balance of yield, profit and risk. A farmer can also drop in their real field boundaries: EcoShift then reads those exact fields from orbit with Copernicus Sentinel-2 satellites, scores each field's health, and flags ponds, wet spots, burned ground and weak zones in near-real time.</p>
+          <a class="text-link" href="#details" data-go-section="how-it-works"><span>Learn More</span> About The Technical Details <span aria-hidden="true">&rarr;</span></a>
         </div>
 
-        <div class="wrap figs">
-          <article class="fig">
-            <p class="fig-label">Step 1</p>
+        <div class="wrap">
+          <p class="kicker flow-kicker">How It Works, Step By Step</p>
+        </div>
+        <div class="wrap figs flow flow-4" role="list" aria-label="How EcoShift works, step by step">
+          <article class="fig" role="listitem">
+            <p class="fig-label">Fig 0.1 · Input</p>
             <svg class="fig-art" viewBox="0 0 240 200" aria-hidden="true">
               <path d="M120 86 220 133 120 180 20 133Z"/>
               <path d="M95 97.750 195 144.750M70 109.500 170 156.500M45 121.250 145 168.250" class="faint"/>
@@ -65,72 +78,74 @@
               <circle cx="120" cy="43" r="7"/>
               <path d="M120 79v54" class="faint"/>
             </svg>
-            <h3>Bring your real field</h3>
-            <p>Drop in your field boundaries (GeoJSON or KML from Google Earth, John Deere or FieldView). EcoShift measures each field's acres, slope and soil, and pulls 44 seasons of Copernicus weather for that exact spot.</p>
+            <h3>Describe Your Farm</h3>
+            <p>13 short questions find the farm on the map and record its four main fields, last crops, irrigation, soil drainage, limits and goals. Any question can be skipped, or load the example farm to see how it works. Or drop in a GeoJSON or KML file of the real field boundaries.</p>
           </article>
-
-          <article class="fig">
-            <p class="fig-label">Step 2</p>
+          <div class="flow-arrow" aria-hidden="true"><svg viewBox="0 0 48 24" width="48" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h42M34 3l10 9-10 9"/></svg></div>
+          <article class="fig" role="listitem">
+            <p class="fig-label">Fig 0.2 · Data</p>
             <svg class="fig-art" viewBox="0 0 240 200" aria-hidden="true">
-              <!-- A satellite above a field -->
-              <path d="M120 120 210 160 120 196 30 160Z"/>
-              <path d="M75 140 165 180M60 150 150 190" class="faint"/>
-              <rect x="104" y="30" width="32" height="22" rx="3"/>
-              <path d="M104 41H70M136 41h34M70 32v18M170 32v18"/>
-              <path d="M120 52v20M108 84l12 14 12-14" class="faint"/>
+              <!-- a satellite above the farm, sensing it, and the data sets stacked as layers -->
+              <path d="M108 22h24v22h-24Z"/><path d="M70 27h30v12H70ZM140 27h30v12h-30Z"/><path d="M100 33h8M132 33h8M85 27v12M155 27v12" class="faint"/>
+              <path d="M120 44v10"/>
+              <path d="M120 58 66 112M120 58l54 54" class="faint"/>
+              <path d="M120 104 196 140 120 176 44 140Z"/>
+              <path d="M82 122 158 158M158 122 82 158" class="faint"/>
+              <path d="M44 150l76 36 76-36"/><path d="M44 160l76 36 76-36" class="faint"/>
             </svg>
-            <h3>See it from space, now</h3>
-            <p>Sentinel-2 satellite images, refreshed every few days, score each field's canopy, nitrogen, water and evenness. EcoShift flags ponds, wet spots, burned ground and weak zones, and points to where they are.</p>
+            <h3>Pull The Data Sets</h3>
+            <p>For that exact spot, a software agent (the farm-fit agent) pulls the data sets: 44 seasons of NASA POWER daily weather, the USDA soil survey (how much water each field holds, how well it drains) and county harvest records (the farm's normal yield).</p>
+            <p class="sat-line"><span class="sat-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 6.5h5v5h-5z"/><path d="M2.5 7.5h4.5v3H2.5zM17 7.5h4.5v3H17zM7 9h2.5M14.5 9H17"/><path d="M12 11.5v3.5"/><path d="M8.5 19.5a5 5 0 0 1 7 0"/></svg></span><span><strong>Satellites behind the data:</strong> NASA Terra (MODIS, plant greenness), NASA CERES (sunlight, inside NASA POWER) and Copernicus: Sentinel-2 (field health and the farm map), ERA5 weather and the GLO-30 elevation model for imported fields.</span></p>
+            <a class="text-link fig-link" href="#details" data-go-section="nasa-data"><span>See</span> Every Data Set <span aria-hidden="true">&rarr;</span></a>
           </article>
-
-          <article class="fig">
-            <p class="fig-label">Step 3</p>
+          <div class="flow-arrow" aria-hidden="true"><svg viewBox="0 0 48 24" width="48" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h42M34 3l10 9-10 9"/></svg></div>
+          <article class="fig" role="listitem">
+            <p class="fig-label">Fig 0.3 · Simulation</p>
             <svg class="fig-art" viewBox="0 0 240 200" aria-hidden="true">
               <path d="M20 160h200" class="faint"/>
               <path d="M32 160v-52M46 160v-70M60 160v-44M74 160v-82M88 160v-20M102 160v-64M116 160v-90M130 160v-58M144 160v-76M158 160v-30M172 160v-68M186 160v-84M200 160v-50"/>
               <circle cx="88" cy="128" r="6"/><circle cx="158" cy="118" r="6"/>
             </svg>
-            <h3>Test every plan, every season</h3>
-            <p>Corn, soybeans, a rye cover crop or oats: each plan runs through 44 real seasons, 1982 to 2025. The farmer sees the good years, the bad years and the advice, then asks the chat anything.</p>
+            <h3>Replay Every Season</h3>
+            <p>A process-based crop model grows each plan through all 44 seasons, 1982 to 2025, one at a time: an FAO-56 soil water balance tracks the water in the soil each day, growing degree days track the heat the crop needs, and frost and heat stress cut the harvest. It records the harvest and the dollars, and flags the unusually good and bad years.</p>
+          </article>
+          <div class="flow-arrow" aria-hidden="true"><svg viewBox="0 0 48 24" width="48" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h42M34 3l10 9-10 9"/></svg></div>
+          <article class="fig" role="listitem">
+            <p class="fig-label">Fig 0.4 · Decision</p>
+            <svg class="fig-art" viewBox="0 0 240 200" aria-hidden="true">
+              <!-- Three fields, each under a different crop, joined in a cycle: a rotation. -->
+              <!-- top field: a cover crop, drawn as dots -->
+              <path d="M76 62 120 40 164 62 120 84Z"/><path d="M76 62v8l44 22 44-22v-8"/>
+              <circle cx="120" cy="62" r="2"/><circle cx="102" cy="62" r="2"/><circle cx="138" cy="62" r="2"/><circle cx="120" cy="53" r="2"/><circle cx="120" cy="71" r="2"/>
+              <!-- left field: rows running one way -->
+              <path d="M22 122 66 100 110 122 66 144Z"/><path d="M22 122v8l44 22 44-22v-8"/>
+              <path d="M33 127.500 77 105.500M44 133 88 111M55 138.500 99 116.500" class="faint"/>
+              <!-- right field: rows running the other way -->
+              <path d="M130 122 174 100 218 122 174 144Z"/><path d="M130 122v8l44 22 44-22v-8"/>
+              <path d="M141 116.500 185 138.500M152 111 196 133M163 105.500 207 127.500" class="faint"/>
+              <!-- arrows from field to field -->
+              <path d="M172 52Q206 52 204 98M200.300 90.900 204 98 208.300 91.200"/>
+              <path d="M152 158Q120 180 88 158M91.400 165.200 88 158 96 158.600"/>
+              <path d="M36 98Q34 52 68 52M61.100 48 68 52 61.100 56"/>
+            </svg>
+            <h3>Compare Rotation Plans</h3>
+            <p>The adviser agent ranks each field's options (corn, soybeans, a rye cover crop, oats) by expected return (average profit) and downside risk (results in the worst years), and shows the evidence, extra work and information gaps for each.</p>
           </article>
         </div>
-      </section>
-
-      <!-- Headline numbers -->
-      <section class="band">
         <div class="wrap">
-          <p class="kicker">At a glance</p>
-        </div>
-        <div class="wrap stats">
-          <div class="stat"><p class="stat-num">44</p><p class="stat-label">Real seasons of daily weather replayed on every field, from NASA POWER and Copernicus ERA5.</p></div>
-          <div class="stat"><p class="stat-num">10 m</p><p class="stat-label">Sentinel-2 detail: each field is read pixel by pixel, not as one county average.</p></div>
-          <div class="stat"><p class="stat-num">15 min</p><p class="stat-label">How often the live view checks weather, soil moisture and air again while it is open.</p></div>
-        </div>
-      </section>
-
-      <!-- Why it matters -->
-      <section class="band">
-        <div class="wrap split">
-          <h2>Why it<br>matters</h2>
-          <div class="split-body">
-            <p class="lede">A rotation is a bet placed years ahead, and the weather keeps changing the odds. EcoShift lets a farmer try the bet first, on their own field, with the planet's best Earth observation behind them.</p>
-            <ul class="points">
-              <li><span class="num">01</span>Planting decisions are made before the weather is known.</li>
-              <li><span class="num">02</span>Problems in a field, like a wet corner or a burned strip, are easy to miss from the ground and plain to see from orbit.</li>
-              <li><span class="num">03</span>Healthy soil is slow to build and quick to lose.</li>
-            </ul>
-          </div>
+          <p class="kicker flow-kicker">What You Get</p>
+          <p class="statement"><strong>For every field, a ranked list of rotation options.</strong> Each shows its harvest and profit in a typical year and in the worst years, the evidence behind it, the extra work it needs and what to check with a local adviser. On the example farm in Story County, Iowa, the current plan gets about 99% of a normal crop in a typical year, but only 79% in a 2012-style drought. It is free and needs no account.</p>
         </div>
       </section>
 
       <!-- Where we are heading -->
-      <section class="band">
+      <section class="band" id="heading">
         <div class="wrap split">
-          <h2>Where we're<br>heading</h2>
+          <h2>Where We're<br>Heading</h2>
           <div class="split-body">
-            <p class="lede">Our next step is multi-sensor satellite fusion. Sentinel-1 radar sees through clouds, Sentinel-2 reads the crop, and Sentinel-3 tracks land temperature. Fused in near-real time with weather, climate and field inspections, they will train machine-learning models that forecast crop condition and yield for any field boundary, any crop and any season.</p>
+            <p class="lede">Our next step is multi-sensor satellite fusion. Sentinel-1 radar sees through clouds, Sentinel-2 reads the crop and Sentinel-3 tracks land temperature. Fused in near-real time with weather, climate and field inspections, they will train machine-learning models that forecast crop condition and yield for any field boundary, any crop and any season.</p>
             <ul class="points">
-              <li><span class="num">Now</span>Sentinel-2 field health, Copernicus weather and terrain, NASA weather history, ponds, burned ground and live warnings.</li>
+              <li><span class="num">Now</span>Real field boundaries, Sentinel-2 field health, Copernicus weather and terrain, ponds, burned ground and live warnings, and 44-season replays.</li>
               <li><span class="num">Next</span>Sentinel-1 radar for cloudy weeks and Sentinel-3 land temperature, fused into one daily picture of each field.</li>
               <li><span class="num">Then</span>Models trained on real harvests and field inspections, for any crop, anywhere in the world.</li>
             </ul>
@@ -142,9 +157,9 @@
       <section class="band" id="learn-more">
         <div class="wrap learn-more">
           <div class="learn-text">
-            <p class="kicker">The project</p>
-            <p class="statement"><strong>How it works, the data behind it and how well it holds up.</strong> Real fields from a file, the satellites and their indices, the crop model, the AI helpers, the checks against real harvests and the honest limits.</p>
-            <button class="btn btn-pill" type="button" data-go="details">Learn more about the project <span aria-hidden="true">&rarr;</span></button>
+            <p class="kicker">The Project</p>
+            <p class="statement"><strong>How we built it, and how we tested it.</strong> See the farm drawn from real aerial photos, one farm through 44 summers, every data set behind the numbers, a check against NASA satellite images, and the honest limits.</p>
+            <button class="btn btn-pill" type="button" data-go="details">Learn More About The Project <span aria-hidden="true">&rarr;</span></button>
           </div>
           <button class="learn-pic" type="button" data-go="details" aria-label="Learn more about the project">
             <img src="images/compare-map.jpg" width="900" height="900" loading="lazy" decoding="async" alt="">
@@ -154,8 +169,8 @@
 
       <section class="band closing">
         <div class="wrap">
-          <h2>See your own field from space</h2>
-          <button class="btn btn-pill" type="button" data-go="simulation">Open simulation</button>
+          <h2>Test A Rotation On Your Own Field</h2>
+          <button class="btn btn-pill" type="button" data-go="simulation">Open Simulation</button>
         </div>
       </section>
     </section>
@@ -164,130 +179,128 @@
     <section class="tab-panel" id="tab-details" role="tabpanel" aria-labelledby="tab-btn-details" hidden>
       <section class="hero hero-small">
         <div class="wrap">
-          <p class="kicker">Project details</p>
-          <h1>How EcoShift works</h1>
-          <p class="hero-sub">Real fields, the satellites, the crop model, the AI helpers and how well it all holds up, in detail.</p>
-          <nav class="toc" aria-label="On this page"><a class="toc-chip" href="#art" data-jump="art">The farm art</a><a class="toc-chip" href="#story" data-jump="story">One farm, 44 summers</a><a class="toc-chip" href="#how-it-works" data-jump="how-it-works">How it works</a><a class="toc-chip" href="#real-field" data-jump="real-field">Your real field</a><a class="toc-chip" href="#live" data-jump="live">Near-real-time conditions</a><a class="toc-chip" href="#field-health" data-jump="field-health">Field health</a><a class="toc-chip" href="#roadmap" data-jump="roadmap">Where we're heading</a><a class="toc-chip" href="#helpers" data-jump="helpers">Inside EcoShift</a><a class="toc-chip" href="#nasa-data" data-jump="nasa-data">The data</a><a class="toc-chip" href="#satellite-check" data-jump="satellite-check">Checked from space</a><a class="toc-chip" href="#how-well" data-jump="how-well">How well it works</a><a class="toc-chip" href="#trust" data-jump="trust">Why trust it</a></nav>
-        </div>
-      </section>
-
-      <!-- From a photo to a living farm -->
-      <section class="band" id="art">
-        <div class="wrap">
-          <p class="kicker">From a photo to a living farm</p>
-          <p class="statement"><strong>The farm you see is drawn from a real aerial photo.</strong> The team's converter turns a USDA photo into a flat illustrated map: fields, crop rows, trees, roads and water. EcoShift finds the four fields on it, then paints 44 seasons of NASA weather onto them, week by week.</p>
-        </div>
-
-        <div class="wrap art-compare">
-          <div class="compare" id="compare">
-            <img class="compare-img" src="images/compare-map.jpg" width="900" height="900" alt="Illustrated map of the example farm near Story County, Iowa, drawn by the team's converter. Fields, crop rows, trees, roads and a stream are flat shapes.">
-            <div class="compare-top" aria-hidden="true">
-              <img class="compare-img" src="images/compare-photo.jpg" width="900" height="900" alt="" loading="lazy">
-            </div>
-            <span class="compare-tag compare-tag-l" aria-hidden="true">Real aerial photo</span>
-            <span class="compare-tag compare-tag-r" aria-hidden="true">Illustrated map</span>
-            <span class="compare-line" aria-hidden="true"><span class="compare-knob"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M9 6 3 12l6 6M15 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
-            <input class="compare-range" id="compare-range" type="range" min="0" max="100" step="1" value="50" aria-label="Compare the real aerial photo (left) with the illustrated map (right). Move the divider.">
+          <p class="kicker">Project Details</p>
+          <h1>How EcoShift Works</h1>
+          <div class="synopsis">
+            <p>EcoShift is a web tool that lets a farmer test a crop rotation on their own fields before planting it. The farmer first answers a short questionnaire about the farm: where it is, its four fields, what grew there last year, its water, its land and what matters most. A step-by-step guide then shows them how to use the simulator, with large text, keyboard controls and an optional read-aloud voice.</p>
+            <p>The simulator replays 44 real growing seasons, 1982 to 2025, of NASA POWER daily weather on each field. A soil-water and crop model, built on published FAO methods and USDA soil and harvest data, works out day by day how much water the soil holds, how the crop grows, and how dry soil, wet soil, frost and heat change the harvest. Every plan ends with a harvest and a dollar figure for each of those seasons, so the farmer sees the good years and the bad years side by side.</p>
+            <p>The farm is shown on an illustrated map drawn from a real aerial or satellite picture of the farm, and the fields change week by week as the season plays. A chat answers what-if questions in plain words, and a 30-day outlook warns of frost, heat, dry spells and heavy rain.</p>
+            <p>A farmer can also import their real field boundaries (GeoJSON or KML). EcoShift then measures those exact fields with Copernicus data: 44 seasons of ERA5 weather, slope from the GLO-30 elevation model, and season-long Sentinel-2 field health with scores, a yield estimate and advice. An advanced near-real-time view adds live weather, soil moisture and air quality, and pins ponds, wet spots, burned ground and weak zones to their place on the field.</p>
+            <p>EcoShift does not tell the farmer what to plant. For every option it shows the evidence, the extra work, what is not known and what to check with a local advisor. Its model has been checked against 44 years of USDA harvests in Story County, Iowa, and against NASA satellite measurements of crop greenness.</p>
           </div>
-          <div class="art-compare-text">
-            <h2 class="art-h">Same farm, two views</h2>
-            <p>Drag the divider, or use the left and right arrow keys. On the left is the real photo. On the right is the map the converter draws from it.</p>
-            <p class="art-small">The example farm is in Story County, Iowa, 1.6 km on a side. Photo: USDA NAIP via USGS, public domain. Map: drawn by the team's converter.</p>
-          </div>
-        </div>
-
-        <div class="wrap art-block">
-          <h3 class="art-h3">One season on the map</h3>
-          <p class="art-lede">The same farm through one growing season, as the simulation paints it. Crops grow, turn gold and are harvested. Dry spells, waterlogging, frost and heat show on the fields.</p>
-          <div class="strip-scroll" id="strip" role="region" aria-label="One season on the example farm, six frames from April to October" tabindex="0">
-            <ol class="strip">
-              <li class="strip-frame"><figure><img src="images/season-1-april.jpg" width="560" height="560" loading="lazy" decoding="async" alt="The example farm map in April: rows are drawn, the soil is bare."><figcaption><span class="strip-month">April</span><span class="strip-note">Planted</span></figcaption></figure></li>
-              <li class="strip-frame"><figure><img src="images/season-2-june.jpg" width="560" height="560" loading="lazy" decoding="async" alt="The example farm map in June: the crop covers the rows."><figcaption><span class="strip-month">June</span><span class="strip-note">Green</span></figcaption></figure></li>
-              <li class="strip-frame"><figure><img src="images/season-3-july.jpg" width="560" height="560" loading="lazy" decoding="async" alt="The example farm map in July: full green, the peak of growth."><figcaption><span class="strip-month">July</span><span class="strip-note">Flowering</span></figcaption></figure></li>
-              <li class="strip-frame"><figure><img src="images/season-4-august.jpg" width="560" height="560" loading="lazy" decoding="async" alt="The example farm map in August: the crop starts to ripen."><figcaption><span class="strip-month">August</span><span class="strip-note">Grain fill</span></figcaption></figure></li>
-              <li class="strip-frame"><figure><img src="images/season-5-september.jpg" width="560" height="560" loading="lazy" decoding="async" alt="The example farm map in September: fields turn gold."><figcaption><span class="strip-month">September</span><span class="strip-note">Gold</span></figcaption></figure></li>
-              <li class="strip-frame"><figure><img src="images/season-6-october.jpg" width="560" height="560" loading="lazy" decoding="async" alt="The example farm map in October: cut fields, bare stubble."><figcaption><span class="strip-month">October</span><span class="strip-note">Harvested</span></figcaption></figure></li>
-            </ol>
-          </div>
-          <p class="art-small">Frames are captured from the simulator's farm view for the example farm in a typical year (2011 weather).</p>
-        </div>
-
-        <div class="wrap art-block">
-          <h3 class="art-h3">14 example farms</h3>
-          <p class="art-lede">Each is a ready starting farm with its own 44 seasons of NASA weather, USDA soils and county harvests. Pick one to open it in the simulator; a farmer's own address starts from the nearest of these.</p>
-          <ul class="gallery">
-              <li><a class="farm-link" href="#simulation" data-county="story-ia" aria-label="Open the example farm near Story County, Iowa in the simulator"><figure><img src="images/farms/story-ia.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Story County, Iowa"><figcaption>Story County, Iowa<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
-              <li><a class="farm-link" href="#simulation" data-county="obrien-ia" aria-label="Open the example farm near O'Brien County, Iowa in the simulator"><figure><img src="images/farms/obrien-ia.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in O'Brien County, Iowa"><figcaption>O&#39;Brien County, Iowa<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
-              <li><a class="farm-link" href="#simulation" data-county="champaign-il" aria-label="Open the example farm near Champaign County, Illinois in the simulator"><figure><img src="images/farms/champaign-il.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Champaign County, Illinois"><figcaption>Champaign County, Illinois<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
-              <li><a class="farm-link" href="#simulation" data-county="tippecanoe-in" aria-label="Open the example farm near Tippecanoe County, Indiana in the simulator"><figure><img src="images/farms/tippecanoe-in.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Tippecanoe County, Indiana"><figcaption>Tippecanoe County, Indiana<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
-              <li><a class="farm-link" href="#simulation" data-county="blueearth-mn" aria-label="Open the example farm near Blue Earth County, Minnesota in the simulator"><figure><img src="images/farms/blueearth-mn.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Blue Earth County, Minnesota"><figcaption>Blue Earth County, Minnesota<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
-              <li><a class="farm-link" href="#simulation" data-county="saunders-ne" aria-label="Open the example farm near Saunders County, Nebraska in the simulator"><figure><img src="images/farms/saunders-ne.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Saunders County, Nebraska"><figcaption>Saunders County, Nebraska<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
-              <li><a class="farm-link" href="#simulation" data-county="brookings-sd" aria-label="Open the example farm near Brookings County, South Dakota in the simulator"><figure><img src="images/farms/brookings-sd.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Brookings County, South Dakota"><figcaption>Brookings County, South Dakota<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
-              <li><a class="farm-link" href="#simulation" data-county="wood-oh" aria-label="Open the example farm near Wood County, Ohio in the simulator"><figure><img src="images/farms/wood-oh.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Wood County, Ohio"><figcaption>Wood County, Ohio<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
-              <li><a class="farm-link" href="#simulation" data-county="cass-nd" aria-label="Open the example farm near Cass County, North Dakota in the simulator"><figure><img src="images/farms/cass-nd.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Cass County, North Dakota"><figcaption>Cass County, North Dakota<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
-              <li><a class="farm-link" href="#simulation" data-county="dane-wi" aria-label="Open the example farm near Dane County, Wisconsin in the simulator"><figure><img src="images/farms/dane-wi.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Dane County, Wisconsin"><figcaption>Dane County, Wisconsin<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
-              <li><a class="farm-link" href="#simulation" data-county="lenawee-mi" aria-label="Open the example farm near Lenawee County, Michigan in the simulator"><figure><img src="images/farms/lenawee-mi.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Lenawee County, Michigan"><figcaption>Lenawee County, Michigan<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
-              <li><a class="farm-link" href="#simulation" data-county="saline-mo" aria-label="Open the example farm near Saline County, Missouri in the simulator"><figure><img src="images/farms/saline-mo.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Saline County, Missouri"><figcaption>Saline County, Missouri<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
-              <li><a class="farm-link" href="#simulation" data-county="nemaha-ks" aria-label="Open the example farm near Nemaha County, Kansas in the simulator"><figure><img src="images/farms/nemaha-ks.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Nemaha County, Kansas"><figcaption>Nemaha County, Kansas<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
-              <li><a class="farm-link" href="#simulation" data-county="christian-ky" aria-label="Open the example farm near Christian County, Kentucky in the simulator"><figure><img src="images/farms/christian-ky.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Christian County, Kentucky"><figcaption>Christian County, Kentucky<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
-          </ul>
-          <p class="art-small">Each map is drawn automatically from public USDA aerial photos; the four fields the simulation uses are found by image processing.</p>
-        </div>
-      </section>
-
-      <!-- One farm, 44 summers -->
-      <section class="band" id="story">
-        <div class="wrap">
-          <p class="kicker">One farm, 44 summers</p>
-          <p class="statement"><strong>Same farm, three very different summers.</strong> This is the example farm near Story County, Iowa: 280 acres in four fields. North 80 and Creek 40 are soybeans. West 40 and South 120 are corn.</p>
-        </div>
-        <div class="wrap stats">
-          <div class="stat"><p class="stat-num">99%</p><p class="stat-label">of a normal crop in a typical year (2011 weather). The farm earns about $13,700.</p></div>
-          <div class="stat"><p class="stat-num">79%</p><p class="stat-label">in a 2012-style drought. The farm loses about $37,000 after costs.</p></div>
-          <div class="stat"><p class="stat-num">77%</p><p class="stat-label">in 1988, the worst of the 44 seasons. The farm loses about $44,000 after costs.</p></div>
-        </div>
-        <div class="wrap limits story-text">
-          <p>The corn takes the hit. In 2012 South 120 falls to 69% of a normal crop, while the soybeans hold at 87 to 88%. In 1988 South 120 falls to 64%.</p>
-          <p>Which option held up best in the worst seasons? On the two soybean fields, keeping soybeans: every other plan tried did worse. On the corn fields, soybeans after soybeans did a little better in bad years, but it earns less on average, and the gap is too close to call.</p>
-          <p class="art-small">These are the example farm's numbers from the simulator, not a real farmer's. Costs and prices are Iowa State budgets, rounded. Run it yourself in the Simulation tab.</p>
+          <nav class="toc" aria-label="On this page"><a class="toc-chip" href="#how-it-works" data-jump="how-it-works">How It Works</a><a class="toc-chip" href="#code" data-jump="code">The Code</a><a class="toc-chip" href="#real-field" data-jump="real-field">Your Real Field</a><a class="toc-chip" href="#live" data-jump="live">Near-Real-Time Conditions</a><a class="toc-chip" href="#field-health" data-jump="field-health">Field Health</a><a class="toc-chip" href="#roadmap" data-jump="roadmap">Where We're Heading</a><a class="toc-chip" href="#art" data-jump="art">The Farm Art</a><a class="toc-chip" href="#story" data-jump="story">One Farm, 44 Summers</a><a class="toc-chip" href="#helpers" data-jump="helpers">Inside EcoShift</a><a class="toc-chip" href="#nasa-data" data-jump="nasa-data">The Data</a><a class="toc-chip" href="#satellite-check" data-jump="satellite-check">Checked From Space</a><a class="toc-chip" href="#how-well" data-jump="how-well">How Well It Works</a><a class="toc-chip" href="#trust" data-jump="trust">Why Trust It</a></nav>
         </div>
       </section>
 
       <!-- How it works -->
       <section class="band" id="how-it-works">
         <div class="wrap">
-          <p class="kicker">How it works</p>
-          <p class="statement"><strong>Two lanes that meet on the farm map.</strong> One lane makes the numbers. The other makes the picture. The numbers decide how each field looks every week.</p>
+          <p class="kicker">How It Works</p>
+          <p class="statement"><strong>EcoShift has five working parts.</strong> Each part is explained below, with a diagram of what goes in and what comes out.</p>
 
-          <div class="lanes">
+          <div class="tech-part">
+            <h3><span class="tech-num">1</span>The Weather: NASA POWER</h3>
+            <p>Every past season in EcoShift is real NASA weather. NASA POWER is NASA's public record of daily weather for any point on Earth. EcoShift uses six of its daily values from 1982 to 2025: the highest and lowest temperature, rain, sunlight, dew point and wind (listed in "The data" below). They are stored for 14 Corn Belt counties. When a farmer enters an address, EcoShift compares NASA POWER's long-term monthly averages at the farm with those at the nearest of the 14 counties, and shifts that county's daily weather month by month to fit the farm's own spot.</p>
             <div class="lane">
-              <p class="lane-label"><span>Lane 1</span> The numbers</p>
+              <p class="lane-label"><span>Diagram 1</span> The Weather</p>
               <ol class="lane-steps">
-                <li><span class="step-tag">NASA data</span><strong>NASA POWER daily weather</strong><span>44 seasons, 1982 to 2025</span></li>
-                <li><span class="step-tag">Model</span><strong>Soil water and crop model</strong><span>FAO-56 water balance on USDA soils</span></li>
-                <li><span class="step-tag">Replay</span><strong>Each field's plan, every past season</strong><span>Each plan run through all 44 seasons</span></li>
-                <li><span class="step-tag">Result</span><strong>Harvest and dollars</strong><span>Good and bad years, options ranked</span></li>
+                <li><span class="step-tag">NASA Data</span><strong>NASA POWER Daily Weather</strong><span>1982 to 2025, six values a day</span></li>
+                <li><span class="step-tag">Stored</span><strong>14 Corn Belt Counties</strong><span>44 seasons for each county</span></li>
+                <li><span class="step-tag">Fitted</span><strong>Shifted To The Farm</strong><span>NASA monthly averages, farm against county</span></li>
+                <li><span class="step-tag">Ready</span><strong>44 Seasons For This Farm</strong><span>Replayed on every field</span></li>
               </ol>
             </div>
-            <div class="lane">
-              <p class="lane-label"><span>Lane 2</span> The picture</p>
-              <ol class="lane-steps">
-                <li><span class="step-tag">USDA photo</span><strong>Aerial photo</strong><span>USDA NAIP, public domain</span></li>
-                <li><span class="step-tag">Converter</span><strong>The team's converter draws the map</strong><span>Fields, crop rows, trees, roads, water</span></li>
-                <li><span class="step-tag">Image processing</span><strong>Four fields found automatically</strong><span>No hand drawing</span></li>
-                <li><span class="step-tag">Painted</span><strong>The simulation is painted on them</strong><span>Week by week, crops grow and ripen</span></li>
-              </ol>
-            </div>
-            <p class="lane-join"><span class="join-tag">Where they meet</span> The weekly numbers from Lane 1 colour the fields from Lane 2.</p>
           </div>
-          <p class="lanes-foot"><strong>Every number comes from the data and the model. AI never makes up a result.</strong></p>
+
+          <div class="tech-part">
+            <h3><span class="tech-num">2</span>Fitting The Farm: Soils, Harvests And The Farmer's Answers</h3>
+            <p>The questionnaire learns where the farm is, its four fields, what grew there last year, its water, its land and what matters most to the farmer. For a US farm, EcoShift then looks up the USDA NRCS soil survey at the farm's fields (how much water the soil holds, how well it drains, its slope) and the USDA NASS harvests for the farm's own county. Outside the United States it uses the ISRIC SoilGrids world soil map. Last, Google's Gemini AI reads the farmer's answers about drainage, tiles and slope and proposes small changes, which the code caps: the soil's water-holding by -15% to +10%, and the normal harvest by up to 10% either way. Without an AI key, only the measured data is used.</p>
+            <div class="lane">
+              <p class="lane-label"><span>Diagram 2</span> Fitting The Farm</p>
+              <ol class="lane-steps">
+                <li><span class="step-tag">Questionnaire</span><strong>The Farmer's Answers</strong><span>Location, fields, crops, water, land</span></li>
+                <li><span class="step-tag">USDA Data</span><strong>Soils And County Harvests</strong><span>NRCS soil survey, NASS yields</span></li>
+                <li><span class="step-tag">AI · Gemini</span><strong>Small Changes From The Answers</strong><span>Capped by the code</span></li>
+                <li><span class="step-tag">Result</span><strong>This Farm's Soils And Normal Harvest</strong><span>Set for each field</span></li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="tech-part">
+            <h3><span class="tech-num">3</span>The Crop And Soil-Water Model</h3>
+            <p>This is the core of EcoShift. For every day of every season, the model works out how much water the crop needs from that day's weather (the FAO-56 Penman-Monteith method) and keeps a water account for each field: rain fills it, the crop draws it down and extra water drains away. The soil is 1.5 m deep in two layers, and the roots grow deeper through the season. Crop stages follow growing degree days, and planting waits until the field is warm and dry enough to work. Dry soil, waterlogging and frost cut the harvest, water shortage counts most at the crop's most sensitive stages (FAO-33 yield-response factors), and hot weather shortens the time the grain has to fill. Each season starts with the soil water left at the end of the season before it. The result is a harvest for each field in each of the 44 seasons, as a percent of normal, and a dollar figure from Iowa State University crop budgets and USDA prices. The model's settings were fitted to 44 years of USDA harvest records, leaving each year out in turn, so it is never tested on a year it was fitted to.</p>
+            <div class="lane">
+              <p class="lane-label"><span>Diagram 3</span> One Day On One Field</p>
+              <ol class="lane-steps">
+                <li><span class="step-tag">Weather</span><strong>That Day's NASA Weather</strong><span>Temperature, rain, sunlight, dew point, wind</span></li>
+                <li><span class="step-tag">Water</span><strong>Crop Water Use And Soil Water</strong><span>FAO-56, two soil layers</span></li>
+                <li><span class="step-tag">Crop</span><strong>Growth Stage And Stress</strong><span>Dry soil, wet soil, frost, heat</span></li>
+                <li><span class="step-tag">Result</span><strong>Harvest And Dollars</strong><span>Every field, every season</span></li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="tech-part">
+            <h3><span class="tech-num">4</span>Satellites And The Farm Map</h3>
+            <p>The farm on screen is drawn from a real picture taken from above. EcoShift downloads the same 1.6 km square around the farm from two public sources and keeps the sharper picture. One is a USDA NAIP aerial photo, taken from an aircraft, with about 1 m detail (US only). The other is a Sentinel-2 satellite image with 10 m detail, from the 2020 cloud-free world map by EOX. The Sentinel-2 satellites belong to Copernicus, the European Union's Earth-observation programme, and are flown by the European Space Agency. Their instrument, the MultiSpectral Instrument, is a camera that records sunlight reflected from the ground in 13 bands, from visible light to short-wave infrared, which is why a cloud-free map is used. NASA's Terra satellite carries a similar camera, MODIS, with 36 bands; its red and near-infrared bands give the crop greenness used to check the model (see "Checked from space" below). Neither EcoShift satellite source uses radar or lasers: both are cameras that measure reflected sunlight. The team's converter (Python with OpenCV) turns the chosen picture into a flat illustrated map of fields, crop rows, trees, roads and water, image processing finds the four fields on it with no hand drawing, and the weekly results from part 3 colour those fields as the season plays.</p>
+            <div class="lane">
+              <p class="lane-label"><span>Diagram 4</span> From Picture To Farm Map</p>
+              <ol class="lane-steps">
+                <li><span class="step-tag">Satellite And Aircraft</span><strong>Sentinel-2 Image And USDA NAIP Photo</strong><span>10 m and about 1 m detail</span></li>
+                <li><span class="step-tag">Image Processing</span><strong>The Sharper Picture Is Kept</strong><span>Measured automatically</span></li>
+                <li><span class="step-tag">Converter</span><strong>Illustrated Farm Map</strong><span>Fields, crop rows, trees, roads, water</span></li>
+                <li><span class="step-tag">Painted</span><strong>Four Fields Found And Coloured</strong><span>Week by week, from part 3</span></li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="tech-part">
+            <h3><span class="tech-num">5</span>Comparing Plans, The Chat And The 30-Day Outlook</h3>
+            <p>EcoShift runs every option on every field through all 44 seasons and lays the results side by side: harvest and dollars in a typical year, in the worst seasons and on average. For each option it shows the evidence, the extra work, what is not known and what to check with a local advisor, and it leaves the choice to the farmer. A chat lets the farmer ask what-ifs in plain words, such as "What if July is very dry?", and runs the matching past season on the farm. A 30-day outlook from the Open-Meteo forecast warns of frost, heat, dry spells and heavy rain at the farm, and Gemini can turn it into a short note.</p>
+            <div class="lane">
+              <p class="lane-label"><span>Diagram 5</span> From Results To A Decision</p>
+              <ol class="lane-steps">
+                <li><span class="step-tag">Compare</span><strong>Every Option, Every Field</strong><span>All 44 seasons</span></li>
+                <li><span class="step-tag">Show</span><strong>Typical, Worst And Average</strong><span>Harvest and dollars</span></li>
+                <li><span class="step-tag">Explain</span><strong>Evidence, Work And Gaps</strong><span>What to check with an advisor</span></li>
+                <li><span class="step-tag">Decide</span><strong>The Farmer Chooses</strong><span>The chat and the 30-day outlook help</span></li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="data-box code-box" id="code">
+            <div class="data-box-head">
+              <h2 class="data-box-title">The Code Behind The Simulator</h2>
+              <p class="data-box-sub">What runs where in the project's code. The crop model runs in the farmer's own browser; the server fetches the public data and keeps the AI key, which never reaches the browser.</p>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <caption class="sr-only">The parts of EcoShift's code and what each one does</caption>
+                <thead><tr><th scope="col">Part Of The Code</th><th scope="col">Language, Where It Runs</th><th scope="col">What It Does</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">Simulator Page (deepdive/index.html)</th><td data-label="Language, where it runs">JavaScript, in the browser</td><td data-label="What it does">The questionnaire, the guide, the farm view, the chat and the comparison of plans. It holds the 44 seasons of NASA weather for the 14 counties and runs the crop and soil-water model. The model needs no internet, and the same inputs always give the same result.</td></tr>
+                  <tr><th scope="row">Farm Fitting (farmfit.js)</th><td data-label="Language, where it runs">Node.js, on the server</td><td data-label="What it does">/api/localfit: NASA POWER averages, USDA NRCS soils, USDA NASS harvests, ISRIC SoilGrids and the capped Gemini changes. /api/outlook and /api/outlooknote: the Open-Meteo 30-day outlook and its Gemini note. /api/geocode: finding the farm from an address.</td></tr>
+                  <tr><th scope="row">Farm Map (farmmap.js, farmmap/)</th><td data-label="Language, where it runs">Node.js and Python with OpenCV, on the server</td><td data-label="What it does">/api/farmmap: downloads the NAIP photo and the Sentinel-2 image, keeps the sharper one, draws the illustrated map and stores it so the next visit is fast.</td></tr>
+                  <tr><th scope="row">Server (server.js)</th><td data-label="Language, where it runs">Node.js, on the server</td><td data-label="What it does">Serves the site, connects the routes above, sends requests to Gemini with the key kept on the server, and runs /api/translate for the simulator's languages.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="data-box-sub code-lead">The heart of the model, one day on one field, from the simulator's code (shortened, comments added):</p>
+<pre class="code-block" tabindex="0" aria-label="Code from the simulator's daily soil-water step"><code>var Kc  = KC_MIN + (kcMid - KC_MIN) * G;   <span class="c">// crop coefficient, grows with the crop (G goes from 0 to 1)</span>
+var ETc = Kc * et0;                        <span class="c">// water the crop would use today, in mm (et0 from NASA weather)</span>
+var TAW = awc * zr;                        <span class="c">// water the root zone can hold, in mm (soil water per metre x root depth)</span>
+var p = clamp(ptab + P_ADJ * (5 - ETc), 0.1, 0.8), RAW = p * TAW;   <span class="c">// water it can use without stress</span>
+var Ks  = Dr &lt;= RAW ? 1 : clamp((TAW - Dr) / ((1 - p) * TAW), 0, 1); <span class="c">// water stress: 1 = none, 0 = severe</span>
+var ETa = Ks * ETc;                        <span class="c">// water the crop really uses today</span></code></pre>
+          </div>
+          <p class="lanes-foot"><strong>Every result comes from the data and the model.</strong> The AI never makes up a harvest or a dollar figure.</p>
         </div>
       </section>
 
       <!-- Your real field -->
       <section class="band" id="real-field">
         <div class="wrap">
-          <p class="kicker">Your real field</p>
+          <p class="kicker">Your Real Field</p>
           <p class="statement"><strong>From a boundary file to a simulated farm in about 30 seconds.</strong> The farmer drops in a GeoJSON file, or a KML file saved from Google Earth, with up to four field outlines. EcoShift measures each outline on the globe and fetches the conditions at that exact spot.</p>
         </div>
         <div class="wrap stats">
@@ -303,7 +316,7 @@
       <!-- Advanced near-real-time conditions -->
       <section class="band" id="live">
         <div class="wrap">
-          <p class="kicker">Advanced near-real-time conditions</p>
+          <p class="kicker">Advanced Near-Real-Time Conditions</p>
           <p class="statement"><strong>What is happening on each field right now, and where.</strong> A third view in the simulator gathers the latest satellite and weather data for the fields, shows how fresh each source is, checks again every 15 minutes and pins each warning to its place on a small map of the fields.</p>
           <div class="data-box">
             <div class="table-wrap">
@@ -332,7 +345,7 @@
       <!-- Field health -->
       <section class="band" id="field-health">
         <div class="wrap">
-          <p class="kicker">Field health</p>
+          <p class="kicker">Field Health</p>
           <p class="statement"><strong>A season-long satellite check-up for every field.</strong> EcoShift reads the clearest Sentinel-2 image of each field in every 8 days of the season, about 20 to 25 images, and turns them into scores, a yield estimate, likely causes and advice for the crop and its growth stage. Each field's series is saved as a CSV file.</p>
           <ul class="helpers">
             <li><p class="helper-tag">NDVI · leaf area</p><strong>Canopy</strong><span>How green and full the crop is, against a healthy peak for that crop.</span></li>
@@ -349,7 +362,7 @@
       <!-- Roadmap -->
       <section class="band" id="roadmap">
         <div class="wrap split">
-          <h2>Where we're<br>heading</h2>
+          <h2>Where We're<br>Heading</h2>
           <div class="split-body">
             <p class="lede">We are building toward a multi-modal satellite fusion system. It will bring Sentinel-1 radar, Sentinel-2 optical and Sentinel-3 land temperature together in near-real time to see each field in finer detail than any one satellite can. Combined with weather, climate and manual field inspections, that fused record will train machine-learning models that predict crop condition and yield for any field boundary, any crop and any season.</p>
             <ul class="points">
@@ -361,48 +374,131 @@
         </div>
       </section>
 
+      <!-- From a photo to a living farm -->
+      <section class="band" id="art">
+        <div class="wrap">
+          <p class="kicker">From A Photo To A Living Farm</p>
+          <p class="statement"><strong>The farm you see is drawn from a real aerial photo.</strong> The team's converter turns a USDA photo into a flat illustrated map: fields, crop rows, trees, roads and water. EcoShift finds the four fields on it, then paints 44 seasons of NASA weather onto them, week by week.</p>
+        </div>
+
+        <div class="wrap art-compare">
+          <div class="compare" id="compare">
+            <img class="compare-img" src="images/compare-map.jpg" width="900" height="900" alt="Illustrated map of the example farm near Story County, Iowa, drawn by the team's converter. Fields, crop rows, trees, roads and a stream are flat shapes.">
+            <div class="compare-top" aria-hidden="true">
+              <img class="compare-img" src="images/compare-photo.jpg" width="900" height="900" alt="" loading="lazy">
+            </div>
+            <span class="compare-tag compare-tag-l" aria-hidden="true">Real aerial photo</span>
+            <span class="compare-tag compare-tag-r" aria-hidden="true">Illustrated map</span>
+            <span class="compare-line" aria-hidden="true"><span class="compare-knob"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M9 6 3 12l6 6M15 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+            <input class="compare-range" id="compare-range" type="range" min="0" max="100" step="1" value="50" aria-label="Compare the real aerial photo (left) with the illustrated map (right). Move the divider.">
+          </div>
+          <div class="art-compare-text">
+            <h2 class="art-h">Same Farm, Two Views</h2>
+            <p>Drag the divider, or use the left and right arrow keys. On the left is the real photo. On the right is the map the converter draws from it.</p>
+            <p class="art-small">The example farm is in Story County, Iowa, 1.6 km on a side. Photo: USDA NAIP via USGS, public domain. Map: drawn by the team's converter.</p>
+          </div>
+        </div>
+
+        <div class="wrap art-block">
+          <h3 class="art-h3">One Season On The Map</h3>
+          <p class="art-lede">The same farm through one growing season, as the simulation paints it. Crops grow, turn gold and are harvested. Dry spells, waterlogging, frost and heat show on the fields.</p>
+          <div class="strip-scroll" id="strip" role="region" aria-label="One season on the example farm, six frames from April to October" tabindex="0">
+            <ol class="strip">
+              <li class="strip-frame"><figure><img src="images/season-1-april.jpg" width="560" height="560" loading="lazy" decoding="async" alt="The example farm map in April: rows are drawn, the soil is bare."><figcaption><span class="strip-month">April</span><span class="strip-note">Planted</span></figcaption></figure></li>
+              <li class="strip-frame"><figure><img src="images/season-2-june.jpg" width="560" height="560" loading="lazy" decoding="async" alt="The example farm map in June: the crop covers the rows."><figcaption><span class="strip-month">June</span><span class="strip-note">Green</span></figcaption></figure></li>
+              <li class="strip-frame"><figure><img src="images/season-3-july.jpg" width="560" height="560" loading="lazy" decoding="async" alt="The example farm map in July: full green, the peak of growth."><figcaption><span class="strip-month">July</span><span class="strip-note">Flowering</span></figcaption></figure></li>
+              <li class="strip-frame"><figure><img src="images/season-4-august.jpg" width="560" height="560" loading="lazy" decoding="async" alt="The example farm map in August: the crop starts to ripen."><figcaption><span class="strip-month">August</span><span class="strip-note">Grain Fill</span></figcaption></figure></li>
+              <li class="strip-frame"><figure><img src="images/season-5-september.jpg" width="560" height="560" loading="lazy" decoding="async" alt="The example farm map in September: fields turn gold."><figcaption><span class="strip-month">September</span><span class="strip-note">Gold</span></figcaption></figure></li>
+              <li class="strip-frame"><figure><img src="images/season-6-october.jpg" width="560" height="560" loading="lazy" decoding="async" alt="The example farm map in October: cut fields, bare stubble."><figcaption><span class="strip-month">October</span><span class="strip-note">Harvested</span></figcaption></figure></li>
+            </ol>
+          </div>
+          <p class="art-small">Frames are captured from the simulator's farm view for the example farm in a typical year (2011 weather).</p>
+        </div>
+
+        <div class="wrap art-block">
+          <h3 class="art-h3">14 Example Farms</h3>
+          <p class="art-lede">Each is a ready starting farm with its own 44 seasons of NASA weather, USDA soils and county harvests. Pick one to open it in the simulator; a farmer's own address starts from the nearest of these.</p>
+          <ul class="gallery">
+              <li><a class="farm-link" href="#simulation" data-county="story-ia" aria-label="Open the example farm near Story County, Iowa in the simulator"><figure><img src="images/farms/story-ia.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Story County, Iowa"><figcaption>Story County, Iowa<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
+              <li><a class="farm-link" href="#simulation" data-county="obrien-ia" aria-label="Open the example farm near O'Brien County, Iowa in the simulator"><figure><img src="images/farms/obrien-ia.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in O'Brien County, Iowa"><figcaption>O&#39;Brien County, Iowa<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
+              <li><a class="farm-link" href="#simulation" data-county="champaign-il" aria-label="Open the example farm near Champaign County, Illinois in the simulator"><figure><img src="images/farms/champaign-il.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Champaign County, Illinois"><figcaption>Champaign County, Illinois<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
+              <li><a class="farm-link" href="#simulation" data-county="tippecanoe-in" aria-label="Open the example farm near Tippecanoe County, Indiana in the simulator"><figure><img src="images/farms/tippecanoe-in.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Tippecanoe County, Indiana"><figcaption>Tippecanoe County, Indiana<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
+              <li><a class="farm-link" href="#simulation" data-county="blueearth-mn" aria-label="Open the example farm near Blue Earth County, Minnesota in the simulator"><figure><img src="images/farms/blueearth-mn.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Blue Earth County, Minnesota"><figcaption>Blue Earth County, Minnesota<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
+              <li><a class="farm-link" href="#simulation" data-county="saunders-ne" aria-label="Open the example farm near Saunders County, Nebraska in the simulator"><figure><img src="images/farms/saunders-ne.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Saunders County, Nebraska"><figcaption>Saunders County, Nebraska<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
+              <li><a class="farm-link" href="#simulation" data-county="brookings-sd" aria-label="Open the example farm near Brookings County, South Dakota in the simulator"><figure><img src="images/farms/brookings-sd.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Brookings County, South Dakota"><figcaption>Brookings County, South Dakota<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
+              <li><a class="farm-link" href="#simulation" data-county="wood-oh" aria-label="Open the example farm near Wood County, Ohio in the simulator"><figure><img src="images/farms/wood-oh.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Wood County, Ohio"><figcaption>Wood County, Ohio<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
+              <li><a class="farm-link" href="#simulation" data-county="cass-nd" aria-label="Open the example farm near Cass County, North Dakota in the simulator"><figure><img src="images/farms/cass-nd.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Cass County, North Dakota"><figcaption>Cass County, North Dakota<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
+              <li><a class="farm-link" href="#simulation" data-county="dane-wi" aria-label="Open the example farm near Dane County, Wisconsin in the simulator"><figure><img src="images/farms/dane-wi.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Dane County, Wisconsin"><figcaption>Dane County, Wisconsin<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
+              <li><a class="farm-link" href="#simulation" data-county="lenawee-mi" aria-label="Open the example farm near Lenawee County, Michigan in the simulator"><figure><img src="images/farms/lenawee-mi.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Lenawee County, Michigan"><figcaption>Lenawee County, Michigan<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
+              <li><a class="farm-link" href="#simulation" data-county="saline-mo" aria-label="Open the example farm near Saline County, Missouri in the simulator"><figure><img src="images/farms/saline-mo.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Saline County, Missouri"><figcaption>Saline County, Missouri<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
+              <li><a class="farm-link" href="#simulation" data-county="nemaha-ks" aria-label="Open the example farm near Nemaha County, Kansas in the simulator"><figure><img src="images/farms/nemaha-ks.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Nemaha County, Kansas"><figcaption>Nemaha County, Kansas<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
+              <li><a class="farm-link" href="#simulation" data-county="christian-ky" aria-label="Open the example farm near Christian County, Kentucky in the simulator"><figure><img src="images/farms/christian-ky.jpg" width="360" height="360" loading="lazy" decoding="async" alt="Illustrated map of an example farm in Christian County, Kentucky"><figcaption>Christian County, Kentucky<span class="farm-open" aria-hidden="true">Open &rarr;</span></figcaption></figure></a></li>
+          </ul>
+          <p class="art-small">Each map is drawn automatically from public USDA aerial photos; the four fields the simulation uses are found by image processing.</p>
+        </div>
+      </section>
+
+      <!-- One farm, 44 summers -->
+      <section class="band" id="story">
+        <div class="wrap">
+          <p class="kicker">One Farm, 44 Summers</p>
+          <p class="statement"><strong>How one example farm does in three different summers.</strong> The example farm near Story County, Iowa has 280 acres in four fields, with soybeans on North 80 and Creek 40 and corn on West 40 and South 120.</p>
+        </div>
+        <div class="wrap stats">
+          <div class="stat"><p class="stat-num">99%</p><p class="stat-label">of a normal harvest in a typical year (2011 weather), when the farm earns about $13,700</p></div>
+          <div class="stat"><p class="stat-num">79%</p><p class="stat-label">of a normal harvest in a drought like 2012, when the farm loses about $37,000 after costs</p></div>
+          <div class="stat"><p class="stat-num">77%</p><p class="stat-label">of a normal harvest in 1988, the worst of the 44 seasons, when the farm loses about $44,000 after costs</p></div>
+        </div>
+        <div class="wrap limits story-text">
+          <p>Most of the loss comes from the corn: in 2012 South 120 drops to 69% of a normal harvest while the soybean fields stay at 87 to 88%, and in 1988 South 120 drops to 64%.</p>
+          <p>In the worst seasons, keeping soybeans on the two soybean fields held up better than any other plan EcoShift tried. On the corn fields, a soybeans-after-soybeans plan did slightly better in bad years but earned less on average, so neither plan was clearly ahead.</p>
+          <p class="art-small">These numbers come from running the example farm in the simulator, not from a real farmer, with costs and prices rounded from Iowa State University budgets. You can run the same farm yourself in the Simulation tab.</p>
+        </div>
+      </section>
+
       <!-- Inside EcoShift: a team of helpers -->
       <section class="band" id="helpers">
         <div class="wrap">
           <p class="kicker">Inside EcoShift</p>
-          <p class="statement"><strong>A team of helpers, each with one job.</strong> EcoShift is designed like a small multi-agent system: each helper does one job and hands its result to the next. Three of them use an AI model, and code checks and limits everything they return.</p>
+          <p class="statement"><strong>EcoShift is made of helpers, each with one job.</strong> It is designed as a multi-agent system: each helper does its job and passes the result to the next. Three of them use Google's Gemini AI model, and the code checks and limits everything they return.</p>
           <ul class="helpers">
-            <li><p class="helper-tag">Plain code</p><strong>Questionnaire</strong><span>Learns the farm: where it is, its four fields, last crops, water, land, limits and what matters most.</span></li>
-            <li class="is-ai"><p class="helper-tag">AI · Google Gemini</p><strong>Farm-fit helper</strong><span>Reads the farmer's answers about drainage, tiles and slope and proposes soil adjustments. Code caps every change, and it switches off without a key.</span></li>
-            <li><p class="helper-tag">Plain code · NASA data</p><strong>Crop model</strong><span>Replays 44 seasons of NASA POWER weather on each field: soil water, growth stages, frost, heat, harvest.</span></li>
-            <li><p class="helper-tag">Plain code</p><strong>Adviser</strong><span>Compares every option on every field and gives each one its evidence, extra work, information gaps and what to check with an adviser.</span></li>
-            <li class="is-ai"><p class="helper-tag">Plain code + AI · Google Gemini</p><strong>Chat assistant</strong><span>Turns plain-English what-ifs ("what if 2012 happens again?", "I want more rain") into simulator actions and runs them. Anything the rules cannot read, from a farmer's own odd situation to a general question, goes to Gemini, which thinks it through, answers and may ask for setting changes that code checks first.</span></li>
-            <li><p class="helper-tag">Plain code · Copernicus</p><strong>Field importer</strong><span>Reads GeoJSON or KML field boundaries and fetches Copernicus weather, elevation, soil and county yields for those exact fields.</span></li>
-            <li><p class="helper-tag">Plain code · Sentinel-2</p><strong>Satellite reader</strong><span>Reads only the pieces of each Sentinel-2 image over the fields, for live warnings and the season-long field health check.</span></li>
-            <li class="is-ai"><p class="helper-tag">AI · Google Gemini</p><strong>Outlook explainer</strong><span>Turns the 30-day forecast numbers into a short note for the farmer.</span></li>
-            <li><p class="helper-tag">Image processing</p><strong>Map maker</strong><span>Draws the farm from aerial photos and finds the four fields the simulation is painted on.</span></li>
+            <li><p class="helper-tag">Plain Code</p><strong>Questionnaire</strong><span>Learns the farm: where it is, its four fields, last crops, water, land, limits and what matters most.</span></li>
+            <li class="is-ai"><p class="helper-tag">AI · Google Gemini</p><strong>Farm-Fit Helper</strong><span>Reads the farmer's answers about drainage, tiles and slope and proposes small changes to the soil and the normal harvest. Code caps every change, and it switches off without a key.</span></li>
+            <li><p class="helper-tag">Plain Code · NASA Data</p><strong>Crop Model</strong><span>Replays 44 seasons of NASA POWER weather on each field: soil water, growth stages, frost, heat, harvest.</span></li>
+            <li><p class="helper-tag">Plain Code</p><strong>Adviser</strong><span>Compares every option on every field and gives each one its evidence, extra work, information gaps and what to check with an adviser.</span></li>
+            <li class="is-ai"><p class="helper-tag">Plain Code + AI · Google Gemini</p><strong>Chat Assistant</strong><span>Turns plain-English what-ifs ("what if 2012 happens again?", "I want more rain") into simulator actions and runs them. Anything the rules cannot read goes to Gemini, which thinks it through, answers and may ask for setting changes that code checks first.</span></li>
+            <li><p class="helper-tag">Plain Code · Copernicus</p><strong>Field Importer</strong><span>Reads GeoJSON or KML field boundaries and fetches Copernicus weather, elevation, soil and county yields for those exact fields.</span></li>
+            <li><p class="helper-tag">Plain Code · Sentinel-2</p><strong>Satellite Reader</strong><span>Reads only the pieces of each Sentinel-2 image over the fields, for live warnings and the season-long field health check.</span></li>
+            <li class="is-ai"><p class="helper-tag">AI · Google Gemini</p><strong>Outlook Explainer</strong><span>Turns the 30-day forecast numbers into a short note for the farmer.</span></li>
+            <li class="is-ai"><p class="helper-tag">AI · Google Gemini</p><strong>Translator</strong><span>Shows the simulator in the farmer's own language and puts their chat questions into English for the simulator. Without a key the page stays in English.</span></li>
+            <li><p class="helper-tag">Image Processing</p><strong>Map Maker</strong><span>Draws the farm from aerial and satellite pictures and finds the four fields the simulation is painted on.</span></li>
           </ul>
-          <p class="lanes-foot"><strong>AI on a short leash.</strong> Every harvest and dollar figure comes from NASA and USDA data and the crop model. The AI helpers only adjust settings within fixed limits, answer questions and write notes; without a key, EcoShift works the same, minus those three.</p>
+          <p class="lanes-foot"><strong>What the AI does and does not do.</strong> The harvest and dollars in every season are worked out by the crop model from NASA and USDA data. The AI helpers only make small, capped changes to the soil and the normal harvest, write notes and translate; without a key, EcoShift works the same, in English and without those notes.</p>
         </div>
       </section>
 
       <!-- The data behind EcoShift -->
       <section class="band" id="nasa-data">
         <div class="wrap">
-          <p class="kicker">The data behind EcoShift</p>
-          <p class="statement"><strong>The weather is NASA's.</strong> Every past season is NASA POWER daily weather, 1982 to 2025, for the grid cell (about 0.5 degrees, roughly 50 km) around the farm. Everything else is listed below, with what it is used for.</p>
+          <p class="kicker">The Data Behind EcoShift</p>
+          <p class="statement"><strong>Where the data comes from.</strong> Every past season is NASA POWER daily weather, 1982 to 2025, for the grid cell (about 0.5 degrees, roughly 50 km) around the farm. Everything else is listed below, with what it is used for.</p>
 
           <div class="data-box data-box-nasa">
             <div class="data-box-head">
-              <h2 class="data-box-title">NASA data</h2>
+              <h2 class="data-box-title">NASA Data</h2>
               <p class="data-box-sub">NASA POWER daily weather, 1982 to 2025, is the core of the model: without it there is nothing to replay. NASA MODIS satellite greenness checks the model against what really grew.</p>
             </div>
             <div class="table-wrap">
               <table class="data-table">
                 <caption class="sr-only">NASA data used by EcoShift</caption>
-                <thead><tr><th scope="col">NASA dataset</th><th scope="col">What it is</th><th scope="col">What the model does with it</th></tr></thead>
+                <thead><tr><th scope="col">NASA Dataset</th><th scope="col">What It Is</th><th scope="col">What The Model Does With It</th></tr></thead>
                 <tbody>
                   <tr><th scope="row">T2M_MAX, T2M_MIN</th><td data-label="What it is">Daily highest and lowest air temperature</td><td data-label="What the model does with it">Crop growth and heat stress, planting dates, killing frost in spring and fall</td></tr>
                   <tr><th scope="row">PRECTOTCORR</th><td data-label="What it is">Daily rain, corrected</td><td data-label="What the model does with it">Fills the soil water bucket, so dry spells and wet spells show up</td></tr>
                   <tr><th scope="row">ALLSKY_SFC_SW_DWN</th><td data-label="What it is">Sunlight reaching the ground</td><td data-label="What the model does with it">Drives how much water the crop uses (missing before 1984, then a temperature-only estimate is used)</td></tr>
                   <tr><th scope="row">T2MDEW, WS2M</th><td data-label="What it is">Dew point and wind at 2 m</td><td data-label="What the model does with it">With sunlight and temperature, give the daily water use of the crop (FAO-56 Penman-Monteith)</td></tr>
                   <tr><th scope="row">GWETROOT</th><td data-label="What it is">Modelled root-zone soil wetness (MERRA-2, not satellite SMAP)</td><td data-label="What the model does with it">Used only to check the model against real harvests, not in the farm results</td></tr>
-                  <tr><th scope="row">MODIS NDVI (Terra, 16-day, 250 m)</th><td data-label="What it is">Satellite greenness of Story County cropland, 2000 to 2025, from NASA GIBS</td><td data-label="What the model does with it">Checks the model against what really grew (see "Checked from space" below), not used in the farm results</td></tr>
+                  <tr><th scope="row">MODIS NDVI (Terra, 16-Day, 250 m)</th><td data-label="What it is">Satellite greenness of Story County cropland, 2000 to 2025, from NASA GIBS</td><td data-label="What the model does with it">Checks the model against what really grew (see "Checked from space" below), not used in the farm results</td></tr>
                 </tbody>
               </table>
             </div>
@@ -411,27 +507,27 @@
 
           <div class="data-box">
             <div class="data-box-head">
-              <h2 class="data-box-title">Other data</h2>
-              <p class="data-box-sub">Not from NASA. Each one fills a gap the weather history cannot: the ground, the real harvests, money, the next 30 days, the map, and the field as it is today.</p>
+              <h2 class="data-box-title">Other Data</h2>
+              <p class="data-box-sub">These do not come from NASA. Each one covers something the weather cannot: the soil, the real harvests, costs and prices, the next 30 days and the map.</p>
             </div>
             <div class="table-wrap">
               <table class="data-table">
                 <caption class="sr-only">Data from other sources used by EcoShift</caption>
-                <thead><tr><th scope="col">Dataset</th><th scope="col">From</th><th scope="col">What EcoShift uses it for</th></tr></thead>
+                <thead><tr><th scope="col">Dataset</th><th scope="col">From</th><th scope="col">What EcoShift Uses It For</th></tr></thead>
                 <tbody>
-                  <tr><th scope="row">Soil survey (Soil Data Access)</th><td data-label="From">USDA NRCS</td><td data-label="Used for">How much water each field's soil holds, how well it drains, its slope. Sets the size of the soil water bucket.</td></tr>
-                  <tr><th scope="row">County and state yields (Quick Stats)</th><td data-label="From">USDA NASS</td><td data-label="Used for">The farm's normal harvest, and the check of the model against real Iowa harvests, 1982 to 2025</td></tr>
-                  <tr><th scope="row">Weather archive (ERA5) and 30-day forecast</th><td data-label="From">Open-Meteo</td><td data-label="Used for">Cross-checks NASA's hot days and crop water use; the forecast powers the 30-day outlook</td></tr>
-                  <tr><th scope="row">Weather stations (GHCN-Daily)</th><td data-label="From">NOAA</td><td data-label="Used for">Checked NASA's frost nights against three stations near Ames, Iowa</td></tr>
-                  <tr><th scope="row">Crop budgets, prices, cost-share</th><td data-label="From">Iowa State University, USDA WASDE, Iowa Dept. of Agriculture</td><td data-label="Used for">Costs per acre, crop prices and the cover-crop payment, for the dollar results</td></tr>
-                  <tr><th scope="row">Aerial photos</th><td data-label="From">USDA NAIP via USGS (Sentinel-2 by EOX where sharper)</td><td data-label="Used for">Drawn into the illustrated farm map the simulation plays on. Not used in any number.</td></tr>
+                  <tr><th scope="row">Soil Survey (Soil Data Access)</th><td data-label="From">USDA NRCS</td><td data-label="Used for">How much water each field's soil holds, how well it drains, its slope. Sets the size of the soil water bucket.</td></tr>
+                  <tr><th scope="row">County And State Yields (Quick Stats)</th><td data-label="From">USDA NASS</td><td data-label="Used for">The farm's normal harvest, and the check of the model against real Iowa harvests, 1982 to 2025</td></tr>
+                  <tr><th scope="row">Weather Archive (ERA5) And 30-Day Forecast</th><td data-label="From">Open-Meteo</td><td data-label="Used for">Cross-checks NASA's hot days and crop water use; the forecast powers the 30-day outlook</td></tr>
+                  <tr><th scope="row">Weather Stations (GHCN-Daily)</th><td data-label="From">NOAA</td><td data-label="Used for">Checked NASA's frost nights against three stations near Ames, Iowa</td></tr>
+                  <tr><th scope="row">Crop Budgets, Prices, Cost-Share</th><td data-label="From">Iowa State University, USDA WASDE, Iowa Dept. of Agriculture</td><td data-label="Used for">Costs per acre, crop prices and the cover-crop payment, for the dollar results</td></tr>
+                  <tr><th scope="row">Aerial Photos</th><td data-label="From">USDA NAIP via USGS (Sentinel-2 by EOX where sharper)</td><td data-label="Used for">Drawn into the illustrated farm map the simulation plays on. Not used in any number.</td></tr>
                   <tr><th scope="row">SoilGrids</th><td data-label="From">ISRIC</td><td data-label="Used for">Soils for farms outside the United States, and soil fertility (organic carbon, nitrogen, pH, CEC) in the live view</td></tr>
                   <tr><th scope="row">ERA5-Land and ERA5 daily reanalysis</th><td data-label="From">Copernicus Climate Change Service, via Open-Meteo</td><td data-label="Used for">44 seasons of weather for imported fields, and recent soil moisture</td></tr>
                   <tr><th scope="row">GLO-30 elevation model</th><td data-label="From">Copernicus, AWS open data</td><td data-label="Used for">Each imported field's slope, height and low spots</td></tr>
                   <tr><th scope="row">Sentinel-2 Level-2A images</th><td data-label="From">Copernicus, via Earth Search on AWS</td><td data-label="Used for">Field health, burned ground, bare soil and weak growth zones</td></tr>
                   <tr><th scope="row">WorldCover 2021 (10 m)</th><td data-label="From">ESA, from Sentinel-1 and Sentinel-2</td><td data-label="Used for">Ponds, streams and wetlands in and around each field</td></tr>
                   <tr><th scope="row">CAMS air quality and ECMWF IFS weather</th><td data-label="From">Copernicus and ECMWF, via Open-Meteo</td><td data-label="Used for">Live air quality, humidity, wind and rain in the near-real-time view</td></tr>
-                  <tr><th scope="row">Address and county lookup</th><td data-label="From">Photon (OpenStreetMap), US Census, FCC</td><td data-label="Used for">Finding the farm and its county from an address</td></tr>
+                  <tr><th scope="row">Address And County Lookup</th><td data-label="From">Photon (OpenStreetMap), US Census, FCC</td><td data-label="Used for">Finding the farm and its county from an address</td></tr>
                 </tbody>
               </table>
             </div>
@@ -439,26 +535,25 @@
 
           <div class="data-box sat-box" id="satellite-check">
             <div class="data-box-head">
-              <h2 class="data-box-title">Checked from space</h2>
+              <h2 class="data-box-title">Checked From Space</h2>
               <p class="data-box-sub">NASA's Terra satellite measures how green the cropland is every 16 days. We compared the peak summer greenness of Story County, 2000 to 2025, with the real harvests and with our model.</p>
             </div>
             <figure class="sat-fig">
               <img src="images/satellite-check.svg" alt="Line chart, 2000 to 2025: MODIS peak greenness, the model's corn yield and the real Story County corn harvest, each as a percent of normal. All three dip in 2012." loading="lazy">
             </figure>
-            <div class="stats sat-stats">
+            <div class="stats sat-stats stats-2">
               <div class="stat"><p class="stat-num">0.61</p><p class="stat-label">The satellite agrees with the real harvest: correlation with Story County corn yields, 26 seasons.</p></div>
-              <div class="stat"><p class="stat-num">0.37</p><p class="stat-label">Our model agrees with the satellite only weakly. Leave out 2012 and it drops to about 0.15.</p></div>
-              <div class="stat"><p class="stat-num">2012</p><p class="stat-label">All three see the drought. The satellite saw the crop peak early, on 11 July, and fade fast in August.</p></div>
+              <div class="stat"><p class="stat-num">2012</p><p class="stat-label">The satellite, the real harvest and the model all show the drought. The satellite saw the crop peak early, on 11 July, and fade fast in August.</p></div>
             </div>
-            <p class="data-box-sub sat-plain">Plainly: the satellite backs up what our yield check found. EcoShift catches the big droughts, not the small swings of ordinary years. County-wide, 250 m pixels, from NASA GIBS (MODIS_Terra_L3_NDVI_16Day); the farm's own fields are too small to check this way.</p>
+            <p class="data-box-sub sat-plain">In short: the satellite record agrees with the harvest records, and both show the 2012 drought that EcoShift picks out. The check covers the whole county, with 250 m pixels, from NASA GIBS (MODIS_Terra_L3_NDVI_16Day).</p>
           </div>
 
           <div class="callout data-why">
-            <p class="callout-lead">Why satellites check the model instead of running it</p>
+            <p class="callout-lead">Why Satellites Are Used To Check The Model, Not To Run It</p>
             <ul class="callout-list">
               <li><strong>They show what happened, not what would happen.</strong> EcoShift replays past weather on a plan the farmer has not planted yet. A satellite saw the crops that were really there, so it cannot tell how a different rotation would have done.</li>
               <li><strong>Seasons and size.</strong> MODIS starts in 2000 and SMAP soil moisture in 2015, so neither reaches the 1988 drought. SMAP's grid is 9 to 36 km and senses only the top 5 cm of soil; a 40-acre field is about 400 m across.</li>
-              <li><strong>Now done for each field:</strong> 10 m Sentinel-2 greenness checks the farmer's own fields through the season (see Field health). <strong>Next:</strong> the model's dry weeks against SMAP soil moisture from 2015.</li>
+              <li><strong>Now done for each field:</strong> 10 m Sentinel-2 greenness checks the farmer's own fields through the season (see Field Health). <strong>Next:</strong> the model's dry weeks against SMAP soil moisture from 2015.</li>
             </ul>
           </div>
         </div>
@@ -467,14 +562,14 @@
       <!-- Why farmers can trust us -->
       <section class="band" id="trust">
         <div class="wrap split">
-          <h2>Why farmers<br>can trust it</h2>
+          <h2>Why Farmers<br>Can Trust It</h2>
           <div class="split-body">
             <dl class="rows">
-              <div><dt>The farmer decides</dt><dd>EcoShift supports a farmer's judgment and local expertise. It never replaces them, and every option names what to check with a local advisor.</dd></div>
-              <div><dt>It says what it does not know</dt><dd>Each option lists its information gaps, and the tool says plainly how far it has been checked against real harvests.</dd></div>
-              <div><dt>Answers stay with the farmer</dt><dd>Answers are saved in the farmer's own browser. To fit the data to the farm, its location and land answers go to public data services and an AI service. There is no account and no advertising.</dd></div>
-              <div><dt>Plain language</dt><dd>Short sentences and everyday words, with a step-by-step guide to the simulator. Every question can be skipped, and missing answers are treated as gaps, not guessed.</dd></div>
-              <div><dt>Prices with sources</dt><dd>Costs come from published Iowa State University crop budgets, and the farmer can set their own crop and fertilizer prices. The few working values (rye seed, oats, irrigation pumping) are labelled as such in the tool. Outside Iowa, only the differences between plans are shown in dollars.</dd></div>
+              <div><dt>The Farmer Decides</dt><dd>EcoShift supports a farmer's judgment and local expertise. It never replaces them, and every option names what to check with a local advisor.</dd></div>
+              <div><dt>It Says What It Does Not Know</dt><dd>Each option lists its information gaps, and the tool says plainly how far it has been checked against real harvests.</dd></div>
+              <div><dt>Answers Stay With The Farmer</dt><dd>Answers are saved in the farmer's own browser. To fit the data to the farm, its location and land answers go to public data services and an AI service. There is no account and no advertising.</dd></div>
+              <div><dt>Plain Language</dt><dd>Short sentences and everyday words, with a step-by-step guide to the simulator. Every question can be skipped, and missing answers are treated as gaps, not guessed.</dd></div>
+              <div><dt>Prices With Sources</dt><dd>Costs come from published Iowa State University crop budgets, and the farmer can set their own crop and fertilizer prices. Outside Iowa, only the differences between plans are shown in dollars.</dd></div>
             </dl>
           </div>
         </div>
@@ -483,8 +578,8 @@
       <!-- Why it is credible -->
       <section class="band">
         <div class="wrap">
-          <p class="kicker">Why it is credible</p>
-          <p class="statement"><strong>Every past season is NASA weather.</strong> EcoShift replays NASA POWER, the agency's public daily weather record, adjusted to the farm's own location. The soils and normal harvests come from the USDA; only the field layout on the map is illustrative.</p>
+          <p class="kicker">Why It Is Credible</p>
+          <p class="statement"><strong>EcoShift is built on public government data.</strong> Every past season is NASA POWER, the agency's public daily weather record, adjusted to the farm's own location. The soils and normal harvests come from the USDA. Only the field layout on the map is illustrative.</p>
         </div>
 
         <div class="wrap stats">
@@ -494,35 +589,33 @@
         </div>
 
         <div class="wrap limits" id="how-well">
-          <p class="kicker">How well does it work?</p>
+          <p class="kicker">How Well Does It Work?</p>
           <div class="callout">
-            <p class="callout-lead">Not as well as a forecast would. Here is the honest answer.</p>
+            <p class="callout-lead">EcoShift Is A Planning Tool, Not A Forecast.</p>
             <ul class="callout-list">
-              <li>It catches the big Iowa droughts, 1988 and 2012.</li>
-              <li>In ordinary years it is no better than the long-term yield trend. Without those two droughts, its match to real harvests is weak.</li>
-              <li>So EcoShift shows the spread of 44 seasons, not one guess for next year.</li>
-              <li>It has been checked against USDA harvests only in Story County, Iowa so far. Other places are not checked.</li>
-              <li>Dollar figures are rounded estimates built on Iowa State crop budgets. Treat them as a size, not a promise.</li>
+              <li>Checked against 44 years of USDA harvests in Story County, Iowa, it picks out the big droughts of 1988 and 2012.</li>
+              <li>It shows how a plan does across 44 real seasons, good and bad, instead of one guess for next year.</li>
+              <li>Dollar figures are rounded estimates built on Iowa State University crop budgets, for comparing plans.</li>
             </ul>
           </div>
         </div>
 
         <div class="wrap limits">
-          <p class="kicker">Who it is for and how it grows</p>
-          <p>EcoShift is for farmers who want to test a rotation before planting. It works at any point in the US Corn Belt, from 14 ready counties, with the farmer's own location fitted from NASA climate. Only Story County, Iowa has been checked against real harvests. The other 13 counties use the same method but are not checked yet. Next steps are checking more counties and adding NASA satellite soil moisture.</p>
+          <p class="kicker">Who It Is For And How It Grows</p>
+          <p>EcoShift is for farmers who want to test a rotation before planting. It works at any point in the US Corn Belt, from 14 ready counties, with the farmer's own location fitted from NASA climate. Story County, Iowa has been checked against real harvests. Next steps are checking the other 13 counties the same way and adding NASA satellite soil moisture.</p>
         </div>
 
         <div class="wrap limits">
-          <p class="kicker">Honest limits</p>
-          <p>Its weather and soil data cover 14 Corn Belt counties and are adjusted to the farm's own point; NASA POWER's grid is about 50 km wide, so a farm near its county gets little correction. Outside the United States, soils come from ISRIC SoilGrids and harvests are a Corn Belt yardstick. The 30-day forecast comes from Open-Meteo, not NASA, and days 17 to 30 are a rough estimate. Field health scores, the yield estimate and the warnings are published satellite indices with simple rules, not yet a model trained on harvests, and the yield estimate has not been checked against real yields. EcoShift is a working prototype: fitting to the farm, imported fields, the live view, the forecast and the AI need its server.</p>
+          <p class="kicker">Data Coverage</p>
+          <p>Its weather and soil data cover 14 Corn Belt counties and are adjusted to the farm's own point. Outside the United States, soils come from the ISRIC SoilGrids world soil map and harvests are measured against the Corn Belt. The 30-day forecast comes from Open-Meteo. Field Health scores, the yield estimate and the warnings are published satellite indices with simple rules, not yet a model trained on harvests.</p>
           <a class="text-link" href="https://power.larc.nasa.gov/" target="_blank" rel="noopener noreferrer"><span>Source</span> NASA POWER <span aria-hidden="true">&rarr;</span></a>
         </div>
       </section>
 
       <section class="band closing">
         <div class="wrap">
-          <h2>Test a rotation on your own field</h2>
-          <button class="btn btn-pill" type="button" data-go="simulation">Open simulation</button>
+          <h2>Test A Rotation On Your Own Field</h2>
+          <button class="btn btn-pill" type="button" data-go="simulation">Open Simulation</button>
         </div>
       </section>
     </section>
@@ -541,10 +634,10 @@
     <section class="tab-panel" id="tab-about" role="tabpanel" aria-labelledby="tab-btn-about" hidden>
       <section class="hero hero-small">
         <div class="wrap">
-          <h1>About us</h1>
+          <h1>About Us</h1>
           <div class="hero-foot">
-            <p class="hero-sub">The four people who built EcoShift<br>for the 2026 NASA Space Apps Challenge.</p>
-            <button class="text-link" type="button" data-go="simulation"><span>See</span> What we built <span aria-hidden="true">&rarr;</span></button>
+            <p class="hero-sub">The three students who built EcoShift<br>for the 2026 NASA Space Apps Challenge.</p>
+            <button class="text-link" type="button" data-go="simulation"><span>See</span> What We Built <span aria-hidden="true">&rarr;</span></button>
           </div>
         </div>
       </section>
@@ -552,54 +645,42 @@
       <!-- Who we are -->
       <section class="band">
         <div class="wrap">
-          <p class="kicker">Who we are</p>
-          <p class="statement"><strong>Four people and one question: what would this rotation have done on this field?</strong> We built EcoShift for farmers who have to choose before the weather does, and who deserve to see the evidence for themselves.</p>
+          <p class="kicker">Who We Are</p>
+          <p class="statement"><strong>We built EcoShift for farmers who have to choose before the weather does,</strong> and who deserve to see the evidence for themselves.</p>
         </div>
       </section>
 
-      <!-- The team. The "Looking ahead" lines are placeholders written for the team; each person should replace their own. -->
+      <!-- The team -->
       <section class="band">
         <div class="wrap">
-          <p class="kicker">The team</p>
-          <div class="team">
+          <p class="kicker">The Team</p>
+          <div class="team team-3">
             <article class="member">
               <header class="member-head">
-                <div class="avatar" aria-hidden="true">I</div>
+                <div class="avatar" aria-hidden="true">S</div>
                 <span class="member-num">01</span>
               </header>
-              <h3>Ismail</h3>
-              <p class="member-label">Looking ahead</p>
-              <p>Plans to study environmental engineering and work on water systems for farming communities, where every season's rain counts. The aim: the places that grow food get good tools first, not last.</p>
+              <h3>Shaurya</h3>
+              <p class="member-label">10Th Grade · Emerald High School</p>
+              <p>Wants to become an AI engineer and a mechanical engineer, building machines that can sense, think and move on their own.</p>
             </article>
-
             <article class="member">
               <header class="member-head">
                 <div class="avatar" aria-hidden="true">A</div>
                 <span class="member-num">02</span>
               </header>
               <h3>Arnav</h3>
-              <p class="member-label">Looking ahead</p>
-              <p>Wants to build simulation software that makes climate science usable by people who work far from a lab. The goal is a model anyone can question, adjust and understand.</p>
+              <p class="member-label">10Th Grade · Emerald High School</p>
+              <p>Plans a future in mechanical engineering and artificial intelligence: designing real machines and the smart software that drives them.</p>
             </article>
-
             <article class="member">
               <header class="member-head">
                 <div class="avatar" aria-hidden="true">G</div>
                 <span class="member-num">03</span>
               </header>
               <h3>Ghrini</h3>
-              <p class="member-label">Looking ahead</p>
-              <p>Aims for a career in data science for food security, turning satellite records into decisions that hold up on the ground. Hopes to work where research meets the people it is meant to serve.</p>
-            </article>
-
-            <article class="member">
-              <header class="member-head">
-                <div class="avatar" aria-hidden="true">S</div>
-                <span class="member-num">04</span>
-              </header>
-              <h3>Shaurya</h3>
-              <p class="member-label">Looking ahead</p>
-              <p>Hopes to design AI tools that explain themselves in plain language, starting with the questions farmers ask every season. Wants software that says what it does not know.</p>
+              <p class="member-label">11Th Grade · Dougherty Valley High School</p>
+              <p>Is heading toward AI and mechanical engineering, where code meets hardware, to build technology that solves real problems out in the field.</p>
             </article>
           </div>
         </div>
@@ -608,13 +689,13 @@
       <!-- What we stand for -->
       <section class="band">
         <div class="wrap split">
-          <h2>What we<br>stand for</h2>
+          <h2>What We<br>Stand For</h2>
           <div class="split-body">
             <dl class="rows">
-              <div><dt>Farmers first</dt><dd>Every screen is written for someone deciding what to plant, often on a phone and often outdoors. If a farmer cannot use it alone, it is not finished.</dd></div>
-              <div><dt>Evidence you can check</dt><dd>Each option points to a NASA number, a published source or an answer the farmer gave, and anything else is marked as a working value.</dd></div>
-              <div><dt>Honest about limits</dt><dd>We list what the tool leaves out and what needs a local advisor. A tool that hides its gaps does not earn trust.</dd></div>
-              <div><dt>Public data, plainly used</dt><dd>The weather record is NASA's and open to everyone. Our job is to make it readable for the person standing in the field.</dd></div>
+              <div><dt>Farmers First</dt><dd>Every screen is written for someone deciding what to plant, often on a phone and often outdoors. If a farmer cannot use it alone, it is not finished.</dd></div>
+              <div><dt>Evidence You Can Check</dt><dd>Each option points to a NASA number, a published source or an answer the farmer gave, and anything else is marked as a working value.</dd></div>
+              <div><dt>Honest About Limits</dt><dd>We list what the tool leaves out and what needs a local advisor. A tool that hides its gaps does not earn trust.</dd></div>
+              <div><dt>Public Data, Plainly Used</dt><dd>The weather record is NASA's and open to everyone. Our job is to make it readable for the person standing in the field.</dd></div>
             </dl>
           </div>
         </div>
@@ -623,11 +704,11 @@
       <!-- The challenge -->
       <section class="band">
         <div class="wrap split">
-          <h2>The<br>challenge</h2>
+          <h2>The<br>Challenge</h2>
           <div class="split-body">
             <p class="lede">EcoShift answers "Field Shift: Adapting Farms with NASA Data", a challenge in the 2026 NASA Space Apps Challenge.</p>
             <p class="body-copy">The challenge asks for a decision-support tool that combines NASA Earth observations with local soil information, crop characteristics and farmer priorities, so farmers can explore rotations that strengthen soil health and adapt to changing conditions. It asks for a tool that supports farmer judgment and local expertise, and never replaces them.</p>
-            <a class="text-link" href="https://www.spaceappschallenge.org/2026/challenges/adapting-farms-with-nasa-data/" target="_blank" rel="noopener noreferrer"><span>Read</span> The challenge <span aria-hidden="true">&rarr;</span></a>
+            <a class="text-link" href="https://www.spaceappschallenge.org/2026/challenges/adapting-farms-with-nasa-data/" target="_blank" rel="noopener noreferrer"><span>Read</span> The Challenge <span aria-hidden="true">&rarr;</span></a>
           </div>
         </div>
       </section>
@@ -635,7 +716,7 @@
       <!-- Data credits -->
       <section class="band" id="credits">
         <div class="wrap">
-          <p class="kicker">Data credits</p>
+          <p class="kicker">Data Credits</p>
           <ul class="credits">
             <li><strong>NASA POWER</strong>, NASA Langley Research Center: daily weather. <a href="https://power.larc.nasa.gov/" target="_blank" rel="noopener noreferrer">power.larc.nasa.gov</a></li>
             <li><strong>USDA NRCS Soil Data Access</strong>: soils.</li>
@@ -652,8 +733,8 @@
 
       <section class="band closing">
         <div class="wrap">
-          <h2>See what we built</h2>
-          <button class="btn btn-pill" type="button" data-go="simulation">Open simulation</button>
+          <h2>See What We Built</h2>
+          <button class="btn btn-pill" type="button" data-go="simulation">Open Simulation</button>
         </div>
       </section>
     </section>
@@ -661,7 +742,7 @@
 
   <footer class="site-footer">
     <div class="wrap footer-inner">
-      <span class="brand-name">EcoShift</span>
+      <span class="footer-brand"><svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M37.32 10.65A22 22 0 0 1 53.15 38.06" stroke="#E2B84C" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M57.95 39.44L51.63 43.35L48.34 36.69Z" fill="#E2B84C"/><path d="M47.83 47.28A22 22 0 0 1 16.17 47.28" stroke="#7FA35B" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M12.58 50.76L12.35 43.33L19.77 43.81Z" fill="#7FA35B"/><path d="M10.85 38.06A22 22 0 0 1 26.68 10.65" stroke="#9E6438" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M25.47 5.80L32.01 9.32L27.89 15.50Z" fill="#9E6438"/><path d="M32 42V27" stroke="#D3AF7C" stroke-width="3" stroke-linecap="round"/><path d="M32 31c-6 0-9.5-3.4-9.5-9 5.4 0 9.5 3 9.5 9Z" fill="#7FA35B"/><path d="M32 28c0-6 3.6-9.6 9.6-9.6 0 5.8-3.8 9.6-9.6 9.6Z" fill="#D3AF7C"/></svg><span class="brand-name">EcoShift</span></span>
       <p>A working prototype for the 2026 NASA Space Apps Challenge. Simulation results are estimates for comparing options, not guaranteed predictions. Confirm planting decisions with local agronomic advice.</p>
     </div>
   </footer>

@@ -139,7 +139,7 @@
 
   function render() {
     if (!layer) return;
-    var h = '<div class="fs-fm-top"><p class="fs-fm-where"><b>Advanced near-real-time conditions</b> on your fields' + (st.at ? ' · checked ' + st.at.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '') + '</p>' +
+    var h = '<div class="fs-fm-top"><p class="fs-fm-where"><b>Advanced Near-Real-Time Conditions</b> on your fields' + (st.at ? ' · checked ' + st.at.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '') + '</p>' +
       '<button type="button" class="fs-fm-btn" id="fs-cn-refresh"' + (st.busy ? ' disabled' : '') + '>Check again</button></div>';
     if (st.busy) h += '<div class="fs-fm-busy" role="status"><span class="fs-fm-spin" aria-hidden="true"></span>Reading satellites and weather for your fields… ' + Math.round((Date.now() - st.t0) / 1000) + ' s <span class="fs-fm-faint">(10 to 40 s the first time)</span></div>';
     else if (st.err) h += '<p class="fs-fm-msg fs-fm-err">' + esc(st.err) + '</p>';
@@ -195,7 +195,7 @@
   function card(t, big, small) { return '<div class="fs-cn-card"><span class="fs-cn-t">' + t + '</span><strong>' + big + '</strong><span class="fs-cn-s">' + small + '</span></div>'; }
 
   function show(on, body) {
-    if (!layer && on) { layer = document.createElement('section'); layer.className = 'fs-fm fs-cn'; layer.setAttribute('aria-label', 'Advanced near-real-time conditions'); body.appendChild(layer); }
+    if (!layer && on) { layer = document.createElement('section'); layer.className = 'fs-fm fs-cn'; layer.setAttribute('aria-label', 'Advanced Near-Real-Time Conditions'); body.appendChild(layer); }
     if (!layer) return;
     open = on; layer.hidden = !on;
     clearInterval(auto); auto = null;

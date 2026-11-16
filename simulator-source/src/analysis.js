@@ -18,7 +18,7 @@
 
   var listEl, runningEl = null, made = {};
   function chrome() {
-    el.innerHTML = '<div class="fs-panel-head"><h2 class="fs-panel-title">Sim analysis</h2><div class="fs-head-right">' +
+    el.innerHTML = '<div class="fs-panel-head"><h2 class="fs-panel-title">Sim Analysis</h2><div class="fs-head-right">' +
       '<button type="button" class="fs-expand" data-expand="Sim analysis" aria-label="Expand Sim analysis">' + EXPAND_SVG + '</button></div></div>' +
       '<div class="fs-panel-body" id="fs-analysis-body" aria-live="polite"></div>';
     listEl = el.querySelector('#fs-analysis-body');

@@ -4,3 +4,4 @@ simulator-source/
 Dockerfile
 .dockerignore
 *.zip
+deploy/

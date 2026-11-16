@@ -104,10 +104,32 @@ async function make(key, getCandidates, extra) {
 }
 
 module.exports = function farmmap({ send }) {
-  // Vercel functions cannot run the Python image tools, so a new map is only drawn on the full server (node server.js).
-  const NO_PY = "Drawing a new farm map needs the full EcoShift server, which runs the Python map tools. The example county maps still work.";
+  // FARMMAP_URL: another EcoShift server that runs the Python map tools (for example the same app on Hugging Face Spaces).
+  // When it is set, map requests are passed on to it. That is how the farm map works on Vercel, which cannot run Python.
+  const REMOTE = String(process.env.FARMMAP_URL || "").trim().replace(/\/+$/, "");
+  const NO_PY = "Drawing a new farm map isn't switched on for this site yet. The example county maps still work.";
+  async function forward(req, res, body) {
+    try {
+      const r = await fetch(REMOTE + req.url, {
+        method: req.method, body,
+        headers: body ? { "Content-Type": String(req.headers["content-type"] || "application/octet-stream") } : {},
+        signal: AbortSignal.timeout(110000),
+      });
+      const buf = Buffer.from(await r.arrayBuffer()), h = { "Content-Type": r.headers.get("content-type") || "application/json; charset=utf-8" };
+      if (/^image\//.test(h["Content-Type"])) h["Cache-Control"] = "public, max-age=86400";
+      res.writeHead(r.status, h); res.end(buf);
+    } catch (e) {
+      console.error("farmmap forward:", e.message);
+      send(res, 502, { error: "The farm map server did not answer. Try again in a minute." });
+    }
+  }
+  function noPython(res) {
+    console.warn("farmmap: this host cannot run the Python map tools; set FARMMAP_URL to an EcoShift server that can (see README).");
+    return send(res, 503, { error: NO_PY });
+  }
   async function handleFarmMap(req, res) {
-    if (process.env.VERCEL) return send(res, 503, { error: NO_PY });
+    if (REMOTE) return forward(req, res);
+    if (process.env.VERCEL) return noPython(res);
     const q = new URL(req.url, "http://x").searchParams, lat = Number(q.get("lat")), lon = Number(q.get("lon"));
     if (!q.get("lat") || !q.get("lon") || !isFinite(lat) || !isFinite(lon) || Math.abs(lat) > 85 || Math.abs(lon) > 180) return send(res, 400, { error: "Missing farm location." });
     const spot = `${lat.toFixed(3)},${lon.toFixed(3)}`, key = crypto.createHash("sha1").update("spot" + spot).digest("hex").slice(0, 24), b = boxOf(lat, lon);
@@ -130,7 +152,7 @@ module.exports = function farmmap({ send }) {
   }
 
   async function handleUpload(req, res) {
-    if (process.env.VERCEL) return send(res, 503, { error: NO_PY });
+    if (!REMOTE && process.env.VERCEL) return noPython(res);
     const type = String(req.headers["content-type"] || "");
     if (!/^image\/(jpeg|png|webp)$/.test(type)) return send(res, 415, { error: "Use a JPEG, PNG or WebP photo." });
     let buf;
@@ -147,6 +169,7 @@ module.exports = function farmmap({ send }) {
     const webp = buf.length > 12 && buf.toString("latin1", 0, 4) === "RIFF" && buf.toString("latin1", 8, 12) === "WEBP";
     if (buf.length >= 1000 && !png && !jpg && !webp) return send(res, 400, { error: "That file is not a real JPEG, PNG or WebP photo." });
     if (buf.length < 1000) return send(res, 400, { error: "That file is empty or too small." });
+    if (REMOTE) return forward(req, res, buf);
     const key = crypto.createHash("sha1").update(buf).digest("hex").slice(0, 24);
     try {
       const ext = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" }[type];
@@ -165,6 +188,7 @@ module.exports = function farmmap({ send }) {
     const m = /^\/api\/farmmap\/img\/([0-9a-f]{24})\.(png|jpg)$/.exec(new URL(req.url, "http://x").pathname);
     if (!m) return send(res, 404, "Not found");
     fs.readFile(path.join(DIR, `${m[1]}.${m[2]}`), (err, buf) => {
+      if (err && REMOTE) return forward(req, res);   // drawn by the farm map server: fetch it from there
       if (err) return send(res, 404, "Not found");
       res.writeHead(200, { "Content-Type": m[2] === "png" ? "image/png" : "image/jpeg", "Cache-Control": "private, max-age=86400" });
       res.end(buf);
