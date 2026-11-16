@@ -17,9 +17,9 @@ const PUBLIC = path.join(ROOT, "public");
 loadEnv(path.join(ROOT, ".env"));
 
 const PORT = Number(process.env.PORT) || 8787;
-// The key's name is matched without caring about capitals: GEMINI_API_KEY, Gemini_Api, GEMINI_API, GOOGLE_API_KEY all work.
+// The key's name is matched without caring about capitals: GEMINI_API_KEY, Gemini_Api, GEMINI_API, Gemini_key, GOOGLE_API_KEY all work.
 const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY ||
-  (Object.entries(process.env).find(([k, v]) => v && /^(gemini|google)[_-]?api([_-]?key)?$/i.test(k)) || [])[1] || "";
+  (Object.entries(process.env).find(([k, v]) => v && /^(gemini|google)[_-]?(api([_-]?key)?|key)$/i.test(k)) || [])[1] || "";
 // What farmers see when the key is missing; how to fix it is printed in the server log at startup.
 const NO_KEY = "The AI helper isn't switched on yet. Ask the person who set up EcoShifters to add its key.";
 // The chat endpoints answer farmers with this instead; NO_KEY (admin wording) stays in the server log only.
