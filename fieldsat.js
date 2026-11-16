@@ -1,9 +1,11 @@
 // Copernicus Sentinel-2 over the fields (Level-2A surface reflectance, the free Cloud Optimized GeoTIFFs on AWS found through
 // Element 84's Earth Search catalogue). Only the pieces of each image over the fields are downloaded.
 // - Burned ground: the Normalized Burn Ratio, NBR = (NIR - SWIR2) / (NIR + SWIR2), from bands B8A and B12 (20 m), on the latest clear
-//   image and one 2 to 20 weeks earlier from the same tile. A pixel counts as burned when NBR fell by 0.27 or more (the usual
-//   "moderate burn severity" line in dNBR; Key and Benson 2006), NBR is now below -0.05 AND the ground turned dark in the near-infrared (charred residue), which
-//   tells burning apart from an ordinary harvest. Fresh tillage or dark wet soil can still look similar: it is a sign to check on the ground.
+//   image and one 2 to 20 weeks earlier from the same tile. A pixel is a burn candidate when NBR fell by 0.27 or more (the "moderate
+//   burn severity" line in dNBR, Key and Benson 2006; it comes from forest fires, not cropland), the ground was covered before (NBR 0.15 or more),
+//   NBR is now below -0.10 and the near-infrared fell to a dark 0.17 or less (charred residue). This is a weak test: harvest, tillage and dark
+//   wet soil can look the same, so a candidate is only "possible burned ground" until NASA's fire satellites (fieldfire.js) confirm fire.
+//   Pixels within 2 pixels (40 m) of cloud, cloud shadow, snow or no-data in either image are left out (cloud mask dilation).
 // - Ground now: share of bare soil and plant cover from the image's own scene classification (SCL) and NDVI.
 // - Weak growth zones: last summer's clearest July-August image, NDVI = (NIR - red) / (NIR + red) at 10 m. Parts of a field far less
 //   green than the rest of that field (NDVI 0.15 or more below the field's median while the field itself was green) are where the soil
@@ -16,7 +18,8 @@ const { helpers: G } = require("./fieldgeo");
 const UA = { "User-Agent": "fieldshift-simulator" };
 const round = (x, k = 1) => (x == null || !isFinite(x) ? null : Math.round(x * 10 ** k) / 10 ** k);
 const R = Math.PI / 180, DAY = 864e5;
-const CLEAR = new Set([2, 4, 5, 6, 7]);   // SCL: dark area, vegetation, bare soil, water, unclassified (not cloud, shadow, snow, no data)
+const CLEAR = new Set([4, 5, 6]);   // SCL: vegetation, bare soil, water. Dark area (2) and unclassified (7) are not trusted as clear: they hide shadow and thin cloud
+const BAD = new Set([1, 2, 3, 7, 8, 9, 10, 11]);   // SCL classes that grow the cloud mask around them
 const iso = (t) => new Date(t).toISOString().slice(0, 10);
 
 // WGS84 longitude/latitude -> UTM metres (Snyder's series, as used for Sentinel-2's UTM grids)
@@ -81,6 +84,12 @@ async function pixels(item, bands, f) {
   return { list: out, fu, cellM2: g.h.sx * g.h.sy, xOf: g.W.lon, yOf: g.W.lat };
 }
 const clearShare = (list) => (list.length ? list.filter((p) => CLEAR.has(p.scl)).length / list.length : 0);
+// keys (r*1e6+c) of the pixels with a bad SCL pixel within `rad` pixels
+function nearBad(list, rad) {
+  const bad = new Set();
+  for (const p of list) if (BAD.has(p.scl)) for (let dr = -rad; dr <= rad; dr++) for (let dc = -rad; dc <= rad; dc++) bad.add((p.r + dr) * 1e6 + p.c + dc);
+  return bad;
+}
 const nbr = (p) => (p.nir08 + p.swir22 > 0 ? (p.nir08 - p.swir22) / (p.nir08 + p.swir22) : null);
 
 // the newest of a list of images that is clear over every field (70% of each field's pixels or more)
@@ -110,13 +119,13 @@ async function satellite(fields, now = Date.now()) {
         const now1 = recent.px[i], o = out.fields[f.id], clear = now1.list.filter((p) => CLEAR.has(p.scl));
         o.ground = { date: iso(t1), bareSoilPct: round(clear.filter((p) => p.scl === 5).length / clear.length * 100, 0), plantsPct: round(clear.filter((p) => p.scl === 4).length / clear.length * 100, 0) };
         if (!before) return;
-        const prev = new Map(before.px[i].list.map((p) => [p.r * 1e6 + p.c, p])), burned = [];
+        const prev = new Map(before.px[i].list.map((p) => [p.r * 1e6 + p.c, p])), burned = [], badNow = nearBad(now1.list, 2), badThen = nearBad(before.px[i].list, 2);
         let n = 0;
         for (const p of clear) {
-          const q = prev.get(p.r * 1e6 + p.c); if (!q || !CLEAR.has(q.scl) || p.scl === 6) continue;
+          const k = p.r * 1e6 + p.c, q = prev.get(k); if (!q || !CLEAR.has(q.scl) || p.scl === 6 || badNow.has(k) || badThen.has(k)) continue;
           n++;
           const d = nbr(q) - nbr(p);
-          if (d >= 0.27 && nbr(p) < -0.05 && p.nir08 < 0.17 && q.nir08 - p.nir08 > 0.05) burned.push([p.r, p.c, d]);
+          if (d >= 0.27 && nbr(q) >= 0.15 && nbr(p) < -0.1 && p.nir08 < 0.17 && q.nir08 - p.nir08 > 0.05) burned.push([p.r, p.c, d]);
         }
         const groups = G.clusters(burned.map(([r, c]) => [r, c]), now1.xOf, now1.yOf).filter((k) => k.n >= 10);   // 0.4 ha or more
         o.burn = { from: iso(Date.parse(before.item.properties.datetime)), to: iso(t1), checkedPct: round(n / Math.max(1, now1.list.length) * 100, 0),
@@ -126,12 +135,12 @@ async function satellite(fields, now = Date.now()) {
       out.sources.push(`Burned ground and bare soil: Copernicus Sentinel-2 images of ${iso(t1)}` + (before ? ` and ${iso(Date.parse(before.item.properties.datetime))} (burn ratio change).` : "."));
       if (!before) out.gaps.push("No clear earlier Sentinel-2 image to compare with, so burned ground could not be checked.");
     }
-    // last summer's crop: the clearest July-August image
-    const d = new Date(now), y = d.getUTCMonth() >= 8 ? d.getUTCFullYear() : d.getUTCFullYear() - 1;
-    const sum = await search(bbox, Date.UTC(y, 6, 1), Date.UTC(y, 7, 31), 20);
+    // last summer's crop: the clearest July-August image (January-February south of the equator)
+    const d = new Date(now), south = (bbox[1] + bbox[3]) / 2 < 0, m0 = south ? 0 : 6, y = d.getUTCMonth() >= m0 + 2 ? d.getUTCFullYear() : d.getUTCFullYear() - 1;
+    const sum = await search(bbox, Date.UTC(y, m0, 1), Date.UTC(y, m0 + 2, 0), 20);
     sum.sort((a, z) => a.properties["eo:cloud_cover"] - z.properties["eo:cloud_cover"]);
     const summer = await firstClear(sum, ["nir", "red", "scl"], fields, 0.8);
-    if (!summer) out.gaps.push(`No clear Sentinel-2 image of your fields in July-August ${y}, so weak growth zones could not be checked.`);
+    if (!summer) out.gaps.push(`No clear Sentinel-2 image of your fields in ${south ? "January-February" : "July-August"} ${y}, so weak growth zones could not be checked.`);
     else {
       const ts = iso(Date.parse(summer.item.properties.datetime));
       fields.forEach((f, i) => {

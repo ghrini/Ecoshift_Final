@@ -614,3 +614,7 @@ textarea.fs-q-text { resize: vertical; min-height: 3.4em; }
 .fs-cn-fresh i { font-style: normal; opacity: 0.8; }
 .fs-cn-fresh .fs-cn-auto { border-style: dashed; }
 .fs-fm-tabs button { white-space: nowrap; }
+.fs-cn-nasa { padding: 10px 14px; border: 1px solid var(--border); border-left: 4px solid var(--info); border-radius: var(--radius-sm); }
+.fs-cn-nasa h3 { margin: 0 0 6px; font: 700 16px var(--font-sans); }
+.fs-cn-nasa ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: 15px; line-height: 1.45; }
+.fs-cn-nasa li.fs-cn-warn { font-weight: 600; }

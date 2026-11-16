@@ -7,11 +7,14 @@
 // - Land cover, ponds and wet ground: ESA WorldCover 2021 (10 m, from Copernicus Sentinel-1 and Sentinel-2) inside each field and
 //   150 m around it. Low spots: the Copernicus GLO-30 elevation model.
 // - Burned ground, bare soil now and weak growth zones from last summer: Copernicus Sentinel-2 (fieldsat.js).
+// - NASA: active-fire detections over each field (VIIRS and MODIS through NASA GIBS, fieldfire.js) confirm or soften the Sentinel-2 burn
+//   warning and give a "no fire in the last two weeks" line; NASA POWER (MERRA-2) root-zone and top-soil wetness against its 2001-2025 normal.
 // Warnings are plain rules on these numbers (thresholds noted next to each); they point to the place on the field when there is one.
 "use strict";
 
 const { helpers: G } = require("./fieldgeo");
 const { satellite } = require("./fieldsat");
+const { fireCheck } = require("./fieldfire");
 
 const UA = { "User-Agent": "fieldshift-simulator" };
 const round = (x, k = 1) => (x == null || !isFinite(x) ? null : Math.round(x * 10 ** k) / 10 ** k);
@@ -62,6 +65,34 @@ function era5Soil(lat, lon) {
     return i < 0 ? null : { time: h.time[i], top7: round(a[i], 3), to28: round(h.soil_moisture_7_to_28cm[i], 3) };
   });
 }
+// NASA POWER (MERRA-2 model) soil wetness: GWETROOT (root zone, to about 1 m) and GWETTOP (top 5 cm), 0 = dry, 1 = saturated.
+// Latest day with a value (the newest ~3 days are -999 = not yet available) against the average of the same 14-day window in 2001-2025.
+// The 25-year series is one request, cached 30 days. This is a model, not SMAP or a probe in the ground.
+function powerSoil(lat, lon) {
+  const q = `longitude=${lon.toFixed(2)}&latitude=${lat.toFixed(2)}&community=AG&format=JSON&parameters=GWETROOT,GWETTOP`;
+  const ymd = (d) => d.toISOString().slice(0, 10).replace(/-/g, "");
+  const ok = (v) => v != null && v > -900;
+  const lastYear = new Date().getUTCFullYear() - 1;
+  return shortC("pw" + q, async () => {
+    const end = new Date(), start = new Date(end.getTime() - 14 * 864e5);
+    const [recent, longJ] = await Promise.all([
+      getJSON(`https://power.larc.nasa.gov/api/temporal/daily/point?${q}&start=${ymd(start)}&end=${ymd(end)}`, 12000),
+      longC("pwlong" + q + lastYear, () => getJSON(`https://power.larc.nasa.gov/api/temporal/daily/point?${q}&start=20010101&end=${lastYear}1231`, 12000)),
+    ]);
+    const r = recent.properties.parameter, days = Object.keys(r.GWETROOT || {}).filter((d) => ok(r.GWETROOT[d])).sort();
+    if (!days.length) return null;
+    const day = days[days.length - 1], t1 = Date.UTC(+day.slice(0, 4), +day.slice(4, 6) - 1, +day.slice(6, 8));
+    const L = longJ.properties.parameter, avg = { GWETROOT: [], GWETTOP: [] };
+    for (let y = 2001; y <= lastYear; y++) for (let k = 0; k < 14; k++) {
+      const t = new Date(Date.UTC(y, new Date(t1).getUTCMonth(), new Date(t1).getUTCDate() - k)), key = ymd(t);
+      for (const p of Object.keys(avg)) if (ok(L[p] && L[p][key])) avg[p].push(L[p][key]);
+    }
+    const m = (a) => (a.length > 50 ? round(a.reduce((s, x) => s + x, 0) / a.length, 2) : null);
+    const w0 = new Date(t1 - 13 * 864e5);
+    return { date: `${day.slice(0, 4)}-${day.slice(4, 6)}-${day.slice(6, 8)}`, root: round(r.GWETROOT[day], 2), top: ok(r.GWETTOP && r.GWETTOP[day]) ? round(r.GWETTOP[day], 2) : null,
+      avgRoot: m(avg.GWETROOT), avgTop: m(avg.GWETTOP), years: `2001-${lastYear}`, window: `${w0.toISOString().slice(5, 10)} to ${new Date(t1).toISOString().slice(5, 10)}` };
+  });
+}
 function airNow(lat, lon) {
   const ll = `latitude=${lat.toFixed(2)}&longitude=${lon.toFixed(2)}`;
   return shortC("aq" + ll, async () => {
@@ -94,9 +125,10 @@ function where(f, lon, lat) {
 }
 const acres = (m2) => round(m2 / G.ACRE_M2, m2 < 4000 ? 2 : 1);
 
-function warningsFor(f, x, now, e5, month) {
+const dayList = (a, z) => { const o = []; for (let t = Date.parse(a); t <= Date.parse(z); t += 864e5) o.push(new Date(t).toISOString().slice(0, 10)); return o; };
+function warningsFor(f, x, now, e5, month, fire) {
   const W = [], name = f.name || "this field";
-  const add = (level, text, at) => W.push(Object.assign({ level, field: f.id, text }, at ? { lon: at.lon, lat: at.lat } : {}));
+  const add = (level, text, at) => { const w = Object.assign({ level, field: f.id, text }, at ? { lon: at.lon, lat: at.lat } : {}); W.push(w); return w; };
   const wet = (now && (now.soilMoist >= 0.38 || now.rainPast7Mm >= 25)) || (e5 && e5.top7 >= 0.4);
   for (const p of (x.cover && x.cover.water) || []) {
     const sz = `about ${acres(p.areaM2)} acres (${p.areaM2.toLocaleString("en-US")} m²)`;
@@ -111,9 +143,20 @@ function warningsFor(f, x, now, e5, month) {
       (wet ? ` With ${now ? now.rainPast7Mm : "?"} mm of rain in the past week and wet topsoil, water is likely standing there now: keep heavy machinery off to avoid compaction.` : " Water gathers there after heavy rain."), s);
   }
   const sat = x.satellite || {};
-  for (const p of (sat.burn && sat.burn.patches) || []) add("warn", `Likely burned ground, about ${acres(p.areaM2)} acres, in the ${where(f, p.lon, p.lat)} part of ${name}: between ${sat.burn.from} and ${sat.burn.to} Sentinel-2 saw the burn ratio drop sharply and the ground turn dark like charred residue. Burning crop residue sends most of its nitrogen and sulfur into the air and burns off organic matter, so the soil there is less fertile and bare to wind and water erosion. If it was burned: plan extra nitrogen, test the soil, and next time leave or work in the residue. Check it on the ground first (fresh tillage or dark wet soil can look alike).`, p);
+  const fd = fire && fire.days || [], sat1 = sat.burn, effects = "Burning crop residue sends most of its nitrogen and sulfur into the air and burns off organic matter, so the soil there is less fertile and bare to wind and water erosion. If it was burned: plan extra nitrogen, test the soil, and next time leave or work in the residue.";
+  for (const p of (sat1 && sat1.patches) || []) {
+    const sz = `about ${acres(p.areaM2)} acres, in the ${where(f, p.lon, p.lat)} part of ${name}`, win = `between ${sat1.from} and ${sat1.to}`;
+    if (fd.length) {
+      const names = [...new Set(fd.flatMap((d) => d.sensors))].join(" and ");
+      add("warn", `Burned ground, ${sz}, confirmed by fire: NASA ${names} saw active fire over this field on ${fd.map((d) => d.date).join(", ")} (NASA GIBS), and ${win} Sentinel-2 saw the burn ratio drop sharply and the ground turn dark like charred residue. ${effects}`, p);
+    } else if (fire && fire.complete && fire.answeredTo && fire.answeredTo >= sat1.to) {
+      add("info", `Possible burned ground or bare soil after harvest, ${sz}: ${win} Sentinel-2 saw the burn ratio drop and the ground turn dark. NASA's fire satellites (VIIRS and MODIS maps from NASA GIBS) saw no fire here from ${fire.from} to ${fire.answeredTo}, so this may be harvest, tillage or dark wet soil (a short fire or one under cloud can be missed). Check it on the ground before acting on it.`, p);
+    } else {
+      add("warn", `Possible burned ground, ${sz}: ${win} Sentinel-2 saw the burn ratio drop sharply and the ground turn dark like charred residue. NASA's fire satellite check could not be completed for those days, so this is not confirmed. ${effects} Check it on the ground first (harvest, fresh tillage or dark wet soil can look alike).`, p);
+    }
+  }
   const zones = (sat.summer && sat.summer.weakZones) || [];
-  zones.slice(0, 2).forEach((z) => add(z.areaM2 >= 10000 ? "warn" : "info", `Weak growth zone, about ${acres(z.areaM2)} acres, in the ${where(f, z.lon, z.lat)} part of ${name}: on ${sat.summer.date} plants there were much less green (NDVI ${z.ndvi}) than the rest of the field (${sat.summer.ndviMedian}). Common causes are low fertility, an eroded knoll, compaction or a wet spot. Soil-test this zone on its own.`, z));
+  zones.slice(0, 2).forEach((z) => { const w = add(z.areaM2 >= 10000 ? "warn" : "info", `Weak growth zone from last summer's image (${sat.summer.date}, not today's crop), about ${acres(z.areaM2)} acres, in the ${where(f, z.lon, z.lat)} part of ${name}: plants there were much less green (NDVI ${z.ndvi}) than the rest of the field (${sat.summer.ndviMedian}). Common causes are low fertility, an eroded knoll, compaction or a wet spot. Soil-test this zone on its own.`, z); w.imageDate = sat.summer.date; });
   if (sat.ground && sat.ground.bareSoilPct >= 60 && (month >= 10 || month <= 4)) add("info", `${name} was ${sat.ground.bareSoilPct}% bare soil on ${sat.ground.date}. Bare soil over winter loses topsoil to wind and water; a cover crop or leaving residue protects it.`);
   const s = x.fertility;
   if (s) {
@@ -154,8 +197,8 @@ module.exports = function fieldlive({ readBody, send }) {
     if (fields.some((f) => Math.hypot((f.center[0] - cx) * Math.cos(cy * R), f.center[1] - cy) * 111 > 30)) return send(res, 400, { error: "The fields are more than 30 km apart." });
 
     const sources = [], gaps = [];
-    const [now, e5, air, ...rest] = await Promise.allSettled([
-      weatherNow(cy, cx), era5Soil(cy, cx), airNow(cy, cx),
+    const [now, e5, air, pw, fnow, ...rest] = await Promise.allSettled([
+      weatherNow(cy, cx), era5Soil(cy, cx), airNow(cy, cx), powerSoil(cy, cx), fireCheck(fields, Date.now() - 27 * 864e5, Date.now()),
       ...fields.map((f) => fertility(f.center[1], f.center[0])),
       ...fields.map((f) => G.landCover(f)),
       ...fields.map((f) => G.terrain(f)),
@@ -165,23 +208,56 @@ module.exports = function fieldlive({ readBody, send }) {
     const SAT = val(rest.pop(), "Copernicus Sentinel-2 imagery");
     if (SAT) { sources.push(...SAT.sources); gaps.push(...SAT.gaps); }
     const N = fields.length, W = val(now, "The ECMWF weather"), E = val(e5, "Copernicus ERA5-Land soil moisture"), A = val(air, "Copernicus CAMS air quality");
-    const month = W && W.time ? +W.time.slice(5, 7) : new Date().getMonth() + 1;
+    const m0 = W && W.time ? +W.time.slice(5, 7) : new Date().getMonth() + 1, month = cy < 0 ? (m0 + 5) % 12 + 1 : m0;   // seasons in the southern hemisphere are 6 months apart
+    const PW = val(pw, "NASA POWER soil wetness"), FN = val(fnow, "NASA GIBS fire detections");
+    // fire over each field while the burn check's two images were taken (only when burned-looking patches were found)
+    let FB = null;
+    const burns = fields.map((f) => SAT && SAT.fields[f.id] && SAT.fields[f.id].burn).filter((x) => x && x.patches.length);
+    if (burns.length) {
+      const from = Math.max(Math.min(...burns.map((x) => Date.parse(x.from))), Date.now() - 150 * 864e5), to = Math.max(...burns.map((x) => Date.parse(x.to)));
+      try { FB = await fireCheck(fields, Math.max(from, Date.now() - 45 * 864e5), to, 6000); } catch (e) { gaps.push(`NASA fire detections for the burn check did not answer (${e.message}).`); }
+      if (FB && FB.skipped) gaps.push("NASA fire check did not answer in time for some of the burn-check days.");
+    }
     const out = {}, warnings = farmWarnings(W, E, A, month);
     fields.forEach((f, i) => {
       const x = { name: f.name, center: [round(f.center[0], 5), round(f.center[1], 5)],
         fertility: val(rest[i], `SoilGrids for ${f.name}`), cover: val(rest[N + i], `ESA WorldCover for ${f.name}`), terrain: val(rest[2 * N + i], `the Copernicus elevation model for ${f.name}`), satellite: SAT ? SAT.fields[f.id] : null };
+      const bw = x.satellite && x.satellite.burn, ff = FB && bw ? { from: FB.from, to: FB.to, answeredTo: FB.answeredTo, complete: bw.from >= FB.from && dayList(bw.from, bw.to).every((d) => FB.answered.includes(d)), days: FB.fields[f.id].days.filter((d) => d.date >= bw.from && d.date <= bw.to) } : null;
+      if (ff) x.satellite.burn.fire = ff;
       out[f.id] = x;
-      warnings.push(...warningsFor(f, x, W, E, month));
+      warnings.push(...warningsFor(f, x, W, E, month, ff));
     });
+    // NASA lines: fire detections in the last two weeks, and MERRA-2 soil wetness against its 25-year normal
+    const nasa = {};
+    if (FN && FN.answeredTo) {
+      // the last 14 days NASA has published (its newest days can lag by several days)
+      const from = new Date(Date.parse(FN.answeredTo) - 13 * 864e5).toISOString().slice(0, 10), span = 14;
+      const recent = (f) => FN.fields[f.id].days.filter((d) => d.date >= from), hits = fields.filter((f) => recent(f).length);
+      const lag = FN.sensors.filter((s) => (FN.sensorTo[s] || "") < new Date(Date.now() - 2 * 864e5).toISOString().slice(0, 10));
+      const miss = dayList(from, FN.answeredTo).filter((d) => !FN.answered.includes(d));
+      const late = (miss.length ? ` NASA did not answer in time for ${miss.length} of those days.` : "") + (lag.length ? ` NASA had not yet published the newest maps for ${lag.map((s) => `${s} (latest ${FN.sensorTo[s] || "none"})`).join(", ")}.` : "");
+      nasa.fire = { from, to: FN.answeredTo, days: span, sensors: FN.sensors, detections: hits.map((f) => ({ field: f.id, name: f.name, days: recent(f) })) };
+      nasa.fire.line = hits.length
+        ? `NASA fire satellites (VIIRS/MODIS, via NASA GIBS): fire detected over or within 400 m of ${hits.map((f) => `${f.name || f.id} on ${recent(f).map((d) => d.date).join(", ")}`).join("; ")} (${from} to ${FN.answeredTo}).${late}`
+        : `NASA fire satellites (VIIRS/MODIS, via NASA GIBS): no fire detected over these fields in the last ${span} days (${from} to ${FN.answeredTo}).${late}`;
+      if (hits.length) warnings.push({ level: "warn", text: nasa.fire.line });
+    } else if (FN) gaps.push(FN.skipped || FN.failed ? "NASA fire check did not answer in time." : "NASA GIBS had no fire-detection maps for the last two weeks yet.");
+    if (PW) {
+      const d = PW.avgRoot == null ? null : PW.root - PW.avgRoot, word = d == null ? "" : d > 0.08 ? "wetter than normal" : d < -0.08 ? "drier than normal" : "close to normal";
+      nasa.soil = Object.assign({}, PW, { line: `NASA MERRA-2 model soil wetness (NASA POWER; 0 = dry, 1 = saturated; a model, not SMAP): root zone ${PW.root}` + (PW.top != null ? `, top 5 cm ${PW.top}` : "") + ` on ${PW.date}` +
+        (PW.avgRoot != null ? `, against an average of ${PW.avgRoot}` + (PW.avgTop != null ? ` (top ${PW.avgTop})` : "") + ` for ${PW.window} in ${PW.years}: ${word}.` : ".") });
+    }
     if (W) sources.push(`Weather now, the past 7 days and the next 3: ECMWF IFS model (via Open-Meteo), ${W.time} ${W.timezone || ""}.`);
     if (E) sources.push(`Soil moisture: Copernicus ERA5-Land, latest day available (${E.time.slice(0, 10)}).`);
     if (A) sources.push("Air: Copernicus Atmosphere Monitoring Service (CAMS).");
+    if (nasa.soil) sources.push(`Soil wetness: NASA POWER (MERRA-2 model), latest day ${nasa.soil.date}, against ${nasa.soil.years}.`);
+    if (nasa.fire || FB) sources.push("Fire detections: NASA GIBS (VIIRS Suomi NPP and NOAA-20 375 m, MODIS Terra and Aqua 1 km; the same detections as NASA FIRMS), over each field plus 400 m.");
     if (fields.some((f) => out[f.id].fertility)) sources.push("Soil fertility: ISRIC SoilGrids 250 m model estimates for the top 30 cm (a soil test on the field is more exact).");
     if (fields.some((f) => out[f.id].cover)) sources.push("Ponds, wet ground and land cover: ESA WorldCover 2021, 10 m, made from Copernicus Sentinel-1 and Sentinel-2.");
     if (fields.some((f) => out[f.id].terrain)) sources.push("Low spots: Copernicus GLO-30 elevation model.");
     const order = { warn: 0, info: 1 };
     warnings.sort((a, z) => order[a.level] - order[z.level]);
-    send(res, 200, { checkedAt: new Date().toISOString(), center: [round(cx, 5), round(cy, 5)], now: W, era5Soil: E, air: A, fields: out, warnings, sources, gaps, approximate: !!b.approximate });
+    send(res, 200, { checkedAt: new Date().toISOString(), center: [round(cx, 5), round(cy, 5)], now: W, era5Soil: E, nasa, air: A, fields: out, warnings, sources, gaps, approximate: !!b.approximate });
   }
   return { handleLive };
 };
