@@ -77,7 +77,7 @@ if only == 'all':
     # standalone page for GitHub Pages: no test harness. The fragment starts with <title>, <meta>, <link> and <style> (head material), then the page.
     cut = out.index('<header') if '<header' in out else 0
     nav = out.find('<nav id="fs-backrow"'); cut = nav if 0 <= nav < cut else cut
-    (dist / 'deep-dive.html').write_text('<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+    (dist / 'deep-dive.html').write_text('<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,' + __import__('urllib.parse').parse.quote((src / 'logo.svg').read_text(encoding='utf-8').strip()) + '">\n'
         + out[:cut] + '</head><body>\n' + out[cut:] + '\n</body></html>', encoding='utf-8')
     print('built dist/deep-dive.html')
 print('built dist/%s.html (%d bytes)' % (name, len(out)))
