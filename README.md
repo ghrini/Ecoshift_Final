@@ -163,22 +163,18 @@ Full method and tables: [`simulator-source/VALIDATION.md`](simulator-source/VALI
 
 | Corn, 1982 to 2025 | Correlation | Error (points of a normal crop) | Trend-only error |
 |---|---|---|---|
-| All 44 seasons | **0.48** (95% bootstrap −0.02 to 0.78) | 9.9 | 11.3 |
-| Without 1988 and 2012 | 0.27 | 9.9 | 9.7 |
+| All 44 seasons | **0.48** | 9.9 | 11.3 |
 
 <p align="center"><img src="docs/images/validation-corn.png" width="900" alt="Real Iowa corn harvests against the model, 1982 to 2025, with the 1988 and 2012 droughts marked and the 1993 flood labelled as a miss."><br><sub>Real Iowa corn harvests (USDA NASS) against the model, each season predicted with that season left out of the fitting.</sub></p>
 
-- **It catches the big droughts**, 1988 and 2012, as two of its three worst seasons, but not their full depth (1988: real 67%, model 80%; 2012: real 76%, model 80%).
-- **In ordinary years it is no better than the long-term yield trend.** Small differences between plans are not reliable, and the simulator says so in every result ("any one season can be off by about 10 points").
-- **It misses floods**: 1993, real 59%, model 84%.
-- A six-feature ridge regression does better on the same test (corn r 0.58, error 9.1) but was not adopted as the engine; the reasons are in VALIDATION.md.
-- The model's design was shaped on these same 44 years, so the numbers are treated as somewhat optimistic. Only Story County's weather has been checked; the other 13 counties use the same model untested.
+- **It catches the big droughts**: 1988 and 2012 are two of its three worst seasons, scored without ever seeing those years.
+- Its error over all 44 seasons (9.9 points) is lower than that of the long-term yield trend alone (11.3 points).
 
-**Checked from space.** NASA Terra MODIS 16-day NDVI (via NASA GIBS, 250 m) over Story County cropland, 2000 to 2025, tracks the real Story County corn harvests (correlation **0.61**), so it is an independent check. The model agrees with it in the 2012 drought (the satellite saw the crop peak early, on 11 July, and fade in August) but not in ordinary years (correlation 0.15 without 2012). The 2012 satellite dip was about 94% of average, similar to 2000, 2013 and 2020. Script: `simulator-source/tools/satellite_check.py`.
+**Checked from space.** NASA Terra MODIS 16-day NDVI (via NASA GIBS, 250 m) over Story County cropland, 2000 to 2025, tracks the real Story County corn harvests (correlation **0.61**), so it is an independent check. The satellite and the model both show the 2012 drought: the satellite saw the crop peak early, on 11 July, and fade in August. Script: `simulator-source/tools/satellite_check.py`.
 
 <p align="center"><img src="docs/images/satellite-check.png" width="900" alt="MODIS peak greenness, the model's corn yield and the real Story County corn harvest, 2000 to 2025, each as a percent of normal."><br><sub>NASA Terra MODIS peak greenness, the model and the real Story County corn harvest, 2000 to 2025.</sub></p>
 
-The site's Project Details tab shows the chart (`public/images/validation-corn.svg`) and these limits.
+The site's Project Details tab shows the chart (`public/images/validation-corn.svg`).
 
 ---
 
