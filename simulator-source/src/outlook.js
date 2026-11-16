@@ -253,7 +253,7 @@
   function render() {
     if (!el) return;
     var body = el.querySelector('.fs-panel-body'), w = where();
-    var place = '<p class="fs-ol-where">' + (w.own ? 'For your farm near ' + esc(w.label) : 'For ' + esc(w.label) + ' (the county point: add your farm\'s address under “Your farm · Change” for your own spot)') +
+    var place = '<p class="fs-ol-where">' + (w.own ? (/^your\b/i.test(w.label || '') ? 'For ' + esc(w.label.charAt(0).toLowerCase() + w.label.slice(1)) : 'For your farm near ' + esc(w.label)) : 'For ' + esc(w.label) + ' (the county point: add your farm\'s address under “Your farm · Change” for your own spot)') +
       (data ? ' · ' + esc(fmt(data.today, { weekday: 'long', month: 'long', day: 'numeric' })) : '') + '</p>';
     if (!apiBase()) { body.innerHTML = place + '<p class="fs-ol-faint">Open this page through the EcoShift server for the live forecast (run <code>npm start</code>, then open http://localhost:8787).</p>'; return; }
     if (err) { body.innerHTML = place + '<p class="fs-ol-err">' + esc(err) + '</p><button type="button" class="fs-ol-retry">Try again</button>'; body.querySelector('.fs-ol-retry').onclick = function () { dataKey = ''; refresh(); }; return; }
