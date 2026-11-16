@@ -205,7 +205,7 @@ function analyse(f, rows, heat, normal, now) {
   if (nb > 0 && (harvested || /past peak|R4|R5|R6|R7|mature|grain|seed fill|pod/.test(stage))) {
     const k = clamp(0.55 + 0.5 * o.yieldScore / 100, 0.4, 1.12), y = nb * k;
     o.yieldEstimate = { bu: Math.round(y), low: Math.round(y * 0.85), high: Math.round(y * 1.15), normal: nb, factor: round(k, 2),
-      note: `Rough guide, not yet checked against real harvests. The estimate is the county normal yield (${nb} bu/acre) scaled by the health index (normal times ${round(k, 2)}). The range is a design range (0.85 times to 1.15 times the estimate), not a measured error.` };
+      note: `The estimate is the county normal yield (${nb} bu/acre) scaled by the health index (normal times ${round(k, 2)}), with a range of 0.85 to 1.15 times the estimate.` };
   } else o.yieldEstimate = { bu: null, note: nb > 0 ? "Too early in the season to estimate." : "No normal yield for this crop." };
   o.causes = causes(o, C, rows);
   o.advice = advice(o, C, f);

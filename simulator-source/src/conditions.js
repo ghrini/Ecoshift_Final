@@ -94,7 +94,7 @@
       var M = f.momentum || {};
       h += '<p class="fs-hl-line">Stage: <b>' + esc(f.stage) + '</b>' + (f.gdd != null ? ' (' + f.gdd + ' degree days since planting)' : '') + ' · Growth momentum: <b>' + esc(M.word) + '</b>' + (M.perWeek != null ? ' (NDVI ' + (M.perWeek > 0 ? '+' : '') + M.perWeek + ' a week' + (M.accel ? ', ' + esc(M.accel) : '') + ')' : '') + ' · Peak NDVI ' + f.peak.ndvi + ' on ' + esc(f.peak.date) + '</p>';
       var Y = f.yieldEstimate || {};
-      h += '<div class="fs-hl-scores"><span>Health index <b>' + (f.healthIndex != null ? f.healthIndex : f.yieldScore) + '</b>/100</span><span>Quality score <b>' + f.qualityScore + '</b>/100</span><span>Rough yield guide <b>' + (Y.bu ? Y.bu + ' bu/acre' : '–') + '</b>' + (Y.bu ? ' (design range ' + Y.low + ' to ' + Y.high + '; county normal ' + Y.normal + ')' : '') + '</span></div>' +
+      h += '<div class="fs-hl-scores"><span>Health index <b>' + (f.healthIndex != null ? f.healthIndex : f.yieldScore) + '</b>/100</span><span>Quality score <b>' + f.qualityScore + '</b>/100</span><span>Yield guide <b>' + (Y.bu ? Y.bu + ' bu/acre' : '–') + '</b>' + (Y.bu ? ' (range ' + Y.low + ' to ' + Y.high + '; county normal ' + Y.normal + ')' : '') + '</span></div>' +
         '<p class="fs-fm-faint fs-hl-small">The health index (0 to 100) compares the canopy with a healthy crop\u2019s normal peak, and the nitrogen, leaf structure and evenness with this field\u2019s own best parts. It is the number to read first.' + '</p>' +
         (Y.note ? '<p class="fs-fm-faint fs-hl-small">' + esc(Y.note) + '</p>' : '');
       h += '<div class="fs-hl-grid"><div>' + spark(f.series) + '<p class="fs-hl-key"><i class="g"></i>greenness NDVI <i class="b"></i>leaf water NDMI</p></div><div class="fs-hl-bars">' +

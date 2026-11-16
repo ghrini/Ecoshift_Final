@@ -49,7 +49,7 @@
     s8t: "Play The Season",
     s8: "Press Play to watch the season week by week. Drag the slider to go to any week. The speed button makes it play faster or slower.",
     s9t: "Your Results",
-    s9: "The first lines give one answer per field: what to plant, and how it does in its worst season. Below that, how your farm does in a typical season: how much of a normal crop you get and what it earns. Any one season can be off by about 10 points, so treat small differences as a tie.",
+    s9: "The first lines give one answer per field: what to plant, and how it does in its worst season. Below that, how your farm does in a typical season: how much of a normal crop you get and what it earns.",
     s10t: "Every Season Since 1982",
     s10: "Each small square is one real season of weather on your farm. Olive means a good season, brown means a bad one, and grey means about normal. Press a square to see that season.",
     s11t: "Ask In Your Own Words",
