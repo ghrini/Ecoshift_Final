@@ -207,7 +207,7 @@
 
   // ---------- undo: snapshots of the controls taken before each chat-applied change ----------
   var undoStack = [];
-  var LEAF_NAME = { 'weather.scenario': 'weather', 'weather.tempShift': 'temperature', 'weather.rainChange': 'rain', 'other.priceChange': 'crop prices', 'other.nitrogenChange': 'nitrogen price', 'other.priority': 'ranking' };
+  var LEAF_NAME = { 'weather.scenario': 'weather', 'weather.tempShift': 'temperature', 'weather.rainChange': 'rain', 'weather.rainSwing': 'rain swings', 'weather.hotDays': 'hot days', 'other.priceChange': 'crop prices', 'other.nitrogenChange': 'nitrogen price', 'other.priority': 'ranking' };
   function leaves(o, prefix, out) {
     Object.keys(o || {}).forEach(function (k) {
       var p = prefix ? prefix + '.' + k : k;
@@ -236,6 +236,8 @@
     if (path === 'crops.irrigation') return v === 'none' || v == null ? 'no irrigation' : FS.irrigationPhrase(v);
     if (path === 'weather.tempShift') return signed(v, ' °C') + ' temperature';
     if (path === 'weather.rainChange') return 'rain ' + signed(v, '%');
+    if (path === 'weather.rainSwing') return Number(v) ? 'rain swings ' + v + '% bigger' : 'rain as observed';
+    if (path === 'weather.hotDays') return Number(v) ? 'hot summer days ' + v + ' °C hotter' : 'hot days as observed';
     if (path === 'other.priceChange') return 'crop prices ' + signed(v, '%');
     if (path === 'other.nitrogenChange') return 'nitrogen price ' + signed(v, '%');
     if (path === 'crops.soilWaterPct') return Number(v) ? 'soil holding ' + signed(Number(v), '%') + ' water' : 'soil as surveyed';
@@ -375,6 +377,28 @@
         raw = raw.replace(WC, sev ? 'severe dry July and severe dry August' : 'dry July and dry August');
         t = raw.toLowerCase().replace(/[−–]/g, '-').replace(/['’]/g, ''); tk = tokenize(raw); n = tk.length;
         notes.push('Irrigation amounts and water allocations are not modeled yet (irrigation here is one inch a week in set months). I used a ' + (sev ? 'severe ' : '') + 'dry July and August as the closest stand-in for having less water.');
+      }
+    }
+
+    // ---- scenario presets said in plain words, with no numbers: "hotter future", "less rain", "more extreme weather", "climate change"
+    if (FS.scenarios && !/\d/.test(t) && !(Q_LEAD && !CMD)) {
+      var PRE = [['baseline', /\bhistorical baseline\b|\bobserved history\b/], ['drought', /\bhistorical drought\b/],
+        ['combined', /\bclimate change\b|\bchanging climate\b|\bfuture climate\b|\bfuture weather\b|\bmore extreme weather\b|\bextreme weather\b|\bcombined future\b/],
+        ['heat', /\bhotter future\b|\bhotter summers?\b|\bmore (?:frequent |extreme )?heat\b|\bextreme heat\b|\bmore (?:frequent )?heat ?waves?\b|\bmore hot days\b/],
+        ['swing', /\bmore variable (?:rain|rainfall|precipitation|weather)\b|\brain(?:fall)? variability\b|\bprecipitation variability\b|\bwetter wets\b|\bbigger swings\b|\bmore erratic (?:rain|weather)\b/],
+        ['rain', /\bless rain\b|\breduced (?:rain|rainfall|precipitation)\b|\bless precipitation\b|\bdrier future\b|\bdrier climate\b|\bdrier summers?\b/]];
+      var pm = PRE.filter(function (x) { return x[1].test(t); })[0], pr = pm && FS.scenarios.byId(pm[0]);
+      if (pr) {
+        var pacts = [];
+        Object.keys(pr.weather).forEach(function (k) {
+          var v = pr.weather[k], cur = controls.weather[k];
+          if (JSON.stringify(v) !== JSON.stringify(cur == null ? (Array.isArray(v) ? [] : 0) : cur)) pacts.push({ type: 'setControl', path: 'weather.' + k, value: Array.isArray(v) ? [] : v });
+        });
+        var asm = pr.kind === 'assumed';
+        var say = asm ? 'Running the "' + pr.name + '" what-if: ' + pr.blurb.replace(/^./, function (c) { return c.toLowerCase(); }) + '\nThis is an assumption, not a forecast: the sizes are illustrative and say nothing about the chance of this happening next year.'
+          : 'Running "' + pr.name + '": ' + pr.blurb.replace(/^./, function (c) { return c.toLowerCase(); }) + '\nThese are observed seasons, not a forecast.';
+        pacts.push({ type: 'run', label: pr.name });
+        return { reply: say, actions: pacts };
       }
     }
 
@@ -1071,7 +1095,7 @@
     var init = D.initialControls; if (!init) return [];
     var a = leaves(S.get().controls, '', {}), b = leaves(init, '', {}), out = [];
     Object.keys(a).forEach(function (p) {
-      if (!/^(weather\.(scenario|tempShift|rainChange|events)|other\.(priceChange|nitrogenChange)|crops\.(plantShiftDays|soilWaterPct))$/.test(p)) return;
+      if (!/^(weather\.(scenario|tempShift|rainChange|rainSwing|hotDays|events)|other\.(priceChange|nitrogenChange)|crops\.(plantShiftDays|soilWaterPct))$/.test(p)) return;
       if (String(a[p]) !== String(b[p] == null ? (p === 'weather.events' ? '[]' : 0) : b[p])) out.push(describeValue(p, a[p]));
     });
     return out;
@@ -1145,6 +1169,8 @@
         m = /^y(\d{4})$/.exec(v); return m && climYears().indexOf(+m[1]) >= 0 ? v : null;
       case 'weather.tempShift': return num(v, -2, 4, 0.5);
       case 'weather.rainChange': return num(v, -50, 50, 5);
+      case 'weather.rainSwing': return num(v, 0, 100, 10);
+      case 'weather.hotDays': return num(v, 0, 6, 1);
       case 'weather.events':
         var ev; try { ev = JSON.parse(v); } catch (e) { return null; }
         if (!Array.isArray(ev)) return null;

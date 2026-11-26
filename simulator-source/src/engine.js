@@ -277,16 +277,51 @@ window.FS = window.FS || {};
   function irrCostPerAcre(mode) { return irrInches(mode) * IRR_COST_PER_ACRE_IN; }
   function shiftOf(wc, cc) {
     var ts = +(wc && wc.tempShift) || 0, pd = Math.round(+(cc && cc.plantShiftDays) || 0), ir = cc && IRR_MONTHS[cc.irrigation] && cc.irrigation !== 'none' ? cc.irrigation : 'none';
-    return { ts: ts, rs: Math.max(0, 1 + (+(wc && wc.rainChange) || 0) / 100), ef: 1 + ET_PER_C * ts, pd: clamp(pd, -21, 21), ev: cleanEvents(wc && wc.events), irr: ir, aw: clamp(Math.round(+(cc && cc.soilWaterPct) || 0), -60, 40) };
+    return { ts: ts, rs: Math.max(0, 1 + (+(wc && wc.rainChange) || 0) / 100), ef: 1 + ET_PER_C * ts, vr: 1 + clamp(+(wc && wc.rainSwing) || 0, 0, 100) / 100, hx: clamp(+(wc && wc.hotDays) || 0, 0, 6), pd: clamp(pd, -21, 21), ev: cleanEvents(wc && wc.events), irr: ir, aw: clamp(Math.round(+(cc && cc.soilWaterPct) || 0), -60, 40) };
   }
-  var NO_SHIFT = { ts: 0, rs: 1, ef: 1, pd: 0, ev: [], irr: 'none', aw: 0 };
+  var NO_SHIFT = { ts: 0, rs: 1, ef: 1, vr: 1, hx: 0, pd: 0, ev: [], irr: 'none', aw: 0 };
   function evKey(sh) { return sh.ev.map(function (e) { return e.type + e.month + e.severity; }).join(','); }
-  function wxKey(sh) { return sh.ts + '|' + sh.rs + (sh.ev.length ? '|' + evKey(sh) : ''); }
+  function wxKey(sh) { return sh.ts + '|' + sh.rs + (sh.vr !== 1 ? '|v' + sh.vr : '') + (sh.hx ? '|h' + sh.hx : '') + (sh.ev.length ? '|' + evKey(sh) : ''); }
   function shiftKey(sh) { return wxKey(sh) + (sh.pd ? '|p' + sh.pd : '') + (sh.irr && sh.irr !== 'none' ? '|i' + sh.irr : '') + (sh.aw ? '|a' + sh.aw : ''); }
   // the same weather and planting shift with the temperature and rain sliders at 0 (the unwarmed outcome the warming floor is measured against)
-  function unwarmed(sh) { return sh.ts === 0 && sh.rs === 1 ? sh : { ts: 0, rs: 1, ef: 1, pd: sh.pd, ev: sh.ev, irr: sh.irr, aw: sh.aw }; }
+  function unwarmed(sh) { return sh.ts === 0 && sh.rs === 1 && sh.vr === 1 && !sh.hx ? sh : { ts: 0, rs: 1, ef: 1, vr: 1, hx: 0, pd: sh.pd, ev: sh.ev, irr: sh.irr, aw: sh.aw }; }
   // calendar month and day of month of each season day (the 2026-27 calendar, 29 Feb never present)
   var CAL = (function () { var m = new Uint8Array(N_DAYS), dm = new Uint8Array(N_DAYS); for (var d = 0; d < N_DAYS; d++) { var t = new Date(START + d * DAY); m[d] = t.getUTCMonth() + 1; dm[d] = t.getUTCDate(); } return { m: m, d: dm }; })();
+  // Rain variability (scenario analysis): wet periods get wetter and dry periods drier while the season total stays the same.
+  // Each day's rain is scaled by how far its 15-day window (7 days either side) is from that window's long-term mean over all seasons:
+  // window' = max(0, mean + k x (window - mean)), k = 1 + rainSwing/100. The season is then rescaled so the total is unchanged. Rain is
+  // only scaled, never moved to another day, so it can never go below 0. k = 1 is the observed weather. The size is an ASSUMPTION (DESIGN).
+  var SWING_HALF = 7, swingCache = { clim: null, mean: null, seasons: {} };
+  function swingMean(C) {
+    if (swingCache.clim === C) return swingCache.mean;
+    var ys = C.meta.years, M = new Float64Array(N_DAYS);
+    ys.forEach(function (y) { var cs = winSums(baseWx(y).rain); for (var d = 0; d < N_DAYS; d++) M[d] += cs[d] / ys.length; });
+    swingCache = { clim: C, mean: M, seasons: {} };
+    return M;
+  }
+  function winSums(rain) {
+    var cs = new Float64Array(N_DAYS + 1), out = new Float64Array(N_DAYS), d;
+    for (d = 0; d < N_DAYS; d++) cs[d + 1] = cs[d] + rain[d];
+    for (d = 0; d < N_DAYS; d++) out[d] = cs[Math.min(N_DAYS, d + SWING_HALF + 1)] - cs[Math.max(0, d - SWING_HALF)];
+    return out;
+  }
+  function swungRain(wx, vr) {
+    var C = climate(), M = swingMean(C), key = wx.year + '|' + vr, o = swingCache.seasons[key];
+    if (o) return o;
+    var W = winSums(wx.rain), P = new Float64Array(N_DAYS), s0 = 0, s1 = 0, d;
+    for (d = 0; d < N_DAYS; d++) {
+      var r = W[d] > 1e-9 ? Math.max(0, M[d] + vr * (W[d] - M[d])) / W[d] : 1;
+      P[d] = wx.rain[d] * r; s0 += wx.rain[d]; s1 += P[d];
+    }
+    var k = s1 > 1e-9 ? s0 / s1 : 1;
+    for (d = 0; d < N_DAYS; d++) P[d] *= k;
+    swingCache.seasons[key] = P;
+    return P;
+  }
+  // Extreme heat (scenario analysis): on each June-August day whose Tmax (after the temperature slider) is at or above HOT_DAY_C, add hotDays degrees to Tmax
+  // and half of it to Tmin, and raise ET0 by the same ET_PER_C per degree of mean rise the heat-wave events use. Days just under the threshold are pushed over
+  // it, so hot days become more frequent as well as hotter. Heat damage is not identifiable from the NASS data, so this acts mostly through water use.
+  var HOT_DAY_C = 30, HOT_FROM_M = 6, HOT_TO_M = 8;
   // plan-independent daily quantities of one season under one weather shift (shared by every field and plan; cached)
   var dayCache = { clim: null, map: {}, n: 0 }, DAY_CACHE_MAX = 44 * 24;
   function dayWx(wx, sh) {
@@ -297,8 +332,10 @@ window.FS = window.FS || {};
     if (dayCache.n > DAY_CACHE_MAX) dayCache = { clim: C, map: {}, n: 0 };   // bound memory when the sliders are swept
     var n = N_DAYS, tx = new Float64Array(n), tn = new Float64Array(n), P = new Float64Array(n), et0 = new Float64Array(n), mean7 = new Float64Array(n),
         g50 = new Float64Array(n), g32 = new Float64Array(n), topWet = new Uint8Array(n), rain2 = new Uint8Array(n), De = TOP_REW, s7 = 0, d, nEv = sh.ev.length;
+    var R = sh.vr !== 1 ? swungRain(wx, sh.vr) : wx.rain;
     for (d = 0; d < n; d++) {
-      tx[d] = wx.tmax[d] + sh.ts; tn[d] = wx.tmin[d] + sh.ts; P[d] = wx.rain[d] * sh.rs; et0[d] = wx.et0[d] * sh.ef;
+      tx[d] = wx.tmax[d] + sh.ts; tn[d] = wx.tmin[d] + sh.ts; P[d] = R[d] * sh.rs; et0[d] = wx.et0[d] * sh.ef;
+      if (sh.hx && tx[d] >= HOT_DAY_C && CAL.m[d] >= HOT_FROM_M && CAL.m[d] <= HOT_TO_M) { tx[d] += sh.hx; tn[d] += sh.hx / 2; et0[d] *= 1 + ET_PER_C * 0.75 * sh.hx; }
       for (var e = 0; e < nEv; e++) {            // weather events (API_V3 section 2), on top of the sliders
         var ev = sh.ev[e];
         if (CAL.m[d] !== ev.month) continue;
@@ -1327,6 +1364,8 @@ window.FS = window.FS || {};
     var parts = [sc.label];
     if (c.weather.tempShift) parts.push(sign(c.weather.tempShift) + '°C');
     if (c.weather.rainChange) parts.push('rain ' + sign(c.weather.rainChange) + '%');
+    if (c.weather.rainSwing) parts.push('rain swings +' + c.weather.rainSwing + '%');
+    if (c.weather.hotDays) parts.push('hot days +' + c.weather.hotDays + '°C');
     if (c.crops && c.crops.plantShiftDays) parts.push('plant ' + Math.abs(c.crops.plantShiftDays) + ' d ' + (c.crops.plantShiftDays < 0 ? 'earlier' : 'later'));
     var cev = cleanEvents(c.weather.events);
     if (cev.length) parts.push(cev.map(function (e) { return (e.severity === 'severe' ? 'severe ' : '') + (e.type === 'heatwave' ? 'heat wave ' : EVENT_NAMES[e.type] + ' ') + MONTHS[e.month - 1]; }).join(', '));
@@ -1444,6 +1483,9 @@ window.FS = window.FS || {};
     why.push({ text: 'The weather response was checked against Iowa yields from USDA NASS: it catches the big droughts but is no better than the yield trend in ordinary years, and heat damage cannot be estimated from that data. The rotation, cover-crop and planting-date effects come from Iowa State trials and are not covered by that check.', source: 'isu' });
     if (sh.ts || controls.weather.rainChange) why.push({ text: 'Weather was adjusted' + (sh.ts ? ' by ' + sign(sh.ts) + '°C' : '') + (controls.weather.rainChange ? (sh.ts ? ' and' : '') + ' rain ' + sign(controls.weather.rainChange) + '%' : '') + '; the rain change makes storms heavier, not more frequent, and the corn hybrid stays the one matched to today\'s climate.' +
       (sh.ts > 0 ? ' For warming, each field\'s yield is held to at least the published average loss (corn 7.4% and soybeans 3.1% for each degree, Zhao et al. 2017, with no CO2 gain or adaptation), because heat damage cannot be estimated from this data.' : ''), source: 'power' });
+    if (sh.vr !== 1 || sh.hx) why.push({ text: 'Assumed scenario, a what-if and not a prediction: ' + (sh.vr !== 1 ? 'rain swings between wet and dry spells are ' + Math.round((sh.vr - 1) * 100) + '% bigger (each 15-day stretch moves away from its long-term average by that much more, and the season total is kept)' : '') +
+      (sh.vr !== 1 && sh.hx ? '; ' : '') + (sh.hx ? 'June to August days of 30 °C or more are ' + sh.hx + ' °C hotter, so there are also more very hot days' : '') + '. These sizes are illustrative, chosen for stress testing, and are not a climate projection. ' +
+      (sh.hx ? 'Heat damage cannot be measured from the yield data, so extra heat acts mostly through the extra water crops use.' : ''), source: 'power' });
     if (sh.pd) why.push({ text: 'Planting ' + Math.abs(sh.pd) + ' days ' + (sh.pd < 0 ? 'earlier' : 'later') + ' than usual on every field. Each crop still waits for workable soil, then follows the frost and growing-season rules; the yield cost of late planting comes from Iowa State planting-date trials, and early planting can lose to a cold spring or a spring frost. This planting-date effect was not checked against the NASS yields.', source: 'isu' });
     if (sh.ev.length) {
       var names = sh.ev.map(function (e) { return 'a ' + (e.severity === 'severe' ? 'severe ' : '') + (e.type === 'heatwave' ? 'heat wave in ' : EVENT_NAMES[e.type] + ' ') + MONTHS_LONG[e.month - 1]; }), hw = sh.ev.some(function (e) { return e.type === 'heatwave'; });
@@ -1688,6 +1730,7 @@ window.FS = window.FS || {};
   }
   FS.engine = { setFarm: setFarm, outlook: outlook, site: function () { return { id: SITE.id, name: SITE.name, short: SITE.short, state: SITE.state, validated: SITE.validated, local: SITE.local || null, geo: SITE.geo || null }; }, run: run, evalYear: evalYear, scenario: scenario, compare: compare, seasons: seasons, finance: finance, _pickSafer: pickSafer, warm: warm, sample: false, N_WEEKS: N_WEEKS,
                 validation: function () { return VALIDATION; },
+                _dayWeather: function (year, weather) { var d = dayWx(baseWx(year), shiftOf(weather || {}, {})); return { tmax: d.tx, tmin: d.tn, rain: d.P, et0: d.et0 }; },
                 _ref: function () { return getRef(FS.data.farm); }, _setParams: setParams, _components: components, _hybrids: hybrids,
                 _irrigation: function () { return { kwhPerAcreInch: IRR_KWH_PER_ACRE_IN, dollarsPerKwh: IRR_DOLLARS_PER_KWH, dollarsPerAcreInch: IRR_COST_PER_ACRE_IN, inches: { july: irrInches('july'), 'july-aug': irrInches('july-aug'), 'jun-aug': irrInches('jun-aug') } }; },
                 _const: { FIT: FIT, WARM_LOSS: WARM_LOSS, RISK_K_DEFAULT: RISK_K_DEFAULT } };

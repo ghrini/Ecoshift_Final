@@ -68,6 +68,15 @@ const P0 = [
  // ---- oats money (finding 2)
  ['put all my fields in oats', { plans: { north: 'oats-cover', creek: 'oats-cover' }, reply: /Money is not shown while oats is in the plan, because oats price and cost are rough guesses with no source yet\./, nodollar: 1 }],
 
+ // ---- scenario presets (scenario analysis): plain words apply the preset and say it is an assumption, not a forecast
+ ['hotter future', { temp: 1, hot: 3, reply: /More Frequent Extreme Heat.*assumption, not a forecast/i }], ['more extreme heat', { temp: 1, hot: 3, reply: /not a forecast/i }],
+ ['what if we get more heat waves', { temp: 1, hot: 3 }], ['less rain', { rain: -15, reply: /Reduced Precipitation.*assumption, not a forecast/i }],
+ ['reduced precipitation', { rain: -15 }], ['more variable rain', { swing: 50, reply: /Increased Precipitation Variability.*not a forecast/i }],
+ ['more extreme weather', { temp: 2, rain: -10, swing: 50, reply: /Combined Future.*assumption, not a forecast/i }], ['climate change', { temp: 2, rain: -10, swing: 50, reply: /not a forecast/i }],
+ ['what if climate change hits', { temp: 2, rain: -10, swing: 50 }], ['historical drought', { scen: 'drought2012', reply: /observed seasons, not a forecast/i }],
+ ['historical baseline', { scen: 'typical', temp: 0, rain: 0, swing: 0, hot: 0, reply: /not a forecast/i }, [['weather.tempShift', 2], ['weather.rainSwing', 50]]],
+ ['reset', { swing: 0, hot: 0 }, [['weather.rainSwing', 50], ['weather.hotDays', 3]]],
+ ['undo', { swing: 0, hot: 0, temp: 0, rain: 0, reply: /Undid/ }, [], ['climate change']],
  // ---- planting date and weather events (API_V3)
  ['plant 2 weeks earlier', { plant: -14, reply: /14 days earlier/ }], ['plant a week later', { plant: 7, reply: /7 days later/ }], ['plant on time', { plant: 0 }, [['crops.plantShiftDays', 14]]],
  ['plant 3 weeks later', { plant: 21 }], ['plant 10 days earlier', { plant: -7, reply: /steps of a week/ }], ['plant 2 months later', { plant: 21, reply: /3 weeks/ }], ['plant earlier', { plant: -7, reply: /No amount given/ }],
@@ -104,7 +113,7 @@ const PUB = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'chat_rules.js
   return [c.question, e];
 });
 const P = P0.concat(PUB);
-function flat(c) { return { irrig: (c.crops && c.crops.irrigation) || 'none', plant: c.crops.plantShiftDays || 0, events: (c.weather.events || []).map(e => e.type + ':' + e.month + ':' + e.severity), scen: c.weather.scenario, temp: c.weather.tempShift, rain: c.weather.rainChange, price: c.other.priceChange, nitro: c.other.nitrogenChange, prio: c.other.priority || 'balanced', plans: c.crops.plans, acres: c.crops.trialAcres, cs: c.other.costShare, con: c.other.contracted }; }
+function flat(c) { return { irrig: (c.crops && c.crops.irrigation) || 'none', plant: c.crops.plantShiftDays || 0, events: (c.weather.events || []).map(e => e.type + ':' + e.month + ':' + e.severity), swing: c.weather.rainSwing || 0, hot: c.weather.hotDays || 0, scen: c.weather.scenario, temp: c.weather.tempShift, rain: c.weather.rainChange, price: c.other.priceChange, nitro: c.other.nitrogenChange, prio: c.other.priority || 'balanced', plans: c.crops.plans, acres: c.crops.trialAcres, cs: c.other.costShare, con: c.other.contracted }; }
 (async () => {
   const file = process.argv[2], out = process.argv[3];
   const browser = await chromium.launch(); const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
@@ -145,6 +154,8 @@ function flat(c) { return { irrig: (c.crops && c.crops.irrigation) || 'none', pl
     const planWant = Object.assign({}, b.plans, e.plans || {}); if (/reset|start over/.test(phrase)) Object.assign(planWant, i0.plans);
     Object.keys(planWant).forEach(f => { if (a.plans[f] !== planWant[f]) probs.push('plan ' + f + '=' + a.plans[f] + ' (want ' + planWant[f] + ')'); });
     if (JSON.stringify(a.acres) !== JSON.stringify(b.acres) && !/reset|start over/.test(phrase)) probs.push('acres changed');
+    if (e.swing !== undefined ? a.swing !== e.swing : a.swing !== b.swing) probs.push('swing=' + a.swing);
+    if (e.hot !== undefined ? a.hot !== e.hot : a.hot !== b.hot) probs.push('hot=' + a.hot);
     if (e.field && after.field !== e.field) probs.push('field=' + after.field + ' (want ' + e.field + ')');
     if (e.trace && !e.trace.test(after.trace)) probs.push('trace lacks ' + e.trace + ' (got: ' + after.trace + ')');
     if (e.reply && !e.reply.test(reply)) probs.push('reply lacks ' + e.reply);

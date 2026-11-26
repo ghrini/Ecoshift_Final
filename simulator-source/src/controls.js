@@ -25,7 +25,7 @@
   };
   FS.plantWords = function (v) { v = Number(v) || 0; return v === 0 ? 'On time' : Math.abs(v) + ' days ' + (v < 0 ? 'earlier' : 'later'); };
   function events(c) { var e = c && c.weather && c.weather.events; return Array.isArray(e) ? e : []; }
-  function dflt(path) { return path === 'crops.plantShiftDays' ? 0 : path === 'other.priority' ? 'balanced' : path === 'crops.irrigation' ? 'none' : undefined; }
+  function dflt(path) { return path === 'crops.plantShiftDays' || path === 'weather.rainSwing' || path === 'weather.hotDays' ? 0 : path === 'other.priority' ? 'balanced' : path === 'crops.irrigation' ? 'none' : undefined; }
   // Irrigation (API_V4 section 3): one inch a week, spread over the season months chosen.
   var IRRIG = [['none', 'None'], ['july', 'In July'], ['july-aug', 'July and August'], ['jun-aug', 'June to August']];
   var IRRIG_SAY = { july: 'an inch a week in July', 'july-aug': 'an inch a week in July and August', 'jun-aug': 'an inch a week from June to August' };
@@ -36,6 +36,7 @@
   var FMT = {
     plant: function (v) { return FS.plantWords(v); },
     temp: function (v) { return sign(v, ' °C'); },
+    hot: function (v) { return v === 0 ? 'None' : '+' + v + ' °C'; },
     pct: function (v) { return sign(v, ' %'); },
     plain: function (v) { return v + ' %'; },
     acres: function (v) { return v === 0 ? '0 ac (current plan)' : v + ' ac'; },
@@ -91,10 +92,13 @@
 
   function build() {
     root.weather.innerHTML = head('Weather / Season', 'fs-reset-weather') + '<div class="fs-panel-body">' +
-      '<div class="fs-row" data-path="weather.scenario"><div class="fs-row-head"><label for="fs-weather-scenario">Scenario</label></div>' +
+      '<div class="fs-scn" id="fs-scn"></div>' +
+      '<div class="fs-row" data-path="weather.scenario"><div class="fs-row-head"><label for="fs-weather-scenario">Replay one past season</label></div>' +
       '<select id="fs-weather-scenario" class="fs-select">' + scenarioOptions() + '</select></div>' +
       slider('fs-weather-temp', 'Temperature shift', 'weather.tempShift', -2, 4, 0.5, 'temp') +
       slider('fs-weather-rain', 'Rain change', 'weather.rainChange', -50, 50, 5, 'pct') +
+      slider('fs-weather-swing', 'Wet-dry swings (assumed)', 'weather.rainSwing', 0, 100, 10, 'pct') +
+      slider('fs-weather-hot', 'Extra heat on hot days (assumed)', 'weather.hotDays', 0, 6, 1, 'hot') +
       '<div class="fs-chips" id="fs-weather-chips" hidden></div></div>';
 
     root.crops.innerHTML = head('Crops', 'fs-reset-crops') + '<div class="fs-panel-body">' +
@@ -200,7 +204,7 @@
       if (e.target.id === 'fs-crops-irrigation') A.setControl('crops.irrigation', e.target.value, 'ui');
     });
     root.weather.querySelector('#fs-reset-weather').addEventListener('click', function () {
-      resetPaths(['weather.scenario', 'weather.tempShift', 'weather.rainChange', 'weather.events']);
+      resetPaths(['weather.scenario', 'weather.tempShift', 'weather.rainChange', 'weather.rainSwing', 'weather.hotDays', 'weather.events']);
     });
     root.other.querySelector('#fs-reset-other').addEventListener('click', function () {
       resetPaths(['other.priceChange', 'other.nitrogenChange', 'other.contracted', 'other.costShare', 'other.priority']);
@@ -228,6 +232,7 @@
         root[p[0]].querySelector('.fs-panel-body').insertAdjacentHTML('afterbegin',
           '<div class="fs-body-tools"><button type="button" class="fs-linkbtn fs-reset" id="fs-reset-' + p[0] + '" aria-label="Reset ' + p[1] + '">Reset</button></div>');
       });
+      try { if (FS.scenarios) FS.scenarios.mount(root.weather.querySelector('#fs-scn')); } catch (e) { console.error('[Field Shift] scenarios failed:', e); }
       wire(); wireToggles(); sync();
     }
   };

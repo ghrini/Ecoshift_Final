@@ -8,6 +8,8 @@
   var el = null, data = null, dataKey = '', err = null, loading = false, seq = 0, model = null, note = null, noteErr = null, warnList = [];
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  // provenance badge (scenarios.js); the days keep their plain text label when the badge helper is missing
+  function prov(kind, plain) { return FS.provenance ? FS.provenance.badge(kind) : esc(plain || ''); }
   function r0(x) { return Math.round(x); }
   function r1(x) { return Math.round(x * 10) / 10; }
   function apiBase() { return /^https?:$/.test(location.protocol) ? location.origin : null; }
@@ -184,7 +186,7 @@
       h += '<span class="fs-ol-lab">' + (d.n === 1 || (d.n % 5 === 0 && d.n < days.length) ? esc(fmt(d.date)) : '') + '</span></div>';
       return h;
     }).join('');
-    var head = '<div class="fs-ol-phase" style="grid-column:span ' + nFc + '">Forecast · days 1–' + nFc + '</div>' + (nEx ? '<div class="fs-ol-phase is-est" style="grid-column:span ' + nEx + '">Estimate · days ' + (nFc + 1) + '–' + days.length + '</div>' : '');
+    var head = '<div class="fs-ol-phase" style="grid-column:span ' + nFc + '">' + prov('forecast', 'Forecast · days 1–' + nFc) + '</div>' + (nEx ? '<div class="fs-ol-phase is-est" style="grid-column:span ' + nEx + '">' + prov('seasonal', 'Estimate · days ' + (nFc + 1) + '–' + days.length) + '</div>' : '');
     var sum = days.length + ' days from ' + fmt(days[0].date) + ': highs ' + r0(Math.min.apply(null, days.map(function (d) { return d.tmax; }))) + ' to ' + r0(Math.max.apply(null, days.map(function (d) { return d.tmax; }))) + ' °C, ' +
       r0(days.reduce(function (a, d) { return a + (d.rain || 0); }, 0)) + ' mm of rain in all (normal ' + r0(days.reduce(function (a, d) { return a + (d.norm ? d.norm.rain : 0); }, 0)) + ' mm). Day-by-day numbers are in the table below.';
     return '<p class="fs-ol-axis">Temperature scale ' + String(lo).replace('-', '−') + ' to ' + hi + ' °C · rain bars up to ' + r0(rmax) + ' mm a day</p>' +
@@ -220,7 +222,7 @@
         if (!f.grain || !(f.normal > 0)) return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td colspan="2">No grain harvest on this plan</td></tr>';
         return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td>' + r0(f.normal) + '</td><td>' + r0(f.p10) + '–' + r0(f.p90) + '</td></tr>';
       }).join('');
-      return '<h3 class="fs-ol-h">Next Harvest (' + model.year + '), Bushels Per Acre</h3>' +
+      return '<h3 class="fs-ol-h">Next Harvest (' + model.year + '), Bushels Per Acre ' + prov('observed') + '</h3>' +
         '<div class="fs-ol-tablewrap"><table class="fs-ol-table fs-ol-harvest"><thead><tr><th scope="col">Field</th><th scope="col">Plan</th><th scope="col">Normal (median)</th><th scope="col">Range (10th–90th)</th></tr></thead><tbody>' + rowsE + '</tbody></table></div>' +
         '<p class="fs-ol-plain">Plainly: these 30 days come before planting. In this model, weather before spring does not change the ' + model.year + ' harvest (each season starts from the same spring soil water), so this table is the spread of all ' + nY + ' past seasons on your current plan, not a forecast. Check back in spring.</p>';
     }
@@ -229,7 +231,7 @@
       var pr = f.pct == null ? null : r1(f.pct), pc = pr == null ? '–' : (pr > 0 ? '+' : pr < 0 ? '−' : '') + Math.abs(pr) + '%';
       return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td>' + r0(f.normal) + '</td><td>' + r0(f.med) + '</td><td>' + r0(f.p10) + '–' + r0(f.p90) + '</td><td class="' + (f.pct <= -1 ? 'is-down' : f.pct >= 1 ? 'is-up' : '') + '">' + pc + '</td></tr>';
     }).join('');
-    return '<h3 class="fs-ol-h">Next Harvest (' + model.year + '), Bushels Per Acre</h3>' +
+    return '<h3 class="fs-ol-h">Next Harvest (' + model.year + '), Bushels Per Acre ' + prov('observed') + '</h3>' +
       '<div class="fs-ol-tablewrap"><table class="fs-ol-table fs-ol-harvest"><thead><tr><th scope="col">Field</th><th scope="col">Plan</th><th scope="col">Normal (median)</th><th scope="col">With these 30 days (median)</th><th scope="col">Range (10th–90th)</th><th scope="col">Change</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
       '<p class="fs-ol-plain">Only these 30 days are known; the rest of the season comes from replaying every past season (' + nY + ' of them), which is where most of the range comes from.' +
       ' Each field keeps its current plan. Days 17–30 are a rough average of many forecasts, so a single frost, heat wave or downpour on those days will not show.</p>';

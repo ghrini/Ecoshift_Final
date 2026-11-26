@@ -53,6 +53,7 @@
     var b = [], t = Number(w && w.tempShift) || 0, rn = Number(w && w.rainChange) || 0;
     if (t) b.push(Math.abs(t) + ' °C ' + (t > 0 ? 'warmer' : 'cooler'));
     if (rn) b.push('with ' + Math.abs(rn) + '% ' + (rn > 0 ? 'more' : 'less') + ' rain');
+    if (FS.scenarios) b = b.concat(FS.scenarios.extraWords(w));
     var ev = (w && Array.isArray(w.events)) ? w.events : [];
     var evs = ev.map(function (e) { var t = FS.eventPhrase ? FS.eventPhrase(e) : ''; return t ? 'a ' + t.charAt(0).toLowerCase() + t.slice(1) : ''; }).filter(Boolean);
     if (evs.length) b.push('with ' + (evs.length < 2 ? evs[0] : evs.slice(0, -1).join(', ') + ' and ' + evs[evs.length - 1]));
@@ -95,6 +96,10 @@
     return rows ? '<ul class="fs-verdicts" aria-label="One line per field">' + rows + '</ul>' : '';
   }
 
+  // scenario analysis (scenarios.js): where the numbers come from, and the plan under observed history next to the chosen what-if
+  function scenarioBanner(r) { try { return FS.scenarios ? FS.scenarios.runBanner(r) : ''; } catch (e) { return ''; } }
+  function scenarioCompare(r) { try { return FS.scenarios ? FS.scenarios.compareHtml(r) : ''; } catch (e) { console.error(e); return ''; } }
+
   function runHtml(r) {
     var s = r.summary, delta = s.farm.returnVsBaselineTotal, cur0 = D.initialControls.crops.plans;
     var all = D.farm.fields.filter(function (f) { return s.fields[f.id]; });
@@ -120,7 +125,7 @@
     } else {
       open = 'In ' + esc(sc) + ', your farm gets about ' + pctNormal + '% of a normal crop' + (FS.absMoneyOk() ? ' and ' + earns(s.farm.returnTotal) : '') + (changed.length ? ', about the same as your current plan' : '') + '.';
     }
-    h = verdictsHtml(r, all, cur0) + '<p>' + open + '</p><div class="fs-strip-wrap"></div>';
+    h = scenarioBanner(r) + verdictsHtml(r, all, cur0) + '<p>' + open + '</p><div class="fs-strip-wrap"></div>' + scenarioCompare(r);
 
     // Details: plain sentences, a farmer can read them top to bottom.
     var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];

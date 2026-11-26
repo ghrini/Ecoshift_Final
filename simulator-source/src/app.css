@@ -902,3 +902,43 @@ details.fs-fin-d > summary:focus-visible { outline: 2px solid var(--info); outli
 .fs-fin-in input, .fs-fin-in select { width: 100%; padding: 6px 8px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--panel-3); color: var(--text); font: inherit; }
 .fs-fin-in input:focus-visible, .fs-fin-in select:focus-visible { outline: 2px solid var(--info); outline-offset: 1px; }
 .fs-fin-body a { color: var(--brown); }
+/* ===== Scenario analysis (scenarios.js): preset chips, provenance badges, history-vs-scenario comparison ===== */
+.fs-prov { display: inline-block; font: 600 12px/1.5 var(--font-sans); padding: 0 8px; border-radius: 999px; border: 1px solid var(--border-strong); color: var(--text-muted); background: transparent; white-space: nowrap; vertical-align: 1px; }
+.fs-prov.is-observed { color: var(--accent-strong); border-color: #5b4a33; }
+.fs-prov.is-current { color: #cfe3a8; border-color: #4a4d2a; }
+.fs-prov.is-forecast, .fs-prov.is-seasonal { color: var(--info); border-color: #46505f; }
+.fs-prov.is-seasonal { border-style: dashed; }
+.fs-prov.is-assumed { color: #fff; background: var(--umber); border-color: var(--umber); }
+.fs-prov-line { margin: 0 0 6px; font-size: 14px; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+.fs-scn { display: flex; flex-direction: column; gap: 8px; }
+.fs-scn-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.fs-scn-title { font: 600 15px var(--font-sans); color: var(--text); }
+.fs-scn-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.fs-scn-btn { font: 500 13px/1.2 var(--font-sans); color: var(--text); background: var(--panel-2); border: 1px solid var(--border-strong); border-radius: 999px; padding: 6px 10px; min-height: 32px; cursor: pointer; }
+.fs-scn-btn:hover { border-color: var(--accent-strong); }
+.fs-scn-btn.is-on { background: var(--umber); border-color: var(--umber); color: #fff; }
+.fs-scn-btn:focus-visible, .fs-scn-det > summary:focus-visible, .fs-scn-cmp > summary:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.fs-scn-det > summary, .fs-scn-cmp > summary { cursor: pointer; font: 600 13px var(--font-sans); color: var(--accent-strong); }
+.fs-scn-src { margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.45; color: var(--text-muted); }
+.fs-scn-src i { color: var(--text-faint); }
+.fs-scn-cmp { margin: 10px 0 0; }
+.fs-scn-tw { overflow-x: auto; margin-top: 6px; }
+.fs-scn-t { width: 100%; border-collapse: collapse; font-size: 13px; }
+.fs-scn-t th, .fs-scn-t td { text-align: left; padding: 6px 8px 6px 0; border-bottom: 1px solid var(--divider); vertical-align: top; font-weight: 400; }
+.fs-scn-t thead th { color: var(--text-muted); font-weight: 600; }
+.fs-scn-t tr.is-scen th, .fs-scn-t tr.is-scen td { color: var(--accent-strong); }
+.fs-scn-rl { display: block; margin-top: 2px; color: var(--text-muted); }
+.fs-scn-usd, .fs-scn-yr { color: var(--text-muted); white-space: nowrap; }
+.fs-scn-note { margin: 6px 0 0; font-size: 12px; color: var(--text-faint); }
+.fs-ol-phase .fs-prov { vertical-align: 0; }
+@media (max-width: 600px) { .fs-scn-btn { min-height: 40px; font-size: 14px; } }
+/* comparison cells stack the percent over the dollars so the table fits a phone */
+.fs-scn-t .fs-prov, .fs-prov-line .fs-prov, .fs-scn-head .fs-prov { font-size: 12px; }
+.fs-scn-t td b { display: block; font-size: 14px; }
+.fs-scn-t .fs-scn-usd, .fs-scn-t .fs-scn-yr { display: block; font-size: 12px; }
+.fs-scn-t th[scope="row"] { min-width: 88px; }
+#fs-analysis .fs-panel-body .fs-prov { font-size: 12px; line-height: 1.5; }
+#fs-analysis .fs-panel-body .fs-scn-t, #fs-analysis .fs-panel-body .fs-scn-t th, #fs-analysis .fs-panel-body .fs-scn-t td { font-size: 14px; line-height: 1.35; }
+#fs-analysis .fs-panel-body .fs-scn-t .fs-scn-usd, #fs-analysis .fs-panel-body .fs-scn-t .fs-scn-yr, #fs-analysis .fs-panel-body .fs-scn-rl { font-size: 13px; }
+#fs-analysis .fs-panel-body .fs-scn-note { font-size: 13px; }
+#fs-analysis .fs-panel-body .fs-scn-cmp > summary { font-size: 15px; }

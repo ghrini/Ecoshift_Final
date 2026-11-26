@@ -708,3 +708,71 @@ test('33. price band uses the RMA volatility; Safer Choice rule', () => {
   r = FS.engine._pickSafer([mk('a', 60, -300), mk('b', 55, -280)]);
   assert.equal(r.safer, null, 'worst season barely better');
 });
+
+// ---- scenario analysis: variability keeps totals, extreme heat adds hot days, rain cut scales rain, presets are what they say
+const sum = (a) => Array.from(a).reduce((x, y) => x + y, 0);
+const sd = (a) => { const m = sum(a) / a.length; return Math.sqrt(sum(a.map((x) => (x - m) ** 2)) / a.length); };
+const wx = (y, w) => FS.engine._dayWeather(y, w);
+
+test('34. rain variability: season total kept, never below 0, wet/dry stretches differ more between seasons', () => {
+  const base = [], swung = [];
+  YEARS.forEach((y) => {
+    const b = wx(y, {}), s = wx(y, { rainSwing: 50 });
+    assert.ok(Math.abs(sum(b.rain) - sum(s.rain)) < 1e-6, 'total kept in ' + y);
+    assert.ok(Array.from(s.rain).every((v) => v >= 0 && Number.isFinite(v)), 'no negative rain');
+    base.push(sum(Array.from(b.rain).slice(190, 205))); swung.push(sum(Array.from(s.rain).slice(190, 205)));
+  });
+  assert.ok(sd(swung) > sd(base) * 1.1, 'a 15-day stretch varies more from year to year: ' + sd(base) + ' -> ' + sd(swung));
+  assert.deepEqual(Array.from(wx(2012, { rainSwing: 0 }).rain), Array.from(wx(2012, {}).rain), 'swing 0 is the observed weather');
+});
+
+test('35. extreme heat: more hot summer days, only in June-August, temperatures never fall', () => {
+  let n0 = 0, n1 = 0;
+  YEARS.forEach((y) => {
+    const b = wx(y, {}), h = wx(y, { hotDays: 3 });
+    n0 += Array.from(b.tmax).filter((v) => v >= 35).length; n1 += Array.from(h.tmax).filter((v) => v >= 35).length;
+    for (let d = 0; d < b.tmax.length; d++) assert.ok(h.tmax[d] >= b.tmax[d]);
+    assert.deepEqual(Array.from(h.rain), Array.from(b.rain), 'rain untouched');
+    assert.ok(sum(h.et0) > sum(b.et0), 'extra water use');
+  });
+  assert.ok(n1 > n0 * 1.5, 'days at 35 C or more: ' + n0 + ' -> ' + n1);
+});
+
+test('36. reduced precipitation: every day scaled by 15%', () => {
+  const b = wx(2011, {}), r = wx(2011, { rainChange: -15 });
+  assert.ok(Math.abs(sum(r.rain) / sum(b.rain) - 0.85) < 1e-9);
+});
+
+test('37. the presets (as listed in scenarios.js) change the weather as described and the yields follow', () => {
+  global.document = global.document || { addEventListener() {} };
+  require(path.join(SRC, 'scenarios.js'));
+  const P = FS.scenarios.presets; assert.equal(P.length, 6);
+  assert.deepEqual(P.map((p) => p.name), ['Historical Baseline', 'Historical Drought', 'More Frequent Extreme Heat', 'Reduced Precipitation', 'Increased Precipitation Variability', 'Combined Future']);
+  const byId = (id) => P.find((p) => p.id === id);
+  assert.equal(FS.scenarios.active(byId('baseline').weather), 'baseline');
+  P.forEach((p) => assert.equal(FS.scenarios.active(p.weather), p.id));
+  assert.equal(FS.scenarios.isAssumed(byId('baseline').weather), false);
+  assert.equal(FS.scenarios.isAssumed(byId('drought').weather), false);
+  ['heat', 'rain', 'swing', 'combined'].forEach((id) => assert.equal(FS.scenarios.isAssumed(byId(id).weather), true));
+  assert.equal(byId('rain').weather.rainChange, -15);
+  assert.equal(byId('swing').weather.rainSwing, 50); assert.equal(byId('swing').weather.rainChange, 0);
+  const tot = (w) => YEARS.reduce((a, y) => a + sum(wx(y, w).rain), 0);
+  const b = tot({});
+  assert.ok(Math.abs(tot(byId('swing').weather) - b) < 1e-4, 'variability keeps the total');
+  assert.ok(Math.abs(tot(byId('combined').weather) / b - 0.9) < 1e-6, 'combined: 10% less rain in total');
+  assert.ok(Math.abs(wx(2011, byId('combined').weather).tmax[200] - wx(2011, {}).tmax[200] - 2) < 1e-9 || wx(2011, byId('combined').weather).tmax[200] >= wx(2011, {}).tmax[200] + 2, 'combined: 2 C warmer');
+  // farm results: the combined future does worse than the record in the typical season, and the comparison reports both
+  const c = (w) => { const k = controls('typical'); Object.assign(k.weather, w); return k; };
+  const r0 = run(c(byId('baseline').weather)), r1 = run(c(byId('combined').weather));
+  assert.ok(r1.summary.farm.returnTotal < r0.summary.farm.returnTotal, 'combined future earns less');
+  const cmp = FS.scenarios.compare(c(byId('combined').weather));
+  assert.ok(cmp && cmp.assumed && cmp.base.n === YEARS.length);
+  assert.ok(cmp.scen.typPct < cmp.base.typPct, 'typical season is worse in the combined future');
+  assert.ok(cmp.scen.worstPct <= cmp.base.worstPct);
+  const dr = FS.scenarios.compare(c(byId('drought').weather));
+  assert.ok(dr && !dr.assumed && dr.avg && dr.scen.n === 2 && dr.scen.typPct < dr.base.typPct, 'the two droughts are below the record');
+  assert.equal(FS.scenarios.compare(c(byId('baseline').weather)), null, 'nothing to compare at the baseline');
+  assert.match(FS.scenarios.compareHtml(r1), /Compare With History/);
+  assert.match(FS.scenarios.runBanner(r1), /Assumed scenario[\s\S]*not a prediction/);
+  assert.match(FS.scenarios.runBanner(r0), /Observed history/);
+});

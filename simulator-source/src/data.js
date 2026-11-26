@@ -120,7 +120,7 @@ FS.data = {
   },
 
   initialControls: {
-    weather: { scenario: 'typical', tempShift: 0, rainChange: 0, events: [] },   // events: up to 3 of { type: 'dryspell'|'wetspell'|'heatwave', month: 1-12, severity: 'moderate'|'severe' } (API_V3 section 2)
+    weather: { scenario: 'typical', tempShift: 0, rainChange: 0, rainSwing: 0, hotDays: 0, events: [] },   // events: up to 3 of { type: 'dryspell'|'wetspell'|'heatwave', month: 1-12, severity: 'moderate'|'severe' } (API_V3 section 2)
     crops:   { plans: { north: 'soy', creek: 'soy', west: 'corn', south: 'corn' },
                trialAcres: { north: 80, creek: 40, west: 40, south: 120 },
                plantShiftDays: 0,
