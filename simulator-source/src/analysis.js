@@ -61,7 +61,7 @@
   }
   FS.weatherPhrase = function (w) { return scen(w.scenario).phrase + shiftWords(w); };
   // the first line says it in plain words: "a typical year (2011 weather)"
-  function scenarioPhrase(r) { return FS.weatherPhrase(r.inputs.weather).replace(/^a typical season's weather \((\d{4})\)/, 'a typical year ($1 weather)'); }
+  function scenarioPhrase(r) { return FS.weatherPhrase(r.inputs.weather).replace(/^a typical season's weather \((\d{4})\)/, 'a normal year (like $1)'); }
   function round10(n) { return Math.round(Math.abs(n) / 10) * 10; }
   function planName(x) { var t = x.planLabel.replace(/\s*\(current plan\)/, ''); return t.charAt(0).toLowerCase() + t.slice(1); }
 
@@ -77,7 +77,7 @@
   // Outside Iowa the costs are still Iowa State budgets (Iowa land rent, Iowa yields), so a farm-wide dollar total would
   // mislead; differences between plans hold up much better and are still shown.
   FS.absMoneyOk = function () { try { var st = FS.engine && FS.engine.site && FS.engine.site(); return !st || !st.state || st.state === 'IA'; } catch (e) { return true; } };
-  function earns(tot) { var v = round10(tot); return v < 50 ? 'about breaks even' : tot > 0 ? 'earns about ' + money(v) : 'loses about ' + money(v); }
+  function earns(tot) { var v = round10(tot); return v < 50 ? 'about breaks even' : tot > 0 ? 'makes about ' + money(v) + ' after costs' : 'loses about ' + money(v) + ' after costs'; }
 
   // One line per field in farmer words, from the same past-season table the strip uses: "North 80: keep soybeans · worst season 87% of normal"
   var CROP_OF = { 'soy': 'soybeans', 'soy-soy': 'soybeans', 'rye-soy': 'soybeans', 'corn': 'corn', 'corn-corn': 'corn', 'rye-corn': 'corn', 'oats-cover': 'oats' };
@@ -91,8 +91,8 @@
       data.plan.pct.forEach(function (v, i) { if (v != null && isFinite(v) && (worst == null || v < worst)) { worst = v; wy = data.years[i]; } });
       if (worst == null) return;
       var keep = !plan || plan === cur0[f.id];
-      var what = keep ? 'keep ' + (CROP_OF[cur0[f.id]] || 'your plan') : 'try ' + (PLAN_SHORT[plan] || 'your plan');
-      rows += '<li><b>' + esc(f.name) + ':</b> ' + esc(what) + ' \u00b7 <span title="The worst of the ' + data.years.length + ' past seasons (' + wy + ')">worst year ' + Math.round(worst) + '% of normal</span></li>';
+      var what = keep ? (CROP_OF[cur0[f.id]] || 'your plan') : 'trying ' + (PLAN_SHORT[plan] || 'a new plan');
+      rows += '<li><b>' + esc(f.name) + '</b> (' + esc(what) + '): in its worst year (' + wy + ') it made <span title="The worst of the ' + data.years.length + ' past seasons">' + Math.round(worst) + '% of a normal crop</span>.</li>';
     });
     return rows ? '<ul class="fs-verdicts" aria-label="One line per field">' + rows + '</ul>' : '';
   }
@@ -120,13 +120,13 @@
     changed.forEach(function (f) { var p = r.inputs.crops.plans[f.id]; if (!byPlan[p]) { byPlan[p] = { p: p, x: s.fields[f.id], names: [] }; groups.push(byPlan[p]); } byPlan[p].names.push(esc(f.name)); });
     var who = groups.length > 2 ? 'your changes on ' + changed.length + ' fields' : joinAnd(groups.map(function (g) { return planPhrase(g.p, g.x) + ' on ' + joinAnd(g.names); }));
     if (oats) {
-      open = 'In ' + esc(sc) + ', your farm makes about ' + pctNormal + '% of a normal crop. Money is not shown while oats is in the plan: the oats price and cost are only rough guesses.';
+      open = 'In ' + esc(sc) + ', your farm grows about ' + pctNormal + '% of a normal crop. Money is not shown while oats is in the plan: the oats price and cost are only rough guesses.';
     } else if (changed.length && Math.round(delta) !== 0) {
       open = 'In ' + esc(sc) + ', ' + who + (groups.length > 1 ? ' earn' : ' earns') + ' about ' + money(round10(delta)) + (delta < 0 ? ' less' : ' more') + ' than your current plan.';
     } else {
-      open = 'In ' + esc(sc) + ', your farm makes about ' + pctNormal + '% of a normal crop' + (FS.absMoneyOk() ? ' and ' + earns(s.farm.returnTotal) : '') + (changed.length ? ', about the same as your current plan' : '') + '.';
+      open = 'In ' + esc(sc) + ', your farm grows about ' + pctNormal + '% of a normal crop' + (FS.absMoneyOk() ? ' and ' + earns(s.farm.returnTotal) : '') + (changed.length ? ', about the same as your current plan' : '') + '.';
     }
-    h = scenarioBanner(r) + verdictsHtml(r, all, cur0) + '<p class="fs-sum-line">' + open + '</p><details class="fs-fin-d fs-strip-fold"><summary>See All 44 Years</summary><div class="fs-strip-wrap"></div></details>';
+    h = scenarioBanner(r) + '<p class="fs-sum-line">' + open + '</p>' + verdictsHtml(r, all, cur0) + '<details class="fs-fin-d fs-strip-fold"><summary>See All 44 Years</summary><div class="fs-strip-wrap"></div></details>';
 
     // Details: plain sentences, a farmer can read them top to bottom.
     var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];

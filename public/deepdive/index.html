@@ -1281,6 +1281,9 @@ details.fs-fin-d[open] > summary::before, details.fs-fold[open] > summary::befor
 #fs-header .fs-adjust-title { margin-right: auto; }
 #fs-header { justify-content: flex-end; gap: 8px 10px; }
 #fs-header :focus-visible, #fs-header .fsg-launch:focus-visible { outline: 2px solid var(--umber); outline-offset: 2px; box-shadow: none; }
+/* the whole-farm sentence comes first, then one line per field */
+#fs-analysis .fs-run-msg > .fs-sum-line { order: 1; }
+#fs-analysis .fs-run-msg > .fs-verdicts { order: 2; }
 
 /* Bird's-eye view styles. Every selector is scoped under #fs-view or starts with .fv- (tokens only for color). */
 #fs-view { position: relative; display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: var(--panel); color: var(--text); font-family: var(--font-sans); }
@@ -1409,7 +1412,7 @@ details.fs-fin-d[open] > summary::before, details.fs-fold[open] > summary::befor
 </head><body>
 <nav id="fs-backrow" hidden><a id="fs-back" class="fs-backlink" href="../index.html">← Back to EcoShift</a></nav>
 <header id="fs-header">
-  <h1 class="fs-adjust-title"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Try A Change On Your Farm</h1>
+  <h1 class="fs-adjust-title"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Test Your Crop Plan</h1>
   <p class="fs-steps-line"><span>1 Pick plans</span> · <span>2 Run</span> · <span>3 See results</span></p>
   <button type="button" id="fs-farm-btn" class="fs-farm-btn"><span class="fs-farm-name">Your farm</span><span aria-hidden="true"> · </span><span class="fs-farm-change">Change</span></button>
   <div class="fs-run-wrap">
@@ -3993,7 +3996,7 @@ window.FS = window.FS || {};
       var w = weeks && weeks[i];
       var txt = w ? w.label + ', ' + w.date.slice(0, 4) : 'No run yet';
       dateEl.textContent = txt; range.setAttribute('aria-valuetext', txt);
-      wxEl.textContent = w ? w.label + ' · ' + Math.round(w.weather.tmaxC) + '°C · ' + Math.round(w.weather.rainMm) + ' mm' : '';
+      wxEl.textContent = w ? w.label + ' · ' + Math.round(w.weather.tmaxC) + '°C · ' + Math.round(w.weather.rainMm) + ' mm rain' : '';
       FIELDS.forEach(function (f) {
         var s = w ? w.fields[f.id] : null, r = rows[f.id], c = s ? s.crop : 'none';
         r.chip.style.background = 'var(--crop-' + (T.crop[c] ? c : 'none') + ')';
@@ -4386,7 +4389,7 @@ window.FS = window.FS || {};
 
   // ---------------------------------------------------------------- provenance labels
   var KINDS = {
-    observed: { text: 'Real past weather', tip: 'What actually happened in the past seasons (NASA POWER daily weather). It shows how a plan did under those conditions. It is not the chance of any season next year.' },
+    observed: { text: 'Based on real past weather', tip: 'What actually happened in the past seasons (NASA POWER daily weather). It shows how a plan did under those conditions. It is not the chance of any season next year.' },
     current: { text: 'Current observations', tip: 'Recent satellite readings and weather estimates for your fields. They describe now, not the rest of the season.' },
     forecast: { text: 'Forecast (next 16 days)', tip: 'A weather-model forecast for the next 16 days. Useful for the coming days, not for the whole season.' },
     seasonal: { text: 'Rough estimate (days 17-30)', tip: 'A rough long-range estimate for days 17 to 30, an average of many model runs. Much less certain than the 16-day forecast.' },
@@ -4406,22 +4409,22 @@ window.FS = window.FS || {};
   var CLEAR = { scenario: 'typical', tempShift: 0, rainChange: 0, rainSwing: 0, hotDays: 0, events: [] };
   function w(o) { return Object.assign({}, CLEAR, o || {}); }
   var PRESETS = [
-    { id: 'baseline', name: 'Historical Baseline', kind: 'observed', weather: w(),
+    { id: 'baseline', short: 'Normal Past Years', name: 'Historical Baseline', kind: 'observed', weather: w(),
       blurb: 'All 44 observed seasons (1982-2025), exactly as they happened. Nothing is changed.',
       basis: 'Observed: NASA POWER daily weather for this grid square.' },
-    { id: 'drought', name: 'Historical Drought', kind: 'observed', weather: w({ scenario: 'drought2012' }), years: [1988, 2012],
+    { id: 'drought', short: 'Drought Years', name: 'Historical Drought', kind: 'observed', weather: w({ scenario: 'drought2012' }), years: [1988, 2012],
       blurb: 'The 1988 and 2012 droughts, replayed as they happened.',
       basis: 'Observed: the 1988 and 2012 seasons from NASA POWER. Iowa corn made 84 and 137 bu/acre (USDA NASS). Prices are held at today\'s level.' },
-    { id: 'heat', name: 'More Frequent Extreme Heat', kind: 'assumed', weather: w({ tempShift: 1, hotDays: 3 }),
+    { id: 'heat', short: 'More Heat Waves', name: 'More Frequent Extreme Heat', kind: 'assumed', weather: w({ tempShift: 1, hotDays: 3 }),
       blurb: '1 °C warmer, and summer days that reach 30 °C or more get another 3 °C, so very hot days become more common.',
       basis: 'Assumed. Direction: hotter summers with more very hot days (U.S. Fifth National Climate Assessment, Midwest chapter). Size (+1 °C, +3 °C on hot days): illustrative, not a projection. Yield loss from warming: Zhao et al. 2017.' },
-    { id: 'rain', name: 'Reduced Precipitation', kind: 'assumed', weather: w({ rainChange: -15 }),
+    { id: 'rain', short: 'Less Rain', name: 'Reduced Precipitation', kind: 'assumed', weather: w({ rainChange: -15 }),
       blurb: '15% less rain, spread over the whole season.',
       basis: 'Assumed. Illustrative, not a projection: assessments expect wetter springs in the Midwest and are less sure about summer rain, so this is a stress test.' },
-    { id: 'swing', name: 'Increased Precipitation Variability', kind: 'assumed', weather: w({ rainSwing: 50 }),
+    { id: 'swing', short: 'Bigger Rain Swings', name: 'Increased Precipitation Variability', kind: 'assumed', weather: w({ rainSwing: 50 }),
       blurb: 'Wet stretches get wetter and dry stretches drier (swings 50% bigger). The season\'s total rain stays about the same.',
       basis: 'Assumed. Direction: heavier downpours and bigger swings between wet and dry spells (U.S. Fifth National Climate Assessment, Midwest chapter). Size (+50%): illustrative, not a projection.' },
-    { id: 'combined', name: 'Combined Future', kind: 'assumed', weather: w({ tempShift: 2, rainChange: -10, rainSwing: 50 }),
+    { id: 'combined', short: 'Hotter, Drier Future', name: 'Combined Future', kind: 'assumed', weather: w({ tempShift: 2, rainChange: -10, rainSwing: 50 }),
       blurb: '2 °C warmer, 10% less rain and 50% bigger swings between wet and dry stretches.',
       basis: 'Assumed. Illustrative, not a projection: a hotter, drier, more erratic season for stress testing. Yield loss from warming: Zhao et al. 2017 (corn 7.4%, soybeans 3.1% per °C, no CO2 gain or adaptation).' }
   ];
@@ -4521,13 +4524,13 @@ window.FS = window.FS || {};
   // ---------------------------------------------------------------- the Scenarios section of the Weather / Season box
   var host = null;
   function sectionHtml() {
-    var h = '<div class="fs-scn-head"><span class="fs-scn-title" id="fs-scn-title">Quick Picks</span><span class="fs-scn-state" aria-live="polite"></span></div>' +
+    var h = '<div class="fs-scn-head"><span class="fs-scn-title" id="fs-scn-title">Try Different Weather</span><span class="fs-scn-state" aria-live="polite"></span></div>' +
       '<div class="fs-scn-list" role="group" aria-labelledby="fs-scn-title">';
     PRESETS.forEach(function (p) {
-      h += '<button type="button" class="fs-scn-btn" data-preset="' + p.id + '" aria-pressed="false" title="' + esc(p.blurb) + '">' + esc(p.name) + '</button>';
+      h += '<button type="button" class="fs-scn-btn" data-preset="' + p.id + '" aria-pressed="false" title="' + esc(p.name + ': ' + p.blurb) + '">' + esc(p.short || p.name) + '</button>';
     });
-    h += '</div><details class="fs-scn-det"><summary>About These Picks</summary><ul class="fs-scn-src">' +
-      PRESETS.map(function (p) { return '<li><b>' + esc(p.name) + '.</b> ' + esc(p.blurb) + ' <i>' + esc(p.basis) + '</i></li>'; }).join('') +
+    h += '</div><details class="fs-scn-det"><summary>What These Mean</summary><ul class="fs-scn-src">' +
+      PRESETS.map(function (p) { return '<li><b>' + esc(p.short || p.name) + '</b> (' + esc(p.name) + '). ' + esc(p.blurb) + ' <i>' + esc(p.basis) + '</i></li>'; }).join('') +
       '<li><b>Labels.</b> ' + Object.keys(KINDS).map(function (k) { return '<b>' + esc(KINDS[k].text) + ':</b> ' + esc(KINDS[k].tip); }).join(' ') +
       ' History shows how a plan did under past conditions, not the chance of any season next year. EcoShift holds no long-term climate projections: the assumed scenarios are what-ifs.</li></ul></details>';
     return h;
@@ -4859,8 +4862,8 @@ window.FS = window.FS || {};
 
   // ---- the one compact line
   function lineText(f, it) {
-    var p = it.pct, t = 'Range: worst ' + pc(p.worst) + ' · typical ' + pc(p.median) + ' · best ' + pc(p.best);
-    if (!it.moneyHidden && moneyOk()) t += ' · profit ' + usd(it.net.mean) + '/acre';
+    var p = it.pct, t = 'usually ' + pc(p.median) + ' of a normal crop (worst ' + pc(p.worst) + ', best ' + pc(p.best) + ')';
+    if (!it.moneyHidden && moneyOk()) t += ', profit about ' + usd(it.net.mean) + ' an acre';
     return t;
   }
   function cardLine(fieldId, plan, controls) {
@@ -4975,7 +4978,7 @@ window.FS = window.FS || {};
   function panelHtml(fieldId, controls, planId) {
     var f = fin(fieldId, controls); if (!f) return '';
     var plan = planId && itemOf(f, planId) ? planId : f.items[0].plan, it = itemOf(f, plan);
-    var h = '<div class="fs-fin"><p class="fs-fin-line"><b>' + esc(f.fieldName) + ', ' + esc(planName(plan).toLowerCase()) + '.</b> ' + esc(lineText(f, it)) + badge(f, it) + '</p>' + rangeBar(it.pct);
+    var h = '<div class="fs-fin"><p class="fs-fin-line"><b>' + esc(f.fieldName) + '</b> (' + esc(planName(plan).toLowerCase()) + '), over ' + f.nSeasons + ' past years: ' + esc(lineText(f, it)) + badge(f, it) + '</p>' + rangeBar(it.pct);
     var pts = it.crop === 'soybean' ? f.err.soybean : f.err.corn;
     var rangeNote = '<p class="fs-fin-note">Typical model error for one season: about ' + Math.round(pts.points) + ' points of a normal crop' + (!it.moneyHidden && moneyOk() ? ' (about ' + usd(pts.dollars) + ' an acre)' : '') + '. Worst season ' + it.pct.worstYear + ', best ' + it.pct.bestYear + '.' + (!it.moneyHidden && moneyOk() ? ' Net return range: worst ' + usd(it.net.worst) + ', typical ' + usd(it.net.median) + ', best ' + usd(it.net.best) + ' an acre; a loss in ' + it.net.lossSeasons + ' of ' + f.nSeasons + ' seasons.' : '') + '</p>';
     function det(id, title, body) { return '<details class="fs-fin-d" data-fin="' + id + '"' + (openMap[id] ? ' open' : '') + '><summary>' + title + '</summary><div class="fs-fin-body">' + body + '</div></details>'; }
@@ -5070,7 +5073,7 @@ window.FS = window.FS || {};
   }
   FS.weatherPhrase = function (w) { return scen(w.scenario).phrase + shiftWords(w); };
   // the first line says it in plain words: "a typical year (2011 weather)"
-  function scenarioPhrase(r) { return FS.weatherPhrase(r.inputs.weather).replace(/^a typical season's weather \((\d{4})\)/, 'a typical year ($1 weather)'); }
+  function scenarioPhrase(r) { return FS.weatherPhrase(r.inputs.weather).replace(/^a typical season's weather \((\d{4})\)/, 'a normal year (like $1)'); }
   function round10(n) { return Math.round(Math.abs(n) / 10) * 10; }
   function planName(x) { var t = x.planLabel.replace(/\s*\(current plan\)/, ''); return t.charAt(0).toLowerCase() + t.slice(1); }
 
@@ -5086,7 +5089,7 @@ window.FS = window.FS || {};
   // Outside Iowa the costs are still Iowa State budgets (Iowa land rent, Iowa yields), so a farm-wide dollar total would
   // mislead; differences between plans hold up much better and are still shown.
   FS.absMoneyOk = function () { try { var st = FS.engine && FS.engine.site && FS.engine.site(); return !st || !st.state || st.state === 'IA'; } catch (e) { return true; } };
-  function earns(tot) { var v = round10(tot); return v < 50 ? 'about breaks even' : tot > 0 ? 'earns about ' + money(v) : 'loses about ' + money(v); }
+  function earns(tot) { var v = round10(tot); return v < 50 ? 'about breaks even' : tot > 0 ? 'makes about ' + money(v) + ' after costs' : 'loses about ' + money(v) + ' after costs'; }
 
   // One line per field in farmer words, from the same past-season table the strip uses: "North 80: keep soybeans · worst season 87% of normal"
   var CROP_OF = { 'soy': 'soybeans', 'soy-soy': 'soybeans', 'rye-soy': 'soybeans', 'corn': 'corn', 'corn-corn': 'corn', 'rye-corn': 'corn', 'oats-cover': 'oats' };
@@ -5100,8 +5103,8 @@ window.FS = window.FS || {};
       data.plan.pct.forEach(function (v, i) { if (v != null && isFinite(v) && (worst == null || v < worst)) { worst = v; wy = data.years[i]; } });
       if (worst == null) return;
       var keep = !plan || plan === cur0[f.id];
-      var what = keep ? 'keep ' + (CROP_OF[cur0[f.id]] || 'your plan') : 'try ' + (PLAN_SHORT[plan] || 'your plan');
-      rows += '<li><b>' + esc(f.name) + ':</b> ' + esc(what) + ' \u00b7 <span title="The worst of the ' + data.years.length + ' past seasons (' + wy + ')">worst year ' + Math.round(worst) + '% of normal</span></li>';
+      var what = keep ? (CROP_OF[cur0[f.id]] || 'your plan') : 'trying ' + (PLAN_SHORT[plan] || 'a new plan');
+      rows += '<li><b>' + esc(f.name) + '</b> (' + esc(what) + '): in its worst year (' + wy + ') it made <span title="The worst of the ' + data.years.length + ' past seasons">' + Math.round(worst) + '% of a normal crop</span>.</li>';
     });
     return rows ? '<ul class="fs-verdicts" aria-label="One line per field">' + rows + '</ul>' : '';
   }
@@ -5129,13 +5132,13 @@ window.FS = window.FS || {};
     changed.forEach(function (f) { var p = r.inputs.crops.plans[f.id]; if (!byPlan[p]) { byPlan[p] = { p: p, x: s.fields[f.id], names: [] }; groups.push(byPlan[p]); } byPlan[p].names.push(esc(f.name)); });
     var who = groups.length > 2 ? 'your changes on ' + changed.length + ' fields' : joinAnd(groups.map(function (g) { return planPhrase(g.p, g.x) + ' on ' + joinAnd(g.names); }));
     if (oats) {
-      open = 'In ' + esc(sc) + ', your farm makes about ' + pctNormal + '% of a normal crop. Money is not shown while oats is in the plan: the oats price and cost are only rough guesses.';
+      open = 'In ' + esc(sc) + ', your farm grows about ' + pctNormal + '% of a normal crop. Money is not shown while oats is in the plan: the oats price and cost are only rough guesses.';
     } else if (changed.length && Math.round(delta) !== 0) {
       open = 'In ' + esc(sc) + ', ' + who + (groups.length > 1 ? ' earn' : ' earns') + ' about ' + money(round10(delta)) + (delta < 0 ? ' less' : ' more') + ' than your current plan.';
     } else {
-      open = 'In ' + esc(sc) + ', your farm makes about ' + pctNormal + '% of a normal crop' + (FS.absMoneyOk() ? ' and ' + earns(s.farm.returnTotal) : '') + (changed.length ? ', about the same as your current plan' : '') + '.';
+      open = 'In ' + esc(sc) + ', your farm grows about ' + pctNormal + '% of a normal crop' + (FS.absMoneyOk() ? ' and ' + earns(s.farm.returnTotal) : '') + (changed.length ? ', about the same as your current plan' : '') + '.';
     }
-    h = scenarioBanner(r) + verdictsHtml(r, all, cur0) + '<p class="fs-sum-line">' + open + '</p><details class="fs-fin-d fs-strip-fold"><summary>See All 44 Years</summary><div class="fs-strip-wrap"></div></details>';
+    h = scenarioBanner(r) + '<p class="fs-sum-line">' + open + '</p>' + verdictsHtml(r, all, cur0) + '<details class="fs-fin-d fs-strip-fold"><summary>See All 44 Years</summary><div class="fs-strip-wrap"></div></details>';
 
     // Details: plain sentences, a farmer can read them top to bottom.
     var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -5442,9 +5445,9 @@ window.FS = window.FS || {};
 
   function plainSpeak(s) {
     return String(s || '').replace(/bad-year safety/g, 'how it does in bad years')
-      .replace(/keeping your current plans gives the best balance of average profit and results in bad years over the past (\d+) seasons/, 'your current plans are the best mix of profit and safety over the past $1 seasons')
-      .replace(/keeping your current plans earns the most on average over the past (\d+) seasons/, 'your current plans earn the most on average over the past $1 seasons')
-      .replace(/Your current plans already have the best bad years of the options tried\./, 'Your current plans do best in bad years.')
+      .replace(/keeping your current plans gives the best balance of average profit and results in bad years over the past (\d+) seasons/, 'your current crops are your best choice: good profit, and they hold up in bad years (tested on $1 past years)')
+      .replace(/keeping your current plans earns the most on average over the past (\d+) seasons/, 'your current crops make the most money on average (tested on $1 past years)')
+      .replace(/Your current plans already have the best bad years of the options tried\./, 'Your current crops hold up best in bad years.')
       .replace(/\bit makes about (\$[\d,]+) less per acre/g, 'it costs about $1 per acre').replace(/\bmakes about (\$[\d,]+) more per acre/g, 'earns about $1 more per acre')
       .replace(/\bmakes about (\$[\d,]+) less per acre/g, 'costs about $1 per acre').replace(/\bmakes about (\$[\d,]+) less\b/g, 'costs about $1');
   }
@@ -6326,14 +6329,14 @@ window.FS = window.FS || {};
     var sm = cur.summary, recs = recsFrom(sm), pr = (cur.inputs.other && cur.inputs.other.priority) || 'balanced';
     lastRecPriority = pr;
     var msg;
-    if (recs.length) msg = { role: 'assistant', text: (recs.length === 3 ? 'Three' : cap(['zero', 'one', 'two'][recs.length])) + ' option' + (recs.length === 1 ? '' : 's') + ' worth a look, ranked by ' + PRIO_PHRASE[pr] + ':', items: recs, kind: 'rec', note: sm.recommendationNote ? plainSpeak(sm.recommendationNote) : null, foot: intro === false ? null : 'Type a question or a change below, or say "compare" for one field.' };
+    if (recs.length) msg = { role: 'assistant', text: (recs.length === 3 ? 'Three' : cap(['zero', 'one', 'two'][recs.length])) + ' option' + (recs.length === 1 ? '' : 's') + ' worth a look, ranked by ' + PRIO_PHRASE[pr] + ':', items: recs, kind: 'rec', note: sm.recommendationNote ? plainSpeak(sm.recommendationNote) : null, foot: intro === false ? null : 'Ask anything below, like "What if 2012 happens again?"' };
     else {
       // Nothing beats the current plans: say so, then still show the side-by-side comparison for the selected field,
       // so the farmer always sees the current plan and its alternatives with their cards.
       var fid = S.get().selectedField, cmp = compareReply(fid, S.get().controls, S.get(), '');
       var note = plainSpeak(sm.recommendationNote || 'No alternative beats your current plans.');
-      if (cmp && cmp.items && cmp.items.length) msg = { role: 'assistant', text: note, fold: 'Other Options For ' + fieldById(fid).name, items: cmp.items, kind: 'cmp', foot: intro === false ? null : 'Type a question or a change below, or say "compare" for another field.' };
-      else msg = { role: 'assistant', text: 'Ranked by ' + PRIO_PHRASE[pr] + ': ' + note, foot: intro === false ? null : 'Type a question or a change below, or say "compare" for one field.' };
+      if (cmp && cmp.items && cmp.items.length) msg = { role: 'assistant', text: note, fold: 'Other Crops To Try On ' + fieldById(fid).name, items: cmp.items, kind: 'cmp', foot: intro === false ? null : 'Ask anything below, like "What if 2012 happens again?"' };
+      else msg = { role: 'assistant', text: 'Ranked by ' + PRIO_PHRASE[pr] + ': ' + note, foot: intro === false ? null : 'Ask anything below, like "What if 2012 happens again?"' };
     }
     var adv = FS.chat.advice;
     if (intro !== false && adv && !adv.used) {
@@ -6540,7 +6543,7 @@ window.FS = window.FS || {};
       '<svg class="ic-collapse" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10h-6V4M4 14h6v6M14 10l7-7M10 14l-7 7"/></svg></button></div></div>' +
       '<div class="fs-panel-body" id="fs-chat-list" aria-live="polite"></div>' +
       '<form class="fs-chat-form" id="fs-chat-form"><label for="fs-chat-input" style="position:absolute;left:-9999px">Ask a question or try a change</label>' +
-      '<textarea id="fs-chat-input" rows="1" placeholder="Ask or try a change…"></textarea>' +
+      '<textarea id="fs-chat-input" rows="1" placeholder="Ask a question…"></textarea>' +
       '<button type="submit" id="fs-chat-send">Send</button></form>';
     listEl = el.querySelector('#fs-chat-list'); inputEl = el.querySelector('#fs-chat-input');
     S.get().chat.forEach(append);

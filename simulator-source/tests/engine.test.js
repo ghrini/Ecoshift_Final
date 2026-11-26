@@ -774,5 +774,5 @@ test('37. the presets (as listed in scenarios.js) change the weather as describe
   assert.equal(FS.scenarios.compare(c(byId('baseline').weather)), null, 'nothing to compare at the baseline');
   assert.match(FS.scenarios.compareHtml(r1), /Compare With History/);
   assert.match(FS.scenarios.runBanner(r1), /What-if weather[\s\S]*not a prediction/);
-  assert.match(FS.scenarios.runBanner(r0), /Real past weather/);
+  assert.match(FS.scenarios.runBanner(r0), /Based on real past weather/);
 });

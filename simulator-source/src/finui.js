@@ -31,8 +31,8 @@
 
   // ---- the one compact line
   function lineText(f, it) {
-    var p = it.pct, t = 'Range: worst ' + pc(p.worst) + ' · typical ' + pc(p.median) + ' · best ' + pc(p.best);
-    if (!it.moneyHidden && moneyOk()) t += ' · profit ' + usd(it.net.mean) + '/acre';
+    var p = it.pct, t = 'usually ' + pc(p.median) + ' of a normal crop (worst ' + pc(p.worst) + ', best ' + pc(p.best) + ')';
+    if (!it.moneyHidden && moneyOk()) t += ', profit about ' + usd(it.net.mean) + ' an acre';
     return t;
   }
   function cardLine(fieldId, plan, controls) {
@@ -147,7 +147,7 @@
   function panelHtml(fieldId, controls, planId) {
     var f = fin(fieldId, controls); if (!f) return '';
     var plan = planId && itemOf(f, planId) ? planId : f.items[0].plan, it = itemOf(f, plan);
-    var h = '<div class="fs-fin"><p class="fs-fin-line"><b>' + esc(f.fieldName) + ', ' + esc(planName(plan).toLowerCase()) + '.</b> ' + esc(lineText(f, it)) + badge(f, it) + '</p>' + rangeBar(it.pct);
+    var h = '<div class="fs-fin"><p class="fs-fin-line"><b>' + esc(f.fieldName) + '</b> (' + esc(planName(plan).toLowerCase()) + '), over ' + f.nSeasons + ' past years: ' + esc(lineText(f, it)) + badge(f, it) + '</p>' + rangeBar(it.pct);
     var pts = it.crop === 'soybean' ? f.err.soybean : f.err.corn;
     var rangeNote = '<p class="fs-fin-note">Typical model error for one season: about ' + Math.round(pts.points) + ' points of a normal crop' + (!it.moneyHidden && moneyOk() ? ' (about ' + usd(pts.dollars) + ' an acre)' : '') + '. Worst season ' + it.pct.worstYear + ', best ' + it.pct.bestYear + '.' + (!it.moneyHidden && moneyOk() ? ' Net return range: worst ' + usd(it.net.worst) + ', typical ' + usd(it.net.median) + ', best ' + usd(it.net.best) + ' an acre; a loss in ' + it.net.lossSeasons + ' of ' + f.nSeasons + ' seasons.' : '') + '</p>';
     function det(id, title, body) { return '<details class="fs-fin-d" data-fin="' + id + '"' + (openMap[id] ? ' open' : '') + '><summary>' + title + '</summary><div class="fs-fin-body">' + body + '</div></details>'; }

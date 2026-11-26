@@ -567,7 +567,7 @@ window.FS = window.FS || {};
       var w = weeks && weeks[i];
       var txt = w ? w.label + ', ' + w.date.slice(0, 4) : 'No run yet';
       dateEl.textContent = txt; range.setAttribute('aria-valuetext', txt);
-      wxEl.textContent = w ? w.label + ' · ' + Math.round(w.weather.tmaxC) + '°C · ' + Math.round(w.weather.rainMm) + ' mm' : '';
+      wxEl.textContent = w ? w.label + ' · ' + Math.round(w.weather.tmaxC) + '°C · ' + Math.round(w.weather.rainMm) + ' mm rain' : '';
       FIELDS.forEach(function (f) {
         var s = w ? w.fields[f.id] : null, r = rows[f.id], c = s ? s.crop : 'none';
         r.chip.style.background = 'var(--crop-' + (T.crop[c] ? c : 'none') + ')';

@@ -12,7 +12,7 @@
 
   // ---------------------------------------------------------------- provenance labels
   var KINDS = {
-    observed: { text: 'Real past weather', tip: 'What actually happened in the past seasons (NASA POWER daily weather). It shows how a plan did under those conditions. It is not the chance of any season next year.' },
+    observed: { text: 'Based on real past weather', tip: 'What actually happened in the past seasons (NASA POWER daily weather). It shows how a plan did under those conditions. It is not the chance of any season next year.' },
     current: { text: 'Current observations', tip: 'Recent satellite readings and weather estimates for your fields. They describe now, not the rest of the season.' },
     forecast: { text: 'Forecast (next 16 days)', tip: 'A weather-model forecast for the next 16 days. Useful for the coming days, not for the whole season.' },
     seasonal: { text: 'Rough estimate (days 17-30)', tip: 'A rough long-range estimate for days 17 to 30, an average of many model runs. Much less certain than the 16-day forecast.' },
@@ -32,22 +32,22 @@
   var CLEAR = { scenario: 'typical', tempShift: 0, rainChange: 0, rainSwing: 0, hotDays: 0, events: [] };
   function w(o) { return Object.assign({}, CLEAR, o || {}); }
   var PRESETS = [
-    { id: 'baseline', name: 'Historical Baseline', kind: 'observed', weather: w(),
+    { id: 'baseline', short: 'Normal Past Years', name: 'Historical Baseline', kind: 'observed', weather: w(),
       blurb: 'All 44 observed seasons (1982-2025), exactly as they happened. Nothing is changed.',
       basis: 'Observed: NASA POWER daily weather for this grid square.' },
-    { id: 'drought', name: 'Historical Drought', kind: 'observed', weather: w({ scenario: 'drought2012' }), years: [1988, 2012],
+    { id: 'drought', short: 'Drought Years', name: 'Historical Drought', kind: 'observed', weather: w({ scenario: 'drought2012' }), years: [1988, 2012],
       blurb: 'The 1988 and 2012 droughts, replayed as they happened.',
       basis: 'Observed: the 1988 and 2012 seasons from NASA POWER. Iowa corn made 84 and 137 bu/acre (USDA NASS). Prices are held at today\'s level.' },
-    { id: 'heat', name: 'More Frequent Extreme Heat', kind: 'assumed', weather: w({ tempShift: 1, hotDays: 3 }),
+    { id: 'heat', short: 'More Heat Waves', name: 'More Frequent Extreme Heat', kind: 'assumed', weather: w({ tempShift: 1, hotDays: 3 }),
       blurb: '1 °C warmer, and summer days that reach 30 °C or more get another 3 °C, so very hot days become more common.',
       basis: 'Assumed. Direction: hotter summers with more very hot days (U.S. Fifth National Climate Assessment, Midwest chapter). Size (+1 °C, +3 °C on hot days): illustrative, not a projection. Yield loss from warming: Zhao et al. 2017.' },
-    { id: 'rain', name: 'Reduced Precipitation', kind: 'assumed', weather: w({ rainChange: -15 }),
+    { id: 'rain', short: 'Less Rain', name: 'Reduced Precipitation', kind: 'assumed', weather: w({ rainChange: -15 }),
       blurb: '15% less rain, spread over the whole season.',
       basis: 'Assumed. Illustrative, not a projection: assessments expect wetter springs in the Midwest and are less sure about summer rain, so this is a stress test.' },
-    { id: 'swing', name: 'Increased Precipitation Variability', kind: 'assumed', weather: w({ rainSwing: 50 }),
+    { id: 'swing', short: 'Bigger Rain Swings', name: 'Increased Precipitation Variability', kind: 'assumed', weather: w({ rainSwing: 50 }),
       blurb: 'Wet stretches get wetter and dry stretches drier (swings 50% bigger). The season\'s total rain stays about the same.',
       basis: 'Assumed. Direction: heavier downpours and bigger swings between wet and dry spells (U.S. Fifth National Climate Assessment, Midwest chapter). Size (+50%): illustrative, not a projection.' },
-    { id: 'combined', name: 'Combined Future', kind: 'assumed', weather: w({ tempShift: 2, rainChange: -10, rainSwing: 50 }),
+    { id: 'combined', short: 'Hotter, Drier Future', name: 'Combined Future', kind: 'assumed', weather: w({ tempShift: 2, rainChange: -10, rainSwing: 50 }),
       blurb: '2 °C warmer, 10% less rain and 50% bigger swings between wet and dry stretches.',
       basis: 'Assumed. Illustrative, not a projection: a hotter, drier, more erratic season for stress testing. Yield loss from warming: Zhao et al. 2017 (corn 7.4%, soybeans 3.1% per °C, no CO2 gain or adaptation).' }
   ];
@@ -147,13 +147,13 @@
   // ---------------------------------------------------------------- the Scenarios section of the Weather / Season box
   var host = null;
   function sectionHtml() {
-    var h = '<div class="fs-scn-head"><span class="fs-scn-title" id="fs-scn-title">Quick Picks</span><span class="fs-scn-state" aria-live="polite"></span></div>' +
+    var h = '<div class="fs-scn-head"><span class="fs-scn-title" id="fs-scn-title">Try Different Weather</span><span class="fs-scn-state" aria-live="polite"></span></div>' +
       '<div class="fs-scn-list" role="group" aria-labelledby="fs-scn-title">';
     PRESETS.forEach(function (p) {
-      h += '<button type="button" class="fs-scn-btn" data-preset="' + p.id + '" aria-pressed="false" title="' + esc(p.blurb) + '">' + esc(p.name) + '</button>';
+      h += '<button type="button" class="fs-scn-btn" data-preset="' + p.id + '" aria-pressed="false" title="' + esc(p.name + ': ' + p.blurb) + '">' + esc(p.short || p.name) + '</button>';
     });
-    h += '</div><details class="fs-scn-det"><summary>About These Picks</summary><ul class="fs-scn-src">' +
-      PRESETS.map(function (p) { return '<li><b>' + esc(p.name) + '.</b> ' + esc(p.blurb) + ' <i>' + esc(p.basis) + '</i></li>'; }).join('') +
+    h += '</div><details class="fs-scn-det"><summary>What These Mean</summary><ul class="fs-scn-src">' +
+      PRESETS.map(function (p) { return '<li><b>' + esc(p.short || p.name) + '</b> (' + esc(p.name) + '). ' + esc(p.blurb) + ' <i>' + esc(p.basis) + '</i></li>'; }).join('') +
       '<li><b>Labels.</b> ' + Object.keys(KINDS).map(function (k) { return '<b>' + esc(KINDS[k].text) + ':</b> ' + esc(KINDS[k].tip); }).join(' ') +
       ' History shows how a plan did under past conditions, not the chance of any season next year. EcoShift holds no long-term climate projections: the assumed scenarios are what-ifs.</li></ul></details>';
     return h;

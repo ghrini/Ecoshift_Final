@@ -1240,3 +1240,6 @@ details.fs-fin-d[open] > summary::before, details.fs-fold[open] > summary::befor
 #fs-header .fs-adjust-title { margin-right: auto; }
 #fs-header { justify-content: flex-end; gap: 8px 10px; }
 #fs-header :focus-visible, #fs-header .fsg-launch:focus-visible { outline: 2px solid var(--umber); outline-offset: 2px; box-shadow: none; }
+/* the whole-farm sentence comes first, then one line per field */
+#fs-analysis .fs-run-msg > .fs-sum-line { order: 1; }
+#fs-analysis .fs-run-msg > .fs-verdicts { order: 2; }

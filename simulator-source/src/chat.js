@@ -196,9 +196,9 @@
 
   function plainSpeak(s) {
     return String(s || '').replace(/bad-year safety/g, 'how it does in bad years')
-      .replace(/keeping your current plans gives the best balance of average profit and results in bad years over the past (\d+) seasons/, 'your current plans are the best mix of profit and safety over the past $1 seasons')
-      .replace(/keeping your current plans earns the most on average over the past (\d+) seasons/, 'your current plans earn the most on average over the past $1 seasons')
-      .replace(/Your current plans already have the best bad years of the options tried\./, 'Your current plans do best in bad years.')
+      .replace(/keeping your current plans gives the best balance of average profit and results in bad years over the past (\d+) seasons/, 'your current crops are your best choice: good profit, and they hold up in bad years (tested on $1 past years)')
+      .replace(/keeping your current plans earns the most on average over the past (\d+) seasons/, 'your current crops make the most money on average (tested on $1 past years)')
+      .replace(/Your current plans already have the best bad years of the options tried\./, 'Your current crops hold up best in bad years.')
       .replace(/\bit makes about (\$[\d,]+) less per acre/g, 'it costs about $1 per acre').replace(/\bmakes about (\$[\d,]+) more per acre/g, 'earns about $1 more per acre')
       .replace(/\bmakes about (\$[\d,]+) less per acre/g, 'costs about $1 per acre').replace(/\bmakes about (\$[\d,]+) less\b/g, 'costs about $1');
   }
@@ -1080,14 +1080,14 @@
     var sm = cur.summary, recs = recsFrom(sm), pr = (cur.inputs.other && cur.inputs.other.priority) || 'balanced';
     lastRecPriority = pr;
     var msg;
-    if (recs.length) msg = { role: 'assistant', text: (recs.length === 3 ? 'Three' : cap(['zero', 'one', 'two'][recs.length])) + ' option' + (recs.length === 1 ? '' : 's') + ' worth a look, ranked by ' + PRIO_PHRASE[pr] + ':', items: recs, kind: 'rec', note: sm.recommendationNote ? plainSpeak(sm.recommendationNote) : null, foot: intro === false ? null : 'Type a question or a change below, or say "compare" for one field.' };
+    if (recs.length) msg = { role: 'assistant', text: (recs.length === 3 ? 'Three' : cap(['zero', 'one', 'two'][recs.length])) + ' option' + (recs.length === 1 ? '' : 's') + ' worth a look, ranked by ' + PRIO_PHRASE[pr] + ':', items: recs, kind: 'rec', note: sm.recommendationNote ? plainSpeak(sm.recommendationNote) : null, foot: intro === false ? null : 'Ask anything below, like "What if 2012 happens again?"' };
     else {
       // Nothing beats the current plans: say so, then still show the side-by-side comparison for the selected field,
       // so the farmer always sees the current plan and its alternatives with their cards.
       var fid = S.get().selectedField, cmp = compareReply(fid, S.get().controls, S.get(), '');
       var note = plainSpeak(sm.recommendationNote || 'No alternative beats your current plans.');
-      if (cmp && cmp.items && cmp.items.length) msg = { role: 'assistant', text: note, fold: 'Other Options For ' + fieldById(fid).name, items: cmp.items, kind: 'cmp', foot: intro === false ? null : 'Type a question or a change below, or say "compare" for another field.' };
-      else msg = { role: 'assistant', text: 'Ranked by ' + PRIO_PHRASE[pr] + ': ' + note, foot: intro === false ? null : 'Type a question or a change below, or say "compare" for one field.' };
+      if (cmp && cmp.items && cmp.items.length) msg = { role: 'assistant', text: note, fold: 'Other Crops To Try On ' + fieldById(fid).name, items: cmp.items, kind: 'cmp', foot: intro === false ? null : 'Ask anything below, like "What if 2012 happens again?"' };
+      else msg = { role: 'assistant', text: 'Ranked by ' + PRIO_PHRASE[pr] + ': ' + note, foot: intro === false ? null : 'Ask anything below, like "What if 2012 happens again?"' };
     }
     var adv = FS.chat.advice;
     if (intro !== false && adv && !adv.used) {
@@ -1294,7 +1294,7 @@
       '<svg class="ic-collapse" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10h-6V4M4 14h6v6M14 10l7-7M10 14l-7 7"/></svg></button></div></div>' +
       '<div class="fs-panel-body" id="fs-chat-list" aria-live="polite"></div>' +
       '<form class="fs-chat-form" id="fs-chat-form"><label for="fs-chat-input" style="position:absolute;left:-9999px">Ask a question or try a change</label>' +
-      '<textarea id="fs-chat-input" rows="1" placeholder="Ask or try a change…"></textarea>' +
+      '<textarea id="fs-chat-input" rows="1" placeholder="Ask a question…"></textarea>' +
       '<button type="submit" id="fs-chat-send">Send</button></form>';
     listEl = el.querySelector('#fs-chat-list'); inputEl = el.querySelector('#fs-chat-input');
     S.get().chat.forEach(append);
