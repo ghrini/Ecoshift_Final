@@ -328,6 +328,7 @@ body.on-sim .site-footer { display: none; }
   .data-box .data-table th, .data-box .data-table td { display: block; border: 0; padding: 2px 0; min-width: 0; white-space: normal; }
   .data-box .data-table tbody th { margin-bottom: 4px; }
   .data-box .data-table td::before { content: attr(data-label) ": "; color: var(--faint); }
+  .data-box-nasa .data-table tbody th { white-space: normal; overflow-wrap: anywhere; }
 }
 
 /* ---------- Home: from a photo to a living farm ---------- */
