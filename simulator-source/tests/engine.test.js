@@ -638,3 +638,73 @@ test('29. outlook: no days = normal; a very dry, hot summer cuts the estimate; t
   assert.deepEqual(FS.engine.outlook({}).normal, none.normal, 'caches restored');
   assert.equal(snapshot(), A, 'runs afterwards identical');
 });
+
+test('30. money breakdown: itemised lines add up to the budget totals; gross - costs = net', () => {
+  const E = FS.data.economics;
+  for (const k of ['corn', 'cornAfterCorn', 'soybean']) {
+    const sum = Object.values(E.costParts[k]).reduce((a, b) => a + b, 0);
+    assert.ok(Math.abs(sum - E.costPerAcre[k]) < 0.015, k + ' lines sum to ' + E.costPerAcre[k] + ', got ' + sum);
+  }
+  const f = FS.engine.finance('west', controls('typical'));
+  const it = f.items.find((x) => x.plan === 'corn'), b = it.breakdown;
+  const costs = b.operating + b.landRent + b.costShare;
+  assert.ok(Math.abs(b.revenue - costs - it.net.mean) < 0.01, "revenue - costs = mean net");
+  assert.ok(Math.abs(b.operating - (b.seed + b.fertilizer + b.machinery + b.irrigation + b.cover + b.labor + b.other)) < 0.01);
+  // your own land rent changes net by exactly the difference
+  const c2 = controls('typical'); c2.other.fin.landRent = 374;
+  assert.ok(Math.abs(FS.engine.finance('west', c2).items.find((x) => x.plan === 'corn').net.mean - (it.net.mean - 100)) < 0.01, '+$100 rent = -$100 net');
+  // cover crop: cost line and cost-share (negative) appear only when asked
+  const rye = f.items.find((x) => x.plan === 'rye-corn');
+  assert.equal(rye.breakdown.cover, E.costPerAcre.rye); assert.equal(rye.breakdown.costShare, 0);
+  const c3 = controls('typical'); c3.other.costShare = true;
+  assert.equal(FS.engine.finance('west', c3).items.find((x) => x.plan === 'rye-corn').breakdown.costShare, -E.costShareRye);
+  assert.equal(FS.engine.finance('north', controls('typical')).items.find((x) => x.plan === 'oats-cover').moneyHidden, true, 'oats money stays hidden');
+});
+
+test('31. range and loss share: worst <= median <= best, loss seasons counted, error from VALIDATION', () => {
+  const f = FS.engine.finance('south', controls('typical'));
+  for (const it of f.items.filter((x) => !x.moneyHidden)) {
+    assert.ok(it.pct.worst <= it.pct.median && it.pct.median <= it.pct.best);
+    assert.ok(it.net.worst <= it.net.median && it.net.median <= it.net.best);
+    assert.ok(it.net.lossSeasons >= 0 && it.net.lossSeasons <= f.nSeasons);
+    assert.ok(it.stress.net.worst <= it.net.worst + 1e-9, 'stress test is at least as bad');
+    assert.ok(YEARS.includes(it.net.worstYear));
+  }
+  // loss share matches a direct count from seasons()
+  const fin = FS.engine.finance('west', controls('typical')), cornIt = fin.items.find((x) => x.plan === 'corn');
+  const sea = FS.engine.seasons('west', controls('typical'));
+  const E = FS.data.economics;
+  const direct = sea.current.perAcre.filter((v) => v + E.costParts.corn.insurance < 0).length;
+  assert.ok(Math.abs(direct - cornIt.net.lossSeasons) <= 1, 'loss count agrees with seasons() (rounding at zero): ' + direct + ' vs ' + cornIt.net.lossSeasons);
+  assert.equal(fin.err.corn.points, FS.engine.validation().corn.process.rmsePct);
+  assert.equal(fin.err.soybean.points, FS.engine.validation().soybean.process.rmsePct);
+});
+
+test('32. insurance: pays only below the guarantee, helps the worst season, premium and level are editable', () => {
+  const c = controls('typical'), E = FS.data.economics;
+  const f = FS.engine.finance('south', c), it = f.items.find((x) => x.plan === 'corn');
+  assert.equal(f.level, 80);
+  assert.equal(it.insurance.premium, E.insurance.premiumAt80.corn);
+  assert.ok(Math.abs(it.insurance.guarantee - 0.8 * E.normalYield.corn * E.price.corn) < 1e-6);
+  assert.ok(it.stress.payoutSeasons > 0 && it.stress.netIns.worst > it.stress.net.worst, 'insurance helps in the worst stress season');
+  assert.ok(Math.abs(it.netIns.mean - (it.net.mean - it.insurance.premium + it.insurance.payoutMean)) < 1e-6, 'with = without - premium + payout');
+  const c85 = controls('typical'); c85.other.fin.coverage = 85; c85.other.fin.premiumCorn = 40;
+  const i85 = FS.engine.finance('south', c85).items.find((x) => x.plan === 'corn');
+  assert.equal(i85.insurance.level, 85); assert.equal(i85.insurance.premium, 40);
+  assert.ok(i85.insurance.guarantee > it.insurance.guarantee);
+  assert.equal(it.insurance.approximation, true);
+  assert.equal(FS.engine.finance('north', c).items.find((x) => x.plan === 'soy').insurance.premium, E.insurance.premiumAt80.soybean);
+});
+
+test('33. price band uses the RMA volatility; Safer Choice rule', () => {
+  const f = FS.engine.finance('west', controls('typical')), it = f.items.find((x) => x.plan === 'corn'), v = FS.data.economics.volatility.corn;
+  assert.ok(Math.abs(it.band.lowPrice - FS.data.economics.price.corn * (1 - v)) < 1e-9);
+  assert.ok(it.band.low < it.net.mean && it.net.mean < it.band.high);
+  const mk = (plan, mean, worst) => ({ plan, net: { mean }, stress: { net: { worst } } });
+  let r = FS.engine._pickSafer([mk('a', 60, -300), mk('b', 50, -150), mk('c', 20, -100)]);
+  assert.equal(r.lead.plan, 'a'); assert.equal(r.safer.plan, 'b', 'gives up $10, worst $150 better');
+  r = FS.engine._pickSafer([mk('a', 60, -300), mk('b', 30, -100)]);
+  assert.equal(r.safer, null, 'gives up too much average');
+  r = FS.engine._pickSafer([mk('a', 60, -300), mk('b', 55, -280)]);
+  assert.equal(r.safer, null, 'worst season barely better');
+});

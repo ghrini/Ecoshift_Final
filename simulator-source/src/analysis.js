@@ -38,7 +38,7 @@
     var empty = listEl.querySelector('.fs-empty'); if (empty) empty.remove();
     var d = document.createElement('div'); d.className = 'fs-msg assistant fs-run-msg'; d.innerHTML = runHtml(r);
     // Only the latest run is shown, so old numbers never sit next to new ones (the chat keeps the history).
-    listEl.innerHTML = ''; listEl.appendChild(d); listEl.scrollTop = 0; drawStrip();
+    listEl.innerHTML = ''; listEl.appendChild(d); listEl.scrollTop = 0; drawStrip(); drawFin();
   }
 
   function scen(id) {
@@ -156,6 +156,7 @@
     if (chips.length) h += '<li>Sources: ' + esc(chips.map(srcName).filter(Boolean).join(', ')) + '.</li>';
     h += '</ul>';
     h += '</div>';
+    h += '<div class="fs-fin-wrap"></div>';
     return h;
   }
 
@@ -200,9 +201,17 @@
     if (focusYear != null) { var b = wrap.querySelector('[data-year="' + focusYear + '"]'); if (b) b.focus(); focusYear = null; }
   }
 
+  // money and risk for the selected field: one range line, with the detail folded away (finui.js)
+  function drawFin() {
+    var wrap = listEl && listEl.querySelector('.fs-fin-wrap'), r = S.get().current; if (!wrap || !r || !FS.finUI) return;
+    var fid = S.get().selectedField, h = '';
+    try { h = FS.finUI.panelHtml(fid, r.inputs, r.inputs.crops && r.inputs.crops.plans && r.inputs.crops.plans[fid]); } catch (e) { console.error(e); }
+    wrap.innerHTML = h;
+  }
+
   FS.analysis = {
     mount: function (mountEl) {
-      el = mountEl; chrome();
+      el = mountEl; chrome(); if (FS.finUI) FS.finUI.bind(listEl);
       var runs = S.get().runs;
       if (!runs.length) listEl.innerHTML = '<p class="fs-empty">Run a simulation to see what happened.</p>';
       runs.forEach(addRun);
@@ -212,7 +221,7 @@
         var empty = listEl.querySelector('.fs-empty'); if (empty) empty.remove();
         listEl.appendChild(runningEl); scrollEnd();
       });
-      S.on('field:select', function () { drawStrip(); });
+      S.on('field:select', function () { drawStrip(); drawFin(); });
       S.on('sim:done', function (r) { if (runningEl) { runningEl.remove(); runningEl = null; } addRun(r); });
     }
   };

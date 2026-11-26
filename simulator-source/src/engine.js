@@ -712,17 +712,36 @@ window.FS = window.FS || {};
     other = other || {};
     var priceBase = E.price[crop] || 0, contracted = clamp((other.contracted == null ? 0 : other.contracted), 0, 100);
     var priceEff = priceBase * (1 + (other.priceChange || 0) / 100 * (1 - contracted / 100));
-    var rev = bu * priceEff, cost = 0;
-    if (crop === 'corn') {
-      var after = prev === 'corn';
-      cost = after ? E.costPerAcre.cornAfterCorn : E.costPerAcre.corn;
-      var N = E.nitrogen || {}, lb = after ? N.lbPerAcreCornAfterCorn : N.lbPerAcreCornAfterSoy;
-      cost += (lb || 0) * (N.dollarsPerLb || 0) * (other.nitrogenChange || 0) / 100;
-    } else if (crop === 'soybean') cost = E.costPerAcre.soybean;
-    else if (crop === 'oats') cost = E.costPerAcre.oats;
-    if (other.irrCost && crop !== 'none') cost += other.irrCost;     // irrigation pumping energy (API_V4 section 3)
-    if (hasRye) cost += E.costPerAcre.rye - (csOn(other) ? (E.costShareRye || 0) * (shareFrac == null ? 1 : shareFrac) : 0);
-    return { rev: rev, cost: cost, ret: rev - cost };
+    var rev = bu * priceEff, P = costParts(E, other, crop, prev, hasRye, shareFrac), cost = 0, k;
+    for (k in P) cost += P[k];
+    return { rev: rev, cost: cost, ret: rev - cost, parts: P };
+  }
+  // Cost per acre split into lines a farmer knows (ISU A1-20, see economics.costParts in data.js). The lines are scaled so they add up to
+  // economics.costPerAcre (so changing a total in a test or a what-if still holds). Your own inputs (other.fin: land rent, wage, cover crop cost) replace the defaults.
+  // costShare is negative (money received). Crops with no itemised budget (oats) are one 'other' line.
+  var COST_LINES = ['seed', 'fertilizer', 'machinery', 'irrigation', 'cover', 'labor', 'insurance', 'landRent', 'other', 'costShare'];
+  function finNum(v, lo, hi) { return v != null && v !== '' && isFinite(Number(v)) ? clamp(Number(v), lo, hi) : null; }
+  function costParts(E, other, crop, prev, hasRye, shareFrac) {
+    var fin = (other && other.fin) || {}, P = {}, i, key = crop === 'corn' ? (prev === 'corn' ? 'cornAfterCorn' : 'corn') : crop === 'soybean' ? 'soybean' : null;
+    for (i = 0; i < COST_LINES.length; i++) P[COST_LINES[i]] = 0;
+    if (key) {
+      var src = E.costParts && E.costParts[key], tot = E.costPerAcre[key], k, sum = 0;
+      if (src) { for (k in src) sum += src[k]; var sc = sum > 0 ? tot / sum : 1; for (k in src) P[k] = src[k] * sc; } else P.other = tot;
+      if (crop === 'corn') {
+        var N = E.nitrogen || {}, lb = key === 'cornAfterCorn' ? N.lbPerAcreCornAfterCorn : N.lbPerAcreCornAfterSoy;
+        P.fertilizer += (lb || 0) * (N.dollarsPerLb || 0) * (other.nitrogenChange || 0) / 100;     // what-if: nitrogen price change
+      }
+      var rent = finNum(fin.landRent, 0, 2000), wage = finNum(fin.wage, 0, 200);
+      if (rent != null) P.landRent = rent;
+      if (wage != null && E.wagePerHour > 0) P.labor *= wage / E.wagePerHour;
+    } else if (crop === 'oats') P.other = E.costPerAcre.oats;
+    if (other && other.irrCost && crop !== 'none') P.irrigation = other.irrCost;     // irrigation pumping energy (API_V4 section 3)
+    if (hasRye) {
+      var cc = finNum(fin.coverCost, 0, 500);
+      P.cover = cc != null ? cc : E.costPerAcre.rye;
+      if (csOn(other)) P.costShare = -(E.costShareRye || 0) * (shareFrac == null ? 1 : shareFrac);
+    }
+    return P;
   }
   // the controls' other-block plus the irrigation pumping cost per acre for this run (a copy only when irrigating, so defaults are untouched)
   function otherOf(controls) {
@@ -971,7 +990,7 @@ window.FS = window.FS || {};
     return out;
   }
   function lowest(a, n) { return a.slice().sort(function (x, y) { return x - y; }).slice(0, n); }
-  function econWith(E, f) { var o = { price: {}, costPerAcre: {}, nitrogen: E.nitrogen, costShareRye: E.costShareRye }, k; for (k in E.price) o.price[k] = E.price[k]; for (k in E.costPerAcre) o.costPerAcre[k] = E.costPerAcre[k]; if (f) f(o); return o; }
+  function econWith(E, f) { var o = { price: {}, costPerAcre: {}, nitrogen: E.nitrogen, costShareRye: E.costShareRye, costParts: E.costParts, wagePerHour: E.wagePerHour, normalYield: E.normalYield, volatility: E.volatility, insurance: E.insurance }, k; for (k in E.price) o.price[k] = E.price[k]; for (k in E.costPerAcre) o.costPerAcre[k] = E.costPerAcre[k]; if (f) f(o); return o; }
 
   // statistics of one plan against the current plan on one field, over all seasons.
   // Cost-share is a one-time payment: it counts in full in "this season" and once in the n-season average (not every season).
@@ -1171,6 +1190,100 @@ window.FS = window.FS || {};
     var a = side(cur, 1), b = pid === cur ? { plan: pid, pct: a.pct.slice(), perAcre: a.perAcre.slice() } : side(pid, share), diff = [];
     for (var i = 0; i < n; i++) diff.push(a.perAcre[i] == null || b.perAcre[i] == null ? null : b.perAcre[i] - a.perAcre[i]);
     return { fieldId: fieldId, years: yt.years.slice(), current: a, plan: b, diffPerAcre: diff };
+  }
+
+  // ================================================================ money and risk per option (FS.engine.finance)
+  // For every plan option of one field, over all past seasons: gross revenue, itemised costs, net return, the spread (worst / typical / best season),
+  // the share of seasons with a loss, a simplified revenue-protection insurance, and a price band from the RMA volatility factor.
+  // Net return = gross revenue - all costs (including land rent and labor) + cost-share received. 'without insurance' takes the budget's own premium line out of
+  // the costs; 'with insurance' puts the chosen premium in and adds the payout. All values are per acre; nothing here changes run() or compare().
+  // Safer Choice rule (DESIGN, stated in the UI): not the plan with the highest average net return; gives up at most the larger of $15/acre or 20% of that average;
+  // its stress-test worst season is better by at least $50/acre and by at least twice what it gives up.
+  var SAFER = { maxGiveUp: 15, maxGiveUpShare: 0.2, minWorstGain: 50, gainTimesGiveUp: 2 };
+  function pickSafer(ok) {
+    var lead = null, safer = null;
+    ok.forEach(function (x) { if (!lead || x.net.mean > lead.net.mean) lead = x; });
+    ok.forEach(function (x) {
+      x.safer = false; x.leader = x === lead;
+      if (x === lead) return;
+      var give = lead.net.mean - x.net.mean, gain = x.stress.net.worst - lead.stress.net.worst;
+      x.giveUp = give; x.worstGain = gain;
+      if (give <= Math.max(SAFER.maxGiveUp, SAFER.maxGiveUpShare * Math.abs(lead.net.mean)) && gain >= Math.max(SAFER.minWorstGain, SAFER.gainTimesGiveUp * Math.max(0, give)) && (!safer || x.stress.net.worst > safer.stress.net.worst)) safer = x;
+    });
+    if (safer) safer.safer = true;
+    return { lead: lead, safer: safer };
+  }
+  function spread(a, years) {
+    var n = a.length, idx = [], i; for (i = 0; i < n; i++) idx.push(i);
+    idx.sort(function (x, y) { return a[x] - a[y]; });
+    var lo = idx[0], hi = idx[n - 1];
+    return { worst: a[lo], worstYear: years[lo], median: median(a.slice()), best: a[hi], bestYear: years[hi], mean: mean(a), lossSeasons: a.filter(function (v) { return v < 0; }).length };
+  }
+  function insurancePremium(E, fin, crop, level) {
+    var I = E.insurance || {}, own = finNum(crop === 'corn' ? fin.premiumCorn : fin.premiumSoybean, 0, 500);
+    if (own != null) return own;
+    var base = I.premiumAt80 && I.premiumAt80[crop], share = I.premiumShareOf80 && I.premiumShareOf80[level];
+    return (base || 0) * (share == null ? 1 : share);
+  }
+  function finance(fieldId, controls) {
+    var farm = FS.data.farm, f = farm.fields.filter(function (x) { return x.id === fieldId; })[0];
+    if (!f) return null;
+    controls = controls || FS.data.initialControls;
+    var w = controls.weather || {}, sh = shiftOf(w, controls.crops), yt = yieldTable(farm, sh), E = FS.data.economics, o = otherOf(controls), fin = o.fin || {};
+    var I = E.insurance || { levels: [80], defaultLevel: 80 }, level = I.levels.indexOf(Number(fin.coverage)) >= 0 ? Number(fin.coverage) : I.defaultLevel;
+    var cur = FS.data.initialControls.crops.plans[f.id], share = shareFor(farm, controls, f.id, f.acres), n = yt.years.length, years = yt.years.slice();
+    var ids = yt.opts[f.id].slice().filter(function (pid) { return pid === cur || !excluded(controls, pid); });
+    ids.sort(function (a, b) { return (a === cur ? -1 : 0) - (b === cur ? -1 : 0); });
+    var vol = E.volatility || {};
+    function season(E2, T, sf, premium, i, bu) {
+      var m = money(E2, o, T.crop, f.lastCrop, (bu || T.bu)[i], T.hasRye, sf), budgetIns = m.parts.insurance, gross = m.rev, costs0 = m.cost - budgetIns;
+      var guarantee = level / 100 * (E.normalYield[T.crop] || 0) * (E.price[T.crop] || 0), pay = Math.max(0, guarantee - gross);
+      return { m: m, gross: gross, net0: gross - costs0, net1: gross - costs0 - premium + pay, pay: pay, guarantee: guarantee };
+    }
+    var items = ids.map(function (pid) {
+      var T = ytPlan(yt, f, pid), hide = !!moneyNoteFor(T.crop) || T.crop === 'none', sf = pid === cur ? 1 : share, crop = T.crop;
+      var it = { plan: pid, label: FS.data.plans[pid].label, isCurrent: pid === cur, crop: crop, hasRye: T.hasRye, moneyHidden: hide, moneyNote: moneyNoteFor(crop),
+                 pct: spread(Array.prototype.slice.call(T.pct), years), insurable: crop === 'corn' || crop === 'soybean' };
+      if (hide) return it;
+      var premium = it.insurable ? insurancePremium(E, fin, crop, level) : 0, net0 = [], net1 = [], pay = [], gross = [], sn, i, last;
+      for (i = 0; i < n; i++) { sn = season(E, T, sf, premium, i); net0.push(sn.net0); net1.push(it.insurable ? sn.net1 : sn.net0); pay.push(it.insurable ? sn.pay : 0); gross.push(sn.gross); last = sn; }
+      var P = last.m.parts, budgetIns = P.insurance, parts = {};
+      COST_LINES.forEach(function (k) { parts[k] = P[k]; });
+      var opCost = parts.seed + parts.fertilizer + parts.machinery + parts.irrigation + parts.cover + parts.labor + parts.other;
+      it.breakdown = { revenue: mean(gross), seed: parts.seed, fertilizer: parts.fertilizer, machinery: parts.machinery, irrigation: parts.irrigation, cover: parts.cover,
+        labor: parts.labor, other: parts.other, operating: opCost, landRent: parts.landRent, costShare: parts.costShare,
+        netBeforeRent: mean(net0) + parts.landRent, premium: premium, payout: mean(pay), budgetPremium: budgetIns };
+      it.net = spread(net0, years);
+      it.netIns = spread(net1, years);
+      // stress test: the same seasons with the weather deviations widened to the observed Iowa spread (RISK_K, as the engine's risk numbers do)
+      var bw = widened(T), w0 = [], w1 = [], wp = [], wpct = [];
+      for (i = 0; i < n; i++) { sn = season(E, T, sf, premium, i, bw); w0.push(sn.net0); w1.push(it.insurable ? sn.net1 : sn.net0); wp.push(it.insurable ? sn.pay : 0); wpct.push(bw[i] / (E.normalYield[crop] || 1) * 100); }
+      it.stress = { k: riskK(crop), pct: spread(wpct, years), net: spread(w0, years), netIns: spread(w1, years), payoutSeasons: wp.filter(function (v) { return v > 0.005; }).length, payoutMean: mean(wp) };
+      it.insurance = { level: level, premium: premium, guarantee: last.guarantee, payoutSeasons: pay.filter(function (v) { return v > 0.005; }).length, payoutMean: mean(pay), payoutMax: Math.max.apply(null, pay), approximation: true };
+      var v = vol[crop];
+      if (v > 0) {
+        var pr = E.price[crop];
+        it.band = { vol: v, lowPrice: pr * (1 - v), highPrice: pr * (1 + v) };
+        [['low', 1 - v], ['high', 1 + v]].forEach(function (q) {
+          var E2 = econWith(E, function (x) { x.price[crop] = pr * q[1]; }), a0 = [], a1 = [];
+          for (i = 0; i < n; i++) { var s2 = season(E2, T, sf, premium, i); a0.push(s2.net0); a1.push(it.insurable ? s2.net1 : s2.net0); }
+          it.band[q[0]] = mean(a0); it.band[q[0] + 'Ins'] = mean(a1);
+        });
+      }
+      return it;
+    });
+    // the typical error of one season, from the validation constant (points of a normal crop; dollars = points x normal revenue per acre)
+    var err = {};
+    ['corn', 'soybean'].forEach(function (c) { var pts = valErr(c); err[c] = { points: pts, dollars: pts / 100 * E.normalYield[c] * E.price[c] }; });
+    var ok = items.filter(function (x) { return !x.moneyHidden; }), picked = pickSafer(ok);
+    var lead = picked.lead, safer = picked.safer;
+    return { fieldId: fieldId, fieldName: f.name, acres: f.acres, years: years, nSeasons: n, level: level, items: items, safer: safer ? safer.plan : null, leader: lead ? lead.plan : null,
+             rule: { maxGiveUp: SAFER.maxGiveUp, maxGiveUpShare: SAFER.maxGiveUpShare, minWorstGain: SAFER.minWorstGain, gainTimesGiveUp: SAFER.gainTimesGiveUp }, err: err, volatility: { corn: vol.corn, soybean: vol.soybean },
+             inputs: { coverage: level, landRent: finNum(fin.landRent, 0, 2000), wage: finNum(fin.wage, 0, 200), coverCost: finNum(fin.coverCost, 0, 500),
+                       premiumCorn: finNum(fin.premiumCorn, 0, 500), premiumSoybean: finNum(fin.premiumSoybean, 0, 500) },
+             defaults: { landRent: E.costParts.corn.landRent, wage: E.wagePerHour, coverCost: E.costPerAcre.rye, premiumCorn: insurancePremium(E, {}, 'corn', level), premiumSoybean: insurancePremium(E, {}, 'soybean', level), levels: I.levels.slice() },
+             validation: { source: VALIDATION && VALIDATION.source, years: VALIDATION && VALIDATION.years, corn: VALIDATION && VALIDATION.corn && VALIDATION.corn.process, soybean: VALIDATION && VALIDATION.soybean && VALIDATION.soybean.process, text: VALIDATION && VALIDATION.text },
+             asOf: E.asOf };
   }
 
   // summary.recommendations: alternatives that beat the current plan on the chosen priority, at most 3 (oats excluded)
@@ -1573,7 +1686,7 @@ window.FS = window.FS || {};
     if (!other && sh.irr !== 'none') o = otherOf({ other: o, crops: { irrigation: sh.irr } });
     return evalField(farm, f, planId, baseWx(year), sh, o, ref, false, heatOf(), 1);
   }
-  FS.engine = { setFarm: setFarm, outlook: outlook, site: function () { return { id: SITE.id, name: SITE.name, short: SITE.short, state: SITE.state, validated: SITE.validated, local: SITE.local || null, geo: SITE.geo || null }; }, run: run, evalYear: evalYear, scenario: scenario, compare: compare, seasons: seasons, warm: warm, sample: false, N_WEEKS: N_WEEKS,
+  FS.engine = { setFarm: setFarm, outlook: outlook, site: function () { return { id: SITE.id, name: SITE.name, short: SITE.short, state: SITE.state, validated: SITE.validated, local: SITE.local || null, geo: SITE.geo || null }; }, run: run, evalYear: evalYear, scenario: scenario, compare: compare, seasons: seasons, finance: finance, _pickSafer: pickSafer, warm: warm, sample: false, N_WEEKS: N_WEEKS,
                 validation: function () { return VALIDATION; },
                 _ref: function () { return getRef(FS.data.farm); }, _setParams: setParams, _components: components, _hybrids: hybrids,
                 _irrigation: function () { return { kwhPerAcreInch: IRR_KWH_PER_ACRE_IN, dollarsPerKwh: IRR_DOLLARS_PER_KWH, dollarsPerAcreInch: IRR_COST_PER_ACRE_IN, inches: { july: irrInches('july'), 'july-aug': irrInches('july-aug'), 'jun-aug': irrInches('jun-aug') } }; },

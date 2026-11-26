@@ -79,7 +79,19 @@ FS.data = {
   economics: {
     price: { corn: 4.60, soybean: 12.10, oats: 3.50 },           // $/bu; corn and soybean = 2026/27 season-average farm price (Nov 2026 WASDE); oats price is a PLACEHOLDER
     normalYield: { corn: 211, soybean: 61, oats: 80 },             // bu/acre; corn and soybean from the ISU 2026 budgets; oats is a placeholder
-    costPerAcre: { corn: 911.98, cornAfterCorn: 960.02, soybean: 680, oats: 420, rye: 37 }, // full cost incl. land; ISU 2026 A1-20 via secondary summaries; oats and rye are placeholders
+    costPerAcre: { corn: 911.98, cornAfterCorn: 960.02, soybean: 679.11, oats: 420, rye: 37 }, // full cost incl. land; ISU 2026 A1-20 (read from the PDF, 'Total cost per acre' of the three budgets); oats and rye are placeholders
+    // The same three budgets split into the lines a farmer knows, $/acre, fixed + variable summed (ISU A1-20, January 2026, pages 2, 3 and 5; corn after corn at 193 bu,
+    // corn after soybean at 211 bu, soybean at 61 bu). machinery = preharvest + harvest machinery (fuel, repairs, depreciation, grain drying); fertilizer = nitrogen,
+    // phosphate, potash and lime; other = herbicide, insecticide, miscellaneous and interest on operating costs. Each set adds up to the matching costPerAcre above.
+    costParts: {
+      corn:          { seed: 113.70, fertilizer: 169.44, machinery: 196.37, labor: 52.02, insurance: 17.10, landRent: 274.00, other: 89.35 },
+      cornAfterCorn: { seed: 113.70, fertilizer: 181.00, machinery: 200.66, labor: 57.12, insurance: 17.10, landRent: 274.00, other: 116.44 },
+      soybean:       { seed: 63.10,  fertilizer: 74.88,  machinery: 111.38, labor: 44.88, insurance: 9.10,  landRent: 274.00, other: 101.77 }
+    },
+    wagePerHour: 20.40,                                            // ISU A1-20 2026 labor rate, $/hour (hours per crop are inside the labor line)
+    // Revenue-protection style crop insurance (a simplification). The ISU budgets carry a premium for 80% revenue protection for a typical central Iowa farm
+    // (corn $17.10, soybean $9.10 per acre). Premiums at the other levels are EXAMPLE VALUES (a share of the 80% premium), not RMA rates: set your own.
+    insurance: { levels: [70, 75, 80, 85], defaultLevel: 80, premiumAt80: { corn: 17.10, soybean: 9.10 }, premiumShareOf80: { 70: 0.35, 75: 0.6, 80: 1, 85: 1.8 } },
     nitrogen: { lbPerAcreCornAfterSoy: 146, lbPerAcreCornAfterCorn: 190, dollarsPerLb: 0.57 },
     volatility: { corn: 0.15, soybean: 0.13 },                     // RMA 2026 price volatility factors
     costShareRye: 30,                                              // IDALS 2026 first-time cover crop cost-share, $/acre
@@ -87,7 +99,7 @@ FS.data = {
     asOf: '2026-11-14',
     sources: {
       price: 'Corn $4.60 and soybean $12.10 per bushel: USDA WASDE November 2026, 2026/27 season-average farm price (reported by DTN, 10 Nov 2026). Oats $3.50 is a rough guess with no source.',
-      costs: 'Corn $911.98, corn after corn $960.02 and the 211 bu/acre budget yield: Iowa State University Ag Decision Maker A1-20, January 2026, read through secondary summaries (Fencerow, Iowa Farm Bureau). Soybean about $680 at 61 bu/acre: Iowa Soybean Association summary of the same budgets, sources conflict. Oats $420 and 80 bu/acre are rough guesses with no source. Rye $37 is a rough guess with no source.',
+      costs: 'Corn $911.98, corn after corn $960.02, soybean $679.11 and the 211 bu/acre budget yield, split into seed, fertilizer, machinery, labor, insurance, land rent and other lines: Iowa State University Ag Decision Maker A1-20, January 2026 (the PDF itself). Oats $420 and 80 bu/acre are rough guesses with no source. Rye $37 is a rough guess with no source.',
       nitrogen: '146 lb N/acre for corn after soybean: Iowa State MRTN 2022. 190 lb for corn after corn is a working figure. $0.57 per lb N from anhydrous at $938/ton (DTN, November 2026).',
       volatility: 'RMA 2026 volatility factors, via farmdoc daily (March 2026).',
       costShare: 'Iowa Department of Agriculture and Land Stewardship cover crop cost-share 2026: $30/acre first-time, 160-acre cap; not combinable with the crop insurance discount.'
@@ -113,6 +125,7 @@ FS.data = {
                trialAcres: { north: 80, creek: 40, west: 40, south: 120 },
                plantShiftDays: 0,
                soilWaterPct: 0 },   // how much more (+) or less (-) water the soil holds than the soil survey says, -60..40 % (set from the chat)   // days earlier (-) or later (+) than the usual planting dates, -21..21 in steps of 7 (API_V3 section 1)
-    other:   { priceChange: 0, nitrogenChange: 0, contracted: 30, costShare: false, priority: 'balanced' }   // priority: 'balanced' | 'profit' | 'risk' | 'cover'
+    other:   { priceChange: 0, nitrogenChange: 0, contracted: 30, costShare: false, priority: 'balanced',
+               fin: { coverage: 80, landRent: null, wage: null, coverCost: null, premiumCorn: null, premiumSoybean: null } }   // fin: your own money inputs; null = use the sourced default (see economics.costParts and economics.insurance)   // priority: 'balanced' | 'profit' | 'risk' | 'cover'
   }
 };

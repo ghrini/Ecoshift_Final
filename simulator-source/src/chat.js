@@ -991,8 +991,10 @@
       more.push('<li>' + (it.moneyNote ? esc(it.moneyNote) + ' ' : 'Compared with your current plan: ' + esc(moneyVs(it.deltaPerAcre, true)) + (it.tooClose ? ' (too close to call)' : '') + ', ') + (it.moneyNote ? esc(cap(coverPhrase(it.greenCoverMonthsAdded))) : esc(coverPhrase(it.greenCoverMonthsAdded))) + '.</li>');
       if (seasons) more.push('<li>' + esc(cap(seasons)) + '.</li>');
     }
-    return '<li>' + lead + ' <button type="button" class="fs-linkbtn" data-act="more" aria-expanded="false">More</button>' +
-      '<div class="fs-rec-more" hidden><ul class="fs-detail-list">' + more.join('') + cardLines(it, kind) + '</ul>' +
+    var finLine = '', finMore = '';
+    try { if (FS.finUI && it.fieldId) { finLine = FS.finUI.cardLine(it.fieldId, it.plan); finMore = FS.finUI.cardMore(it.fieldId, it.plan); } } catch (e) { console.error(e); }
+    return '<li>' + lead + ' <button type="button" class="fs-linkbtn" data-act="more" aria-expanded="false">More</button>' + finLine +
+      '<div class="fs-rec-more" hidden><ul class="fs-detail-list">' + more.join('') + cardLines(it, kind) + '</ul>' + finMore +
       '<button type="button" class="fs-linkbtn" data-act="sim" data-i="' + idx + '">Show on map</button></div></li>';
   }
   // ---------- the helper trace: which helpers ran for one reply, recorded as the code runs ----------
