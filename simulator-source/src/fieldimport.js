@@ -303,25 +303,28 @@
     var anchor = $('fs-app') || $('fs-outlook') || $('fs-foot'); if (!anchor) return;   // at the top, above Weather / Season
     var sec = document.createElement('section'); sec.className = 'fs-panel'; sec.id = 'fs-import'; sec.setAttribute('aria-label', 'Import your real field');
     sec.innerHTML =
-      '<div class="fs-panel-head"><h2 class="fs-panel-title">Import your real field</h2></div>' +
-      '<div class="fs-imp-body">' +
+      '<div class="fs-imp-row">' +
+        '<h2 class="fs-panel-title fs-imp-title">Import Your Real Field</h2>' +
         '<label id="fs-imp-zone" class="fs-imp-zone" data-tip="Import your real field. Accepted: .geojson, .json or .kml">' +
           '<input type="file" id="fs-imp-file" accept=".geojson,.json,.kml,application/geo+json,application/vnd.google-earth.kml+xml" aria-describedby="fs-imp-types">' +
-          '<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>' +
-          '<span class="fs-imp-big">Drop your field boundary file here, or click to choose one</span>' +
+          '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>' +
+          '<span class="fs-imp-big">Drop a field file here, or click to choose</span>' +
           '<span class="fs-imp-tip" role="tooltip">Import your real field<br><b>Accepted:</b> .geojson, .json, .kml</span>' +
         '</label>' +
-        '<div class="fs-imp-info">' +
+        '<p class="fs-imp-try">Or try a sample: <a href="sample-fields.geojson" class="fs-imp-sample" data-name="sample-fields.geojson">Iowa sample</a> · <a href="california-fields.geojson" class="fs-imp-sample" data-name="california-fields.geojson">California sample</a></p>' +
+      '</div>' +
+      '<div class="fs-imp-info">' +
+        '<details class="fs-imp-more"><summary>Which Files Work?</summary>' +
           '<p id="fs-imp-types"><b>Files that work:</b> ' + TYPES_WORDS + '. Other files (shapefiles, KMZ, CSV, images) are not accepted.</p>' +
           '<ul><li>Field outlines (polygons) in longitude and latitude (WGS84), as exported by geojson.io, Google Earth, QGIS, John Deere Operations Center or Climate FieldView.</li>' +
           '<li>Up to 4 fields (the largest 4 if there are more), each 1 to 5000 acres; 5 MB at most.</li>' +
           '<li>Optional: a <code>name</code> for each field and a <code>crop</code> (corn or soybean).</li>' +
-          '<li>Try one in one click: <a href="sample-fields.geojson" class="fs-imp-sample" data-name="sample-fields.geojson">Iowa sample</a> · <a href="california-fields.geojson" class="fs-imp-sample" data-name="california-fields.geojson">California sample</a> (or download them: <a href="sample-fields.geojson" download>Iowa</a>, <a href="california-fields.geojson" download>California</a>)</li></ul>' +
-          '<p id="fs-imp-status" class="fs-imp-status" role="status" hidden></p>' +
-          '<div id="fs-imp-done" class="fs-imp-done" hidden><p id="fs-imp-what"></p>' +
-            '<button type="button" id="fs-imp-reset" class="fs-btn-primary">Reset simulation</button>' +
-            '<span class="fs-fm-faint">Takes the imported fields out and starts the simulation again from the beginning, with every setting back to its start.</span></div>' +
-        '</div>' +
+          '<li>Download the samples to see the format: <a href="sample-fields.geojson" download>Iowa</a>, <a href="california-fields.geojson" download>California</a>.</li></ul>' +
+        '</details>' +
+        '<p id="fs-imp-status" class="fs-imp-status" role="status" hidden></p>' +
+        '<div id="fs-imp-done" class="fs-imp-done" hidden><p id="fs-imp-what"></p>' +
+          '<button type="button" id="fs-imp-reset" class="fs-btn-primary">Reset simulation</button>' +
+          '<span class="fs-fm-faint">Takes the imported fields out and starts the simulation again from the beginning, with every setting back to its start.</span></div>' +
       '</div>';
     anchor.parentNode.insertBefore(sec, anchor);
     var inp = $('fs-imp-file'), zone = $('fs-imp-zone');
