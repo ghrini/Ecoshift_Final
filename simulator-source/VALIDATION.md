@@ -228,7 +228,7 @@ The planting-date control (`plantShiftDays`) and the weather events (`weather.ev
 
 ## 10. Other locations and irrigation
 
-Not validated. Only Story County, Iowa was checked against USDA NASS yields (sections 1 to 9). `FS.engine.setFarm` can swap in other Corn Belt counties (weather, soils, normal yields), but the model was fitted and checked on Story County and Iowa state yields only, so other sites carry the same equations with no check of their own. For those sites each run says so in `summary.why`, the named scenarios keep their years but not Story's notes, and costs and prices stay Iowa State budgets and national prices (the cards say "check your local costs"). The typical year for another site uses the same rule as Story's (closest to the median in both June-August rain and May-September growing degree-days, first two seasons skipped); it gives 2011 for Story.
+Only Story County, Iowa was checked in depth against USDA NASS yields (sections 1 to 9); a first, weaker check of all 14 counties is in "Multi-County Validation (14 Counties)" at the end of this file (small skill, mostly within the noise). `FS.engine.setFarm` can swap in other Corn Belt counties (weather, soils, normal yields), but the model was fitted and checked on Story County and Iowa state yields only, so other sites carry the same equations with no check of their own. For those sites each run says so in `summary.why`, the named scenarios keep their years but not Story's notes, and costs and prices stay Iowa State budgets and national prices (the cards say "check your local costs"). The typical year for another site uses the same rule as Story's (closest to the median in both June-August rain and May-September growing degree-days, first two seasons skipped); it gives 2011 for Story.
 
 Irrigation (`controls.crops.irrigation`: none, july, july-aug, jun-aug) adds 25 mm a week, spread evenly over the days of those months, to every field in every season, as water entering the soil-water balance beside rain (no runoff). It is a model assumption and is not validated against any irrigated yields. Pumping cost is a working value: 37 kWh of electricity per acre-inch (University of Nebraska-Lincoln Extension, 150-foot lift, 60 psi) at an assumed $0.10 per kWh, about $3.70 per acre-inch, energy only (July = 4.4 inches, about $16 per acre). The price per kWh is a design value, not sourced; the cards say so.
 
@@ -262,3 +262,194 @@ With n = 26, an r below about 0.39 cannot be told from zero at the 5% level.
 - The cropland mask changes little (84% of box pixels pass), and the all-pixel mean gives r 0.62 against NASS Story corn.
 
 **Limits.** NDVI is greenness, not grain yield: it saturates near 0.85-0.9 and cannot see grain fill or heat at flowering. The 16-day composites are already compiled by NASA to remove cloud; we apply no quality mask of our own (the GIBS image has no per-pixel quality band; no pixel was transparent/no-data in the July-August composites). The decoding is from a colourised PNG, not the HDF values: every pixel colour matched a colormap entry exactly, so the NDVI is accurate to the colormap's 0.005 bins. 26 seasons make every r above uncertain by roughly 0.3. No SMAP check was done. Peak season is fixed (July + August) and was not tuned.
+
+## Multi-County Validation (14 Counties)
+
+Sections 1 to 9 check the model against Iowa state yields and Story County only. A reviewer asked for more places, so this section tests the same model on 14 counties (Story County plus 13 more across Iowa, Illinois, Indiana, Minnesota, Nebraska, South Dakota, Ohio, North Dakota, Wisconsin, Michigan, Missouri, Kansas and Kentucky), corn and soybean, against each county's own USDA NASS yields. Nothing is left out: every county and crop is listed, the weak ones included. Per-season numbers (real yield, trend, model yield, error, for both tests) are in `data/validation_counties.json`; the chart is `public/images/validation-counties.svg`.
+
+![Skill against a trend-only guess in 14 counties](../public/images/validation-counties.svg)
+
+**Short answer.** Applied to other counties with no refit, the model beats a trend-only guess by a small margin almost everywhere (corn: better in 14 of 14 counties, median skill +0.14; soybean: better in 13 of 14, median +0.11), but the margin is mostly modest and often within the noise: skill is 0.10 or more in 9 of 14 counties for corn and 8 of 14 for soybean, and the 95% interval stays above zero in only 6 (corn) and 5 (soybean). Take the five worst real seasons out of each county and the skill disappears in 8 of 14 corn and 7 of 14 soybean counties. The model swings about half as much as the real yields do. It is not good enough to forecast a county's yield; at best it ranks the worst seasons better than chance.
+
+### Method
+
+- **Target.** Yield ratio = NASS county yield / robust trend (Tukey bisquare straight line, the same `robust_trend` as `tools/validate.py`), per county and crop, on the seasons from 1982 to 2025 that have both a NASS yield and weather. In every fold the trend is refitted without the held-out season, so no season sees its own yield. Both tests and the baseline use the same ratios.
+- **Weather.** The county's own NASA POWER daily series (MERRA-2 based, community AG, one grid point near the county centre, 1981-2025), as built into `src/sites.js`. Heat threshold matched to Open-Meteo ERA5 at each site, except Christian County KY, which reuses Story County's threshold (ERA5 was not fetched for it). 1982-83 have no radiation, as in Iowa.
+- **Soil.** The county's own NRCS Soil Data Access map units at four points 1-3 km from the county point (`src/sites.js`); the model uses the county mean water capacity for its reference rotation.
+- **Test (a), Transfer.** The shipped model exactly as fitted on Iowa state yields (corn gamma 0.315, heat slope 0, grain-fill exponent 0.238; soybean 0.462, 0.00013, 0; rooting depth 1.5 m, fixed season start, water-table term 6 mm/day). Nothing is refitted. The engine (`tools/validate_counties_model.js` loads `src/engine.js` and calls `setFarm` for each site) produces the per-season stress components for the county; the model's season ratio is normalised by the county's own median season, which is what the app does for every site.
+- **Test (b), Refit.** Leave-one-year-out: gamma, heat slope and grain-fill exponent are refitted on the county's other seasons in every fold, with the structural settings (rooting depth, season start, water-table term) left at the shipped values. The structural grid search of section 3 was not repeated per county.
+- **Baseline.** Trend-only: predicts a ratio of 1, the county's own trend.
+- **Metrics.** Pearson r; RMSE in points of the trend for the model and for trend-only; skill = 1 - RMSE / RMSE(trend-only), with a 95% bootstrap interval over seasons; mean absolute % error of the yield; share of seasons within 10 points; how many of the county's five worst real seasons are among the model's own five lowest (about 0.6 expected by chance); the three biggest misses.
+
+### Data Used
+
+NASS values are county yields in bu/acre for all practices together (irrigated and dryland are not separated). Source: USDA NASS Quick Stats, files `raw/sites/<county>/nass_<crop>.csv` (Story County: `data/nass/story_<crop>.csv`).
+
+| County | Lat, lon | NASS corn seasons (years missing from 1982-2025) | NASS soybean seasons | County water capacity (mm/m) | Soil at the north sample point (NRCS) |
+|---|---|---|---|---|---|
+| Story County, Iowa | 42.03, -93.47 | 44 (none missing) | 44 (none missing) | 180 | Coland-Terril complex, 1 to 5 percent slopes; poorly drained |
+| O'Brien County, Iowa | 43.09, -95.63 | 44 (none missing) | 44 (none missing) | 201 | Galva silty clay loam, 2 to 5 percent slopes; well drained |
+| Champaign County, Illinois | 40.1, -88.2 | 42 (2024, 2025) | 42 (2024, 2025) | 159 | Flanagan silt loam, 0 to 2 percent slopes; somewhat poorly drained |
+| Tippecanoe County, Indiana | 40.36, -86.88 | 43 (2016) | 43 (2016) | 161 | Octagon silt loam, 6 to 12 percent slopes, eroded; moderately well drained |
+| Blue Earth County, Minnesota | 44.06, -94.05 | 44 (none missing) | 44 (none missing) | 203 | Madelia silty clay loam, 0 to 2 percent slopes; poorly drained |
+| Saunders County, Nebraska | 41.22, -96.65 | 42 (2021, 2024) | 43 (2024) | 182 | Yutan, eroded-Aksarben silty clay loams, 2 to 6 percent slopes; well drained |
+| Brookings County, South Dakota | 44.35, -96.85 | 43 (2019) | 43 (2019) | 157 | Lowe loam, 0 to 1 percent slopes, occasionally flooded; poorly drained |
+| Wood County, Ohio | 41.35, -83.68 | 43 (2019) | 42 (2020, 2025) | 111 | Hoytville clay loam, 0 to 1 percent slopes; very poorly drained |
+| Cass County, North Dakota | 46.9, -97.25 | 44 (none missing) | 44 (none missing) | 162 | Fargo silty clay, 0 to 1 percent slopes; poorly drained |
+| Dane County, Wisconsin | 43.17, -89.2 | 44 (none missing) | 44 (none missing) | 152 | Dresden silt loam, 6 to 12 percent slopes, eroded; well drained |
+| Lenawee County, Michigan | 41.85, -84.1 | 44 (none missing) | 44 (none missing) | 143 | Fox sandy loam, till plain, 0 to 2 percent slopes; well drained |
+| Saline County, Missouri | 39.12, -93.2 | 42 (2021, 2022) | 42 (2021, 2022) | 204 | Higginsville silt loam, 2 to 5 percent slopes; somewhat poorly drained |
+| Nemaha County, Kansas | 39.82, -96.05 | 41 (2019, 2022, 2025) | 41 (2019, 2023, 2025) | 153 | Wymore silty clay loam, 1 to 3 percent slopes; moderately well drained |
+| Christian County, Kentucky | 36.8, -87.55 | 44 (none missing) | 43 (2013) | 187 | Nolin silt loam; well drained |
+
+### Corn: Transfer Test (Iowa Fit, No Refit)
+
+Sorted by skill. "Within 10" is the share of seasons predicted within 10 points of the real ratio, model / trend-only. "Worst-5 hits" is how many of the county's five worst real seasons the model also put in its own worst five.
+
+| County | State | Seasons | r | Model RMSE | Trend RMSE | Skill | Within 10 (model / trend) | Worst-5 hits |
+|---|---|---|---|---|---|---|---|---|
+| Dane County | WI | 44 | 0.72 | 8.4 | 11.9 | +0.29 | 82% / 70% | 3 of 5 |
+| Champaign County | IL | 42 | 0.69 | 12.7 | 16.0 | +0.21 | 52% / 57% | 3 of 5 |
+| Saunders County | NE | 42 | 0.59 | 11.1 | 13.7 | +0.19 | 69% / 64% | 2 of 5 |
+| O'Brien County | IA | 44 | 0.58 | 8.4 | 10.3 | +0.18 | 73% / 84% | 2 of 5 |
+| Saline County | MO | 42 | 0.69 | 13.6 | 16.7 | +0.18 | 50% / 38% | 1 of 5 |
+| Blue Earth County | MN | 44 | 0.56 | 9.8 | 11.6 | +0.16 | 75% / 66% | 2 of 5 |
+| Nemaha County | KS | 41 | 0.63 | 25.8 | 30.1 | +0.14 | 29% / 27% | 4 of 5 |
+| Brookings County | SD | 43 | 0.52 | 13.1 | 14.9 | +0.13 | 65% / 63% | 2 of 5 |
+| Lenawee County | MI | 44 | 0.45 | 12.2 | 13.7 | +0.11 | 64% / 61% | 3 of 5 |
+| Story County | IA | 44 | 0.40 | 11.7 | 12.8 | +0.08 | 66% / 68% | 2 of 5 |
+| Cass County | ND | 44 | 0.42 | 15.8 | 17.2 | +0.08 | 57% / 61% | 2 of 5 |
+| Wood County | OH | 43 | 0.42 | 12.8 | 13.8 | +0.07 | 60% / 56% | 4 of 5 |
+| Tippecanoe County | IN | 43 | 0.35 | 14.6 | 15.6 | +0.06 | 72% / 58% | 4 of 5 |
+| Christian County | KY | 44 | 0.67 | 18.9 | 20.1 | +0.06 | 48% / 50% | 3 of 5 |
+
+### Soybean: Transfer Test (Iowa Fit, No Refit)
+
+| County | State | Seasons | r | Model RMSE | Trend RMSE | Skill | Within 10 (model / trend) | Worst-5 hits |
+|---|---|---|---|---|---|---|---|---|
+| Dane County | WI | 44 | 0.59 | 10.3 | 12.3 | +0.16 | 73% / 66% | 2 of 5 |
+| Saline County | MO | 42 | 0.56 | 10.8 | 12.7 | +0.15 | 74% / 64% | 2 of 5 |
+| Lenawee County | MI | 44 | 0.54 | 10.4 | 12.1 | +0.14 | 77% / 73% | 3 of 5 |
+| Saunders County | NE | 43 | 0.52 | 11.4 | 13.2 | +0.14 | 58% / 63% | 1 of 5 |
+| Nemaha County | KS | 41 | 0.60 | 24.5 | 28.2 | +0.13 | 22% / 20% | 4 of 5 |
+| Cass County | ND | 44 | 0.50 | 14.9 | 17.0 | +0.13 | 50% / 57% | 2 of 5 |
+| Champaign County | IL | 42 | 0.48 | 10.6 | 12.0 | +0.12 | 74% / 69% | 3 of 5 |
+| Tippecanoe County | IN | 43 | 0.47 | 10.7 | 11.9 | +0.10 | 70% / 67% | 3 of 5 |
+| Story County | IA | 44 | 0.42 | 11.9 | 13.1 | +0.09 | 66% / 68% | 1 of 5 |
+| Wood County | OH | 42 | 0.36 | 13.3 | 14.2 | +0.07 | 52% / 57% | 3 of 5 |
+| Blue Earth County | MN | 44 | 0.28 | 10.8 | 11.1 | +0.03 | 66% / 68% | 1 of 5 |
+| Brookings County | SD | 43 | 0.31 | 14.5 | 14.9 | +0.02 | 56% / 54% | 1 of 5 |
+| Christian County | KY | 43 | 0.10 | 22.9 | 23.0 | +0.01 | 44% / 46% | 1 of 5 |
+| O'Brien County | IA | 44 | 0.07 | 10.3 | 9.8 | -0.05 | 84% / 89% | 1 of 5 |
+
+### Corn: Refit Test (Leave-One-Year-Out, Three Numbers Refitted)
+
+| County | State | Seasons | r | Model RMSE | Trend RMSE | Skill | Within 10 (model / trend) | Worst-5 hits |
+|---|---|---|---|---|---|---|---|---|
+| Christian County | KY | 44 | 0.79 | 12.3 | 20.1 | +0.39 | 61% / 50% | 3 of 5 |
+| Dane County | WI | 44 | 0.77 | 7.6 | 11.9 | +0.36 | 86% / 70% | 3 of 5 |
+| Champaign County | IL | 42 | 0.69 | 11.7 | 16.0 | +0.27 | 57% / 57% | 4 of 5 |
+| Saline County | MO | 42 | 0.68 | 12.4 | 16.7 | +0.26 | 50% / 38% | 1 of 5 |
+| O'Brien County | IA | 44 | 0.67 | 7.9 | 10.3 | +0.24 | 80% / 84% | 1 of 5 |
+| Brookings County | SD | 43 | 0.59 | 12.2 | 14.9 | +0.19 | 74% / 63% | 2 of 5 |
+| Nemaha County | KS | 41 | 0.55 | 25.1 | 30.1 | +0.17 | 29% / 27% | 4 of 5 |
+| Saunders County | NE | 42 | 0.50 | 11.9 | 13.7 | +0.13 | 74% / 64% | 2 of 5 |
+| Tippecanoe County | IN | 43 | 0.52 | 13.6 | 15.6 | +0.13 | 67% / 58% | 3 of 5 |
+| Lenawee County | MI | 44 | 0.54 | 12.2 | 13.7 | +0.11 | 66% / 61% | 2 of 5 |
+| Blue Earth County | MN | 44 | 0.46 | 10.6 | 11.6 | +0.09 | 70% / 66% | 2 of 5 |
+| Cass County | ND | 44 | 0.42 | 15.7 | 17.2 | +0.09 | 55% / 61% | 2 of 5 |
+| Wood County | OH | 43 | 0.43 | 13.2 | 13.8 | +0.04 | 63% / 56% | 4 of 5 |
+| Story County | IA | 44 | 0.28 | 12.5 | 12.8 | +0.02 | 61% / 68% | 2 of 5 |
+
+### Soybean: Refit Test (Leave-One-Year-Out, Three Numbers Refitted)
+
+| County | State | Seasons | r | Model RMSE | Trend RMSE | Skill | Within 10 (model / trend) | Worst-5 hits |
+|---|---|---|---|---|---|---|---|---|
+| Dane County | WI | 44 | 0.60 | 9.8 | 12.3 | +0.20 | 75% / 66% | 2 of 5 |
+| Nemaha County | KS | 41 | 0.58 | 23.1 | 28.2 | +0.18 | 32% / 20% | 4 of 5 |
+| Saunders County | NE | 43 | 0.55 | 11.0 | 13.2 | +0.17 | 60% / 63% | 1 of 5 |
+| Lenawee County | MI | 44 | 0.53 | 10.1 | 12.1 | +0.17 | 75% / 73% | 2 of 5 |
+| Saline County | MO | 42 | 0.52 | 10.9 | 12.7 | +0.14 | 69% / 64% | 2 of 5 |
+| Tippecanoe County | IN | 43 | 0.45 | 10.7 | 11.9 | +0.10 | 72% / 67% | 3 of 5 |
+| Cass County | ND | 44 | 0.42 | 15.5 | 17.0 | +0.09 | 52% / 57% | 2 of 5 |
+| Christian County | KY | 43 | 0.38 | 21.3 | 23.0 | +0.08 | 40% / 46% | 1 of 5 |
+| Champaign County | IL | 42 | 0.40 | 11.4 | 12.0 | +0.05 | 67% / 69% | 2 of 5 |
+| Brookings County | SD | 43 | 0.35 | 14.2 | 14.9 | +0.05 | 56% / 54% | 2 of 5 |
+| Blue Earth County | MN | 44 | 0.25 | 10.7 | 11.1 | +0.03 | 66% / 68% | 1 of 5 |
+| Wood County | OH | 42 | 0.27 | 13.8 | 14.2 | +0.03 | 50% / 57% | 3 of 5 |
+| Story County | IA | 44 | 0.26 | 12.8 | 13.1 | +0.02 | 64% / 68% | 1 of 5 |
+| O'Brien County | IA | 44 | 0.11 | 9.7 | 9.8 | +0.01 | 89% / 89% | 2 of 5 |
+
+Refitting does not rescue the model. Median skill is +0.15 for corn and +0.08 for soybean (transfer: +0.14 and +0.11); soybean skill is 0.10 or more in 6 counties after refitting against 8 before. Refitting helps most in Christian County KY corn (+0.06 to +0.39, because the shipped model hardly moves there), Dane, Champaign, Saline and O'Brien corn, and hurts in Saunders, Blue Earth and Story corn and in Champaign soybean. For Story County, the refit skill (+0.02 corn, +0.02 soybean) matches the county check in section 8.
+
+### Where It Works / Where It Does Not
+
+**Works, modestly.** Skill of 0.10 or more with a 95% interval above zero, transfer test:
+- Corn: Dane WI (+0.29), Champaign IL (+0.21), Saunders NE (+0.19), Saline MO (+0.18) and Nemaha KS (+0.14). Dane and O'Brien have the lowest corn error of the set (8.4 points); in Dane 82% of seasons land within 10 points against 70% for trend-only. (Christian KY corn also has an interval above zero, but at +0.06 and with a nearly flat model it is not counted as working.)
+- Soybean: Dane WI (+0.16), Saline MO (+0.15), Lenawee MI (+0.14), Saunders NE (+0.14) and Nemaha KS (+0.13).
+- Nemaha KS is skilled only in relative terms: its real yields swing by about 30 points of trend (a mostly dryland county), the model's error is 25.8 points and only 29% of seasons land within 10 points. Saunders NE does as well as the rest although part of that county is irrigated and the NASS yield mixes both; the sandy-soil county (Lenawee MI) does not fail either.
+- Across counties the model ranks bad seasons better than chance: it puts on average 2.6 (corn) and 2.0 (soybean) of each county's five worst real seasons in its own worst five, against about 0.6 expected by luck.
+
+**Does not work.** Everything else, stated plainly:
+- **No skill or not distinguishable from none (95% interval includes zero) for corn:** O'Brien IA, Blue Earth MN, Brookings SD, Lenawee MI, Story IA, Cass ND, Wood OH, Tippecanoe IN and Christian KY. Tippecanoe, Wood and Christian are at only +0.06 to +0.07. In Story County, the home county, transfer skill is +0.08 for corn and +0.09 for soybean with intervals that include zero.
+- **Soybean:** Cass ND (+0.13), Champaign IL (+0.12) and Tippecanoe IN (+0.10) are positive but their intervals touch or include zero; Story IA (+0.09), Wood OH (+0.07), Blue Earth MN (+0.03), Brookings SD (+0.02) and Christian KY (+0.01) are no better than the trend; **O'Brien IA is worse than trend-only (-0.05, r 0.07)**, the only negative result.
+- **The skill is in the worst seasons.** Without each county's five worst real seasons, skill is zero or negative in 8 of 14 counties for corn (Story, O'Brien, Tippecanoe, Blue Earth, Brookings, Wood, Cass, Lenawee) and 7 of 14 for soybean (Story, O'Brien, Tippecanoe, Blue Earth, Brookings, Wood, Christian), and at most +0.17 (corn) and +0.07 (soybean) in the others. In ordinary seasons it is a trend line.
+- **The swings are too small.** The model's season-to-season spread is 7.3 points for corn and 5.1 for soybean on average, against 15.7 and 14.8 in the real yields. In seasons that were 10 or more points under trend, the real corn yield averaged 0.61 to 0.83 of trend by county and the model 0.89 to 0.99. The biggest single miss in each county is 19 to 56 points of trend.
+- **Big real losses the model reads as normal.** 1983 (O'Brien, Champaign, Tippecanoe, Blue Earth, Christian), 1991 (Champaign, Tippecanoe), 1988 (Lenawee, Christian) and 2012 in Christian County KY (real 38% of trend, model 95%). The 1993 flood year in Nemaha, Saunders and Wood (real 53% to 80% of trend, model 106% to 108%) and O'Brien soybean (52% against 98%); 1989 in Nemaha corn and Wood soybean. The model has no flood, wet-planting, disease or hail terms that act at these sites, and the weather inputs alone did not show these seasons as bad; the cause of each was not checked.
+- **1992 is predicted badly in both directions.** In the model the crop meets the 18 October freeze in the POWER data before it matures (frost factor 0.56 to 0.71), so it predicts 66% to 82% of trend in Wood OH, Tippecanoe IN, Lenawee MI and Story IA, where real yields were 105% to 115%. In Cass ND and Brookings SD the real yields were low (67% and 79%) and the model said 115% and 111%.
+- **Southern edge: Christian KY.** The model is almost flat there (spread 1.9 points for corn, 1.3 for soybean against 19.9 and 23.0 real); corn direction is partly right (r 0.67) but the size is far too small, soybean r is 0.10. Refitting corn raises skill to +0.39, so the shipped Iowa numbers, not the soil and weather input, are the problem there.
+- **Northern counties.** Blue Earth MN, Brookings SD and Cass ND (44 to 47 N) are at or below +0.16 in corn and +0.13 in soybean with intervals that include zero; Brookings and Blue Earth soybean are at +0.02 and +0.03. Their biggest misses are seasons where the real yield was low and the model read normal or good: 1992 (Brookings, Cass), 2011 (Cass, real 72%, model 105%) and 2024 (Blue Earth, real 84%, model 103%). The weather cause of each was not checked.
+- **Wet, heavy and poorly drained soils.** Wood OH (very poorly drained clay) is +0.07 for both crops with intervals that include zero, and it misses both 1992 (too low) and 1993 and 2015 (too high).
+- **Not tested here.** Irrigation (no county reports irrigated and dryland apart), hail, wind and field-level yields. The "context" given for each county in the table below is background, not something this test measured.
+
+**Caveats that make these numbers look better than a clean test would.**
+- The Iowa fit was tuned on Iowa state yields for 1982-2025, the same seasons as every county here. Regional droughts (1988, 2012) are in both, so the transfer is not a test on unseen years. The Iowa counties (Story, O'Brien) are not independent of the fit at all.
+- The county median used to normalise the model's ratio includes the held-out season (the app does the same for every site).
+- n is 41 to 44 seasons per county; an r below about 0.30 cannot be told from zero. The skill intervals above reach below zero for most counties.
+- The weather is one grid cell per county and the soil comes from four points; neither is the county average.
+
+### Per-County Notes
+
+The note is built from the numbers (skill and its interval, bad seasons caught, bias, biggest miss, spread); the sentence on context at the end of each line in `data/validation_counties.json` is background knowledge and is not tested here.
+
+| County | Crop | 3 biggest misses, bu/acre | Where it does poorly |
+|---|---|---|---|
+| Blue Earth Co., MN | corn | 1983 (real 88, model 120.1); 2005 (real 184, model 149); 2024 (real 173.4, model 212.6) | Some skill (skill +0.16, 95% interval -0.12 to +0.36, r 0.56); of 9 real seasons 10+ points under trend the model put 2 below 0.97 (real mean 0.80, model 0.92); biggest miss 1983 (real 71% of trend, model 97%; drought year); without the 5 worst real seasons skill is -0.13. |
+| Blue Earth Co., MN | soybean | 1991 (real 30, model 40.2); 2003 (real 35, model 46.3); 2006 (real 55, model 43.8) | No better than trend (skill +0.03, 95% interval -0.09 to +0.13, r 0.28); of 8 real seasons 10+ points under trend the model put 2 below 0.97 (real mean 0.81, model 0.95); biggest miss 1991 (real 74% of trend, model 100%); model swings 4.6 points a season against 11.2 real; without the 5 worst real seasons skill is -0.05. |
+| Brookings Co., SD | corn | 1992 (real 79.4, model 111.5); 1982 (real 89.9, model 68.5); 2005 (real 159.4, model 117.6) | Some skill (skill +0.13, 95% interval -0.13 to +0.37, r 0.52); of 10 real seasons 10+ points under trend the model put 6 below 0.97 (real mean 0.78, model 0.89); biggest miss 1992 (real 79% of trend, model 111%; cool summer and an October freeze in the weather data); without the 5 worst real seasons skill is -0.05. |
+| Brookings Co., SD | soybean | 2016 (real 61.5, model 45.5); 1993 (real 18, model 28.4); 1982 (real 31.2, model 23.6) | No better than trend (skill +0.02, 95% interval -0.10 to +0.12, r 0.31); of 10 real seasons 10+ points under trend the model put 5 below 0.97 (real mean 0.81, model 0.95); biggest miss 2016 (real 135% of trend, model 100%); model swings 6.7 points a season against 15.0 real; without the 5 worst real seasons skill is -0.06. |
+| Cass Co., ND | corn | 1992 (real 62.3, model 106.3); 2011 (real 101.6, model 147.9); 1987 (real 99.4, model 74.4) | No better than trend (skill +0.08, 95% interval -0.20 to +0.29, r 0.42); of 8 real seasons 10+ points under trend the model put 4 below 0.97 (real mean 0.71, model 0.92); biggest miss 1992 (real 67% of trend, model 115%; cool summer and an October freeze in the weather data); without the 5 worst real seasons skill is -0.06. |
+| Cass Co., ND | soybean | 1986 (real 38, model 27.9); 1993 (real 17.5, model 27); 2006 (real 35.8, model 25.8) | Some skill (skill +0.13, 95% interval -0.04 to +0.25, r 0.50); of 10 real seasons 10+ points under trend the model put 7 below 0.97 (real mean 0.76, model 0.92); biggest miss 1986 (real 142% of trend, model 104%); model swings 7.3 points a season against 17.2 real. |
+| Champaign Co., IL | corn | 1991 (real 88, model 135.6); 1995 (real 102, model 142.3); 1983 (real 89, model 120.4) | Some skill (skill +0.21, 95% interval +0.08 to +0.33, r 0.69); of 9 real seasons 10+ points under trend the model put 5 below 0.97 (real mean 0.75, model 0.93); biggest miss 1991 (real 63% of trend, model 96%); model swings 5.8 points a season against 16.2 real (direction partly right, size far too small). |
+| Champaign Co., IL | soybean | 1985 (real 50, model 38.8); 2003 (real 38, model 52.9); 2019 (real 52.8, model 65) | Some skill (skill +0.12, 95% interval -0.00 to +0.27, r 0.48); of 9 real seasons 10+ points under trend the model put 4 below 0.97 (real mean 0.82, model 0.94); biggest miss 1985 (real 130% of trend, model 100%); model swings 5.3 points a season against 12.1 real. |
+| Christian Co., KY | corn | 2012 (real 64, model 157.4); 1983 (real 44, model 88.6); 1988 (real 54, model 101.5) | No better than trend (skill +0.06, 95% interval +0.03 to +0.08, r 0.67); of 14 real seasons 10+ points under trend the model put 4 below 0.97 (real mean 0.72, model 0.99); runs 4 points high on average; biggest miss 2012 (real 38% of trend, model 95%; drought and heat); model swings 1.9 points a season against 19.9 real (direction partly right, size far too small); refitting its three numbers here helps (skill +0.39). |
+| Christian Co., KY | soybean | 1999 (real 11, model 35.7); 2007 (real 15, model 40.5); 1982 (real 34, model 23.2) | No better than trend (skill +0.01, 95% interval -0.01 to +0.03, r 0.10); of 10 real seasons 10+ points under trend the model put 1 below 0.97 (real mean 0.63, model 0.99); runs 3 points high on average; biggest miss 1999 (real 31% of trend, model 100%); model swings 1.3 points a season against 23.0 real; without the 5 worst real seasons skill is -0.01. |
+| Dane Co., WI | corn | 2008 (real 136, model 175.1); 1988 (real 68.7, model 95.5); 1983 (real 83.8, model 105.1) | Some skill (skill +0.29, 95% interval +0.05 to +0.44, r 0.72); of 9 real seasons 10+ points under trend the model put 5 below 0.97 (real mean 0.80, model 0.92); biggest miss 2008 (real 83% of trend, model 107%). |
+| Dane Co., WI | soybean | 2003 (real 30, model 46.6); 2008 (real 36.5, model 49.7); 1991 (real 48.7, model 41.3) | Some skill (skill +0.16, 95% interval +0.06 to +0.31, r 0.59); of 7 real seasons 10+ points under trend the model put 2 below 0.97 (real mean 0.78, model 0.94); biggest miss 2003 (real 63% of trend, model 98%); model swings 4.4 points a season against 12.4 real (direction partly right, size far too small). |
+| Lenawee Co., MI | corn | 1992 (real 126.9, model 84.1); 1988 (real 57.3, model 97.1); 1991 (real 88.9, model 118.5) | Some skill (skill +0.11, 95% interval -0.22 to +0.26, r 0.45); of 10 real seasons 10+ points under trend the model put 4 below 0.97 (real mean 0.78, model 0.95); biggest miss 1992 (real 105% of trend, model 70%; cool summer and an October freeze in the weather data); without the 5 worst real seasons skill is -0.21. |
+| Lenawee Co., MI | soybean | 2008 (real 32, model 43.9); 2001 (real 30, model 40); 2003 (real 34, model 43.7) | Some skill (skill +0.14, 95% interval +0.01 to +0.26, r 0.54); of 8 real seasons 10+ points under trend the model put 5 below 0.97 (real mean 0.77, model 0.95); biggest miss 2008 (real 71% of trend, model 98%); model swings 3.8 points a season against 12.0 real (direction partly right, size far too small). |
+| Nemaha Co., KS | corn | 1993 (real 48, model 95.9); 1986 (real 107, model 73.1); 1989 (real 44, model 81.1) | Some skill (skill +0.14, 95% interval +0.04 to +0.23, r 0.63); of 13 real seasons 10+ points under trend the model put 7 below 0.97 (real mean 0.61, model 0.92); biggest miss 1993 (real 53% of trend, model 106%; Midwest flood); model swings 8.1 points a season against 30.4 real (direction partly right, size far too small). |
+| Nemaha Co., KS | soybean | 1986 (real 38, model 25.4); 1996 (real 46, model 30.8); 2000 (real 20, model 35.4) | Some skill (skill +0.13, 95% interval +0.04 to +0.23, r 0.60); of 16 real seasons 10+ points under trend the model put 9 below 0.97 (real mean 0.70, model 0.92); runs 3 points low on average; biggest miss 1986 (real 154% of trend, model 103%); model swings 8.1 points a season against 28.5 real (direction partly right, size far too small). |
+| O'Brien Co., IA | corn | 1983 (real 95.7, model 118.4); 1993 (real 75.6, model 101.7); 2006 (real 166, model 138.8) | Some skill (skill +0.18, 95% interval -0.20 to +0.40, r 0.58); of 5 real seasons 10+ points under trend the model put 2 below 0.97 (real mean 0.79, model 0.90); biggest miss 1983 (real 80% of trend, model 99%; drought year); without the 5 worst real seasons skill is -0.17. |
+| O'Brien Co., IA | soybean | 1993 (real 23.2, model 44.1); 2006 (real 57.4, model 44.9); 2003 (real 40.6, model 49.8) | No better than trend (skill -0.05, 95% interval -0.39 to +0.06, r 0.07); of 5 real seasons 10+ points under trend the model put 2 below 0.97 (real mean 0.79, model 0.95); biggest miss 1993 (real 52% of trend, model 98%; Midwest flood); model swings 4.2 points a season against 9.8 real. |
+| Saline Co., MO | corn | 1986 (real 126.7, model 99.1); 1996 (real 153.7, model 121.1); 1985 (real 123, model 99.7) | Some skill (skill +0.18, 95% interval +0.08 to +0.30, r 0.69); of 15 real seasons 10+ points under trend the model put 11 below 0.97 (real mean 0.83, model 0.94); biggest miss 1986 (real 128% of trend, model 100%); model swings 5.5 points a season against 16.9 real (direction partly right, size far too small). |
+| Saline Co., MO | soybean | 1986 (real 40.5, model 32.4); 1984 (real 24.7, model 32.8); 1985 (real 39.7, model 32.2) | Some skill (skill +0.15, 95% interval +0.04 to +0.29, r 0.56); of 9 real seasons 10+ points under trend the model put 3 below 0.97 (real mean 0.82, model 0.95); biggest miss 1986 (real 125% of trend, model 100%); model swings 5.1 points a season against 12.8 real (direction partly right, size far too small). |
+| Saunders Co., NE | corn | 1985 (real 125.1, model 94.3); 1993 (real 96.5, model 130); 1995 (real 86.3, model 116.6) | Some skill (skill +0.19, 95% interval +0.02 to +0.36, r 0.59); of 9 real seasons 10+ points under trend the model put 7 below 0.97 (real mean 0.80, model 0.90); biggest miss 1985 (real 129% of trend, model 97%). |
+| Saunders Co., NE | soybean | 1995 (real 27, model 37); 1994 (real 47.9, model 39); 1982 (real 33.7, model 27.5) | Some skill (skill +0.14, 95% interval +0.01 to +0.27, r 0.52); of 9 real seasons 10+ points under trend the model put 7 below 0.97 (real mean 0.80, model 0.89); biggest miss 1995 (real 69% of trend, model 95%). |
+| Story Co., IA | corn | 1992 (real 160.5, model 114.1); 1993 (real 78, model 115.6); 2020 (real 148.4, model 195.3) | No better than trend (skill +0.08, 95% interval -0.26 to +0.29, r 0.40); of 7 real seasons 10+ points under trend the model put 4 below 0.97 (real mean 0.75, model 0.91); biggest miss 1992 (real 115% of trend, model 82%; cool summer and an October freeze in the weather data); without the 5 worst real seasons skill is -0.29. |
+| Story Co., IA | soybean | 2003 (real 32.1, model 47.1); 1993 (real 32, model 43.7); 1988 (real 24.1, model 32.9) | No better than trend (skill +0.09, 95% interval -0.04 to +0.22, r 0.42); of 7 real seasons 10+ points under trend the model put 3 below 0.97 (real mean 0.76, model 0.96); biggest miss 2003 (real 66% of trend, model 98%); model swings 4.4 points a season against 13.2 real; without the 5 worst real seasons skill is -0.02. |
+| Tippecanoe Co., IN | corn | 1992 (real 152.3, model 96.6); 1991 (real 76.1, model 126.2); 1983 (real 72.6, model 111.4) | No better than trend (skill +0.06, 95% interval -0.16 to +0.23, r 0.35); of 8 real seasons 10+ points under trend the model put 5 below 0.97 (real mean 0.72, model 0.95); biggest miss 1992 (real 115% of trend, model 73%; cool summer and an October freeze in the weather data); model swings 6.4 points a season against 15.6 real; without the 5 worst real seasons skill is -0.13. |
+| Tippecanoe Co., IN | soybean | 2003 (real 36.1, model 49.8); 1982 (real 43, model 33.4); 1985 (real 47.2, model 37.7) | Some skill (skill +0.10, 95% interval -0.04 to +0.25, r 0.47); of 7 real seasons 10+ points under trend the model put 3 below 0.97 (real mean 0.81, model 0.95); biggest miss 2003 (real 73% of trend, model 100%); model swings 3.6 points a season against 12.0 real; without the 5 worst real seasons skill is -0.04. |
+| Wood Co., OH | corn | 1992 (real 138.3, model 83); 1993 (real 97.2, model 138.8); 2015 (real 143.2, model 179.9) | No better than trend (skill +0.07, 95% interval -0.25 to +0.30, r 0.42); of 11 real seasons 10+ points under trend the model put 7 below 0.97 (real mean 0.81, model 0.94); biggest miss 1992 (real 110% of trend, model 66%; cool summer and an October freeze in the weather data); without the 5 worst real seasons skill is -0.07. |
+| Wood Co., OH | soybean | 1989 (real 25.7, model 38.7); 2012 (real 53.6, model 41.1); 2008 (real 33.5, model 45.1) | No better than trend (skill +0.07, 95% interval -0.10 to +0.20, r 0.36); of 10 real seasons 10+ points under trend the model put 6 below 0.97 (real mean 0.79, model 0.94); biggest miss 1989 (real 67% of trend, model 102%); model swings 5.3 points a season against 14.4 real; without the 5 worst real seasons skill is -0.10. |
+
+### Reproduce
+
+```
+cd simulator-source
+python3 tools/validate_counties.py          # about 2 minutes; needs node, numpy, scipy, scikit-learn
+python3 tools/validate_counties.py --md     # also prints the markdown tables above
+node --test tests/engine.test.js
+```
+
+It writes `data/validation_counties.json` and `../public/images/validation-counties.svg` and changes nothing else. It reuses `robust_trend`, `process_pred` and `fit_process` from `tools/validate.py` without running it, and never touches `src/engine.js`.
