@@ -1272,6 +1272,16 @@ details.fs-fin-d[open] > summary::before, details.fs-fold[open] > summary::befor
 /* selected rows and chips use the Raw Umber tint, not olive */
 :root { --accent-soft: color-mix(in srgb, #9E6438 28%, #1c1c1c); }
 
+/* ===== Quiet top bar: title on the left; language, help, farm and Run on the right, all the same small size ===== */
+.fs-steps-line { display: none; }
+#fs-header .fs-adjust-title { font-size: 16px; font-weight: 600; }
+#fs-header .fs-lang-select { min-height: 36px; padding: 6px 8px; font-size: 14px; color: var(--text-muted); background: var(--panel); border-color: var(--border-strong); }
+#fs-header .fs-farm-btn { font-size: 14px; }
+#fs-header #fs-run { min-height: 36px; padding: 6px 14px; font-size: 14px; }
+#fs-header .fs-adjust-title { margin-right: auto; }
+#fs-header { justify-content: flex-end; gap: 8px 10px; }
+#fs-header :focus-visible, #fs-header .fsg-launch:focus-visible { outline: 2px solid var(--umber); outline-offset: 2px; box-shadow: none; }
+
 /* Bird's-eye view styles. Every selector is scoped under #fs-view or starts with .fv- (tokens only for color). */
 #fs-view { position: relative; display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: var(--panel); color: var(--text); font-family: var(--font-sans); }
 #fs-view .fv-stage { position: relative; flex: 1 1 auto; min-height: 0; outline: none; background: var(--panel); touch-action: pan-y; }
@@ -1299,7 +1309,7 @@ details.fs-fin-d[open] > summary::before, details.fs-fold[open] > summary::befor
 #fs-view .fv-ftxt { display: flex; flex-direction: column; min-width: 0; }
 #fs-view .fv-fname { font-size: 15px; font-weight: 600; line-height: 1.25; }
 #fs-view .fv-fcrop { font-size: 13px; color: var(--text-muted); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#fs-view .fv-row.fv-flagged .fv-fcrop { color: var(--warn); }
+#fs-view .fv-row.fv-flagged .fv-fcrop { color: var(--text-muted); }
 #fs-view .fv-acres { font: 12px var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-muted); }
 #fs-view .fv-count { display: flex; align-items: center; gap: 8px; padding: 4px 10px 8px; font-size: 12px; color: var(--text-muted); }
 #fs-view .fv-count-btn { min-width: 28px; height: 26px; padding: 0 8px; border: 1px solid var(--border); border-radius: 999px; background: none; color: var(--text); font: 600 12px/1 var(--font-sans); cursor: pointer; }
@@ -3788,10 +3798,13 @@ window.FS = window.FS || {};
       var s = Math.min(w / WW, h / HH), ox = (w - WW * s) / 2, wideStage = !(w < 800 || h < 420);
       if (mp && wideStage) {   // keep the square map clear of the field list (left) and the weather pill (right) when there is room
         var L = legend.getBoundingClientRect().right - stage.getBoundingClientRect().left + 12;
-        var fitIn = function (a, b) { var s2 = Math.min((b - a) / WW, h / HH); return s2 >= s * 0.9 ? { s: s2, ox: a + (b - a - WW * s2) / 2 } : null; };
-        var g = fitIn(L, w - 178) || fitIn(L, w - 8); if (g) { s = g.s; ox = g.ox; }
+        var fitIn = function (a, b, keep) { var s2 = Math.min((b - a) / WW, h / HH); return s2 >= s * keep ? { s: s2, ox: a + (b - a - WW * s2) / 2 } : null; };
+        // a slightly smaller map beside the open field list is better than a bigger map hidden under it
+        var g = fitIn(L, w - 178, 0.9) || fitIn(L, w - 8, 0.9) || fitIn(L, w - 8, 0.5); if (g) { s = g.s; ox = g.ox; }
       }
-      geom = { w: w, h: h, dpr: dpr, s: s, ox: ox, oy: (h - HH * s) / 2 };
+      var oy = (h - HH * s) / 2;
+      if (mp && wideStage && oy > 10) oy = 10;   // a map shorter than the box sits at the top, level with the field list
+      geom = { w: w, h: h, dpr: dpr, s: s, ox: ox, oy: oy };
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
       if (mp) {   // the map picture is drawn once per layout; per frame only the four fields and the effects are painted over it
         var side = Math.max(1, Math.round(MAPSIZE * s * dpr)), mc = mkCanvas(side, side), mx = mc.getContext('2d');

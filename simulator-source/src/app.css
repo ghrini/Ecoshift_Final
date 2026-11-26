@@ -1230,3 +1230,13 @@ details.fs-fin-d[open] > summary::before, details.fs-fold[open] > summary::befor
 #fs-chat .fs-panel-body, #fs-analysis .fs-panel-body { --on-bg-accent: var(--text); }
 /* selected rows and chips use the Raw Umber tint, not olive */
 :root { --accent-soft: color-mix(in srgb, #9E6438 28%, #1c1c1c); }
+
+/* ===== Quiet top bar: title on the left; language, help, farm and Run on the right, all the same small size ===== */
+.fs-steps-line { display: none; }
+#fs-header .fs-adjust-title { font-size: 16px; font-weight: 600; }
+#fs-header .fs-lang-select { min-height: 36px; padding: 6px 8px; font-size: 14px; color: var(--text-muted); background: var(--panel); border-color: var(--border-strong); }
+#fs-header .fs-farm-btn { font-size: 14px; }
+#fs-header #fs-run { min-height: 36px; padding: 6px 14px; font-size: 14px; }
+#fs-header .fs-adjust-title { margin-right: auto; }
+#fs-header { justify-content: flex-end; gap: 8px 10px; }
+#fs-header :focus-visible, #fs-header .fsg-launch:focus-visible { outline: 2px solid var(--umber); outline-offset: 2px; box-shadow: none; }

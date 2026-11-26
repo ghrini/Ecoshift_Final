@@ -372,10 +372,13 @@ window.FS = window.FS || {};
       var s = Math.min(w / WW, h / HH), ox = (w - WW * s) / 2, wideStage = !(w < 800 || h < 420);
       if (mp && wideStage) {   // keep the square map clear of the field list (left) and the weather pill (right) when there is room
         var L = legend.getBoundingClientRect().right - stage.getBoundingClientRect().left + 12;
-        var fitIn = function (a, b) { var s2 = Math.min((b - a) / WW, h / HH); return s2 >= s * 0.9 ? { s: s2, ox: a + (b - a - WW * s2) / 2 } : null; };
-        var g = fitIn(L, w - 178) || fitIn(L, w - 8); if (g) { s = g.s; ox = g.ox; }
+        var fitIn = function (a, b, keep) { var s2 = Math.min((b - a) / WW, h / HH); return s2 >= s * keep ? { s: s2, ox: a + (b - a - WW * s2) / 2 } : null; };
+        // a slightly smaller map beside the open field list is better than a bigger map hidden under it
+        var g = fitIn(L, w - 178, 0.9) || fitIn(L, w - 8, 0.9) || fitIn(L, w - 8, 0.5); if (g) { s = g.s; ox = g.ox; }
       }
-      geom = { w: w, h: h, dpr: dpr, s: s, ox: ox, oy: (h - HH * s) / 2 };
+      var oy = (h - HH * s) / 2;
+      if (mp && wideStage && oy > 10) oy = 10;   // a map shorter than the box sits at the top, level with the field list
+      geom = { w: w, h: h, dpr: dpr, s: s, ox: ox, oy: oy };
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
       if (mp) {   // the map picture is drawn once per layout; per frame only the four fields and the effects are painted over it
         var side = Math.max(1, Math.round(MAPSIZE * s * dpr)), mc = mkCanvas(side, side), mx = mc.getContext('2d');

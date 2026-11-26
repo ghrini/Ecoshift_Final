@@ -88,6 +88,9 @@ body.fsg-open { padding-bottom: 70vh; }
   background: transparent; color: #f4f4f2; border: 1.5px solid #D3AF7C;
 }
 .fsg-launch:hover { background: #262626; }
+/* quiet in the simulator's top bar: the same small dark button as the language picker */
+#fs-header .fsg-launch { font-size: 14px; font-weight: 500; min-height: 36px; padding: 6px 12px; margin-inline-end: 4px; border: 1px solid #3d3d3d; color: #b4b2ac; background: #1c1c1c; }
+#fs-header .fsg-launch:hover { color: #f4f4f2; border-color: #9E6438; background: #1c1c1c; }
 
 @media (max-width: 560px) {
   .fsg-panel { padding: 18px 16px 14px; font-size: 18px; bottom: 8px; }
