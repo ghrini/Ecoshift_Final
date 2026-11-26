@@ -22,6 +22,14 @@
   measureHeader();
   if (window.ResizeObserver) new ResizeObserver(measureHeader).observe(header);
   else window.addEventListener('resize', measureHeader);
+  // The Project Details chip bar can wrap to more rows; jump targets need its real height too.
+  const tocBar = document.querySelector('.toc-bar');
+  function measureToc() {
+    if (tocBar && tocBar.offsetHeight) document.documentElement.style.setProperty('--toc-h', tocBar.offsetHeight + 'px');
+  }
+  measureToc();
+  if (tocBar && window.ResizeObserver) new ResizeObserver(measureToc).observe(tocBar);
+  else window.addEventListener('resize', measureToc);
 
   // Additions to the simulator page, made from here (the frame is on the same site) so the simulator's
   // own file is left untouched:
