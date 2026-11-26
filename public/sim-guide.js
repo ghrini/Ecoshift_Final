@@ -77,7 +77,7 @@
     resultsT: "Your Results",
     results: "The first lines give one answer per field: what to plant, and how it does in its worst year. Below that, how your farm does in a typical year: how much of a normal crop you get and what it earns. Press Show details to read more. Folds below hold About This Range, Costs And Profit, Crop Insurance and Where These Numbers Come From.",
     stripT: "Every Season Since 1982",
-    strip: "Each small square is one real season of weather on your farm. Olive means a good season, brown means a bad one, and grey means about normal. Press a square to see that season.",
+    strip: "Open See All 44 Years in Results. Each small square is one real season of weather on your farm. Olive means a good season, brown means a bad one, and grey means about normal. Press a square to see that season.",
     chatT: "Ask In Your Own Words",
     chat: "Type a question or a change, for example: What if July is very dry? Then press Send. The answers also compare the options for each field. Open Other Options For a field, then press More on an option to read about it. Under each answer, How This Answer Was Made shows which helpers worked on it.",
     outlookT: "The Next 30 Days",
@@ -106,7 +106,7 @@
     { t: "nowT", x: "now", target: ".fs-fm-tabs button[data-t=\"now\"]", optional: true },
     { t: "warnT", x: "warn", target: ".fs-fm-tabs button[data-t=\"now\"]", optional: true },
     { t: "resultsT", x: "results", target: "#fs-analysis" },
-    { t: "stripT", x: "strip", target: "#fs-analysis .fs-strip" },
+    { t: "stripT", x: "strip", target: "#fs-analysis .fs-strip-fold", open: openStrip },
     { t: "chatT", x: "chat", target: "#fs-chat", guideTop: true },
     { t: "outlookT", x: "outlook", target: "#fs-outlook > .fs-panel-head" },
     { t: "bigT", x: "big", target: "#fs-analysis .fs-expand" },
@@ -128,6 +128,11 @@
     var box = document.getElementById("fs-ctl-" + k), was = !!box && !box.classList.contains("is-collapsed");
     fsCall("", "controlsOpen", k, true);
     return was ? null : function () { fsCall("", "controlsOpen", k, false); };
+  }
+  function openStrip() {
+    var d = document.querySelector("#fs-analysis .fs-strip-fold"), was = !!d && d.open;
+    if (d) d.open = true;
+    return was || !d ? null : function () { d.open = false; };
   }
   var closer = null;
   function closeOpened() { var c = closer; closer = null; if (c) c(); }

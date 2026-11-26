@@ -1155,6 +1155,55 @@ details.fs-fold > .fs-recs { margin: 4px 0 0; padding: 0 12px 12px 36px; }
 #fs-outlook.is-collapsed .fs-panel-head { border-bottom: 0; }
 #fs-outlook.is-collapsed .fs-panel-body { display: none; }
 
+/* ===== Plain look: Results and Chat as simple bullets in one text colour; every fold box has a Raw Umber border ===== */
+#fs-analysis .fs-panel-body, #fs-chat .fs-panel-body { color: var(--text); }
+#fs-analysis .fs-verdicts b, #fs-analysis .fs-fin-line b, #fs-chat .fs-panel-body b, #fs-chat .fs-panel-body strong { color: var(--text); font-weight: 600; }
+/* one bullet style for the field lines, the typical-year line and the selected field's range line */
+#fs-analysis .fs-verdicts { list-style: none; padding: 0 0 6px; margin: 0 0 6px; border-bottom: 0; gap: 4px; }
+#fs-analysis .fs-verdicts li, #fs-analysis .fs-sum-line, #fs-analysis .fs-fin-line { position: relative; padding-left: 16px; margin: 0 0 4px; }
+#fs-analysis .fs-verdicts li::before, #fs-analysis .fs-sum-line::before, #fs-analysis .fs-fin-line::before { content: ""; position: absolute; left: 3px; top: 0.62em; width: 5px; height: 5px; border-radius: 50%; background: var(--text-muted); }
+#fs-analysis .fs-fin { border-top: 0; padding-top: 0; margin-top: 0; }
+#fs-analysis .fs-fin-wrap { border-top: 0; margin-top: 0; padding-top: 0; }
+/* the coloured range bar repeats the numbers in the line above it: hidden for a calmer panel */
+#fs-analysis .fs-rbar, #fs-analysis .fs-rbar-cap { display: none; }
+/* the "Real past weather" tag: plain small grey text, no pill */
+#fs-analysis .fs-prov, #fs-ctl-weather .fs-prov, #fs-chat .fs-prov { border: 0; padding: 0; background: none; color: var(--text-faint); font-weight: 500; }
+#fs-analysis .fs-prov-line { margin: 0 0 6px; }
+/* fold boxes: Raw Umber border, plain white heading */
+details.fs-fin-d, details.fs-fold, #fs-analysis details.fs-scn-cmp { border: 1px solid var(--umber); border-radius: var(--radius-md); background: var(--panel-2); margin-top: 8px; }
+details.fs-fin-d > summary, details.fs-fold > summary, #fs-analysis details.fs-scn-cmp > summary { color: var(--text); font-weight: 600; padding: 8px 12px; }
+details.fs-fin-d > summary:hover, details.fs-fold > summary:hover, #fs-analysis details.fs-scn-cmp > summary:hover { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+#fs-analysis details.fs-scn-cmp > *:not(summary) { padding: 0 12px 10px; }
+/* "Show details" looks like the other fold boxes */
+#fs-analysis .fs-run-msg > p > .fs-linkbtn[data-toggle] { display: block; width: 100%; box-sizing: border-box; padding: 8px 12px; border: 1px solid var(--umber); border-radius: var(--radius-md); background: var(--panel-2); color: var(--text); font-weight: 600; }
+#fs-analysis .fs-run-msg > p > .fs-linkbtn[data-toggle]::before { content: "▸ "; color: var(--text-muted); }
+#fs-analysis .fs-run-msg > p > .fs-linkbtn[data-toggle][aria-expanded="true"]::before { content: "▾ "; }
+#fs-analysis .fs-run-msg > p:has(> .fs-linkbtn[data-toggle]) { margin: 8px 0 0; }
+#fs-analysis .fs-details-body { padding: 8px 4px 0; }
+/* the 44-year strip sits inside its fold */
+#fs-analysis .fs-strip-fold .fs-strip-wrap { padding: 4px 12px 10px; }
+/* links and small buttons inside the two panels: plain text colour, underlined */
+#fs-analysis .fs-panel-body a, #fs-chat .fs-panel-body a, #fs-chat .fs-panel-body .fs-linkbtn { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+/* chat: simple round bullets in grey */
+#fs-chat .fs-panel-body ul { list-style: disc; padding-left: 20px; }
+#fs-chat .fs-panel-body li::marker { color: var(--text-muted); }
+/* bullets first, then the fold boxes */
+#fs-analysis .fs-run-msg { display: flex; flex-direction: column; }
+#fs-analysis .fs-run-msg > .fs-prov-line { order: 0; }
+#fs-analysis .fs-run-msg > .fs-verdicts { order: 1; }
+#fs-analysis .fs-run-msg > .fs-sum-line { order: 2; }
+#fs-analysis .fs-run-msg > .fs-fin-wrap { order: 3; }
+#fs-analysis .fs-run-msg > .fs-strip-fold { order: 4; }
+#fs-analysis .fs-run-msg > p:has(> .fs-linkbtn[data-toggle]) { order: 5; }
+#fs-analysis .fs-run-msg > .fs-details-body { order: 6; }
+#fs-analysis .fs-run-msg > :not(.fs-prov-line):not(.fs-verdicts):not(.fs-sum-line):not(.fs-fin-wrap):not(.fs-strip-fold):not(p):not(.fs-details-body) { order: 7; }
+#fs-analysis .fs-fin-line { margin-top: 0; }
+/* the same small triangle on every fold box */
+details.fs-fin-d > summary, details.fs-fold > summary, #fs-analysis details.fs-scn-cmp > summary { list-style: none; }
+details.fs-fin-d > summary::-webkit-details-marker, details.fs-fold > summary::-webkit-details-marker, #fs-analysis details.fs-scn-cmp > summary::-webkit-details-marker { display: none; }
+details.fs-fin-d > summary::before, details.fs-fold > summary::before, #fs-analysis details.fs-scn-cmp > summary::before, #fs-analysis .fs-run-msg > p > .fs-linkbtn[data-toggle]::before { content: "▸"; display: inline-block; width: 1em; color: var(--text-muted); }
+details.fs-fin-d[open] > summary::before, details.fs-fold[open] > summary::before, #fs-analysis details.fs-scn-cmp[open] > summary::before, #fs-analysis .fs-run-msg > p > .fs-linkbtn[data-toggle][aria-expanded="true"]::before { content: "▾"; }
+
 /* Bird's-eye view styles. Every selector is scoped under #fs-view or starts with .fv- (tokens only for color). */
 #fs-view { position: relative; display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: var(--panel); color: var(--text); font-family: var(--font-sans); }
 #fs-view .fv-stage { position: relative; flex: 1 1 auto; min-height: 0; outline: none; background: var(--panel); touch-action: pan-y; }
@@ -5005,7 +5054,7 @@ window.FS = window.FS || {};
     } else {
       open = 'In ' + esc(sc) + ', your farm makes about ' + pctNormal + '% of a normal crop' + (FS.absMoneyOk() ? ' and ' + earns(s.farm.returnTotal) : '') + (changed.length ? ', about the same as your current plan' : '') + '.';
     }
-    h = scenarioBanner(r) + verdictsHtml(r, all, cur0) + '<p>' + open + '</p><div class="fs-strip-wrap"></div>';
+    h = scenarioBanner(r) + verdictsHtml(r, all, cur0) + '<p class="fs-sum-line">' + open + '</p><details class="fs-fin-d fs-strip-fold"><summary>See All 44 Years</summary><div class="fs-strip-wrap"></div></details>';
 
     // Details: plain sentences, a farmer can read them top to bottom.
     var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];

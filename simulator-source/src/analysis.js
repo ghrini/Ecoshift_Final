@@ -126,7 +126,7 @@
     } else {
       open = 'In ' + esc(sc) + ', your farm makes about ' + pctNormal + '% of a normal crop' + (FS.absMoneyOk() ? ' and ' + earns(s.farm.returnTotal) : '') + (changed.length ? ', about the same as your current plan' : '') + '.';
     }
-    h = scenarioBanner(r) + verdictsHtml(r, all, cur0) + '<p>' + open + '</p><div class="fs-strip-wrap"></div>';
+    h = scenarioBanner(r) + verdictsHtml(r, all, cur0) + '<p class="fs-sum-line">' + open + '</p><details class="fs-fin-d fs-strip-fold"><summary>See All 44 Years</summary><div class="fs-strip-wrap"></div></details>';
 
     // Details: plain sentences, a farmer can read them top to bottom.
     var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
