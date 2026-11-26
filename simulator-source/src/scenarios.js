@@ -13,7 +13,7 @@
   // ---------------------------------------------------------------- provenance labels
   var KINDS = {
     observed: { text: 'Observed history', tip: 'What actually happened in the past seasons (NASA POWER daily weather). It shows how a plan did under those conditions. It is not the chance of any season next year.' },
-    current: { text: 'Current observations', tip: 'Weather and satellite readings measured recently on or near your fields. They describe now, not the rest of the season.' },
+    current: { text: 'Current observations', tip: 'Recent satellite readings and weather estimates for your fields. They describe now, not the rest of the season.' },
     forecast: { text: 'Forecast (next 16 days)', tip: 'A weather-model forecast for the next 16 days. Useful for the coming days, not for the whole season.' },
     seasonal: { text: 'Seasonal outlook (days 17-30)', tip: 'A rough long-range estimate for days 17 to 30, an average of many model runs. Much less certain than the 16-day forecast.' },
     assumed: { text: 'Assumed scenario', tip: 'A what-if built on assumed changes with illustrative sizes. It is not a forecast and not a probability.' }

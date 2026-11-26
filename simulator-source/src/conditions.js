@@ -462,7 +462,7 @@
     var urgent = out.length;
     list.forEach(function (w) { if (out.length < 3 && w.level !== 'warn' && !(urgent && w.kind === 'low' && out[0].i === lows[0].n - 1)) out.push({ level: 'info', text: short(w), i: w.lon != null ? w.n - 1 : -1, n: w.n, ev: w.evidence }); });
     var good = goingWell(d), gh = good.length ? '<div class="fs-cn-good"><h4>Going well</h4><ul>' + good.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></div>' : '';
-    var h = '<section class="fs-cn-today" aria-labelledby="fs-cn-h-today"><h3 id="fs-cn-h-today">' + (urgent ? urgent + ' thing' + (urgent > 1 ? 's' : '') + ' to check today' : 'Nothing urgent on your fields today') + '</h3>';
+    var h = '<section class="fs-cn-today" aria-labelledby="fs-cn-h-today"><h3 id="fs-cn-h-today">' + (urgent ? urgent + ' thing' + (urgent > 1 ? 's' : '') + ' to check today' : 'Nothing urgent on your fields today') + (FS.provenance ? ' ' + FS.provenance.badge('current') : '') + '</h3>';
     if (!out.length) return h + '<p class="fs-cn-lead">No warnings on these fields right now. The simulation below can help you plan next season with confidence.</p>' + gh + '</section>';
     if (!urgent) h += '<p class="fs-cn-lead">Worth knowing:</p>';
     return h + '<ul class="fs-cn-check">' + out.map(function (x) {
@@ -524,7 +524,7 @@
     var by = function (t) { return list.filter(function (w) { return (w.topic || 'soil') === t; }); };
     var plural = function (k, one, many) { return k + ' ' + (k === 1 ? one : many); };
     var h = '';
-    if (req.approximate) h += '<p class="fs-cn-note">These are the example fields, so each is checked as a square of its size around its soil survey point. Import your real field outlines (the box below the simulation) for checks on your exact fields.</p>';
+    if (req.approximate) h += '<p class="fs-cn-note">These are the example fields, so each is checked as a square of its size around its soil survey point. Import your real field outlines (the Import Your Real Field box at the top) for checks on your exact fields.</p>';
     h += evLegend();
     h += todayList(d, list);
 
