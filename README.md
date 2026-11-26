@@ -472,6 +472,14 @@ simulator-source/
 
 ---
 
+## Research And Testing
+
+- [`docs/technical-report.md`](docs/technical-report.md): the model, data sources, assumptions, validation method, results and limitations in one report.
+- [`docs/portfolio.md`](docs/portfolio.md): the architecture, the hardest engineering problems, what did not work, what we learned and the team's contributions.
+- [`docs/farmer-testing/`](docs/farmer-testing/): our plan for testing EcoShift with farmers and extension specialists (no sessions have been run yet).
+
+---
+
 ## Credits And Licenses
 
 - **NASA POWER**, NASA Langley Research Center (MERRA-2 from NASA GMAO, CERES SYN1deg): daily weather and soil wetness. https://power.larc.nasa.gov/
