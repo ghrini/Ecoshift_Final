@@ -12,7 +12,10 @@
 //     A hint only: it cannot see a field that is short of nitrogen everywhere and is less reliable early in the season.
 // Growth stage: growing degree days (base 10 C) from the planting date with ECMWF daily temperatures, checked against the NDVI curve.
 // Phosphorus cannot be seen from orbit with any reliability, so it is reported as "soil test needed", not guessed.
-// Scores, yield estimate, root causes and advice are simple published rules and thresholds, not a trained model: they say so on the page.
+// Scores, yield estimate, possible causes and advice are simple published rules and thresholds, not a trained model: they say so on the page.
+// Every score, cause and piece of advice carries an evidence level (fieldevidence.js): indices are satellite indicators, scores and the stage are model estimates,
+// causes are possible explanations with alternatives, advice that rests on an inference is "verify_in_field" and says what to check first, and advice from the
+// farmer's own soil test (sent with the request, kept only in the browser) is "measured".
 "use strict";
 
 const fs = require("fs");
@@ -20,6 +23,7 @@ const os = require("os");
 const path = require("path");
 const { helpers: G } = require("./fieldgeo");
 const S = require("./fieldsat");
+const EV = require("./fieldevidence");
 
 const UA = { "User-Agent": "fieldshift-simulator" };
 const DAY = 864e5, iso = (t) => new Date(t).toISOString().slice(0, 10);
@@ -110,7 +114,7 @@ module.exports = function fieldhealth({ readBody, send }) {
     const fields = (Array.isArray(b && b.fields) ? b.fields : []).slice(0, 4).map((x) => {
       const ring = G.cleanRing(x && x.ring); if (!ring) return null;
       const f = { id: String(x.id || "").replace(/\W/g, "").slice(0, 20), name: String(x.name || x.id || "field").slice(0, 40), ring, holes: [],
-        crop: CROPS[x.crop] ? x.crop : "other", plant: /^\d{4}-\d\d-\d\d$/.test(x.plantDate || "") ? x.plantDate : null, irrigable: !!x.irrigable };
+        soilTest: EV.cleanSoilTest(x.soilTest), crop: CROPS[x.crop] ? x.crop : "other", plant: /^\d{4}-\d\d-\d\d$/.test(x.plantDate || "") ? x.plantDate : null, irrigable: !!x.irrigable };
       f.center = G.interiorPoint(f); return f;
     }).filter(Boolean);
     if (!fields.length) return send(res, 400, { error: "No fields to check." });
@@ -118,37 +122,51 @@ module.exports = function fieldhealth({ readBody, send }) {
     // growing season starts 1 April (north) or 1 October (south of the equator, 6 months later)
     const south = fields.reduce((s, f) => s + f.center[1], 0) / fields.length < 0, m0 = south ? 8 : 2;
     const seasonYear = d.getUTCMonth() >= m0 ? d.getUTCFullYear() : d.getUTCFullYear() - 1, start = Date.UTC(seasonYear, south ? 9 : 3, 1);
-    const key = JSON.stringify([fields.map((f) => [f.ring, f.crop, f.plant]), iso(now)]);
+    const key = JSON.stringify([fields.map((f) => [f.ring, f.crop, f.plant]), iso(now)]);   // the soil test is left out on purpose
     try {
-      if (!memo.has(key)) { const p = run(fields, start, now, seasonYear, normal); memo.set(key, p); p.catch(() => memo.delete(key)); if (memo.size > 50) memo.delete(memo.keys().next().value); }
-      send(res, 200, await memo.get(key));
-    } catch (e) { send(res, 502, { error: "Could not read the Sentinel-2 images: " + e.message }); }
+      // the Sentinel-2 reading is cached per field outline, crop and date; the scores and advice are worked out again each time (a new soil test changes the advice, not the images)
+      if (!memo.has(key)) { const p = run(fields, start, now, seasonYear); memo.set(key, p); p.catch(() => memo.delete(key)); if (memo.size > 50) memo.delete(memo.keys().next().value); }
+      send(res, 200, finish(await memo.get(key), fields, normal, now));
+    } catch (e) { if (process.env.ECO_DEBUG) console.error(e.stack); send(res, 502, { error: "Could not read the Sentinel-2 images: " + e.message }); }
   }
 
-  async function run(fields, start, now, seasonYear, normal) {
+  async function run(fields, start, now, seasonYear) {
     const lons = fields.flatMap((f) => f.ring.map((p) => p[0])), lats = fields.flatMap((f) => f.ring.map((p) => p[1]));
     const bbox = [Math.min(...lons), Math.min(...lats), Math.max(...lons), Math.max(...lats)];
     const items = await searchAll(bbox, start, now);
     const series = {}; fields.forEach((f) => { series[f.id] = []; });
+    let failed = 0;
+    const px = async (...a) => { for (let i = 0; ; i++) { try { return await S.pixels(...a); } catch (e) { if (i >= 2) throw e; await new Promise((r) => setTimeout(r, 400 * (i + 1))); } } };
     for (const it of items) {   // a cheap cloud check on the scene classification first, then the six bands where it is clear
       await Promise.all(fields.map(async (f) => {
-        const scl = await S.pixels(it, ["scl"], f), clear = scl.list.filter((p) => S.CLEAR.has(p.scl)).length / Math.max(1, scl.list.length);
-        if (clear < 0.6) return;
-        const st = stats((await S.pixels(it, BANDS, f)).list);
-        if (st) series[f.id].push(Object.assign({ date: iso(Date.parse(it.properties.datetime)), clear_pct: Math.round(clear * 100) }, st));
+        try {   // a dropped connection is tried again twice; an image that still fails is left out and counted, not allowed to stop the whole check
+          const scl = await px(it, ["scl"], f), clear = scl.list.filter((p) => S.CLEAR.has(p.scl)).length / Math.max(1, scl.list.length);
+          if (clear < 0.6) return;
+          const st = stats((await px(it, BANDS, f)).list);
+          if (st) series[f.id].push(Object.assign({ date: iso(Date.parse(it.properties.datetime)), clear_pct: Math.round(clear * 100) }, st));
+        } catch (e) { failed++; if (failed > items.length) throw e; }
       }));
     }
     const cx = mean(fields.map((f) => f.center[0])), cy = mean(fields.map((f) => f.center[1]));
     const farmKey = `${cy.toFixed(3)}_${cx.toFixed(3)}_${seasonYear}`.replace(/-/g, "m");
-    const out = { season: seasonYear, images: items.length, fields: {}, sources: [`Copernicus Sentinel-2 Level-2A, ${items.length} images from ${iso(start)} to ${iso(now)} (Earth Search on AWS), clearest in each 8 days.`] };
+    const out = { season: seasonYear, images: items.length, sources: [`Satellite Indicator: Copernicus Sentinel-2 Level-2A, ${items.length} images from ${iso(start)} to ${iso(now)} (Earth Search on AWS), clearest in each 8 days.`] };
     const plants = fields.map((f) => (f.plant ? Date.parse(f.plant) : null)).filter(Boolean), p0 = plants.length ? Math.min(...plants) : start;
+    if (failed) out.sources.push(`${failed} image reads (an image of one field) did not answer and were left out.`);
     let heat = [];
-    try { heat = await gdd(cy, cx, p0, Math.min(now, Date.UTC(seasonYear + (cy < 0 ? 1 : 0), cy < 0 ? 4 : 10, 15))); out.sources.push("Growth stage: growing degree days (base 10 °C) from ECMWF daily temperatures since planting."); } catch { /* stage from the NDVI curve alone */ }
+    try { heat = await gdd(cy, cx, p0, Math.min(now, Date.UTC(seasonYear + (cy < 0 ? 1 : 0), cy < 0 ? 4 : 10, 15))); out.sources.push("Model Estimate: growth stage from growing degree days (base 10 °C) on ECMWF model daily temperatures since planting."); } catch { /* stage from the NDVI curve alone */ }
+    out.rows = {}; out.csv = {}; out.heat = heat;
     for (const f of fields) {
       const rows = series[f.id].sort((a, z) => (a.date < z.date ? -1 : 1));
-      out.fields[f.id] = analyse(f, rows, heat, normal, now);
-      out.fields[f.id].csv = writeCsv(farmKey, f, rows);
-      out.fields[f.id].series = rows;
+      out.rows[f.id] = rows; out.csv[f.id] = writeCsv(farmKey, f, rows);
+    }
+    return out;
+  }
+  function finish(raw, fields, normal, now) {
+    const out = { season: raw.season, images: raw.images, fields: {}, sources: raw.sources.slice(), evidence: EV.legend() };
+    for (const f of fields) {
+      out.fields[f.id] = analyse(f, raw.rows[f.id], raw.heat, normal, now);
+      out.fields[f.id].csv = raw.csv[f.id];
+      out.fields[f.id].series = raw.rows[f.id];
     }
     return out;
   }
@@ -171,6 +189,9 @@ function analyse(f, rows, heat, normal, now) {
   if (harvested) stage = "harvested";
   else if (!stage) stage = peak.ndvi > 0.6 && after > 20 * DAY ? "past peak (maturing)" : last.ndvi > 0.5 ? "growing" : "early or bare";
   o.stage = stage; o.gdd = g; o.peak = { date: peak.date, ndvi: peak.ndvi }; o.latest = last;
+  // evidence levels: the stage is a model (temperatures from ECMWF, checked against the NDVI curve); the indices are satellite readings; every score and estimate is our own rule on them
+  o.evidence = { stage: "model_estimate", momentum: "satellite_indicator", peak: "satellite_indicator", latest: "satellite_indicator", healthIndex: "model_estimate", qualityScore: "model_estimate", yieldEstimate: "model_estimate", health: "satellite_indicator" };
+  if (f.soilTest) { o.soilTest = Object.assign({ evidence: "measured", label: `Measured (your soil test${f.soilTest.date ? ", " + f.soilTest.date : ""})`, items: EV.interpretSoilTest(f.soilTest, f.crop) }, f.soilTest); }
   // growth momentum: NDVI change per week over the last three weeks, against the three weeks before
   const t = (r) => Date.parse(r.date) / DAY, lastT = t(last);
   const slope = (a) => { if (a.length < 2) return null; const mx = mean(a.map(t)), my = mean(a.map((r) => r.ndvi)); const num = a.reduce((s, r) => s + (t(r) - mx) * (r.ndvi - my), 0), den = a.reduce((s, r) => s + (t(r) - mx) ** 2, 0); return den ? num / den * 7 : null; };
@@ -191,11 +212,12 @@ function analyse(f, rows, heat, normal, now) {
     canopy: { score: sc(ref.ndvi / C.peak), ndvi: ref.ndvi, cover: ref.fvc, lai: ref.lai, coverDays: Math.round(integral) },
     // the best tenth of any field is greener than its average, so 0.9 or more is full marks and 0.75 or less is a clear shortage; soybeans fix their own nitrogen
     nitrogen: f.crop === "soybean" ? { score: null, sufficiency: round(nsi, 2), ndre: ref.ndre, note: "Soybeans fix their own nitrogen." } : { score: sc((nsi - 0.75) / 0.15), sufficiency: round(nsi, 2), ndre: ref.ndre },
-    phosphorus: { score: null, note: "Not visible from satellite. Test the soil every 2 to 4 years (Bray or Mehlich-3 P)." },
+    phosphorus: { score: null, evidence: "verify_in_field", note: "Not visible from satellite. Test the soil every 2 to 4 years (Bray or Mehlich-3 P)." },
     moisture: { score: sc((ref.ndmi - C.dryNdmi) / (0.4 - C.dryNdmi)), ndmi: ref.ndmi, latest: last.ndmi },
     leaf: { score: sc((ref.s2rep_nm - 715) / 13), redEdgeNm: ref.s2rep_nm, lai: ref.lai },
     uniformity: { score: sc(1 - (ref.ndvi_cv - 0.05) / 0.25), cv: ref.ndvi_cv, p10: ref.ndvi_p10, p90: ref.ndvi_p90 },
   };
+  Object.keys(o.health).forEach((k) => { if (!o.health[k].evidence) o.health[k].evidence = "satellite_indicator"; });
   const H = o.health, v = (k) => (H[k].score == null ? 50 : H[k].score);
   // Health index, 0 to 100: canopy against a healthy crop's peak NDVI for this crop ("normal"), and nitrogen, leaf structure and evenness against the field's own best parts
   o.yieldScore = Math.round(0.35 * v("canopy") + 0.25 * v("nitrogen") + 0.2 * v("moisture") + 0.1 * v("leaf") + 0.1 * v("uniformity"));
@@ -204,54 +226,78 @@ function analyse(f, rows, heat, normal, now) {
   const nb = +normal[f.crop];
   if (nb > 0 && (harvested || /past peak|R4|R5|R6|R7|mature|grain|seed fill|pod/.test(stage))) {
     const k = clamp(0.55 + 0.5 * o.yieldScore / 100, 0.4, 1.12), y = nb * k;
-    o.yieldEstimate = { bu: Math.round(y), low: Math.round(y * 0.85), high: Math.round(y * 1.15), normal: nb, factor: round(k, 2),
+    o.yieldEstimate = { bu: Math.round(y), low: Math.round(y * 0.85), high: Math.round(y * 1.15), normal: nb, factor: round(k, 2), evidence: "model_estimate",
       note: `The estimate is the county normal yield (${nb} bu/acre) scaled by the health index (normal times ${round(k, 2)}), with a range of 0.85 to 1.15 times the estimate.` };
-  } else o.yieldEstimate = { bu: null, note: nb > 0 ? "Too early in the season to estimate." : "No normal yield for this crop." };
+  } else o.yieldEstimate = { bu: null, evidence: "model_estimate", note: nb > 0 ? "Too early in the season to estimate." : "No normal yield for this crop." };
   o.causes = causes(o, C, rows);
   o.advice = advice(o, C, f);
   return o;
 }
 
-// root causes: which of the usual suspects the numbers point to, with the evidence
+// Possible causes: what could explain the numbers, each with the other things that could too and what to look at first.
+// Every cause is a "possible_explanation"; the observation that raised it is a "satellite_indicator".
 function causes(o, C, rows) {
-  const H = o.health, out = [], add = (cause, why, conf) => out.push({ cause, why, confidence: conf });
-  if (H.nitrogen.score != null && H.nitrogen.score < 50) add("Nitrogen may be short", `Red-edge index (NDRE) is ${Math.round(H.nitrogen.sufficiency * 100)}% of the field's own best 10%; under about 82% can mean nitrogen is limiting, but this check is only against the field's own best parts and is less reliable early in the season: confirm with a soil nitrate or tissue test.`, "low");
-  if (H.moisture.score != null && H.moisture.score < 40) add("Water stress", `Leaf water index (NDMI) was ${H.moisture.ndmi} at the reference date, near the dry line of ${C.dryNdmi}.`, "medium");
-  if (H.uniformity.score != null && H.uniformity.score < 50) add("Patchy field", `Greenness varies a lot across the field (spread ${Math.round(H.uniformity.cv * 100)}%; weakest tenth at NDVI ${H.uniformity.p10}, best at ${H.uniformity.p90}). Typical causes: wet or eroded spots, compaction, uneven stand.`, "medium");
-  if (H.canopy.score != null && H.canopy.score < 60 && !(H.nitrogen.score < 50) && !(H.moisture.score < 40)) add("Thin canopy without a clear nutrient or water signal", `Peak NDVI ${o.peak.ndvi} against a healthy ${C.peak}. Check stand count, planting date, pests, disease or hail.`, "low");
+  const H = o.health, out = [];
+  const add = (cause, observed, why, alternatives, verify, conf) => out.push({ cause, observed, observedEvidence: "satellite_indicator", why, alternatives, verify, confidence: conf, evidence: "possible_explanation" });
+  if (H.nitrogen.score != null && H.nitrogen.score < 50) add("Possible nitrogen shortage", `Red-edge index (NDRE) is ${Math.round(H.nitrogen.sufficiency * 100)}% of the field's own best 10%.`,
+    "Under about 82% can go with a nitrogen shortage, but this compares the field only with its own best parts and is less reliable early in the season.", ["water stress", "disease", "soil compaction", "a thin or uneven stand"], "a soil nitrate test or a leaf (tissue) test, and the pattern of the pale zones", "low");
+  if (H.moisture.score != null && H.moisture.score < 40) add("Possible water stress", `Leaf water index (NDMI) was ${H.moisture.ndmi} at the reference date, near the dry line of ${C.dryNdmi}.`,
+    "Low leaf water usually goes with dry soil, but a satellite sees the leaves, not the soil.", ["root damage or compaction", "disease", "a nitrogen or other nutrient shortage", "hail or wind damage to the canopy"], "soil moisture at 6 to 12 inches, and whether leaves roll in the afternoon", "medium");
+  if (H.uniformity.score != null && H.uniformity.score < 50) add("Possible causes of an uneven field", `Greenness varies a lot across the field (spread ${Math.round(H.uniformity.cv * 100)}%; weakest tenth at NDVI ${H.uniformity.p10}, best at ${H.uniformity.p90}).`,
+    "Uneven greenness shows where the crop differs, not why.", ["wet or eroded spots", "compaction", "an uneven stand or planter skips", "different soil types or fertility"], "walk the weakest zones and dig a few plants", "medium");
+  if (H.canopy.score != null && H.canopy.score < 60 && !(H.nitrogen.score < 50) && !(H.moisture.score < 40)) add("Possible thin stand, with no clear nutrient or water signal", `Peak NDVI ${o.peak.ndvi} against a healthy ${C.peak}.`,
+    "The indices do not point to nitrogen or water, so the cause is open.", ["a poor stand or late planting", "pests", "disease", "hail"], "stand count, planting date and a look at roots and leaves", "low");
   // a sudden drop in NDVI between two images before the expected senescence: hail, flooding, lodging or a burn
   for (let i = 1; i < rows.length; i++) {
     const a = rows[i - 1], z = rows[i], gap = (Date.parse(z.date) - Date.parse(a.date)) / DAY;
-    if (a.ndvi > 0.6 && a.ndvi - z.ndvi > 0.2 && gap <= 16 && z.date < (o.south ? (+o.peak.date.slice(5, 7) >= 7 ? +o.peak.date.slice(0, 4) + 1 : o.peak.date.slice(0, 4)) + "-02-25" : o.peak.date.slice(0, 4) + "-08-25")) { add("Sudden damage", `NDVI fell from ${a.ndvi} to ${z.ndvi} between ${a.date} and ${z.date}, before the crop would normally turn. Hail, flooding, lodging or a fire are the usual causes.`, "medium"); break; }
+    if (a.ndvi > 0.6 && a.ndvi - z.ndvi > 0.2 && gap <= 16 && z.date < (o.south ? (+o.peak.date.slice(5, 7) >= 7 ? +o.peak.date.slice(0, 4) + 1 : o.peak.date.slice(0, 4)) + "-02-25" : o.peak.date.slice(0, 4) + "-08-25")) {
+      add("Possible sudden damage", `NDVI fell from ${a.ndvi} to ${z.ndvi} between ${a.date} and ${z.date}, before the crop would normally turn.`,
+        "A sharp drop between two images is a clue that something happened, not what.", ["hail", "flooding", "lodging (flattened crop)", "fire", "an early cut or harvest"], "walk the area: hail bruising, silt or flattened plants will be clear on the ground", "medium"); break;
+    }
   }
-  if (!out.length) out.push({ cause: "No clear problem in the latest image", why: "Canopy, nitrogen, water and uniformity are all in the healthy range on this season's satellite indices. Weak growth zones from last summer's image, if there are any, are listed separately under Warnings.", confidence: "medium" });
+  if (!out.length) out.push({ cause: "No clear problem seen in the latest image", observed: "Canopy, nitrogen, water and uniformity are all in the healthy range on this season's satellite indices.", observedEvidence: "satellite_indicator",
+    why: "A healthy index does not rule out a problem a satellite cannot see, such as low phosphorus or potassium, or pests early on. Weak growth zones from last summer's image, if there are any, are listed separately under Warnings.", alternatives: [], verify: "routine scouting and your soil test", confidence: "medium", evidence: "satellite_indicator" });
   return out;
 }
 
-// prioritised, stage-aware advice in four groups
+// prioritised, stage-aware advice. Every item has an evidence level: advice that rests on an inference is "verify_in_field" and says what to check first;
+// advice from the farmer's own soil test is "measured" and says so.
 function advice(o, C, f) {
-  const H = o.health, s = o.stage, A = [], add = (topic, priority, text) => A.push({ topic, priority, text });
-  const post = s === "harvested" || /mature|R6|R7|past peak/.test(s);
+  const H = o.health, s = o.stage, A = [];
+  const add = (topic, priority, evidence, text, verify) => A.push(Object.assign({ topic, priority, evidence, text: verify ? `${text} Check first: ${verify}.` : text }, verify ? { verifyFirst: verify } : {}));
+  const post = s === "harvested" || /mature|R6|R7|past peak/.test(s), T = f.soilTest;
   const nTime = C.nStages.some((x) => s.indexOf(x) >= 0), wTime = C.waterStages.some((x) => s.indexOf(x) >= 0);
+  const HINT = "NDRE against the field's own best 10% cannot see a field that is short of nitrogen everywhere and is less reliable early in the season, so treat it as a hint";
+  const NCHK = "a soil nitrate test or a leaf (tissue) test, and whether the pale zones follow wet spots, compaction or the planter";
   // irrigation
-  if (post) add("Irrigation", "low", "Season's water use is over: no irrigation needed.");
-  else if (H.moisture.score != null && H.moisture.score < 40) add("Irrigation", wTime ? "high" : "medium", f.irrigable ? `Leaves are short of water (NDMI ${H.moisture.latest})${wTime ? ` at ${s}, when ${C.label} yield is most sensitive` : ""}: apply about 25 mm (1 inch) this week unless rain is forecast.` : `Leaves are short of water (NDMI ${H.moisture.latest}) and the field is not irrigated: avoid extra stress such as late herbicide passes.`);
-  else add("Irrigation", "low", "Leaf water is fine: no irrigation needed now.");
+  if (post) add("Irrigation", "low", "model_estimate", "Season's water use is over: no irrigation needed.");
+  else if (H.moisture.score != null && H.moisture.score < 40) add("Irrigation", wTime ? "high" : "medium", "verify_in_field",
+    f.irrigable ? `Leaves look short of water (NDMI ${H.moisture.latest})${wTime ? ` at ${s}, when ${C.label} yield is most sensitive` : ""}. If the soil is dry too, apply about 25 mm (1 inch) this week unless rain is forecast.` : `Leaves look short of water (NDMI ${H.moisture.latest}) and the field is not irrigated: avoid extra stress such as late herbicide passes.`,
+    "soil moisture at 6 to 12 inches, and whether leaves roll in the afternoon (low leaf water can also come from disease or root damage)");
+  else add("Irrigation", "low", "satellite_indicator", "Leaf water index is in the normal range: no irrigation signal now (it reads the leaves, not the soil).");
   // nutrition
   if (H.nitrogen.score != null && H.nitrogen.score < 50) {
-    if (nTime) add("Nutrition", "medium", `Nitrogen may be short at ${s} (NDRE ${Math.round(H.nitrogen.sufficiency * 100)}% of the best part of the field). NDRE against the field's own best 10% cannot see a field that is short of nitrogen everywhere, and it is less reliable early in the season, so treat it as a hint. Check with a soil nitrate or tissue test before side-dressing; if confirmed, 30 to 50 lb N/acre, more where the field is palest.`);
-    else if (post) add("Nutrition", "medium", `Nitrogen may have run short this season (${Math.round(H.nitrogen.sufficiency * 100)}% of the field's best). NDRE against the field's own best 10% cannot see a field that is short of nitrogen everywhere, and it is less reliable early in the season, so treat it as a hint. Next season, check the rate with a late-spring nitrate test and split the application.`);
-    else add("Nutrition", "medium", `Nitrogen may be short (${Math.round(H.nitrogen.sufficiency * 100)}% of the field's best), past the usual side-dress window. NDRE against the field's own best 10% cannot see a field that is short of nitrogen everywhere, and it is less reliable early in the season, so treat it as a hint. Note the pale zones and confirm with a soil nitrate or tissue test before changing next year's plan.`);
-  } else add("Nutrition", "low", f.crop === "soybean" ? "Soybeans fix their own nitrogen; the red edge shows no nitrogen shortage." : "The red edge shows no uneven nitrogen shortage (it cannot see a shortage across the whole field: a soil nitrate or tissue test can).");
-  add("Nutrition", post ? "medium" : "low", "Phosphorus and potassium cannot be read from satellite: " + (post ? "now, after harvest, is the time to soil-sample (every 2.5 acres or by zone)." : "rely on your last soil test."));
+    if (nTime) add("Nutrition", "medium", "verify_in_field", `Nitrogen may be short at ${s} (NDRE ${Math.round(H.nitrogen.sufficiency * 100)}% of the best part of the field). ${HINT}. If a test confirms it, 30 to 50 lb N/acre is a common side-dress, more where the field is palest.`, NCHK + " before side-dressing");
+    else if (post) add("Nutrition", "medium", "verify_in_field", `Nitrogen may have run short this season (${Math.round(H.nitrogen.sufficiency * 100)}% of the field's best). ${HINT}. Next season, set the rate with a late-spring nitrate test and split the application.`, NCHK);
+    else add("Nutrition", "medium", "verify_in_field", `Nitrogen may be short (${Math.round(H.nitrogen.sufficiency * 100)}% of the field's best), past the usual side-dress window. ${HINT}. Note the pale zones before changing next year's plan.`, NCHK);
+  } else add("Nutrition", "low", "satellite_indicator", f.crop === "soybean" ? "Soybeans fix their own nitrogen; the red edge shows no nitrogen shortage." : "The red edge shows no uneven nitrogen shortage (it cannot see a shortage across the whole field: a soil nitrate or tissue test can).");
+  const tp = T && (T.pPpm != null || T.kPpm != null);
+  if (!tp) add("Nutrition", post ? "medium" : "low", "verify_in_field", "Phosphorus and potassium cannot be read from satellite, and you have not entered a soil test for this field: " + (post ? "now, after harvest, is the time to soil-sample (every 2.5 acres or by zone)." : "rely on your last soil test, or sample after harvest."), "your last lab soil test for P and K (enter it in the Soil Health card)");
   // soil moisture
-  if (post) add("Soil moisture", "low", "Keep heavy equipment off wet ground this fall to avoid compaction; keep residue or plant a cover crop to hold soil water and topsoil over winter.");
-  else if (H.moisture.latest != null && H.moisture.latest > 0.4) add("Soil moisture", "medium", "Leaves show plenty of water; if the ground is saturated, stay off it with heavy machinery.");
-  else add("Soil moisture", H.moisture.score < 40 ? "medium" : "low", H.moisture.score < 40 ? "Conserve soil water: no tillage, keep residue on the surface." : "Soil water looks adequate for the crop.");
+  if (post) add("Soil moisture", "low", "verify_in_field", "Keep heavy equipment off wet ground this fall to avoid compaction; keep residue or plant a cover crop to hold soil water and topsoil over winter.", "the squeeze test (a handful that holds a ball and does not crumble is too wet to drive on)");
+  else if (H.moisture.latest != null && H.moisture.latest > 0.4) add("Soil moisture", "medium", "verify_in_field", "Leaves show plenty of water; if the ground is saturated, stay off it with heavy machinery.", "the squeeze test on the soil before driving on it");
+  else if (H.moisture.score < 40) add("Soil moisture", "medium", "verify_in_field", "Conserve soil water: no tillage, keep residue on the surface.", "soil moisture at 6 to 12 inches");
+  else add("Soil moisture", "low", "satellite_indicator", "Leaf water looks adequate for the crop, which usually goes with adequate soil water (it does not measure the soil).");
   // uniformity
-  if (H.uniformity.score != null && H.uniformity.score < 50) add("Uniformity", "high", `The field is uneven (NDVI from ${H.uniformity.p10} in the weakest tenth to ${H.uniformity.p90} in the best). Walk the weak areas to find the cause, then manage them as zones: variable-rate seed and nitrogen, drainage for wet spots, erosion control on knolls.`);
-  else if (H.uniformity.score != null && H.uniformity.score < 75) add("Uniformity", "medium", "Some unevenness: look at the weak growth zones on the map before deciding next year's rates.");
-  else add("Uniformity", "low", "The field is even: one rate across it is fine.");
+  if (H.uniformity.score != null && H.uniformity.score < 50) add("Uniformity", "high", "verify_in_field", `The field is uneven (NDVI from ${H.uniformity.p10} in the weakest tenth to ${H.uniformity.p90} in the best). Once you know the cause, manage the zones: variable-rate seed and nitrogen, drainage for wet spots, erosion control on knolls.`, "walk the weak areas to find the cause (wet spot, compaction, planter skip, low fertility) before changing any rate");
+  else if (H.uniformity.score != null && H.uniformity.score < 75) add("Uniformity", "medium", "verify_in_field", "Some unevenness: look at the weak growth zones on the map before deciding next year's rates.", "the weak zones on the ground");
+  else add("Uniformity", "low", "satellite_indicator", "The field looks even from above: one rate across it is reasonable.");
+  // the farmer's own soil test comes first where there is one
+  const nm = { ph: "Lime", om: "Organic matter", p: "Phosphorus", k: "Potassium", no3: "Nitrate" };
+  EV.interpretSoilTest(T, f.crop).forEach((it) => {
+    const lowish = /likely (worth|limiting)|likely to need/.test(it.action);
+    A.push({ topic: nm[it.key], priority: lowish ? "medium" : "low", evidence: "measured", basis: it.basis, text: `Based on ${it.basis}: ${it.text} ${it.action}` });
+  });
   const order = { high: 0, medium: 1, low: 2 };
   return A.sort((a, z) => order[a.priority] - order[z.priority]);
 }

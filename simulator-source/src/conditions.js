@@ -25,12 +25,12 @@
   function request() {
     var su = FS.farmSetup && FS.farmSetup.setup, g = su && !su.example && su.geo, F = FS.data.farm.fields;
     if (g && g.fields.every(function (f) { return Array.isArray(f.ring) && f.ring.length >= 3; })) {
-      return { approximate: false, fields: g.fields.filter(function (f) { return F.some(function (x) { return x.id === f.id; }); }).map(function (f) { return { id: f.id, name: f.name, ring: f.ring, holes: Array.isArray(f.holesLL) ? f.holesLL.filter(function (h) { return Array.isArray(h) && h.length >= 3; }) : [] }; }) };
+      return { approximate: false, fields: g.fields.filter(function (f) { return F.some(function (x) { return x.id === f.id; }); }).map(function (f) { return { id: f.id, name: f.name, ring: f.ring, holes: Array.isArray(f.holesLL) ? f.holesLL.filter(function (h) { return Array.isArray(h) && h.length >= 3; }) : [], survey: surveyOf(f.id) }; }) };
     }
     return { approximate: true, fields: F.map(function (f) {
       var p = f.soil && f.soil.point; if (!p) return null;
       var half = Math.sqrt(f.acres * 4046.86) / 2, dy = half / 110574, dx = half / (111320 * Math.cos(p[1] * R));
-      return { id: f.id, name: f.name, ring: [[p[0] - dx, p[1] - dy], [p[0] + dx, p[1] - dy], [p[0] + dx, p[1] + dy], [p[0] - dx, p[1] + dy]] };
+      return { id: f.id, name: f.name, ring: [[p[0] - dx, p[1] - dy], [p[0] + dx, p[1] - dy], [p[0] + dx, p[1] + dy], [p[0] - dx, p[1] + dy]], survey: surveyOf(f.id) };
     }).filter(Boolean) };
   }
 
@@ -57,7 +57,7 @@
     var irr = !!(FS.farmSetup && FS.farmSetup.canIrrigate);
     return { normalYield: E.normalYield || {}, fields: req.fields.map(function (x) {
       var f = F.filter(function (q) { return q.id === x.id; })[0] || {}, crop = f.lastCrop === 'soybean' ? 'soybean' : 'corn';
-      return { id: x.id, name: x.name, ring: x.ring, holes: x.holes || [], crop: crop, plantDate: y + (south ? (crop === 'corn' ? '-10-28' : '-11-15') : (crop === 'corn' ? '-04-28' : '-05-15')), irrigable: irr };
+      return { id: x.id, name: x.name, ring: x.ring, holes: x.holes || [], soilTest: testOf(x.id) || undefined, crop: crop, plantDate: y + (south ? (crop === 'corn' ? '-10-28' : '-11-15') : (crop === 'corn' ? '-04-28' : '-05-15')), irrigable: irr };
     }) };
   }
   function loadHealth(req, force) {
@@ -79,17 +79,119 @@
       '<line x1="6" x2="' + (W - 6) + '" y1="' + sy(0).toFixed(1) + '" y2="' + sy(0).toFixed(1) + '" class="fs-hl-zero"/>' + line('ndvi', 'fs-hl-ndvi') + line('ndmi', 'fs-hl-ndmi') +
       '<text x="6" y="11" class="fs-hl-ax">' + esc(rows[0].date.slice(5)) + '</text><text x="' + (W - 6) + '" y="11" class="fs-hl-ax" text-anchor="end">' + esc(rows[rows.length - 1].date.slice(5)) + '</text></svg>';
   }
-  function bar(label, sc, detail) {
+  function bar(label, sc, detail, ev) {
     return '<div class="fs-hl-bar"><span class="fs-hl-bl">' + label + '</span><span class="fs-hl-track">' + (sc == null ? '' : '<i class="' + (sc >= 70 ? 'ok' : sc >= 45 ? 'mid' : 'bad') + '" style="width:' + sc + '%"></i>') + '</span>' +
-      '<span class="fs-hl-v">' + (sc == null ? 'n/a' : sc) + '</span><span class="fs-hl-d">' + detail + '</span></div>';
+      '<span class="fs-hl-v">' + (sc == null ? 'n/a' : sc) + '</span><span class="fs-hl-d">' + detail + (ev ? ' ' + evb(ev) : '') + '</span></div>';
   }
   function csvHref(rows) {
     var cols = ['date', 'clear_pct', 'ndvi', 'ndvi_p10', 'ndvi_p90', 'ndvi_cv', 'ndre', 'ndre_p90', 'n_sufficiency', 'ndmi', 's2rep_nm', 'savi', 'lai', 'fvc'];
     var t = cols.join(',') + '\n' + rows.map(function (r) { return cols.map(function (k) { return r[k] == null ? '' : r[k]; }).join(','); }).join('\n') + '\n';
     return 'data:text/csv;charset=utf-8,' + encodeURIComponent(t);
   }
+  // ---------------------------------------------------------------- evidence labels and the soil-health card
+  // Five levels say how sure a finding is (the server sends one with every finding, score, warning and piece of advice). The badges are small and quiet;
+  // the legend sits once, in a closed box near the top.
+  var EVL = { measured: 'Measured', satellite_indicator: 'Satellite Indicator', model_estimate: 'Model Estimate', possible_explanation: 'Possible Explanation', verify_in_field: 'Check In The Field' };
+  var EVM = { measured: 'A direct reading, such as a weather station, a probe or your own soil test.', satellite_indicator: 'Something a satellite sees (greenness, red edge, bare soil, fire). A clue, not a diagnosis.',
+    model_estimate: 'Worked out by a model or a map (weather models, SoilGrids, soil survey) or by a scoring rule. Not measured on this field.', possible_explanation: 'One of several things that could explain what the satellite sees. Not confirmed.',
+    verify_in_field: 'A recommendation that depends on an inference: look at the field or test first.' };
+  function evb(l, label) { return l && EVL[l] ? '<span class="fs-ev fs-ev-' + l + '" title="' + esc(EVM[l]) + '">' + esc(label || EVL[l]) + '</span>' : ''; }
+  function evLegend() {
+    return '<details class="fs-cn-more fs-ev-legend"><summary>What The Labels Mean</summary><ul>' + Object.keys(EVL).map(function (k) { return '<li>' + evb(k) + ' ' + esc(EVM[k]) + '</li>'; }).join('') +
+      '</ul><p class="fs-fm-faint fs-hl-small">A satellite sees a symptom (for example pale leaves), not its cause. Findings are labelled so a clue is not mistaken for a diagnosis.</p></details>';
+  }
+
+  // the farmer's own soil tests: kept in this browser only (localStorage, one entry per field); a copy in memory if the browser will not store them
+  var SKEY = 'ecoshift-soil-tests-v1', memTests = null, shOpen = {}, shMsg = {};
+  function loadTests() {
+    if (memTests) return memTests;
+    var j = null; try { j = JSON.parse(localStorage.getItem(SKEY) || '{}'); } catch (e) { j = null; }
+    memTests = j && typeof j === 'object' && !Array.isArray(j) ? j : {}; return memTests;
+  }
+  function saveTests() { try { localStorage.setItem(SKEY, JSON.stringify(memTests || {})); return true; } catch (e) { return false; } }
+  function testOf(id) { var t = loadTests()[id]; return t && typeof t === 'object' ? t : null; }
+  function surveyOf(id) {
+    var f = ((FS.data && FS.data.farm && FS.data.farm.fields) || []).filter(function (q) { return q.id === id; })[0], s = f && f.soil;
+    return s && s.awcMmPerM ? { name: s.name || '', awcMmPerM: s.awcMmPerM, drainage: s.drainage || '', hydgrp: s.hydgrp || '', source: s.source === 'soilgrids' ? 'soilgrids' : 'nrcs' } : undefined;
+  }
+  var TEST_KEY = { om: 'om', ph: 'ph', n: 'no3Ppm', p: 'pPpm', k: 'kPpm', infiltration: 'infiltrationMin', bio: 'earthworms' };
+  var P_NAME = { bray1: 'Bray-1', mehlich3: 'Mehlich-3', olsen: 'Olsen', other: 'method not listed' };
+  function measuredText(key, t) {
+    var v = t[TEST_KEY[key]];
+    return key === 'om' ? v + '% organic matter' : key === 'ph' ? 'pH ' + v : key === 'n' ? v + ' ppm nitrate-N' : key === 'p' ? v + ' ppm (' + (P_NAME[t.pMethod] || P_NAME.other) + ')' : key === 'k' ? v + ' ppm' : key === 'infiltration' ? v + ' min for the ring to drain' : v + ' earthworms counted';
+  }
+  function hasTest(id, key) { var t = testOf(id); return !!(t && t[key] != null); }
+  function field(v) { var x = parseFloat(String(v).replace(',', '.')); return isFinite(x) ? x : null; }
+  function formVal(t, k) { return t && t[k] != null ? esc(t[k]) : ''; }
+  function inp(id, name, label, t, attrs) { return '<label class="fs-sh-l">' + esc(label) + '<input type="number" inputmode="decimal" step="any" name="' + name + '" value="' + formVal(t, name) + '" ' + (attrs || '') + '></label>'; }
+
+  function soilHealthHTML(d, req) {
+    var cards = '';
+    req.fields.forEach(function (f) {
+      var x = d.fields && d.fields[f.id], rows = x && x.soilHealth && x.soilHealth.rows; if (!rows) return;
+      var t = testOf(f.id), cnt = { measured: 0, mapped: 0, sat: 0, need: 0 };
+      var body = rows.map(function (r) {
+        var meas = t && t[TEST_KEY[r.key]] != null, lab = r.key === 'infiltration' || r.key === 'bio' ? 'field check' : 'soil test', cmp = '';
+        if (meas) {
+          cnt.measured++;
+          var mv = r.key === 'om' ? r.organicMatterPct : r.key === 'ph' ? field(r.value) : null;
+          if (mv != null) { var df = Math.round((t[TEST_KEY[r.key]] - mv) * 10) / 10; cmp = '<span class="fs-sh-cmp">Map estimate ' + mv + (r.key === 'om' ? '%' : '') + (df === 0 ? ': the same' : ': your test is ' + Math.abs(df) + (df > 0 ? ' higher' : ' lower')) + '</span>'; }
+          else if (r.value) cmp = '<span class="fs-sh-cmp">Map estimate: ' + esc(r.value) + '</span>';
+          return '<tr><th scope="row">' + esc(r.label) + '</th><td><b>' + esc(measuredText(r.key, t)) + '</b>' + cmp + '</td><td>' + evb('measured', 'Measured (your ' + lab + (t.date ? ', ' + t.date : '') + ')') + '</td><td class="fs-sh-src">Your ' + lab + '</td></tr>';
+        }
+        if (r.evidence === 'model_estimate') cnt.mapped++; else if (r.evidence === 'satellite_indicator') cnt.sat++; else cnt.need++;
+        var needName = r.need ? r.need.split(' (')[0] : '', needMore = r.need && r.need.indexOf(' (') > 0 ? r.need.slice(r.need.indexOf(' (')) : '';
+        return '<tr><th scope="row">' + esc(r.label) + '</th><td>' + (r.value ? esc(r.value) : '<b class="fs-sh-need">' + esc(needName) + '</b>') + '</td><td>' + evb(r.evidence) + '</td><td class="fs-sh-src">' + esc(r.source) +
+          (r.note ? '<br><span class="fs-fm-faint">' + esc(r.note) + '</span>' : '') + (r.value && needName ? '<br><span class="fs-fm-faint">' + esc(needName + needMore) + ' to confirm.</span>' : r.value ? '' : '<br><span class="fs-fm-faint">' + esc(needMore.replace(/^ \(|\)$/g, '')) + '</span>') + '</td></tr>';
+      }).join('');
+      var sum = 'Soil Health, ' + f.name + ': ' + cnt.mapped + ' mapped estimate' + (cnt.mapped === 1 ? '' : 's') + (cnt.sat ? ', ' + cnt.sat + ' satellite' : '') + ', ' + cnt.measured + ' measured, ' + cnt.need + ' need a test';
+      var hf = hs.data && hs.data.fields && hs.data.fields[f.id], items = hf && hf.soilTest && hf.soilTest.items || [];
+      var says = items.length ? '<h5>What Your Soil Test Says</h5><ul class="fs-sh-says">' + items.map(function (it) { return '<li>' + evb('measured') + ' ' + esc(it.basis.charAt(0).toUpperCase() + it.basis.slice(1) + ': ' + it.text + ' ' + it.action) + '</li>'; }).join('') + '</ul>' : '';
+      var form = '<h5>Enter Your Soil Test</h5><form class="fs-sh-form" data-f="' + esc(f.id) + '" autocomplete="off"><div class="fs-sh-grid">' +
+        '<label class="fs-sh-l">Sample date<input type="date" name="date" value="' + (t && t.date ? esc(t.date) : '') + '" max="' + new Date().toISOString().slice(0, 10) + '"></label>' +
+        inp(f.id, 'om', 'Organic matter (%)', t, 'min="0" max="30"') + inp(f.id, 'ph', 'pH', t, 'min="3" max="10"') + inp(f.id, 'pPpm', 'Phosphorus, P (ppm)', t, 'min="0"') +
+        '<label class="fs-sh-l">P method<select name="pMethod">' + ['bray1', 'mehlich3', 'olsen', 'other'].map(function (m) { return '<option value="' + m + '"' + (t && t.pMethod === m ? ' selected' : '') + '>' + P_NAME[m] + '</option>'; }).join('') + '</select></label>' +
+        inp(f.id, 'kPpm', 'Potassium, K (ppm)', t, 'min="0"') + inp(f.id, 'no3Ppm', 'Nitrate-N (ppm)', t, 'min="0"') +
+        inp(f.id, 'infiltrationMin', 'Infiltration ring time (min, optional)', t, 'min="0"') + inp(f.id, 'earthworms', 'Earthworm count per spade (optional)', t, 'min="0"') +
+        '<label class="fs-sh-l fs-sh-wide">Notes (optional)<input type="text" name="notes" maxlength="240" value="' + (t && t.notes ? esc(t.notes) : '') + '"></label></div>' +
+        '<div class="fs-sh-btns"><button type="submit" class="fs-fm-btn">Save Soil Test</button>' + (t ? '<button type="button" class="fs-fm-btn fs-sh-clear">Remove</button>' : '') + '</div>' +
+        '<p class="fs-fm-faint fs-hl-small" role="status">' + esc(shMsg[f.id] || 'Saved only in this browser, never sent for storage. It is used in the advice for this field (lime from pH, fertiliser from P and K).') + '</p></form>';
+      cards += '<details class="fs-cn-more fs-sh"' + (shOpen[f.id] ? ' open' : '') + '><summary>' + esc(sum) + '</summary>' +
+        '<div class="fs-cn-tablewrap" tabindex="0" aria-label="Soil health rows, scrolls sideways"><table class="fs-cn-table fs-sh-table"><caption class="fs-cn-sr">Soil health evidence for ' + esc(f.name) + '</caption><thead><tr><th scope="col">Soil Property</th><th scope="col">Value</th><th scope="col">Evidence</th><th scope="col">Source</th></tr></thead><tbody>' + body + '</tbody></table></div>' +
+        says + form + '</details>';
+    });
+    if (!cards) return '';
+    return '<div class="fs-sh-wrap"><h4 class="fs-cn-sub">Soil Health <span class="fs-fm-faint">(open a field to see the rows)</span></h4>' + cards + rotationNote() + '</div>';
+  }
+  function rotationNote() {
+    var RS = evb('possible_explanation', 'Published Research (not measured on this field)').replace('fs-ev-possible_explanation', 'fs-ev-research');
+    return '<details class="fs-cn-more fs-sh-rot"><summary>How Rotations Affect Soil Health</summary>' +
+      '<p><b>EcoShift does not measure long-term soil-health change.</b> Comparing yields under different rotations does not show it: soil health also means organic carbon, structure, water infiltration, moisture retention, nutrient supply, erosion and biological activity. Only repeated soil tests (same spot, same lab, same season, every 2 to 3 years) plus field checks can show a trend on your field.</p>' +
+      '<ul class="fs-sh-says"><li>' + RS + ' <b>Cereal rye cover:</b> expected to cut erosion and nitrate loss to drainage water; it can slow corn that follows it. <span class="fs-fm-faint">Iowa State University Extension (Iowa Nutrient Reduction Strategy); USDA NRCS.</span></li>' +
+      '<li>' + RS + ' <b>Corn-soybean rotation:</b> expected to give a nitrogen credit to corn after soybeans and to break pest and disease cycles. <span class="fs-fm-faint">Iowa State University Extension (corn nitrogen guidelines, PM 1714).</span></li>' +
+      '<li>' + RS + ' <b>Continuous corn:</b> expected to leave more residue and to need more nitrogen, often with a yield penalty. <span class="fs-fm-faint">Iowa State University Extension; USDA NRCS.</span></li></ul>' +
+      '<p class="fs-fm-faint fs-hl-small">Links to each source are listed in DATA_NOTES.md.</p></details>';
+  }
+  function wireSoil() {
+    Array.prototype.forEach.call(layer.querySelectorAll('.fs-sh-form'), function (fm) {
+      var id = fm.getAttribute('data-f');
+      function done(msg) { shOpen[id] = true; shMsg[id] = msg; render(); if (st.req) loadHealth(st.req, true); }
+      fm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var g = function (n) { return fm.elements[n] ? fm.elements[n].value : ''; }, t = { date: g('date') || null, pMethod: g('pMethod') || 'other', notes: g('notes').slice(0, 240) };
+        ['om', 'ph', 'pPpm', 'kPpm', 'no3Ppm', 'infiltrationMin', 'earthworms'].forEach(function (k) { t[k] = field(g(k)); });
+        var rg = { om: [0, 30], ph: [3, 10], pPpm: [0, 600], kPpm: [0, 2000], no3Ppm: [0, 400], infiltrationMin: [0, 600], earthworms: [0, 1000] }, bad = Object.keys(rg).filter(function (k) { return t[k] != null && (t[k] < rg[k][0] || t[k] > rg[k][1]); });
+        if (bad.length) { shOpen[id] = true; shMsg[id] = 'A value is out of range (pH 3 to 10, organic matter 0 to 30%). Check the numbers.'; return render(); }
+        if (!Object.keys(rg).some(function (k) { return t[k] != null; })) { shOpen[id] = true; shMsg[id] = 'Enter at least one value.'; return render(); }
+        loadTests()[id] = t;
+        done(saveTests() ? 'Saved in this browser.' : 'This browser would not keep it (private window?), so it is used only until you close the page.');
+      });
+      var c = fm.querySelector('.fs-sh-clear');
+      if (c) c.addEventListener('click', function () { delete loadTests()[id]; saveTests(); done('Removed.'); });
+    });
+  }
   function healthHTML() {
-    var h = '<h4 class="fs-cn-sub">This season, field by field <span class="fs-fm-faint">(Copernicus Sentinel-2)</span></h4>';
+    var h = '<h4 class="fs-cn-sub">This season, field by field <span class="fs-fm-faint">(Copernicus Sentinel-2)</span> ' + evb('satellite_indicator') + '</h4>';
     if (hs.busy) return h + '<div class="fs-fm-busy" role="status"><span class="fs-fm-spin" aria-hidden="true"></span>Reading this season’s Sentinel-2 images of each field… <span class="fs-cn-hsec">' + Math.round((Date.now() - hs.t0) / 1000) + '</span> s <span class="fs-fm-faint">(15 to 60 s the first time)</span></div>';
     if (hs.err) return h + '<p class="fs-fm-msg fs-fm-err">' + esc(hs.err) + '</p>';
     if (!hs.data) return h;
@@ -100,22 +202,22 @@
       h += '<article class="fs-hl-field"><header><strong>' + esc(f.name) + '</strong> <span class="fs-fm-faint">' + esc(f.crop === 'soybean' ? 'soybeans' : f.crop) + ' · ' + f.observations + ' clear images</span></header>';
       if (f.error) { h += '<p>' + esc(f.error) + '</p></article>'; return; }
       var M = f.momentum || {}, Y = f.yieldEstimate || {}, hi = f.healthIndex != null ? f.healthIndex : f.yieldScore;
-      h += '<div class="fs-hl-scores"><span class="fs-hl-big ' + (hi >= 70 ? 'ok' : hi >= 45 ? 'mid' : 'bad') + '">Health <b>' + hi + '</b>/100</span><span>Stage <b>' + esc(f.stage) + '</b></span><span>Growth <b>' + esc(M.word) + '</b></span><span>Yield guide <b>' + (Y.bu ? Y.bu + ' bu/acre' : '–') + '</b></span></div>';
+      h += '<div class="fs-hl-scores"><span class="fs-hl-big ' + (hi >= 70 ? 'ok' : hi >= 45 ? 'mid' : 'bad') + '">Health <b>' + hi + '</b>/100 ' + evb('model_estimate') + '</span><span>Stage <b>' + esc(f.stage) + '</b> ' + evb('model_estimate') + '</span><span>Growth <b>' + esc(M.word) + '</b> ' + evb('satellite_indicator') + '</span><span>Yield guide <b>' + (Y.bu ? Y.bu + ' bu/acre' : '–') + '</b> ' + evb('model_estimate') + '</span></div>';
       h += '<details class="fs-cn-more fs-hl-det"' + (narrow() ? '' : ' open') + '><summary>Details: greenness through the season and scores</summary><div class="fs-hl-grid"><div>' + spark(f.series) + '<p class="fs-hl-key"><i class="g"></i>greenness NDVI <i class="b"></i>leaf water NDMI</p></div><div class="fs-hl-bars">' +
-        bar('Canopy', H.canopy.score, 'NDVI ' + H.canopy.ndvi + ', ' + Math.round(H.canopy.cover * 100) + '% cover') +
-        bar('Nitrogen', H.nitrogen.score, H.nitrogen.note ? esc(H.nitrogen.note) : 'red edge ' + Math.round(H.nitrogen.sufficiency * 100) + '% of the field’s best (a hint only)') +
-        bar('Moisture', H.moisture.score, 'leaf water NDMI ' + H.moisture.ndmi) +
-        bar('Uniformity', H.uniformity.score, 'spread ' + Math.round(H.uniformity.cv * 100) + '% across the field') + '</div></div></details>';
+        bar('Canopy', H.canopy.score, 'NDVI ' + H.canopy.ndvi + ', ' + Math.round(H.canopy.cover * 100) + '% cover', 'satellite_indicator') +
+        bar('Nitrogen', H.nitrogen.score, H.nitrogen.note ? esc(H.nitrogen.note) : 'red edge ' + Math.round(H.nitrogen.sufficiency * 100) + '% of the field’s best (a hint only)', 'satellite_indicator') +
+        bar('Moisture', H.moisture.score, 'leaf water NDMI ' + H.moisture.ndmi, 'satellite_indicator') +
+        bar('Uniformity', H.uniformity.score, 'spread ' + Math.round(H.uniformity.cv * 100) + '% across the field', 'satellite_indicator') + '</div></div></details>';
       var top = (f.advice || []).filter(function (a) { return a.priority === 'high'; })[0] || (f.advice || [])[0];
-      if (top) h += '<p class="fs-hl-todo"><span class="fs-hl-pr fs-hl-' + top.priority + '">' + top.priority + '</span> <b>' + esc(top.topic) + ':</b> ' + esc(top.text) + '</p>';
-      h += '<details class="fs-cn-more"><summary>Root causes, all advice and details</summary>' +
+      if (top) h += '<p class="fs-hl-todo"><span class="fs-hl-pr fs-hl-' + top.priority + '">' + top.priority + '</span> <b>' + esc(top.topic) + ':</b> ' + esc(top.text) + ' ' + evb(top.evidence) + '</p>';
+      h += '<details class="fs-cn-more"><summary>Possible causes, all advice and details</summary>' +
         '<p class="fs-hl-line">Stage: <b>' + esc(f.stage) + '</b>' + (f.gdd != null ? ' (' + f.gdd + ' degree days since planting)' : '') + ' · Growth momentum: <b>' + esc(M.word) + '</b>' + (M.perWeek != null ? ' (NDVI ' + (M.perWeek > 0 ? '+' : '') + M.perWeek + ' a week' + (M.accel ? ', ' + esc(M.accel) : '') + ')' : '') + ' · Peak NDVI ' + f.peak.ndvi + ' on ' + esc(f.peak.date) + '</p>' +
         '<p class="fs-hl-line">Quality score <b>' + f.qualityScore + '</b>/100' + (Y.bu ? ' · Yield guide ' + Y.bu + ' bu/acre (range ' + Y.low + ' to ' + Y.high + '; county normal ' + Y.normal + ')' : '') + '</p>' +
-        '<div class="fs-hl-bars">' + bar('Phosphorus', null, esc(H.phosphorus.note)) + bar('Leaf structure', H.leaf.score, 'red-edge position ' + H.leaf.redEdgeNm + ' nm') + '</div>' +
+        '<div class="fs-hl-bars">' + bar('Phosphorus', null, esc(H.phosphorus.note), 'verify_in_field') + bar('Leaf structure', H.leaf.score, 'red-edge position ' + H.leaf.redEdgeNm + ' nm', 'satellite_indicator') + '</div>' +
         '<p class="fs-fm-faint fs-hl-small">The health index (0 to 100) compares the canopy with a healthy crop’s normal peak, and the nitrogen, leaf structure and evenness with this field’s own best parts.</p>' +
         (Y.note ? '<p class="fs-fm-faint fs-hl-small">' + esc(Y.note) + '</p>' : '') +
-        '<div class="fs-hl-cols"><div><h5>Root causes</h5><ul>' + f.causes.map(function (c) { return '<li><b>' + esc(c.cause) + '</b> <span class="fs-fm-faint">(' + esc(c.confidence) + ' confidence)</span>: ' + esc(c.why) + '</li>'; }).join('') + '</ul></div>' +
-        '<div><h5>What to do</h5><ul class="fs-hl-adv">' + f.advice.map(function (a) { return '<li><span class="fs-hl-pr fs-hl-' + a.priority + '">' + a.priority + '</span> <b>' + esc(a.topic) + ':</b> ' + esc(a.text) + '</li>'; }).join('') + '</ul></div></div>' +
+        '<div class="fs-hl-cols"><div><h5>Possible Causes</h5><ul>' + f.causes.map(function (c) { return '<li><b>' + esc(c.cause) + '</b> ' + evb(c.evidence) + ' <span class="fs-fm-faint">(' + esc(c.confidence) + ' confidence)</span>: ' + (c.observed ? esc(c.observed) + ' ' + evb(c.observedEvidence) + ' ' : '') + esc(c.why) + (c.alternatives && c.alternatives.length ? ' <i>It could also be ' + esc(c.alternatives.join(', ')) + '.</i>' : '') + (c.verify ? ' <i>Check first: ' + esc(c.verify) + '.</i> ' + evb('verify_in_field') : '') + '</li>'; }).join('') + '</ul></div>' +
+        '<div><h5>What to do</h5><ul class="fs-hl-adv">' + f.advice.map(function (a) { return '<li><span class="fs-hl-pr fs-hl-' + a.priority + '">' + a.priority + '</span> <b>' + esc(a.topic) + ':</b> ' + esc(a.text) + ' ' + evb(a.evidence) + '</li>'; }).join('') + '</ul></div></div>' +
         '<p class="fs-hl-small"><a download="' + esc((f.name || id).replace(/[^\w-]+/g, '_')) + '_sentinel2.csv" href="' + csvHref(f.series || []) + '">Download this field’s data (CSV)</a>' + (f.csv ? ' · also saved on the server as <code>' + esc(String(f.csv).split(/[\\/]/).pop()) + '</code>' : '') + '</p></details></article>';
     });
     h += '</div>';
@@ -308,14 +410,14 @@
         if (done[w.kind]) return '';
         done[w.kind] = 1;
         var g = items.filter(function (x) { return x.kind === w.kind; }), warn = g.some(function (x) { return x.level === 'warn'; }), tail = split(g[0].text)[1], on = g.some(function (x) { return x.n - 1 === pick; });
-        return '<li class="fs-cn-group fs-cn-' + (warn ? 'warn' : 'info') + (on ? ' fs-cn-on' : '') + '"><div class="fs-cn-nhead"><p><span class="fs-cn-badge">' + (warn ? 'Check' : 'Note') + '</span> <b>' + esc(GROUP[w.kind](g.length, g[0])) + '</b></p></div>' +
+        return '<li class="fs-cn-group fs-cn-' + (warn ? 'warn' : 'info') + (on ? ' fs-cn-on' : '') + '"><div class="fs-cn-nhead"><p><span class="fs-cn-badge">' + (warn ? 'Check' : 'Note') + '</span> <b>' + esc(GROUP[w.kind](g.length, g[0])) + '</b> ' + evb(g[0].evidence) + (g[0].verify ? ' ' + evb('verify_in_field') : '') + '</p></div>' +
           '<ul class="fs-cn-gitems">' + g.map(function (x) {
             return '<li class="fs-cn-' + x.level + (x.n - 1 === pick ? ' fs-cn-on' : '') + '"><span class="fs-cn-num" aria-hidden="true">' + x.n + '</span><span class="fs-cn-gt"><span class="fs-cn-sr">Note ' + x.n + ': </span>' + esc(placeText(x)) + '</span>' + (x.lon != null ? showBtn(x) : '') + '</li>';
           }).join('') + '</ul>' + (tail ? '<details class="fs-cn-more"><summary>What this means and what to do</summary><p>' + esc(tail) + '</p></details>' : '') + '</li>';
       }
       var p = String(w.text).length <= 240 ? [w.text, ''] : split(w.text), on1 = w.n - 1 === pick;
       return '<li class="fs-cn-' + w.level + (on1 ? ' fs-cn-on' : '') + '"><div class="fs-cn-nhead"><span class="fs-cn-num" aria-hidden="true">' + w.n + '</span>' +
-        '<p><span class="fs-cn-sr">Note ' + w.n + ': </span><span class="fs-cn-badge">' + (w.level === 'warn' ? 'Check' : 'Note') + '</span> ' + esc(p[0]) + '</p></div>' +
+        '<p><span class="fs-cn-sr">Note ' + w.n + ': </span><span class="fs-cn-badge">' + (w.level === 'warn' ? 'Check' : 'Note') + '</span> ' + esc(p[0]) + ' ' + evb(w.evidence) + (w.verify ? ' ' + evb('verify_in_field') : '') + '</p></div>' +
         (w.lon != null || p[1] ? '<div class="fs-cn-nfoot">' + (w.lon != null ? showBtn(w) : '') +
         (p[1] ? '<details class="fs-cn-more"><summary>More</summary><p>' + esc(p[1]) + '</p></details>' : '') + '</div>' : '') + '</li>';
     }).join('') + '</ol>';
@@ -356,15 +458,15 @@
     if (wn && wn.level !== 'unlikely' && lows.length) out.push({ level: 'warn', text: (wn.level === 'likely' ? 'Water is likely standing in ' : 'Puddles are possible in ') + lows.length + ' low spot' + (lows.length > 1 ? 's' : '') + ' (notes ' + lows.map(function (w) { return w.n; }).join(', ') + '). Keep heavy machinery off them.', i: lows[0].n - 1 });
     var rank = { fire: 0, water: 1, weather: 2, air: 3, soil: 4, crop: 5 };
     var warns = list.filter(function (w) { return w.level === 'warn' && !(out.length && w.kind === 'low'); }).sort(function (a, z) { return (rank[a.topic] == null ? 9 : rank[a.topic]) - (rank[z.topic] == null ? 9 : rank[z.topic]) || a.n - z.n; });
-    warns.forEach(function (w) { if (out.length < 3) out.push({ level: 'warn', text: short(w), i: w.lon != null ? w.n - 1 : -1, n: w.n }); });
+    warns.forEach(function (w) { if (out.length < 3) out.push({ level: 'warn', text: short(w), i: w.lon != null ? w.n - 1 : -1, n: w.n, ev: w.evidence }); });
     var urgent = out.length;
-    list.forEach(function (w) { if (out.length < 3 && w.level !== 'warn' && !(urgent && w.kind === 'low' && out[0].i === lows[0].n - 1)) out.push({ level: 'info', text: short(w), i: w.lon != null ? w.n - 1 : -1, n: w.n }); });
+    list.forEach(function (w) { if (out.length < 3 && w.level !== 'warn' && !(urgent && w.kind === 'low' && out[0].i === lows[0].n - 1)) out.push({ level: 'info', text: short(w), i: w.lon != null ? w.n - 1 : -1, n: w.n, ev: w.evidence }); });
     var good = goingWell(d), gh = good.length ? '<div class="fs-cn-good"><h4>Going well</h4><ul>' + good.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></div>' : '';
     var h = '<section class="fs-cn-today" aria-labelledby="fs-cn-h-today"><h3 id="fs-cn-h-today">' + (urgent ? urgent + ' thing' + (urgent > 1 ? 's' : '') + ' to check today' : 'Nothing urgent on your fields today') + '</h3>';
     if (!out.length) return h + '<p class="fs-cn-lead">No warnings on these fields right now. The simulation below can help you plan next season with confidence.</p>' + gh + '</section>';
     if (!urgent) h += '<p class="fs-cn-lead">Worth knowing:</p>';
     return h + '<ul class="fs-cn-check">' + out.map(function (x) {
-      return '<li class="fs-cn-' + x.level + '"><p>' + (x.n ? '<span class="fs-cn-num" aria-hidden="true">' + x.n + '</span> ' : '') + esc(x.text) + (x.n ? '<span class="fs-cn-sr"> (note ' + x.n + ')</span>' : '') + '</p>' + (x.i >= 0 ? '<button type="button" class="fs-cn-show" data-i="' + x.i + '">Show on map</button>' : '') + '</li>';
+      return '<li class="fs-cn-' + x.level + '"><p>' + (x.n ? '<span class="fs-cn-num" aria-hidden="true">' + x.n + '</span> ' : '') + esc(x.text) + (x.ev ? ' ' + evb(x.ev) : '') + (x.n ? '<span class="fs-cn-sr"> (note ' + x.n + ')</span>' : '') + '</p>' + (x.i >= 0 ? '<button type="button" class="fs-cn-show" data-i="' + x.i + '">Show on map</button>' : '') + '</li>';
     }).join('') + '</ul>' + gh + '</section>';
   }
 
@@ -390,6 +492,7 @@
     layer.innerHTML = h;
     var now = layer.querySelectorAll('details'); detKey(now).forEach(function (k, i) { if (state[k] != null) now[i].open = state[k]; });
     layer.scrollTop = keepScroll;
+    if (st.data) wireSoil();
     var rf = layer.querySelector('#fs-cn-refresh'); if (rf) rf.addEventListener('click', function () { load(true); });
     Array.prototype.forEach.call(layer.querySelectorAll('.fs-cn-show, .fs-cn-pin'), function (b) {
       b.addEventListener('click', function () {
@@ -415,13 +518,14 @@
 
   function body(d, req) {
     var n = d.now || {}, e5 = d.era5Soil, a = d.air || {}, N = d.nasa || {}, wn = d.wetNow;
-    var list = (d.warnings || []).map(function (w, i) { return Object.assign({ n: i + 1 }, w); });
+    var list = (d.warnings || []).filter(function (w) { return !(w.soilKey && hasTest(w.field, w.soilKey)); }).map(function (w, i) { return Object.assign({ n: i + 1 }, w); });
     var SEC = { water: 'water', soil: 'soil', crop: 'crop', fire: 'fire', air: 'fire', weather: 'weather' };
     noteSec = {}; list.forEach(function (w) { noteSec[w.n] = SEC[w.topic || 'soil'] || 'soil'; });
     var by = function (t) { return list.filter(function (w) { return (w.topic || 'soil') === t; }); };
     var plural = function (k, one, many) { return k + ' ' + (k === 1 ? one : many); };
     var h = '';
     if (req.approximate) h += '<p class="fs-cn-note">These are the example fields, so each is checked as a square of its size around its soil survey point. Import your real field outlines (the box below the simulation) for checks on your exact fields.</p>';
+    h += evLegend();
     h += todayList(d, list);
 
     // ---- map
@@ -438,7 +542,7 @@
       g += gauge('Root zone, to about 1 m (NASA MERRA-2)', N.soil.root, 1, N.soil.avgRoot, N.soil.root + ' of 1', N.soil.avgRoot != null ? 'normal = the ' + esc(N.soil.years) + ' average for ' + esc(N.soil.window) : '');
     }
     if (n.soilMoist != null) g += gauge('Topsoil 0 to 7 cm, now (ECMWF)', n.soilMoist, 0.5, null, Math.round(n.soilMoist * 100) + '% water', 'by volume; most soils are saturated near 45 to 50%' + (e5 ? '. ERA5-Land: ' + Math.round(e5.top7 * 100) + '% on ' + esc(e5.time.slice(0, 10)) : ''));
-    h += section('water', 'Water and wet ground', '',
+    h += section('water', 'Water and wet ground', evb('model_estimate') + ' Soil wetness and puddles come from weather and soil models. ' + evb('satellite_indicator') + ' Ponds and wet ground come from a land-cover map; low spots from an elevation model.',
       '<div class="fs-cn-wetnow wet-' + (wn ? wn.level : 'na') + '"><p class="fs-cn-wetbig">' + wetTxt + '</p>' + (wn ? '<p>Because: ' + esc(wn.why.join('; ')) + '.</p>' : '') + '</div>' +
       (g ? '<div class="fs-cn-gauges">' + g + '</div>' : '') + noteList(by('water')) + (by('water').length ? '' : '<p class="fs-cn-lead">No ponds, wetland or large low spots found in or right next to these fields.</p>'),
       (wn ? { likely: 'puddles likely now', possible: 'puddles possible now', unlikely: 'puddles unlikely now' }[wn.level] : 'wetness unknown') + (N.soil && N.soil.avgRoot != null ? ' · soil ' + (N.soil.root - N.soil.avgRoot > 0.08 ? 'wetter than normal' : N.soil.root - N.soil.avgRoot < -0.08 ? 'drier than normal' : 'about normal') : ''), by('water'));
@@ -449,17 +553,17 @@
         var x = d.fields[f.id] || {}, s = x.fertility || {}, t = x.terrain || {}, sa = x.satellite || {};
         return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + num(s.ph, '', 1) + '</td><td>' + num(s.organicCarbonGkg, ' g/kg', 1) + '</td><td>' + num(s.nitrogenGkg, ' g/kg', 2) + '</td><td>' + num(s.cecCmolKg, '', 0) + '</td><td>' + num(t.slopePct, '%', 1) + '</td><td>' + (sa.ground ? sa.ground.bareSoilPct + '% <span class="fs-fm-faint">(' + esc(sa.ground.date.slice(5)) + ')</span>' : '–') + '</td></tr>';
       }).join('') + '</tbody></table></div>';
-    h += section('soil', 'Soil', 'Model estimates for the top 30 cm (ISRIC SoilGrids); a lab soil test is more exact. CEC is how much nutrient the soil can hold.', tbl + noteList(by('soil')),
+    h += section('soil', 'Soil', evb('model_estimate') + ' Model estimates for the top 30 cm (ISRIC SoilGrids); a lab soil test is more exact. CEC is how much nutrient the soil can hold.', tbl + noteList(by('soil')),
       (function () { var ph = req.fields.map(function (f) { var x = d.fields[f.id]; return x && x.fertility && x.fertility.ph; }).filter(function (v) { return v != null; }), lo = Math.min.apply(null, ph), hi = Math.max.apply(null, ph); return (ph.length ? 'pH ' + lo + (hi !== lo ? ' to ' + hi : '') + ' · ' : '') + plural(req.fields.length, 'field', 'fields'); })(), by('soil'));
 
     // ---- crop health
     var weakN = by('crop').filter(function (w) { return w.kind === 'weak'; }).length, his = hs.data ? Object.keys(hs.data.fields).map(function (id) { var f = hs.data.fields[id]; return f.healthIndex != null ? f.healthIndex : f.yieldScore; }).filter(function (v) { return v != null; }) : [];
-    h += section('crop', 'Crop health', '', noteList(by('crop')) + healthHTML(),
+    h += section('crop', 'Crop health', '', noteList(by('crop')) + healthHTML() + soilHealthHTML(d, req),
       (weakN ? plural(weakN, 'weak-growth zone', 'weak-growth zones') : 'no weak-growth zones') + (his.length ? ' · health ' + Math.min.apply(null, his) + (his.length > 1 && Math.max.apply(null, his) !== Math.min.apply(null, his) ? ' to ' + Math.max.apply(null, his) : '') + ' of 100' : hs.busy ? ' · field health loading' : ''), by('crop'));
 
     // ---- fire and air
     var pm = pmLevel(a.pm25), uv = uvLevel(a.uv), fireN = N.fire ? N.fire.detections.length : null;
-    h += section('fire', 'Fire and air', '',
+    h += section('fire', 'Fire and air', evb('satellite_indicator') + ' NASA fire detections. ' + evb('model_estimate') + ' Air from the CAMS model.',
       '<div class="fs-cn-chips">' +
       chip('Fire seen by NASA', fireN == null ? '–' : fireN ? 'Yes, ' + fireN + ' field' + (fireN > 1 ? 's' : '') : 'None', fireN ? 'bad' : fireN === 0 ? 'ok' : 'na', N.fire ? 'last 14 days, to ' + esc(N.fire.to) : 'the check did not answer') +
       chip('Fine dust PM2.5', num(a.pm25, ' µg/m³'), pm[1], esc(pm[0])) +
@@ -469,7 +573,7 @@
       (fireN == null ? 'fire check did not answer' : fireN ? 'fire seen near ' + plural(fireN, 'field', 'fields') : 'no fire seen') + ' · air ' + (a.pm25 == null ? 'unknown' : pm[0]), by('fire').concat(by('air')));
 
     // ---- weather
-    h += section('weather', 'Weather', '',
+    h += section('weather', 'Weather', evb('model_estimate') + ' Weather-model values (ECMWF), not a gauge on your field.',
       '<div class="fs-cn-chips">' + chip('Now', num(n.tempC, ' °C', 1), 'na', 'humidity ' + num(n.rhPct, '%')) + chip('Wind', num(n.windKmh, ' km/h'), n.windKmh >= 16 ? 'bad' : n.windKmh != null ? 'ok' : 'na', 'gusts ' + num(n.gustKmh, ' km/h') + (n.windKmh >= 16 ? ' · too windy to spray' : '')) +
       chip('Rain, past 7 days', num(n.rainPast7Mm, ' mm', 1), 'na', 'next 3 days ' + num(n.rainNext3Mm, ' mm', 1)) + chip('Coldest, next 3 days', num(n.minNext3C, ' °C', 1), n.minNext3C != null && n.minNext3C <= 0 ? 'bad' : 'na', n.minNext3C != null && n.minNext3C <= 0 ? 'frost' : 'no frost') + '</div>' +
       weatherChart(n.daily) + noteList(by('weather')),

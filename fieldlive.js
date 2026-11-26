@@ -9,12 +9,17 @@
 // - Burned ground, bare soil now and weak growth zones from last summer: Copernicus Sentinel-2 (fieldsat.js).
 // - NASA: active-fire detections over each field (VIIRS and MODIS through NASA GIBS, fieldfire.js) confirm or soften the Sentinel-2 burn
 //   warning and give a "no fire in the last two weeks" line; NASA POWER (MERRA-2) root-zone and top-soil wetness against its 2001-2025 normal.
+// Every reading, warning and piece of advice carries an evidence level (fieldevidence.js): measured, satellite_indicator, model_estimate,
+// possible_explanation or verify_in_field. Weather, soil moisture and air from ECMWF, ERA5-Land, MERRA-2 and CAMS are model estimates (reanalysis
+// and forecast models, not a gauge or probe on the field); NASA fire detections, Sentinel-2 findings, WorldCover and the elevation model are satellite
+// indicators; SoilGrids values are model estimates; a recommendation that rests on an inference says what to check first.
 // Warnings are plain rules on these numbers (thresholds noted next to each); they point to the place on the field when there is one.
 "use strict";
 
 const { helpers: G } = require("./fieldgeo");
 const { satellite } = require("./fieldsat");
 const { fireCheck } = require("./fieldfire");
+const EV = require("./fieldevidence");
 
 const UA = { "User-Agent": "fieldshift-simulator" };
 const round = (x, k = 1) => (x == null || !isFinite(x) ? null : Math.round(x * 10 ** k) / 10 ** k);
@@ -190,7 +195,12 @@ const dayList = (a, z) => { const o = []; for (let t = Date.parse(a); t <= Date.
 function warningsFor(f, x, now, e5, month, fire, wn) {
   const W = [], name = f.name || "this field";
   // topic: water, soil, crop, fire, weather (the page groups the warnings by it); kind: what the map marks there
-  const add = (level, text, at, topic, kind) => { const w = Object.assign({ level, field: f.id, text, topic: topic || "soil" }, kind ? { kind } : {}, at ? { lon: at.lon, lat: at.lat } : {}); W.push(w); return w; };
+  // evidence: the level of the finding itself (default by kind); verify: what to check first before acting on it (added to the text unless it already says "Check")
+  const DEF = { water: ["satellite_indicator", "the spot on the ground: the land-cover map is from 2021 and ponds and wet patches change"], wetland: ["satellite_indicator", "the spot on the ground: the land-cover map is from 2021 and wet patches change"],
+    low: ["satellite_indicator", "the spot itself after rain, before you drive on it"], burn: ["possible_explanation", "the patch on the ground (harvest, fresh tillage or dark wet soil look alike from above)"], weak: ["satellite_indicator", "the zone on the ground, and soil-test it on its own"] };
+  const add = (level, text, at, topic, kind, evidence, verify) => {
+    const d = DEF[kind] || [], ev = evidence || d[0] || "satellite_indicator", vf = verify === undefined ? d[1] : verify;
+    const w = Object.assign({ level, field: f.id, text: vf && !/Check /.test(text) ? `${text} Check first: ${vf}.` : text, topic: topic || "soil", evidence: ev }, vf ? { verify: vf, actionEvidence: "verify_in_field" } : {}, kind ? { kind } : {}, at ? { lon: at.lon, lat: at.lat } : {}); W.push(w); return w; };
   const wet = wn ? wn.level === "likely" : (now && (now.soilMoist >= 0.38 || now.rainPast7Mm >= 25)) || (e5 && e5.top7 >= 0.4);
   const WCMAP = "the ESA WorldCover 2021 land-cover map (from Sentinel satellites)", us = inUS(f.center[0], f.center[1]);
   // a pond or wetland outside the field but inside its outline sits in a hole cut out of it
@@ -206,43 +216,44 @@ function warningsFor(f, x, now, e5, month, fire, wn) {
   lows.forEach((s, i) => {
     const num = lows.length > 1 ? ` (low spot ${i + 1} of ${lows.length})` : "";
     add(wet ? "warn" : "info", `Low, flat spot${num} of about ${acres(s.areaM2)} acres in the ${where(f, s.lon, s.lat)} part of ${name}, ${fromMiddle(f, s.lon, s.lat)} (Copernicus elevation model).` +
-      (wet ? ` With ${now ? now.rainPast7Mm : "?"} mm of rain in the past week and wet topsoil, water is likely standing there now: keeping heavy machinery off for a few dry days protects the soil you have built up.` : wn && wn.level === "possible" ? " Water gathers there after heavy rain, and the soil may be wet now: puddles are possible, so look before driving on it." : " Water gathers there after heavy rain."), s, "water", "low");
+      (wet ? ` The weather models say ${now ? now.rainPast7Mm : "?"} mm of rain fell in the past week and the topsoil is wet, so water may well be standing there now (a model estimate, not seen): keeping heavy machinery off for a few dry days protects the soil you have built up.` : wn && wn.level === "possible" ? " Water gathers there after heavy rain, and the models say the soil may be wet now: puddles are possible." : " Water gathers there after heavy rain."), s, "water", "low", wet || (wn && wn.level === "possible") ? "model_estimate" : "satellite_indicator");
   });
   const sat = x.satellite || {};
-  const fd = fire && fire.days || [], sat1 = sat.burn, effects = "Burning crop residue sends most of its nitrogen and sulfur into the air and burns off organic matter, so the soil there is less fertile and bare to wind and water erosion. If it was burned: plan extra nitrogen, test the soil, and next time leave or work in the residue.";
+  const fd = fire && fire.days || [], sat1 = sat.burn, effects = "Burning crop residue sends most of its nitrogen and sulfur into the air and burns off organic matter, so the soil there is less fertile and bare to wind and water erosion. If it was burned, plan extra nitrogen, test the soil, and next time leave or work in the residue.";
   for (const p of (sat1 && sat1.patches) || []) {
     const sz = `about ${acres(p.areaM2)} acres, in the ${where(f, p.lon, p.lat)} part of ${name}`, win = `between ${sat1.from} and ${sat1.to}`;
     if (fd.length) {
       const names = [...new Set(fd.flatMap((d) => d.sensors))].join(" and ");
-      add("warn", `Burned ground, ${sz}, confirmed by fire: NASA ${names} saw active fire over this field on ${fd.map((d) => d.date).join(", ")} (NASA GIBS), and ${win} Sentinel-2 saw the burn ratio drop sharply and the ground turn dark like charred residue. ${effects}`, p, "fire", "burn");
+      add("warn", `Burned ground, ${sz}, supported by satellite fire detections: NASA ${names} saw active fire over this field on ${fd.map((d) => d.date).join(", ")} (NASA GIBS), and ${win} Sentinel-2 saw the burn ratio drop sharply and the ground turn dark like charred residue. ${effects}`, p, "fire", "burn", "satellite_indicator", "the patch on the ground, and whether the residue was burned on purpose");
     } else if (fire && fire.complete && fire.answeredTo && fire.answeredTo >= sat1.to) {
-      add("info", `Possible burned ground or bare soil after harvest, ${sz}: ${win} Sentinel-2 saw the burn ratio drop and the ground turn dark. NASA's fire satellites (VIIRS and MODIS maps from NASA GIBS) saw no fire here from ${fire.from} to ${fire.answeredTo}, so this may be harvest, tillage or dark wet soil (a short fire or one under cloud can be missed). Check it on the ground before acting on it.`, p, "fire", "burn");
+      add("info", `Possible burned ground or bare soil after harvest, ${sz}: ${win} Sentinel-2 saw the burn ratio drop and the ground turn dark. NASA's fire satellites (VIIRS and MODIS maps from NASA GIBS) saw no fire here from ${fire.from} to ${fire.answeredTo}, so this may be harvest, tillage or dark wet soil (a short fire or one under cloud can be missed). Check it on the ground before acting on it.`, p, "fire", "burn", "possible_explanation");
     } else {
       add("warn", `Possible burned ground, ${sz}: ${win} Sentinel-2 saw the burn ratio drop sharply and the ground turn dark like charred residue. NASA's fire satellite check could not be completed for those days, so this is not confirmed. ${effects} Check it on the ground first (harvest, fresh tillage or dark wet soil can look alike).`, p, "fire", "burn");
     }
   }
   const zones = (sat.summer && sat.summer.weakZones) || [];
-  zones.slice(0, 2).forEach((z) => { const w = add(z.areaM2 >= 10000 ? "warn" : "info", `Weak growth zone from last summer's image (${sat.summer.date}, not today's crop), about ${acres(z.areaM2)} acres, in the ${where(f, z.lon, z.lat)} part of ${name}, ${fromMiddle(f, z.lon, z.lat)}: plants there were much less green (NDVI ${z.ndvi}) than the rest of the field (${sat.summer.ndviMedian}). Common causes are low fertility, an eroded knoll, compaction or a wet spot. Soil-test this zone on its own.`, z, "crop", "weak"); w.imageDate = sat.summer.date; });
-  if (sat.ground && sat.ground.bareSoilPct >= 60 && (month >= 10 || month <= 4)) add("info", `${name} was ${sat.ground.bareSoilPct}% bare soil on ${sat.ground.date}. Bare soil over winter loses topsoil to wind and water; a cover crop or leaving residue protects it, and the simulator can show what a rye cover crop does for this field.`, null, "soil");
+  zones.slice(0, 2).forEach((z) => { const w = add(z.areaM2 >= 10000 ? "warn" : "info", `Weak growth zone from last summer's image (${sat.summer.date}, not today's crop), about ${acres(z.areaM2)} acres, in the ${where(f, z.lon, z.lat)} part of ${name}, ${fromMiddle(f, z.lon, z.lat)}: plants there were much less green (NDVI ${z.ndvi}) than the rest of the field (${sat.summer.ndviMedian}). Possible causes (none confirmed): low fertility, an eroded knoll, compaction or a wet spot. Soil-test this zone on its own.`, z, "crop", "weak"); w.imageDate = sat.summer.date; });
+  if (sat.ground && sat.ground.bareSoilPct >= 60 && (month >= 10 || month <= 4)) add("info", `${name} was ${sat.ground.bareSoilPct}% bare soil on ${sat.ground.date}. Bare soil over winter loses topsoil to wind and water; a cover crop or leaving residue protects it, and the simulator can show what a rye cover crop does for this field.`, null, "soil", null, "satellite_indicator", "walk the field: crop residue can read as bare soil from above");
   const s = x.fertility;
   if (s) {
-    if (s.ph != null && s.ph < 5.8) add("warn", `${name}: topsoil pH about ${s.ph} (acidic). Corn and soybeans do best near 6.0 to 7.0; a soil test will say how much lime to spread.`);
-    if (s.ph != null && s.ph > 7.6) add("info", `${name}: topsoil pH about ${s.ph} (alkaline, likely limy). Soybeans on high-pH soils can get iron deficiency chlorosis (yellow leaves): choose a tolerant variety.`);
-    if (s.organicCarbonGkg != null && s.organicCarbonGkg < 10) add("info", `${name}: low organic matter (about ${s.organicCarbonGkg} g of carbon per kg of topsoil). Cover crops and leaving residue build it up and help the soil hold water.`);
-    if (s.cecCmolKg != null && s.cecCmolKg < 10) add("info", `${name}: low nutrient-holding capacity (CEC about ${s.cecCmolKg}), typical of sandy soil. Split nitrogen into smaller doses so less washes out.`);
+    if (s.ph != null && s.ph < 5.8) add("warn", `${name}: the SoilGrids map estimates topsoil pH about ${s.ph} (acidic). Corn and soybeans do best near 6.0 to 7.0; a soil test will say whether and how much lime to spread.`, null, "soil", null, "model_estimate", "a soil test for pH; the map is 250 m wide and only an estimate").soilKey = "ph";
+    if (s.ph != null && s.ph > 7.6) add("info", `${name}: the SoilGrids map estimates topsoil pH about ${s.ph} (alkaline, possibly limy). Soybeans on high-pH soils can get iron deficiency chlorosis (yellow leaves): a tolerant variety is a cheap safeguard.`, null, "soil", null, "model_estimate", "a soil test for pH; the map is only an estimate").soilKey = "ph";
+    if (s.organicCarbonGkg != null && s.organicCarbonGkg < 10) add("info", `${name}: the SoilGrids map estimates low organic matter (about ${s.organicCarbonGkg} g of carbon per kg of topsoil). Cover crops and leaving residue can build it up slowly and help the soil hold water.`, null, "soil", null, "model_estimate", "an organic matter soil test; the map is only an estimate").soilKey = "om";
+    if (s.cecCmolKg != null && s.cecCmolKg < 10) add("info", `${name}: the SoilGrids map estimates low nutrient-holding capacity (CEC about ${s.cecCmolKg}), typical of sandy soil. If the soil is sandy, splitting nitrogen into smaller doses leaves less to wash out.`, null, "soil", null, "model_estimate", "the soil texture (feel test) or a CEC soil test").soilKey = "cec";
   }
   return W;
 }
 function farmWarnings(now, e5, air, month) {
-  const W = [], add = (level, text, topic) => W.push({ level, text, topic: topic || "weather" });
+  // all from the ECMWF weather model, ERA5-Land and CAMS: model estimates, not a gauge on the field
+  const W = [], add = (level, text, topic, verify) => W.push(Object.assign({ level, text: verify ? `${text} Check first: ${verify}.` : text, topic: topic || "weather", evidence: "model_estimate" }, verify ? { verify, actionEvidence: "verify_in_field" } : {}));
   if (now) {
-    if (now.windKmh >= 16) add("warn", `Wind ${now.windKmh} km/h now (gusts ${now.gustKmh}): too windy for most spraying. Many labels allow about 5 to 16 km/h (3 to 10 mph).`);
-    else if (now.windKmh != null && now.windKmh < 3) add("info", `Almost no wind (${now.windKmh} km/h): spray can hang in the air and drift on calm, still evenings.`);
-    if (now.minNext3C != null && now.minNext3C <= 0 && [4, 5, 6, 9, 10].includes(month)) add("warn", `Frost likely: down to ${now.minNext3C} °C in the next 3 days. Young or late crops can be damaged.`);
-    if (now.rhPct >= 90 && now.tempC >= 15 && now.tempC <= 30 && month >= 6 && month <= 9) add("warn", `Humid and warm (${now.rhPct}% humidity, ${now.tempC} °C): good weather for leaf diseases such as gray leaf spot in corn. Scout the lower leaves.`);
-    if (now.soilMoist != null && now.soilMoist >= 0.4) add("warn", `Topsoil is very wet (${Math.round(now.soilMoist * 100)}% water by volume): waiting for it to dry before driving on it keeps the soil from compacting.`, "soil");
-    else if (now.soilMoist != null && now.soilMoist < 0.15 && now.rainPast7Mm < 3) add("info", `Topsoil is dry (${Math.round(now.soilMoist * 100)}% water) with ${now.rainPast7Mm} mm of rain in the past week: a good window for field work, and rain will be welcome.`, "soil");
-    if (now.rainNext3Mm >= 25) add("warn", `${now.rainNext3Mm} mm of rain expected in the next 3 days: hold off on fertiliser and manure that could wash off.`);
+    if (now.windKmh >= 16) add("warn", `Wind ${now.windKmh} km/h now (gusts ${now.gustKmh}, weather model): probably too windy for most spraying. Many labels allow about 5 to 16 km/h (3 to 10 mph).`, "weather", "the wind at the sprayer with a handheld meter or a flag");
+    else if (now.windKmh != null && now.windKmh < 3) add("info", `Almost no wind (${now.windKmh} km/h): spray can hang in the air and drift on calm, still evenings.`, "weather", "the wind at the sprayer before you spray");
+    if (now.minNext3C != null && now.minNext3C <= 0 && [4, 5, 6, 9, 10].includes(month)) add("warn", `Frost likely: down to ${now.minNext3C} °C in the next 3 days. Young or late crops can be damaged.`, "weather", "your local forecast and a thermometer in the field");
+    if (now.rhPct >= 90 && now.tempC >= 15 && now.tempC <= 30 && month >= 6 && month <= 9) add("warn", `Humid and warm (${now.rhPct}% humidity, ${now.tempC} °C): good weather for leaf diseases such as gray leaf spot in corn. Scout the lower leaves.`, "weather", "the lower leaves for spots: the weather only says conditions favour disease, not that it is there");
+    if (now.soilMoist != null && now.soilMoist >= 0.4) add("warn", `Topsoil is very wet (${Math.round(now.soilMoist * 100)}% water by volume): waiting for it to dry before driving on it keeps the soil from compacting.`, "soil", "the squeeze test on the soil itself: a ball that holds together is too wet to drive on");
+    else if (now.soilMoist != null && now.soilMoist < 0.15 && now.rainPast7Mm < 3) add("info", `Topsoil is dry (${Math.round(now.soilMoist * 100)}% water) with ${now.rainPast7Mm} mm of rain in the past week: a good window for field work, and rain will be welcome.`, "soil", "the soil at 2 to 4 inches by hand");
+    if (now.rainNext3Mm >= 25) add("warn", `${now.rainNext3Mm} mm of rain expected in the next 3 days: hold off on fertiliser and manure that could wash off (a forecast can change: look again before you spread).`);
   }
   if (air && air.pm25 >= 35) add("warn", `Poor air (fine dust PM2.5 ${air.pm25} µg/m³, Copernicus CAMS): plan long hard work outdoors for a cleaner-air day if you can.`, "air");
   return W;
@@ -260,7 +271,9 @@ module.exports = function fieldlive({ readBody, send }) {
         const step = Math.ceil(h.length / 300);
         return G.cleanRing(step > 1 ? h.filter((_, i) => i % step === 0) : h);
       }).filter(Boolean);
-      const f = { id: String(x.id || "").replace(/\W/g, "").slice(0, 20), name: String(x.name || "").slice(0, 40), ring, holes };
+      const sv = x.survey && typeof x.survey === "object" ? x.survey : null;
+      const survey = sv && +sv.awcMmPerM > 0 ? { name: String(sv.name || "").slice(0, 100), awcMmPerM: Math.min(400, +sv.awcMmPerM), drainage: String(sv.drainage || "").slice(0, 40), hydgrp: /^[ABCD](\/[ABCD])?$/.test(sv.hydgrp || "") ? sv.hydgrp : "", source: sv.source === "soilgrids" ? "soilgrids" : "nrcs" } : null;
+      const f = { id: String(x.id || "").replace(/\W/g, "").slice(0, 20), name: String(x.name || "").slice(0, 40), ring, holes, survey };
       f.center = G.interiorPoint(f);
       return f;
     }).filter(Boolean);
@@ -309,6 +322,7 @@ module.exports = function fieldlive({ readBody, send }) {
         fertility: val(rest[i], `SoilGrids for ${f.name}`), cover: val(rest[N + i], `ESA WorldCover for ${f.name}`), terrain: val(rest[2 * N + i], `the Copernicus elevation model for ${f.name}`), satellite: SAT ? SAT.fields[f.id] : null };
       const bw = x.satellite && x.satellite.burn, ff = FB && bw ? { from: FB.from, to: FB.to, answeredTo: FB.answeredTo, complete: bw.from >= FB.from && dayList(bw.from, bw.to).every((d) => FB.answered.includes(d)), days: FB.fields[f.id].days.filter((d) => d.date >= bw.from && d.date <= bw.to) } : null;
       if (ff) x.satellite.burn.fire = ff;
+      x.soilHealth = { rows: EV.soilRows(x, f.survey), note: "Mapped and satellite values are not soil tests. Rows marked Needs A Soil Test or Field Observation Needed have no honest map or satellite value." };
       out[f.id] = x;
       warnings.push(...warningsFor(f, x, W, E, month, ff, WN));
     });
@@ -325,24 +339,30 @@ module.exports = function fieldlive({ readBody, send }) {
       nasa.fire.line = hits.length
         ? `NASA fire satellites (VIIRS/MODIS, via NASA GIBS): fire detected over or within 400 m of ${hits.map((f) => `${f.name || f.id} on ${recent(f).map((d) => d.date).join(", ")}`).join("; ")} (${from} to ${FN.answeredTo}).${late}`
         : `NASA fire satellites (VIIRS/MODIS, via NASA GIBS): no fire detected over these fields in the last ${span} days (${from} to ${FN.answeredTo}).${late}`;
-      if (hits.length) warnings.push({ level: "warn", text: nasa.fire.line, topic: "fire" });
+      if (hits.length) warnings.push({ level: "warn", text: nasa.fire.line + " Check first: the place on the ground (a detection can also be a planned burn or a hot roof or machine).", topic: "fire", evidence: "satellite_indicator", verify: "the place on the ground (a detection can also be a planned burn or a hot roof or machine)", actionEvidence: "verify_in_field" });
     } else if (FN) gaps.push(FN.skipped || FN.failed ? "NASA fire check did not answer in time." : "NASA GIBS had no fire-detection maps for the last two weeks yet.");
     if (PW) {
       const d = PW.avgRoot == null ? null : PW.root - PW.avgRoot, word = d == null ? "" : d > 0.08 ? "wetter than normal" : d < -0.08 ? "drier than normal" : "close to normal";
       nasa.soil = Object.assign({}, PW, { line: `NASA MERRA-2 model soil wetness (NASA POWER; 0 = dry, 1 = saturated; a model, not SMAP): root zone ${PW.root}` + (PW.top != null ? `, top 5 cm ${PW.top}` : "") + ` on ${PW.date}` +
         (PW.avgRoot != null ? `, against an average of ${PW.avgRoot}` + (PW.avgTop != null ? ` (top ${PW.avgTop})` : "") + ` for ${PW.window} in ${PW.years}: ${word}.` : ".") });
     }
-    if (W) sources.push(`Weather now, the past 7 days and the next 3: ECMWF IFS model (via Open-Meteo), ${W.time} ${W.timezone || ""}.`);
-    if (E) sources.push(`Soil moisture: Copernicus ERA5-Land, latest day available (${E.time.slice(0, 10)}).`);
-    if (A) sources.push("Air: Copernicus Atmosphere Monitoring Service (CAMS).");
-    if (nasa.soil) sources.push(`Soil wetness: NASA POWER (MERRA-2 model), latest day ${nasa.soil.date}, against ${nasa.soil.years}.`);
-    if (nasa.fire || FB) sources.push("Fire detections: NASA GIBS (VIIRS Suomi NPP and NOAA-20 375 m, MODIS Terra and Aqua 1 km; the same detections as NASA FIRMS), over each field plus 400 m.");
-    if (fields.some((f) => out[f.id].fertility)) sources.push("Soil fertility: ISRIC SoilGrids 250 m model estimates for the top 30 cm (a soil test on the field is more exact).");
-    if (fields.some((f) => out[f.id].cover)) sources.push("Ponds, wet ground and land cover: ESA WorldCover 2021, 10 m, made from Copernicus Sentinel-1 and Sentinel-2.");
-    if (fields.some((f) => out[f.id].terrain)) sources.push("Low spots: Copernicus GLO-30 elevation model.");
+    if (W) sources.push(`Model Estimate: weather now, the past 7 days and the next 3, from the ECMWF IFS weather model (via Open-Meteo), ${W.time} ${W.timezone || ""}. It is a model grid value, not a gauge on your field.`);
+    if (E) sources.push(`Model Estimate: soil moisture from Copernicus ERA5-Land (a model reanalysis, not a probe), latest day available (${E.time.slice(0, 10)}).`);
+    if (A) sources.push("Model Estimate: air from the Copernicus Atmosphere Monitoring Service (CAMS) model.");
+    if (nasa.soil) sources.push(`Model Estimate: soil wetness from NASA POWER (MERRA-2 model reanalysis), latest day ${nasa.soil.date}, against ${nasa.soil.years}.`);
+    if (nasa.fire || FB) sources.push("Satellite Indicator: fire detections from NASA GIBS (VIIRS Suomi NPP and NOAA-20 375 m, MODIS Terra and Aqua 1 km; the same detections as NASA FIRMS), over each field plus 400 m.");
+    if (fields.some((f) => out[f.id].fertility)) sources.push("Model Estimate: soil fertility from ISRIC SoilGrids 250 m, top 30 cm (a soil test on the field is more exact).");
+    if (fields.some((f) => f.survey)) sources.push("Model Estimate: water-holding capacity and runoff group from the USDA NRCS soil survey (a mapped soil unit; SoilGrids where the survey has no value).");
+    if (fields.some((f) => out[f.id].cover)) sources.push("Satellite Indicator: ponds, wet ground and land cover from ESA WorldCover 2021, 10 m, classified from Copernicus Sentinel-1 and Sentinel-2.");
+    if (fields.some((f) => out[f.id].terrain)) sources.push("Satellite Indicator: low spots and slope from the Copernicus GLO-30 elevation model.");
     const order = { warn: 0, info: 1 };
     warnings.sort((a, z) => order[a.level] - order[z.level]);
-    send(res, 200, { checkedAt: new Date().toISOString(), center: [round(cx, 5), round(cy, 5)], now: W, era5Soil: E, nasa, air: A, wetNow: WN, fields: out, warnings, sources, gaps, approximate: !!b.approximate });
+    // what kind of evidence each block of readings is (see fieldevidence.js)
+    const evidence = { legend: EV.legend(), by: { now: "model_estimate", era5Soil: "model_estimate", air: "model_estimate", "nasa.soil": "model_estimate", "nasa.fire": "satellite_indicator", wetNow: "model_estimate",
+      "fields.fertility": "model_estimate", "fields.cover": "satellite_indicator", "fields.terrain": "satellite_indicator", "fields.satellite": "satellite_indicator", "fields.soilHealth": "per row" } };
+    if (nasa.soil) nasa.soil.evidence = "model_estimate"; if (nasa.fire) nasa.fire.evidence = "satellite_indicator";
+    if (WN) WN.evidence = "model_estimate";
+    send(res, 200, { checkedAt: new Date().toISOString(), center: [round(cx, 5), round(cy, 5)], now: W && Object.assign({ evidence: "model_estimate" }, W), era5Soil: E && Object.assign({ evidence: "model_estimate" }, E), nasa, air: A && Object.assign({ evidence: "model_estimate" }, A), wetNow: WN, fields: out, warnings, sources, gaps, evidence, approximate: !!b.approximate });
   }
   return { handleLive };
 };

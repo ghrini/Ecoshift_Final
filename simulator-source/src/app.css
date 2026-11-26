@@ -942,3 +942,30 @@ details.fs-fin-d > summary:focus-visible { outline: 2px solid var(--info); outli
 #fs-analysis .fs-panel-body .fs-scn-t .fs-scn-usd, #fs-analysis .fs-panel-body .fs-scn-t .fs-scn-yr, #fs-analysis .fs-panel-body .fs-scn-rl { font-size: 13px; }
 #fs-analysis .fs-panel-body .fs-scn-note { font-size: 13px; }
 #fs-analysis .fs-panel-body .fs-scn-cmp > summary { font-size: 15px; }
+
+/* ===== Evidence labels and the Soil Health card (small and quiet; added with fieldevidence.js) ===== */
+.fs-ev { display: inline-block; margin: 0 2px; padding: 0 6px; border: 1px solid var(--border-strong); border-radius: 999px; background: transparent; color: var(--text-muted); font: 500 11px/1.6 var(--font-sans); letter-spacing: 0.01em; white-space: nowrap; vertical-align: 1px; cursor: help; }
+.fs-ev-measured { border-color: var(--good); color: #c9c47f; }
+.fs-ev-satellite_indicator { border-color: var(--info); color: var(--info); }
+.fs-ev-model_estimate { border-color: var(--accent-strong); color: var(--accent-strong); }
+.fs-ev-possible_explanation { border-style: dashed; border-color: var(--text-faint); color: var(--text-muted); }
+.fs-ev-verify_in_field { border-color: var(--accent); color: var(--brown-strong); background: var(--brown-soft); }
+.fs-ev-research { border-style: dotted; border-color: var(--text-faint); color: var(--text-muted); }
+.fs-ev-legend { margin: 6px 0 10px; }
+.fs-ev-legend ul { list-style: none; margin: 4px 0; padding: 0; display: grid; gap: 6px; color: var(--text-muted); font-size: 15px; }
+.fs-sh-wrap { margin-top: 14px; }
+.fs-sh { margin: 8px 0; padding: 4px 14px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.fs-sh h5 { margin: 12px 0 6px; font-size: 15px; color: var(--accent-strong); }
+.fs-sh-table th, .fs-sh-table td { white-space: normal; vertical-align: top; }
+.fs-sh-table td:nth-child(2) { min-width: 180px; }
+.fs-sh-src { color: var(--text-muted); font-size: 14px; min-width: 200px; }
+.fs-sh-need { color: var(--brown-strong); }
+.fs-sh-cmp { display: block; color: var(--text-muted); font-size: 14px; }
+.fs-sh-says { margin: 4px 0; padding-left: 18px; color: var(--text-muted); font-size: 15px; line-height: 1.5; }
+.fs-sh-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.fs-sh-l { display: grid; gap: 3px; font-size: 14px; color: var(--text-muted); }
+.fs-sh-l input, .fs-sh-l select { min-height: 40px; padding: 6px 8px; background: var(--panel-2); color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font: 400 16px var(--font-sans); }
+.fs-sh-wide { grid-column: 1 / -1; }
+.fs-sh-btns { display: flex; gap: 8px; margin-top: 10px; }
+.fs-sh-rot { margin-top: 8px; }
+.fs-sh-rot .fs-sh-says li { margin-bottom: 6px; }
