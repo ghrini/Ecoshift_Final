@@ -408,8 +408,8 @@ The simulator also opens as a plain file (`public/deepdive/index.html`) and work
 
 | Command (in `simulator-source/`) | What it checks | Result |
 |---|---|---|
-| `node --test tests/engine.test.js` | The crop model: water balance, stages, planting, frost, rotation, money | 30 of 30 pass |
-| `node verify/qa2/chat_test.js dist/simulator.test.html out.md` | 251 chat cases, including the 35 published in `verify/chat_rules.json`, and the "How This Answer Was Made" trace | 251 of 251 (100%) |
+| `node --test tests/engine.test.js` | The crop model: water balance, stages, planting, frost, rotation, money, insurance, climate scenarios | 38 of 38 pass |
+| `node verify/qa2/chat_test.js dist/simulator.test.html out.md` | 264 chat cases, including the 35 published in `verify/chat_rules.json`, and the "How This Answer Was Made" trace | 264 of 264 (100%) |
 | `node verify/qa2/setup_test.js dist/simulator.test.html` | Questionnaire, example farm, saved answers, phone layout | all pass |
 | `node verify/qa2/realmap_test.js dist/simulator.test.html outdir` | The farm map view | all pass |
 | `node verify/qa2/livemap_test.js dist/simulator.test.html outdir` | The near-real-time warnings map | all pass |

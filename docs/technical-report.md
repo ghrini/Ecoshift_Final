@@ -266,7 +266,7 @@ Design rules:
 6. **Honest accuracy.** The prompts carry the validation facts, so the chat states the model's real accuracy instead of overclaiming.
 7. **Works without AI.** Without a key, the rule chat, the model and every non-AI feature work the same, and the farmer is told in plain words.
 8. **Limits.** Per-visitor rate limits on every AI route, plus a total of 600 AI calls per 10 minutes. Request bodies are size-capped and secrets and server files are never served.
-9. **Tested.** 251 chat cases (including the 35 published in `verify/chat_rules.json`) pass, as listed in the README's Tests section (251 of 251).
+9. **Tested.** 264 chat cases (including the 35 published in `verify/chat_rules.json`) pass, as listed in the README's Tests section (264 of 264).
 
 What we have not done: measure how often Gemini proposes something the code has to reject, or test whether farmers over-trust the AI text. Translation quality has not been checked by native speakers.
 

@@ -631,9 +631,25 @@ textarea.fs-q-text { resize: vertical; min-height: 3.4em; }
 /* laptop: the whole farm map picture fits in the box without scrolling */
 @media (min-width: 1001px) { .fs-fm-fig img { width: auto; height: min(640px, calc(100dvh - 430px)); min-height: 280px; max-width: 100%; } }
 
-/* the import box sits at the top, above Weather / Season: compact so the simulation stays in view */
-#fs-import { margin: 0 0 var(--gap, 16px); }
-#fs-import .fs-imp-zone { min-height: 120px; padding: 22px 20px; }
+/* the import box sits at the top, above Weather / Season: one compact row so the simulation stays in view */
+#fs-import { margin: 0 0 var(--gap, 16px); padding: 12px 18px; }
+#fs-import .fs-imp-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+#fs-import .fs-imp-title { margin: 0; font-size: 20px; flex: none; }
+#fs-import .fs-imp-zone { flex: 1 1 280px; flex-direction: row; min-height: 0; padding: 10px 16px; gap: 10px; border-width: 1.5px; }
+#fs-import .fs-imp-big { font: 600 16px/1.3 var(--font-sans); max-width: none; }
+#fs-import .fs-imp-tip { top: auto; bottom: calc(100% + 6px); }
+#fs-import .fs-imp-try { margin: 0; flex: 0 1 auto; min-width: 0; font: 400 15px/1.4 var(--font-sans); color: var(--text-muted); }
+#fs-import .fs-imp-try a { color: var(--accent-strong); }
+#fs-import .fs-imp-info { gap: 6px; margin-top: 6px; font-size: 15px; }
+#fs-import .fs-imp-more > summary { cursor: pointer; width: max-content; color: var(--text-muted); font-size: 14px; }
+#fs-import .fs-imp-more[open] > summary { margin-bottom: 6px; }
+#fs-import .fs-imp-more p { margin: 0 0 6px; }
+@media (max-width: 700px) {
+  #fs-import { padding: 10px 14px; }
+  #fs-import .fs-imp-title { font-size: 18px; }
+  #fs-import .fs-imp-zone { flex-basis: 100%; }
+  #fs-import .fs-imp-try { flex-basis: 100%; }
+}
 
 
 /* ---------------------------------------------------------------- Advanced Near-Real-Time Conditions (src/conditions.js) */
@@ -888,6 +904,145 @@ textarea.fs-q-text { resize: vertical; min-height: 3.4em; }
   #fs-view-panel .fs-cn:not([hidden]) { position: relative; inset: auto; overflow: visible; }
 }
 
+/* ===== Money and risk (finui.js): range line, range bar, folded Money Breakdown / Crop Insurance / About These Numbers ===== */
+.fs-fin-line { margin: 6px 0 0; color: var(--text-muted); }
+p.fs-fin-line { color: var(--text); }
+.fs-fin-line b { color: var(--on-bg-accent); font-weight: 700; }
+.fs-badge { display: inline-block; padding: 0 8px; border: 1px solid var(--umber); border-radius: 999px; color: var(--on-bg-accent); background: var(--brown-soft); font-size: 0.82em; font-weight: 600; white-space: nowrap; cursor: help; }
+.fs-fin { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--divider); }
+.fs-fin-note { margin: 6px 0 0; color: var(--text-muted); }
+.fs-rbar { position: relative; height: 10px; margin: 8px 0 2px; border-radius: 5px; background: var(--panel-3); }
+.fs-rbar-span { position: absolute; top: 0; bottom: 0; background: var(--umber); border-radius: 5px; }
+.fs-rbar-tick { position: absolute; top: -3px; bottom: -3px; width: 3px; margin-left: -1px; background: var(--on-bg); border-radius: 2px; }
+.fs-rbar-100 { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--on-bg-accent); opacity: 0.8; }
+.fs-rbar-cap { display: flex; justify-content: space-between; gap: 8px; color: var(--text-faint); }
+#fs-analysis .fs-rbar-cap, #fs-analysis .fs-rbar-cap span { font-size: 13px; }
+details.fs-fin-d { margin-top: 8px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--panel-2); }
+details.fs-fin-d > summary { cursor: pointer; padding: 8px 12px; color: var(--brown); font-weight: 600; min-height: 24px; }
+details.fs-fin-d > summary:hover { color: var(--brown-strong); }
+details.fs-fin-d > summary:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; border-radius: var(--radius-md); }
+.fs-fin-body { padding: 0 12px 12px; }
+.fs-rec-more details.fs-fin-d > .fs-detail-list { padding: 0 12px 10px 28px; }
+.fs-fin-scroll { overflow-x: auto; margin-top: 8px; }
+.fs-fin-table { border-collapse: collapse; width: 100%; min-width: 400px; }
+.fs-fin-table th, .fs-fin-table td { overflow-wrap: normal; word-break: normal; }
+.fs-fin-table td { white-space: nowrap; }
+.fs-fin-table tbody th { min-width: 130px; }
+.fs-fin-table thead th small { font-weight: 400; color: var(--text-muted); }
+#fs-analysis .fs-fin-table, #fs-analysis .fs-fin-table * { font-size: calc(var(--fs-inner) - 2px); line-height: 1.3; }
+.fs-fin-table th, .fs-fin-table td { padding: 4px 8px; text-align: right; border-bottom: 1px solid var(--divider); vertical-align: top; }
+.fs-fin-table thead th { color: var(--on-bg-accent); font-weight: 700; }
+.fs-fin-table tbody th { text-align: left; font-weight: 400; color: var(--text-muted); }
+.fs-fin-table tr.fs-fin-sub th { color: var(--on-bg-accent); font-weight: 700; padding-top: 10px; }
+.fs-fin-table tr.fs-fin-strong th, .fs-fin-table tr.fs-fin-strong td { color: var(--text); font-weight: 700; }
+.fs-fin-h { margin: 14px 0 0; color: var(--on-bg-accent); font-weight: 700; }
+.fs-fin-inputs { display: grid; gap: 8px; margin-top: 8px; }
+.fs-fin-in { display: grid; grid-template-columns: minmax(0, 1fr) 96px; gap: 2px 10px; align-items: center; }
+.fs-fin-in small { grid-column: 1 / -1; color: var(--text-faint); }
+#fs-analysis .fs-fin-in small { font-size: 13px; }
+.fs-fin-in input, .fs-fin-in select { width: 100%; padding: 6px 8px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--panel-3); color: var(--text); font: inherit; }
+.fs-fin-in input:focus-visible, .fs-fin-in select:focus-visible { outline: 2px solid var(--info); outline-offset: 1px; }
+.fs-fin-body a { color: var(--brown); }
+/* ===== Scenario analysis (scenarios.js): preset chips, provenance badges, history-vs-scenario comparison ===== */
+.fs-prov { display: inline-block; font: 600 12px/1.5 var(--font-sans); padding: 0 8px; border-radius: 999px; border: 1px solid var(--border-strong); color: var(--text-muted); background: transparent; white-space: nowrap; vertical-align: 1px; }
+.fs-prov.is-observed { color: var(--accent-strong); border-color: #5b4a33; }
+.fs-prov.is-current { color: #cfe3a8; border-color: #4a4d2a; }
+.fs-prov.is-forecast, .fs-prov.is-seasonal { color: var(--info); border-color: #46505f; }
+.fs-prov.is-seasonal { border-style: dashed; }
+.fs-prov.is-assumed { color: #fff; background: var(--umber); border-color: var(--umber); }
+.fs-prov-line { margin: 0 0 6px; font-size: 14px; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+.fs-scn { display: flex; flex-direction: column; gap: 8px; }
+.fs-scn-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.fs-scn-title { font: 600 15px var(--font-sans); color: var(--text); }
+.fs-scn-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.fs-scn-btn { font: 500 13px/1.2 var(--font-sans); color: var(--text); background: var(--panel-2); border: 1px solid var(--border-strong); border-radius: 999px; padding: 6px 10px; min-height: 32px; cursor: pointer; }
+.fs-scn-btn:hover { border-color: var(--accent-strong); }
+.fs-scn-btn.is-on { background: var(--umber); border-color: var(--umber); color: #fff; }
+.fs-scn-btn:focus-visible, .fs-scn-det > summary:focus-visible, .fs-scn-cmp > summary:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.fs-scn-det > summary, .fs-scn-cmp > summary { cursor: pointer; font: 600 13px var(--font-sans); color: var(--accent-strong); }
+.fs-scn-src { margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.45; color: var(--text-muted); }
+.fs-scn-src i { color: var(--text-faint); }
+.fs-scn-cmp { margin: 10px 0 0; }
+.fs-scn-tw { overflow-x: auto; margin-top: 6px; }
+.fs-scn-t { width: 100%; border-collapse: collapse; font-size: 13px; }
+.fs-scn-t th, .fs-scn-t td { text-align: left; padding: 6px 8px 6px 0; border-bottom: 1px solid var(--divider); vertical-align: top; font-weight: 400; }
+.fs-scn-t thead th { color: var(--text-muted); font-weight: 600; }
+.fs-scn-t tr.is-scen th, .fs-scn-t tr.is-scen td { color: var(--accent-strong); }
+.fs-scn-rl { display: block; margin-top: 2px; color: var(--text-muted); }
+.fs-scn-usd, .fs-scn-yr { color: var(--text-muted); white-space: nowrap; }
+.fs-scn-note { margin: 6px 0 0; font-size: 12px; color: var(--text-faint); }
+.fs-ol-phase .fs-prov { vertical-align: 0; }
+@media (max-width: 600px) { .fs-scn-btn { min-height: 40px; font-size: 14px; } }
+/* comparison cells stack the percent over the dollars so the table fits a phone */
+.fs-scn-t .fs-prov, .fs-prov-line .fs-prov, .fs-scn-head .fs-prov { font-size: 12px; }
+.fs-scn-t td b { display: block; font-size: 14px; }
+.fs-scn-t .fs-scn-usd, .fs-scn-t .fs-scn-yr { display: block; font-size: 12px; }
+.fs-scn-t th[scope="row"] { min-width: 88px; }
+#fs-analysis .fs-panel-body .fs-prov { font-size: 12px; line-height: 1.5; }
+#fs-analysis .fs-panel-body .fs-scn-t, #fs-analysis .fs-panel-body .fs-scn-t th, #fs-analysis .fs-panel-body .fs-scn-t td { font-size: 14px; line-height: 1.35; }
+#fs-analysis .fs-panel-body .fs-scn-t .fs-scn-usd, #fs-analysis .fs-panel-body .fs-scn-t .fs-scn-yr, #fs-analysis .fs-panel-body .fs-scn-rl { font-size: 13px; }
+#fs-analysis .fs-panel-body .fs-scn-note { font-size: 13px; }
+#fs-analysis .fs-panel-body .fs-scn-cmp > summary { font-size: 15px; }
+
+/* ===== Evidence labels and the Soil Health card (small and quiet; added with fieldevidence.js) ===== */
+.fs-ev { display: inline-block; margin: 0 2px; padding: 0 6px; border: 1px solid var(--border-strong); border-radius: 999px; background: transparent; color: var(--text-muted); font: 500 11px/1.6 var(--font-sans); letter-spacing: 0.01em; white-space: nowrap; vertical-align: 1px; cursor: help; }
+.fs-ev-measured { border-color: var(--good); color: #c9c47f; }
+.fs-ev-satellite_indicator { border-color: var(--info); color: var(--info); }
+.fs-ev-model_estimate { border-color: var(--accent-strong); color: var(--accent-strong); }
+.fs-ev-possible_explanation { border-style: dashed; border-color: var(--text-faint); color: var(--text-muted); }
+.fs-ev-verify_in_field { border-color: var(--accent); color: var(--brown-strong); background: var(--brown-soft); }
+.fs-ev-research { border-style: dotted; border-color: var(--text-faint); color: var(--text-muted); }
+.fs-ev-legend { margin: 6px 0 10px; }
+.fs-ev-legend ul { list-style: none; margin: 4px 0; padding: 0; display: grid; gap: 6px; color: var(--text-muted); font-size: 15px; }
+.fs-sh-wrap { margin-top: 14px; }
+.fs-sh { margin: 8px 0; padding: 4px 14px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.fs-sh h5 { margin: 12px 0 6px; font-size: 15px; color: var(--accent-strong); }
+.fs-sh-table th, .fs-sh-table td { white-space: normal; vertical-align: top; }
+.fs-sh-table td:nth-child(2) { min-width: 180px; }
+.fs-sh-src { color: var(--text-muted); font-size: 14px; min-width: 200px; }
+.fs-sh-need { color: var(--brown-strong); }
+.fs-sh-cmp { display: block; color: var(--text-muted); font-size: 14px; }
+.fs-sh-says { margin: 4px 0; padding-left: 18px; color: var(--text-muted); font-size: 15px; line-height: 1.5; }
+.fs-sh-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.fs-sh-l { display: grid; gap: 3px; font-size: 14px; color: var(--text-muted); }
+.fs-sh-l input, .fs-sh-l select { min-height: 40px; padding: 6px 8px; background: var(--panel-2); color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font: 400 16px var(--font-sans); }
+.fs-sh-wide { grid-column: 1 / -1; }
+.fs-sh-btns { display: flex; gap: 8px; margin-top: 10px; }
+.fs-sh-rot { margin-top: 8px; }
+.fs-sh-rot .fs-sh-says li { margin-bottom: 6px; }
+
+/* ===== Simpler first screen: one fold per box for the advanced controls, a folded option list in the chat,
+   a folded harvest table in Next 30 Days, and a short steps line in the header ===== */
+#fs-header .fs-adjust-title { margin-right: 0; }
+.fs-steps-line { margin: 0 auto 0 4px; min-width: 0; font: 500 15px/1.3 var(--font-sans); color: var(--on-bg-muted); }
+@media (max-width: 700px) { .fs-steps-line { order: 2; flex: 1 0 100%; margin: 0 0 0 4px; font-size: 14px; } }
+
+.fs-more { border-top: 1px solid var(--divider); padding-top: 4px; }
+.fs-more > summary { cursor: pointer; display: flex; align-items: center; gap: 6px; list-style: none; padding: 8px 2px; min-height: 28px; font: 600 var(--fs-inner)/1.3 var(--font-sans); color: var(--brown); }
+.fs-more > summary::-webkit-details-marker { display: none; }
+.fs-more > summary::before { content: ""; flex: none; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform 0.15s; margin: 0 4px 0 2px; }
+.fs-more[open] > summary::before { transform: rotate(45deg); }
+.fs-more > summary:hover { color: var(--brown-strong); }
+.fs-more > summary:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; border-radius: 6px; }
+.fs-more-n { font-weight: 500; color: var(--on-bg-accent); }
+.fs-more-body { display: flex; flex-direction: column; gap: 16px; padding: 6px 0 4px; }
+.fs-more-body #fs-acres-slot { display: contents; }
+@media (prefers-reduced-motion: reduce) { .fs-more > summary::before { transition: none; } }
+
+details.fs-fold { margin-top: 6px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--panel-2); }
+details.fs-fold > summary { cursor: pointer; padding: 8px 12px; color: var(--brown); font-weight: 600; min-height: 24px; }
+details.fs-fold > summary:hover { color: var(--brown-strong); }
+details.fs-fold > summary:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; border-radius: var(--radius-md); }
+details.fs-fold > .fs-recs { margin: 4px 0 0; padding: 0 12px 12px 36px; }
+
+.fs-ol-harvestfold { margin-top: 8px; }
+.fs-ol-prov { margin: 8px 0 0; }
+#fs-analysis .fs-fin { margin-top: 8px; padding-top: 8px; }
+/* the chat opens short now, so the results box gets more of the right-hand column on wide screens */
+@media (min-width: 1001px) { #fs-right { grid-template-rows: minmax(0, 1.32fr) minmax(0, 1fr); } }
+#fs-analysis .fs-verdicts, #fs-analysis .fs-verdicts * { font-size: calc(var(--fs-inner) - 2px); }
+@media (max-width: 1000px) { #fs-chat:not(.fs-expanded) { height: auto; min-height: 360px; max-height: min(620px, 80dvh); } }
+
 /* Bird's-eye view styles. Every selector is scoped under #fs-view or starts with .fv- (tokens only for color). */
 #fs-view { position: relative; display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: var(--panel); color: var(--text); font-family: var(--font-sans); }
 #fs-view .fv-stage { position: relative; flex: 1 1 auto; min-height: 0; outline: none; background: var(--panel); touch-action: pan-y; }
@@ -1015,7 +1170,8 @@ textarea.fs-q-text { resize: vertical; min-height: 3.4em; }
 </head><body>
 <nav id="fs-backrow" hidden><a id="fs-back" class="fs-backlink" href="../index.html">← Back to EcoShift</a></nav>
 <header id="fs-header">
-  <h1 class="fs-adjust-title"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Adjust These Settings</h1>
+  <h1 class="fs-adjust-title"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Try A Change On Your Farm</h1>
+  <p class="fs-steps-line"><span>1 Choose your plans</span> · <span>2 Run</span> · <span>3 Read the results</span></p>
   <button type="button" id="fs-farm-btn" class="fs-farm-btn"><span class="fs-farm-name">Your farm</span><span aria-hidden="true"> · </span><span class="fs-farm-change">Change</span></button>
   <div class="fs-run-wrap">
     <button type="button" id="fs-run" class="fs-btn-primary">
@@ -1126,7 +1282,19 @@ FS.data = {
   economics: {
     price: { corn: 4.60, soybean: 12.10, oats: 3.50 },           // $/bu; corn and soybean = 2026/27 season-average farm price (Nov 2026 WASDE); oats price is a PLACEHOLDER
     normalYield: { corn: 211, soybean: 61, oats: 80 },             // bu/acre; corn and soybean from the ISU 2026 budgets; oats is a placeholder
-    costPerAcre: { corn: 911.98, cornAfterCorn: 960.02, soybean: 680, oats: 420, rye: 37 }, // full cost incl. land; ISU 2026 A1-20 via secondary summaries; oats and rye are placeholders
+    costPerAcre: { corn: 911.98, cornAfterCorn: 960.02, soybean: 679.11, oats: 420, rye: 37 }, // full cost incl. land; ISU 2026 A1-20 (read from the PDF, 'Total cost per acre' of the three budgets); oats and rye are placeholders
+    // The same three budgets split into the lines a farmer knows, $/acre, fixed + variable summed (ISU A1-20, January 2026, pages 2, 3 and 5; corn after corn at 193 bu,
+    // corn after soybean at 211 bu, soybean at 61 bu). machinery = preharvest + harvest machinery (fuel, repairs, depreciation, grain drying); fertilizer = nitrogen,
+    // phosphate, potash and lime; other = herbicide, insecticide, miscellaneous and interest on operating costs. Each set adds up to the matching costPerAcre above.
+    costParts: {
+      corn:          { seed: 113.70, fertilizer: 169.44, machinery: 196.37, labor: 52.02, insurance: 17.10, landRent: 274.00, other: 89.35 },
+      cornAfterCorn: { seed: 113.70, fertilizer: 181.00, machinery: 200.66, labor: 57.12, insurance: 17.10, landRent: 274.00, other: 116.44 },
+      soybean:       { seed: 63.10,  fertilizer: 74.88,  machinery: 111.38, labor: 44.88, insurance: 9.10,  landRent: 274.00, other: 101.77 }
+    },
+    wagePerHour: 20.40,                                            // ISU A1-20 2026 labor rate, $/hour (hours per crop are inside the labor line)
+    // Revenue-protection style crop insurance (a simplification). The ISU budgets carry a premium for 80% revenue protection for a typical central Iowa farm
+    // (corn $17.10, soybean $9.10 per acre). Premiums at the other levels are EXAMPLE VALUES (a share of the 80% premium), not RMA rates: set your own.
+    insurance: { levels: [70, 75, 80, 85], defaultLevel: 80, premiumAt80: { corn: 17.10, soybean: 9.10 }, premiumShareOf80: { 70: 0.35, 75: 0.6, 80: 1, 85: 1.8 } },
     nitrogen: { lbPerAcreCornAfterSoy: 146, lbPerAcreCornAfterCorn: 190, dollarsPerLb: 0.57 },
     volatility: { corn: 0.15, soybean: 0.13 },                     // RMA 2026 price volatility factors
     costShareRye: 30,                                              // IDALS 2026 first-time cover crop cost-share, $/acre
@@ -1134,7 +1302,7 @@ FS.data = {
     asOf: '2026-11-14',
     sources: {
       price: 'Corn $4.60 and soybean $12.10 per bushel: USDA WASDE November 2026, 2026/27 season-average farm price (reported by DTN, 10 Nov 2026). Oats $3.50 is a rough guess with no source.',
-      costs: 'Corn $911.98, corn after corn $960.02 and the 211 bu/acre budget yield: Iowa State University Ag Decision Maker A1-20, January 2026, read through secondary summaries (Fencerow, Iowa Farm Bureau). Soybean about $680 at 61 bu/acre: Iowa Soybean Association summary of the same budgets, sources conflict. Oats $420 and 80 bu/acre are rough guesses with no source. Rye $37 is a rough guess with no source.',
+      costs: 'Corn $911.98, corn after corn $960.02, soybean $679.11 and the 211 bu/acre budget yield, split into seed, fertilizer, machinery, labor, insurance, land rent and other lines: Iowa State University Ag Decision Maker A1-20, January 2026 (the PDF itself). Oats $420 and 80 bu/acre are rough guesses with no source. Rye $37 is a rough guess with no source.',
       nitrogen: '146 lb N/acre for corn after soybean: Iowa State MRTN 2022. 190 lb for corn after corn is a working figure. $0.57 per lb N from anhydrous at $938/ton (DTN, November 2026).',
       volatility: 'RMA 2026 volatility factors, via farmdoc daily (March 2026).',
       costShare: 'Iowa Department of Agriculture and Land Stewardship cover crop cost-share 2026: $30/acre first-time, 160-acre cap; not combinable with the crop insurance discount.'
@@ -1155,12 +1323,13 @@ FS.data = {
   },
 
   initialControls: {
-    weather: { scenario: 'typical', tempShift: 0, rainChange: 0, events: [] },   // events: up to 3 of { type: 'dryspell'|'wetspell'|'heatwave', month: 1-12, severity: 'moderate'|'severe' } (API_V3 section 2)
+    weather: { scenario: 'typical', tempShift: 0, rainChange: 0, rainSwing: 0, hotDays: 0, events: [] },   // events: up to 3 of { type: 'dryspell'|'wetspell'|'heatwave', month: 1-12, severity: 'moderate'|'severe' } (API_V3 section 2)
     crops:   { plans: { north: 'soy', creek: 'soy', west: 'corn', south: 'corn' },
                trialAcres: { north: 80, creek: 40, west: 40, south: 120 },
                plantShiftDays: 0,
                soilWaterPct: 0 },   // how much more (+) or less (-) water the soil holds than the soil survey says, -60..40 % (set from the chat)   // days earlier (-) or later (+) than the usual planting dates, -21..21 in steps of 7 (API_V3 section 1)
-    other:   { priceChange: 0, nitrogenChange: 0, contracted: 30, costShare: false, priority: 'balanced' }   // priority: 'balanced' | 'profit' | 'risk' | 'cover'
+    other:   { priceChange: 0, nitrogenChange: 0, contracted: 30, costShare: false, priority: 'balanced',
+               fin: { coverage: 80, landRent: null, wage: null, coverCost: null, premiumCorn: null, premiumSoybean: null } }   // fin: your own money inputs; null = use the sourced default (see economics.costParts and economics.insurance)   // priority: 'balanced' | 'profit' | 'risk' | 'cover'
   }
 };
 
@@ -1555,16 +1724,51 @@ window.FS = window.FS || {};
   function irrCostPerAcre(mode) { return irrInches(mode) * IRR_COST_PER_ACRE_IN; }
   function shiftOf(wc, cc) {
     var ts = +(wc && wc.tempShift) || 0, pd = Math.round(+(cc && cc.plantShiftDays) || 0), ir = cc && IRR_MONTHS[cc.irrigation] && cc.irrigation !== 'none' ? cc.irrigation : 'none';
-    return { ts: ts, rs: Math.max(0, 1 + (+(wc && wc.rainChange) || 0) / 100), ef: 1 + ET_PER_C * ts, pd: clamp(pd, -21, 21), ev: cleanEvents(wc && wc.events), irr: ir, aw: clamp(Math.round(+(cc && cc.soilWaterPct) || 0), -60, 40) };
+    return { ts: ts, rs: Math.max(0, 1 + (+(wc && wc.rainChange) || 0) / 100), ef: 1 + ET_PER_C * ts, vr: 1 + clamp(+(wc && wc.rainSwing) || 0, 0, 100) / 100, hx: clamp(+(wc && wc.hotDays) || 0, 0, 6), pd: clamp(pd, -21, 21), ev: cleanEvents(wc && wc.events), irr: ir, aw: clamp(Math.round(+(cc && cc.soilWaterPct) || 0), -60, 40) };
   }
-  var NO_SHIFT = { ts: 0, rs: 1, ef: 1, pd: 0, ev: [], irr: 'none', aw: 0 };
+  var NO_SHIFT = { ts: 0, rs: 1, ef: 1, vr: 1, hx: 0, pd: 0, ev: [], irr: 'none', aw: 0 };
   function evKey(sh) { return sh.ev.map(function (e) { return e.type + e.month + e.severity; }).join(','); }
-  function wxKey(sh) { return sh.ts + '|' + sh.rs + (sh.ev.length ? '|' + evKey(sh) : ''); }
+  function wxKey(sh) { return sh.ts + '|' + sh.rs + (sh.vr !== 1 ? '|v' + sh.vr : '') + (sh.hx ? '|h' + sh.hx : '') + (sh.ev.length ? '|' + evKey(sh) : ''); }
   function shiftKey(sh) { return wxKey(sh) + (sh.pd ? '|p' + sh.pd : '') + (sh.irr && sh.irr !== 'none' ? '|i' + sh.irr : '') + (sh.aw ? '|a' + sh.aw : ''); }
   // the same weather and planting shift with the temperature and rain sliders at 0 (the unwarmed outcome the warming floor is measured against)
-  function unwarmed(sh) { return sh.ts === 0 && sh.rs === 1 ? sh : { ts: 0, rs: 1, ef: 1, pd: sh.pd, ev: sh.ev, irr: sh.irr, aw: sh.aw }; }
+  function unwarmed(sh) { return sh.ts === 0 && sh.rs === 1 && sh.vr === 1 && !sh.hx ? sh : { ts: 0, rs: 1, ef: 1, vr: 1, hx: 0, pd: sh.pd, ev: sh.ev, irr: sh.irr, aw: sh.aw }; }
   // calendar month and day of month of each season day (the 2026-27 calendar, 29 Feb never present)
   var CAL = (function () { var m = new Uint8Array(N_DAYS), dm = new Uint8Array(N_DAYS); for (var d = 0; d < N_DAYS; d++) { var t = new Date(START + d * DAY); m[d] = t.getUTCMonth() + 1; dm[d] = t.getUTCDate(); } return { m: m, d: dm }; })();
+  // Rain variability (scenario analysis): wet periods get wetter and dry periods drier while the season total stays the same.
+  // Each day's rain is scaled by how far its 15-day window (7 days either side) is from that window's long-term mean over all seasons:
+  // window' = max(0, mean + k x (window - mean)), k = 1 + rainSwing/100. The season is then rescaled so the total is unchanged. Rain is
+  // only scaled, never moved to another day, so it can never go below 0. k = 1 is the observed weather. The size is an ASSUMPTION (DESIGN).
+  var SWING_HALF = 7, swingCache = { clim: null, mean: null, seasons: {} };
+  function swingMean(C) {
+    if (swingCache.clim === C) return swingCache.mean;
+    var ys = C.meta.years, M = new Float64Array(N_DAYS);
+    ys.forEach(function (y) { var cs = winSums(baseWx(y).rain); for (var d = 0; d < N_DAYS; d++) M[d] += cs[d] / ys.length; });
+    swingCache = { clim: C, mean: M, seasons: {} };
+    return M;
+  }
+  function winSums(rain) {
+    var cs = new Float64Array(N_DAYS + 1), out = new Float64Array(N_DAYS), d;
+    for (d = 0; d < N_DAYS; d++) cs[d + 1] = cs[d] + rain[d];
+    for (d = 0; d < N_DAYS; d++) out[d] = cs[Math.min(N_DAYS, d + SWING_HALF + 1)] - cs[Math.max(0, d - SWING_HALF)];
+    return out;
+  }
+  function swungRain(wx, vr) {
+    var C = climate(), M = swingMean(C), key = wx.year + '|' + vr, o = swingCache.seasons[key];
+    if (o) return o;
+    var W = winSums(wx.rain), P = new Float64Array(N_DAYS), s0 = 0, s1 = 0, d;
+    for (d = 0; d < N_DAYS; d++) {
+      var r = W[d] > 1e-9 ? Math.max(0, M[d] + vr * (W[d] - M[d])) / W[d] : 1;
+      P[d] = wx.rain[d] * r; s0 += wx.rain[d]; s1 += P[d];
+    }
+    var k = s1 > 1e-9 ? s0 / s1 : 1;
+    for (d = 0; d < N_DAYS; d++) P[d] *= k;
+    swingCache.seasons[key] = P;
+    return P;
+  }
+  // Extreme heat (scenario analysis): on each June-August day whose Tmax (after the temperature slider) is at or above HOT_DAY_C, add hotDays degrees to Tmax
+  // and half of it to Tmin, and raise ET0 by the same ET_PER_C per degree of mean rise the heat-wave events use. Days just under the threshold are pushed over
+  // it, so hot days become more frequent as well as hotter. Heat damage is not identifiable from the NASS data, so this acts mostly through water use.
+  var HOT_DAY_C = 30, HOT_FROM_M = 6, HOT_TO_M = 8;
   // plan-independent daily quantities of one season under one weather shift (shared by every field and plan; cached)
   var dayCache = { clim: null, map: {}, n: 0 }, DAY_CACHE_MAX = 44 * 24;
   function dayWx(wx, sh) {
@@ -1575,8 +1779,10 @@ window.FS = window.FS || {};
     if (dayCache.n > DAY_CACHE_MAX) dayCache = { clim: C, map: {}, n: 0 };   // bound memory when the sliders are swept
     var n = N_DAYS, tx = new Float64Array(n), tn = new Float64Array(n), P = new Float64Array(n), et0 = new Float64Array(n), mean7 = new Float64Array(n),
         g50 = new Float64Array(n), g32 = new Float64Array(n), topWet = new Uint8Array(n), rain2 = new Uint8Array(n), De = TOP_REW, s7 = 0, d, nEv = sh.ev.length;
+    var R = sh.vr !== 1 ? swungRain(wx, sh.vr) : wx.rain;
     for (d = 0; d < n; d++) {
-      tx[d] = wx.tmax[d] + sh.ts; tn[d] = wx.tmin[d] + sh.ts; P[d] = wx.rain[d] * sh.rs; et0[d] = wx.et0[d] * sh.ef;
+      tx[d] = wx.tmax[d] + sh.ts; tn[d] = wx.tmin[d] + sh.ts; P[d] = R[d] * sh.rs; et0[d] = wx.et0[d] * sh.ef;
+      if (sh.hx && tx[d] >= HOT_DAY_C && CAL.m[d] >= HOT_FROM_M && CAL.m[d] <= HOT_TO_M) { tx[d] += sh.hx; tn[d] += sh.hx / 2; et0[d] *= 1 + ET_PER_C * 0.75 * sh.hx; }
       for (var e = 0; e < nEv; e++) {            // weather events (API_V3 section 2), on top of the sliders
         var ev = sh.ev[e];
         if (CAL.m[d] !== ev.month) continue;
@@ -1990,17 +2196,36 @@ window.FS = window.FS || {};
     other = other || {};
     var priceBase = E.price[crop] || 0, contracted = clamp((other.contracted == null ? 0 : other.contracted), 0, 100);
     var priceEff = priceBase * (1 + (other.priceChange || 0) / 100 * (1 - contracted / 100));
-    var rev = bu * priceEff, cost = 0;
-    if (crop === 'corn') {
-      var after = prev === 'corn';
-      cost = after ? E.costPerAcre.cornAfterCorn : E.costPerAcre.corn;
-      var N = E.nitrogen || {}, lb = after ? N.lbPerAcreCornAfterCorn : N.lbPerAcreCornAfterSoy;
-      cost += (lb || 0) * (N.dollarsPerLb || 0) * (other.nitrogenChange || 0) / 100;
-    } else if (crop === 'soybean') cost = E.costPerAcre.soybean;
-    else if (crop === 'oats') cost = E.costPerAcre.oats;
-    if (other.irrCost && crop !== 'none') cost += other.irrCost;     // irrigation pumping energy (API_V4 section 3)
-    if (hasRye) cost += E.costPerAcre.rye - (csOn(other) ? (E.costShareRye || 0) * (shareFrac == null ? 1 : shareFrac) : 0);
-    return { rev: rev, cost: cost, ret: rev - cost };
+    var rev = bu * priceEff, P = costParts(E, other, crop, prev, hasRye, shareFrac), cost = 0, k;
+    for (k in P) cost += P[k];
+    return { rev: rev, cost: cost, ret: rev - cost, parts: P };
+  }
+  // Cost per acre split into lines a farmer knows (ISU A1-20, see economics.costParts in data.js). The lines are scaled so they add up to
+  // economics.costPerAcre (so changing a total in a test or a what-if still holds). Your own inputs (other.fin: land rent, wage, cover crop cost) replace the defaults.
+  // costShare is negative (money received). Crops with no itemised budget (oats) are one 'other' line.
+  var COST_LINES = ['seed', 'fertilizer', 'machinery', 'irrigation', 'cover', 'labor', 'insurance', 'landRent', 'other', 'costShare'];
+  function finNum(v, lo, hi) { return v != null && v !== '' && isFinite(Number(v)) ? clamp(Number(v), lo, hi) : null; }
+  function costParts(E, other, crop, prev, hasRye, shareFrac) {
+    var fin = (other && other.fin) || {}, P = {}, i, key = crop === 'corn' ? (prev === 'corn' ? 'cornAfterCorn' : 'corn') : crop === 'soybean' ? 'soybean' : null;
+    for (i = 0; i < COST_LINES.length; i++) P[COST_LINES[i]] = 0;
+    if (key) {
+      var src = E.costParts && E.costParts[key], tot = E.costPerAcre[key], k, sum = 0;
+      if (src) { for (k in src) sum += src[k]; var sc = sum > 0 ? tot / sum : 1; for (k in src) P[k] = src[k] * sc; } else P.other = tot;
+      if (crop === 'corn') {
+        var N = E.nitrogen || {}, lb = key === 'cornAfterCorn' ? N.lbPerAcreCornAfterCorn : N.lbPerAcreCornAfterSoy;
+        P.fertilizer += (lb || 0) * (N.dollarsPerLb || 0) * (other.nitrogenChange || 0) / 100;     // what-if: nitrogen price change
+      }
+      var rent = finNum(fin.landRent, 0, 2000), wage = finNum(fin.wage, 0, 200);
+      if (rent != null) P.landRent = rent;
+      if (wage != null && E.wagePerHour > 0) P.labor *= wage / E.wagePerHour;
+    } else if (crop === 'oats') P.other = E.costPerAcre.oats;
+    if (other && other.irrCost && crop !== 'none') P.irrigation = other.irrCost;     // irrigation pumping energy (API_V4 section 3)
+    if (hasRye) {
+      var cc = finNum(fin.coverCost, 0, 500);
+      P.cover = cc != null ? cc : E.costPerAcre.rye;
+      if (csOn(other)) P.costShare = -(E.costShareRye || 0) * (shareFrac == null ? 1 : shareFrac);
+    }
+    return P;
   }
   // the controls' other-block plus the irrigation pumping cost per acre for this run (a copy only when irrigating, so defaults are untouched)
   function otherOf(controls) {
@@ -2249,7 +2474,7 @@ window.FS = window.FS || {};
     return out;
   }
   function lowest(a, n) { return a.slice().sort(function (x, y) { return x - y; }).slice(0, n); }
-  function econWith(E, f) { var o = { price: {}, costPerAcre: {}, nitrogen: E.nitrogen, costShareRye: E.costShareRye }, k; for (k in E.price) o.price[k] = E.price[k]; for (k in E.costPerAcre) o.costPerAcre[k] = E.costPerAcre[k]; if (f) f(o); return o; }
+  function econWith(E, f) { var o = { price: {}, costPerAcre: {}, nitrogen: E.nitrogen, costShareRye: E.costShareRye, costParts: E.costParts, wagePerHour: E.wagePerHour, normalYield: E.normalYield, volatility: E.volatility, insurance: E.insurance }, k; for (k in E.price) o.price[k] = E.price[k]; for (k in E.costPerAcre) o.costPerAcre[k] = E.costPerAcre[k]; if (f) f(o); return o; }
 
   // statistics of one plan against the current plan on one field, over all seasons.
   // Cost-share is a one-time payment: it counts in full in "this season" and once in the n-season average (not every season).
@@ -2451,6 +2676,100 @@ window.FS = window.FS || {};
     return { fieldId: fieldId, years: yt.years.slice(), current: a, plan: b, diffPerAcre: diff };
   }
 
+  // ================================================================ money and risk per option (FS.engine.finance)
+  // For every plan option of one field, over all past seasons: gross revenue, itemised costs, net return, the spread (worst / typical / best season),
+  // the share of seasons with a loss, a simplified revenue-protection insurance, and a price band from the RMA volatility factor.
+  // Net return = gross revenue - all costs (including land rent and labor) + cost-share received. 'without insurance' takes the budget's own premium line out of
+  // the costs; 'with insurance' puts the chosen premium in and adds the payout. All values are per acre; nothing here changes run() or compare().
+  // Safer Choice rule (DESIGN, stated in the UI): not the plan with the highest average net return; gives up at most the larger of $15/acre or 20% of that average;
+  // its stress-test worst season is better by at least $50/acre and by at least twice what it gives up.
+  var SAFER = { maxGiveUp: 15, maxGiveUpShare: 0.2, minWorstGain: 50, gainTimesGiveUp: 2 };
+  function pickSafer(ok) {
+    var lead = null, safer = null;
+    ok.forEach(function (x) { if (!lead || x.net.mean > lead.net.mean) lead = x; });
+    ok.forEach(function (x) {
+      x.safer = false; x.leader = x === lead;
+      if (x === lead) return;
+      var give = lead.net.mean - x.net.mean, gain = x.stress.net.worst - lead.stress.net.worst;
+      x.giveUp = give; x.worstGain = gain;
+      if (give <= Math.max(SAFER.maxGiveUp, SAFER.maxGiveUpShare * Math.abs(lead.net.mean)) && gain >= Math.max(SAFER.minWorstGain, SAFER.gainTimesGiveUp * Math.max(0, give)) && (!safer || x.stress.net.worst > safer.stress.net.worst)) safer = x;
+    });
+    if (safer) safer.safer = true;
+    return { lead: lead, safer: safer };
+  }
+  function spread(a, years) {
+    var n = a.length, idx = [], i; for (i = 0; i < n; i++) idx.push(i);
+    idx.sort(function (x, y) { return a[x] - a[y]; });
+    var lo = idx[0], hi = idx[n - 1];
+    return { worst: a[lo], worstYear: years[lo], median: median(a.slice()), best: a[hi], bestYear: years[hi], mean: mean(a), lossSeasons: a.filter(function (v) { return v < 0; }).length };
+  }
+  function insurancePremium(E, fin, crop, level) {
+    var I = E.insurance || {}, own = finNum(crop === 'corn' ? fin.premiumCorn : fin.premiumSoybean, 0, 500);
+    if (own != null) return own;
+    var base = I.premiumAt80 && I.premiumAt80[crop], share = I.premiumShareOf80 && I.premiumShareOf80[level];
+    return (base || 0) * (share == null ? 1 : share);
+  }
+  function finance(fieldId, controls) {
+    var farm = FS.data.farm, f = farm.fields.filter(function (x) { return x.id === fieldId; })[0];
+    if (!f) return null;
+    controls = controls || FS.data.initialControls;
+    var w = controls.weather || {}, sh = shiftOf(w, controls.crops), yt = yieldTable(farm, sh), E = FS.data.economics, o = otherOf(controls), fin = o.fin || {};
+    var I = E.insurance || { levels: [80], defaultLevel: 80 }, level = I.levels.indexOf(Number(fin.coverage)) >= 0 ? Number(fin.coverage) : I.defaultLevel;
+    var cur = FS.data.initialControls.crops.plans[f.id], share = shareFor(farm, controls, f.id, f.acres), n = yt.years.length, years = yt.years.slice();
+    var ids = yt.opts[f.id].slice().filter(function (pid) { return pid === cur || !excluded(controls, pid); });
+    ids.sort(function (a, b) { return (a === cur ? -1 : 0) - (b === cur ? -1 : 0); });
+    var vol = E.volatility || {};
+    function season(E2, T, sf, premium, i, bu) {
+      var m = money(E2, o, T.crop, f.lastCrop, (bu || T.bu)[i], T.hasRye, sf), budgetIns = m.parts.insurance, gross = m.rev, costs0 = m.cost - budgetIns;
+      var guarantee = level / 100 * (E.normalYield[T.crop] || 0) * (E.price[T.crop] || 0), pay = Math.max(0, guarantee - gross);
+      return { m: m, gross: gross, net0: gross - costs0, net1: gross - costs0 - premium + pay, pay: pay, guarantee: guarantee };
+    }
+    var items = ids.map(function (pid) {
+      var T = ytPlan(yt, f, pid), hide = !!moneyNoteFor(T.crop) || T.crop === 'none', sf = pid === cur ? 1 : share, crop = T.crop;
+      var it = { plan: pid, label: FS.data.plans[pid].label, isCurrent: pid === cur, crop: crop, hasRye: T.hasRye, moneyHidden: hide, moneyNote: moneyNoteFor(crop),
+                 pct: spread(Array.prototype.slice.call(T.pct), years), insurable: crop === 'corn' || crop === 'soybean' };
+      if (hide) return it;
+      var premium = it.insurable ? insurancePremium(E, fin, crop, level) : 0, net0 = [], net1 = [], pay = [], gross = [], sn, i, last;
+      for (i = 0; i < n; i++) { sn = season(E, T, sf, premium, i); net0.push(sn.net0); net1.push(it.insurable ? sn.net1 : sn.net0); pay.push(it.insurable ? sn.pay : 0); gross.push(sn.gross); last = sn; }
+      var P = last.m.parts, budgetIns = P.insurance, parts = {};
+      COST_LINES.forEach(function (k) { parts[k] = P[k]; });
+      var opCost = parts.seed + parts.fertilizer + parts.machinery + parts.irrigation + parts.cover + parts.labor + parts.other;
+      it.breakdown = { revenue: mean(gross), seed: parts.seed, fertilizer: parts.fertilizer, machinery: parts.machinery, irrigation: parts.irrigation, cover: parts.cover,
+        labor: parts.labor, other: parts.other, operating: opCost, landRent: parts.landRent, costShare: parts.costShare,
+        netBeforeRent: mean(net0) + parts.landRent, premium: premium, payout: mean(pay), budgetPremium: budgetIns };
+      it.net = spread(net0, years);
+      it.netIns = spread(net1, years);
+      // stress test: the same seasons with the weather deviations widened to the observed Iowa spread (RISK_K, as the engine's risk numbers do)
+      var bw = widened(T), w0 = [], w1 = [], wp = [], wpct = [];
+      for (i = 0; i < n; i++) { sn = season(E, T, sf, premium, i, bw); w0.push(sn.net0); w1.push(it.insurable ? sn.net1 : sn.net0); wp.push(it.insurable ? sn.pay : 0); wpct.push(bw[i] / (E.normalYield[crop] || 1) * 100); }
+      it.stress = { k: riskK(crop), pct: spread(wpct, years), net: spread(w0, years), netIns: spread(w1, years), payoutSeasons: wp.filter(function (v) { return v > 0.005; }).length, payoutMean: mean(wp) };
+      it.insurance = { level: level, premium: premium, guarantee: last.guarantee, payoutSeasons: pay.filter(function (v) { return v > 0.005; }).length, payoutMean: mean(pay), payoutMax: Math.max.apply(null, pay), approximation: true };
+      var v = vol[crop];
+      if (v > 0) {
+        var pr = E.price[crop];
+        it.band = { vol: v, lowPrice: pr * (1 - v), highPrice: pr * (1 + v) };
+        [['low', 1 - v], ['high', 1 + v]].forEach(function (q) {
+          var E2 = econWith(E, function (x) { x.price[crop] = pr * q[1]; }), a0 = [], a1 = [];
+          for (i = 0; i < n; i++) { var s2 = season(E2, T, sf, premium, i); a0.push(s2.net0); a1.push(it.insurable ? s2.net1 : s2.net0); }
+          it.band[q[0]] = mean(a0); it.band[q[0] + 'Ins'] = mean(a1);
+        });
+      }
+      return it;
+    });
+    // the typical error of one season, from the validation constant (points of a normal crop; dollars = points x normal revenue per acre)
+    var err = {};
+    ['corn', 'soybean'].forEach(function (c) { var pts = valErr(c); err[c] = { points: pts, dollars: pts / 100 * E.normalYield[c] * E.price[c] }; });
+    var ok = items.filter(function (x) { return !x.moneyHidden; }), picked = pickSafer(ok);
+    var lead = picked.lead, safer = picked.safer;
+    return { fieldId: fieldId, fieldName: f.name, acres: f.acres, years: years, nSeasons: n, level: level, items: items, safer: safer ? safer.plan : null, leader: lead ? lead.plan : null,
+             rule: { maxGiveUp: SAFER.maxGiveUp, maxGiveUpShare: SAFER.maxGiveUpShare, minWorstGain: SAFER.minWorstGain, gainTimesGiveUp: SAFER.gainTimesGiveUp }, err: err, volatility: { corn: vol.corn, soybean: vol.soybean },
+             inputs: { coverage: level, landRent: finNum(fin.landRent, 0, 2000), wage: finNum(fin.wage, 0, 200), coverCost: finNum(fin.coverCost, 0, 500),
+                       premiumCorn: finNum(fin.premiumCorn, 0, 500), premiumSoybean: finNum(fin.premiumSoybean, 0, 500) },
+             defaults: { landRent: E.costParts.corn.landRent, wage: E.wagePerHour, coverCost: E.costPerAcre.rye, premiumCorn: insurancePremium(E, {}, 'corn', level), premiumSoybean: insurancePremium(E, {}, 'soybean', level), levels: I.levels.slice() },
+             validation: { source: VALIDATION && VALIDATION.source, years: VALIDATION && VALIDATION.years, corn: VALIDATION && VALIDATION.corn && VALIDATION.corn.process, soybean: VALIDATION && VALIDATION.soybean && VALIDATION.soybean.process, text: VALIDATION && VALIDATION.text },
+             asOf: E.asOf };
+  }
+
   // summary.recommendations: alternatives that beat the current plan on the chosen priority, at most 3 (oats excluded)
   function recommendations(farm, controls, ref) {
     var w = controls.weather || {}, sh = shiftOf(w, controls.crops), yt = yieldTable(farm, sh), sc = scenario(w.scenario || 'typical');
@@ -2492,6 +2811,8 @@ window.FS = window.FS || {};
     var parts = [sc.label];
     if (c.weather.tempShift) parts.push(sign(c.weather.tempShift) + '°C');
     if (c.weather.rainChange) parts.push('rain ' + sign(c.weather.rainChange) + '%');
+    if (c.weather.rainSwing) parts.push('rain swings +' + c.weather.rainSwing + '%');
+    if (c.weather.hotDays) parts.push('hot days +' + c.weather.hotDays + '°C');
     if (c.crops && c.crops.plantShiftDays) parts.push('plant ' + Math.abs(c.crops.plantShiftDays) + ' d ' + (c.crops.plantShiftDays < 0 ? 'earlier' : 'later'));
     var cev = cleanEvents(c.weather.events);
     if (cev.length) parts.push(cev.map(function (e) { return (e.severity === 'severe' ? 'severe ' : '') + (e.type === 'heatwave' ? 'heat wave ' : EVENT_NAMES[e.type] + ' ') + MONTHS[e.month - 1]; }).join(', '));
@@ -2609,6 +2930,9 @@ window.FS = window.FS || {};
     why.push({ text: 'The weather response was checked against Iowa yields from USDA NASS: it catches the big droughts but is no better than the yield trend in ordinary years, and heat damage cannot be estimated from that data. The rotation, cover-crop and planting-date effects come from Iowa State trials and are not covered by that check.', source: 'isu' });
     if (sh.ts || controls.weather.rainChange) why.push({ text: 'Weather was adjusted' + (sh.ts ? ' by ' + sign(sh.ts) + '°C' : '') + (controls.weather.rainChange ? (sh.ts ? ' and' : '') + ' rain ' + sign(controls.weather.rainChange) + '%' : '') + '; the rain change makes storms heavier, not more frequent, and the corn hybrid stays the one matched to today\'s climate.' +
       (sh.ts > 0 ? ' For warming, each field\'s yield is held to at least the published average loss (corn 7.4% and soybeans 3.1% for each degree, Zhao et al. 2017, with no CO2 gain or adaptation), because heat damage cannot be estimated from this data.' : ''), source: 'power' });
+    if (sh.vr !== 1 || sh.hx) why.push({ text: 'Assumed scenario, a what-if and not a prediction: ' + (sh.vr !== 1 ? 'rain swings between wet and dry spells are ' + Math.round((sh.vr - 1) * 100) + '% bigger (each 15-day stretch moves away from its long-term average by that much more, and the season total is kept)' : '') +
+      (sh.vr !== 1 && sh.hx ? '; ' : '') + (sh.hx ? 'June to August days of 30 °C or more are ' + sh.hx + ' °C hotter, so there are also more very hot days' : '') + '. These sizes are illustrative, chosen for stress testing, and are not a climate projection. ' +
+      (sh.hx ? 'Heat damage cannot be measured from the yield data, so extra heat acts mostly through the extra water crops use.' : ''), source: 'power' });
     if (sh.pd) why.push({ text: 'Planting ' + Math.abs(sh.pd) + ' days ' + (sh.pd < 0 ? 'earlier' : 'later') + ' than usual on every field. Each crop still waits for workable soil, then follows the frost and growing-season rules; the yield cost of late planting comes from Iowa State planting-date trials, and early planting can lose to a cold spring or a spring frost. This planting-date effect was not checked against the NASS yields.', source: 'isu' });
     if (sh.ev.length) {
       var names = sh.ev.map(function (e) { return 'a ' + (e.severity === 'severe' ? 'severe ' : '') + (e.type === 'heatwave' ? 'heat wave in ' : EVENT_NAMES[e.type] + ' ') + MONTHS_LONG[e.month - 1]; }), hw = sh.ev.some(function (e) { return e.type === 'heatwave'; });
@@ -2851,8 +3175,9 @@ window.FS = window.FS || {};
     if (!other && sh.irr !== 'none') o = otherOf({ other: o, crops: { irrigation: sh.irr } });
     return evalField(farm, f, planId, baseWx(year), sh, o, ref, false, heatOf(), 1);
   }
-  FS.engine = { setFarm: setFarm, outlook: outlook, site: function () { return { id: SITE.id, name: SITE.name, short: SITE.short, state: SITE.state, validated: SITE.validated, local: SITE.local || null, geo: SITE.geo || null }; }, run: run, evalYear: evalYear, scenario: scenario, compare: compare, seasons: seasons, warm: warm, sample: false, N_WEEKS: N_WEEKS,
+  FS.engine = { setFarm: setFarm, outlook: outlook, site: function () { return { id: SITE.id, name: SITE.name, short: SITE.short, state: SITE.state, validated: SITE.validated, local: SITE.local || null, geo: SITE.geo || null }; }, run: run, evalYear: evalYear, scenario: scenario, compare: compare, seasons: seasons, finance: finance, _pickSafer: pickSafer, warm: warm, sample: false, N_WEEKS: N_WEEKS,
                 validation: function () { return VALIDATION; },
+                _dayWeather: function (year, weather) { var d = dayWx(baseWx(year), shiftOf(weather || {}, {})); return { tmax: d.tx, tmin: d.tn, rain: d.P, et0: d.et0 }; },
                 _ref: function () { return getRef(FS.data.farm); }, _setParams: setParams, _components: components, _hybrids: hybrids,
                 _irrigation: function () { return { kwhPerAcreInch: IRR_KWH_PER_ACRE_IN, dollarsPerKwh: IRR_DOLLARS_PER_KWH, dollarsPerAcreInch: IRR_COST_PER_ACRE_IN, inches: { july: irrInches('july'), 'july-aug': irrInches('july-aug'), 'jun-aug': irrInches('jun-aug') } }; },
                 _const: { FIT: FIT, WARM_LOSS: WARM_LOSS, RISK_K_DEFAULT: RISK_K_DEFAULT } };
@@ -3805,6 +4130,191 @@ window.FS = window.FS || {};
 
 </script>
 <script>
+/* Scenario analysis: what is observed, what is forecast and what is assumed.
+   - FS.provenance: the five labels (badges) that say where a result comes from.
+   - FS.scenarios: the six one-click presets in the Weather / Season box, the check for which one is on, and the side-by-side
+     comparison of the current plans under observed history and under the chosen what-if.
+   Replaying the 44 past seasons shows how a plan did under those conditions. It does not give the chance of any season next year,
+   and it does not say that future weather will look like the record. The assumed scenarios are what-ifs with illustrative sizes. */
+(function () {
+  'use strict';
+  var FS = window.FS = window.FS || {}, D = FS.data, S = FS.store, A = FS.actions;
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  // ---------------------------------------------------------------- provenance labels
+  var KINDS = {
+    observed: { text: 'Observed history', tip: 'What actually happened in the past seasons (NASA POWER daily weather). It shows how a plan did under those conditions. It is not the chance of any season next year.' },
+    current: { text: 'Current observations', tip: 'Recent satellite readings and weather estimates for your fields. They describe now, not the rest of the season.' },
+    forecast: { text: 'Forecast (next 16 days)', tip: 'A weather-model forecast for the next 16 days. Useful for the coming days, not for the whole season.' },
+    seasonal: { text: 'Seasonal outlook (days 17-30)', tip: 'A rough long-range estimate for days 17 to 30, an average of many model runs. Much less certain than the 16-day forecast.' },
+    assumed: { text: 'Assumed scenario', tip: 'A what-if built on assumed changes with illustrative sizes. It is not a forecast and not a probability.' }
+  };
+  function badge(kind, more) {
+    var k = KINDS[kind]; if (!k) return '';
+    return '<span class="fs-prov is-' + kind + '" title="' + esc(k.tip) + '">' + esc(k.text) + (more ? ' ' + esc(more) : '') + '</span>';
+  }
+  FS.provenance = { kinds: KINDS, badge: badge, text: function (k) { return KINDS[k] ? KINDS[k].text : ''; } };
+
+  // ---------------------------------------------------------------- the presets
+  // Sizes: Zhao et al. 2017 (PNAS 114:9326) is the source of the warming yield loss in the engine (corn 7.4% and soybean 3.1% per degree C).
+  // The direction of the Midwest changes (hotter summers with more very hot days, wetter springs, heavier downpours, less certain summer rain)
+  // follows the U.S. Fifth National Climate Assessment (2023), Midwest chapter. The SIZES of the heat, rain and variability changes are illustrative,
+  // chosen to stress-test a plan, and are not projections.
+  var CLEAR = { scenario: 'typical', tempShift: 0, rainChange: 0, rainSwing: 0, hotDays: 0, events: [] };
+  function w(o) { return Object.assign({}, CLEAR, o || {}); }
+  var PRESETS = [
+    { id: 'baseline', name: 'Historical Baseline', kind: 'observed', weather: w(),
+      blurb: 'All 44 observed seasons (1982-2025), exactly as they happened. Nothing is changed.',
+      basis: 'Observed: NASA POWER daily weather for this grid square.' },
+    { id: 'drought', name: 'Historical Drought', kind: 'observed', weather: w({ scenario: 'drought2012' }), years: [1988, 2012],
+      blurb: 'The 1988 and 2012 droughts, replayed as they happened.',
+      basis: 'Observed: the 1988 and 2012 seasons from NASA POWER. Iowa corn made 84 and 137 bu/acre (USDA NASS). Prices are held at today\'s level.' },
+    { id: 'heat', name: 'More Frequent Extreme Heat', kind: 'assumed', weather: w({ tempShift: 1, hotDays: 3 }),
+      blurb: '1 °C warmer, and summer days that reach 30 °C or more get another 3 °C, so very hot days become more common.',
+      basis: 'Assumed. Direction: hotter summers with more very hot days (U.S. Fifth National Climate Assessment, Midwest chapter). Size (+1 °C, +3 °C on hot days): illustrative, not a projection. Yield loss from warming: Zhao et al. 2017.' },
+    { id: 'rain', name: 'Reduced Precipitation', kind: 'assumed', weather: w({ rainChange: -15 }),
+      blurb: '15% less rain, spread over the whole season.',
+      basis: 'Assumed. Illustrative, not a projection: assessments expect wetter springs in the Midwest and are less sure about summer rain, so this is a stress test.' },
+    { id: 'swing', name: 'Increased Precipitation Variability', kind: 'assumed', weather: w({ rainSwing: 50 }),
+      blurb: 'Wet stretches get wetter and dry stretches drier (swings 50% bigger). The season\'s total rain stays about the same.',
+      basis: 'Assumed. Direction: heavier downpours and bigger swings between wet and dry spells (U.S. Fifth National Climate Assessment, Midwest chapter). Size (+50%): illustrative, not a projection.' },
+    { id: 'combined', name: 'Combined Future', kind: 'assumed', weather: w({ tempShift: 2, rainChange: -10, rainSwing: 50 }),
+      blurb: '2 °C warmer, 10% less rain and 50% bigger swings between wet and dry stretches.',
+      basis: 'Assumed. Illustrative, not a projection: a hotter, drier, more erratic season for stress testing. Yield loss from warming: Zhao et al. 2017 (corn 7.4%, soybeans 3.1% per °C, no CO2 gain or adaptation).' }
+  ];
+  function byId(id) { return PRESETS.filter(function (p) { return p.id === id; })[0] || null; }
+  var SAME = ['scenario', 'tempShift', 'rainChange', 'rainSwing', 'hotDays'];
+  function num(v) { return Number(v) || 0; }
+  function sameEvents(a, b) { return JSON.stringify(a || []) === JSON.stringify(b || []); }
+  function matches(p, wc) {
+    wc = wc || {};
+    var drought = p.id === 'drought';
+    return SAME.every(function (k) {
+      if (k === 'scenario') return drought ? (wc.scenario === 'drought2012' || wc.scenario === 'drought1988') : (wc.scenario === 'typical' || wc.scenario == null);
+      return num(wc[k]) === num(p.weather[k]);
+    }) && sameEvents(wc.events, p.weather.events);
+  }
+  // which preset the weather controls match exactly (null when they are a custom mix)
+  function active(wc) { for (var i = 0; i < PRESETS.length; i++) if (matches(PRESETS[i], wc)) return PRESETS[i].id; return null; }
+  // true when the weather has any assumed change: sliders, events, variability or hot days (a replayed past season on its own is observed history)
+  function isAssumed(wc) { wc = wc || {}; return !!(num(wc.tempShift) || num(wc.rainChange) || num(wc.rainSwing) || num(wc.hotDays) || (wc.events && wc.events.length)); }
+  function apply(id, source) {
+    var p = byId(id); if (!p) return false;
+    Object.keys(p.weather).forEach(function (k) { A.setControl('weather.' + k, Array.isArray(p.weather[k]) ? [] : p.weather[k], source || 'ui'); });
+    return true;
+  }
+  // plain words for the extra weather changes that the sliders did not have before
+  function extraWords(wc) {
+    var b = []; wc = wc || {};
+    if (num(wc.rainSwing)) b.push('with ' + num(wc.rainSwing) + '% bigger swings between wet and dry stretches');
+    if (num(wc.hotDays)) b.push('with hot summer days ' + num(wc.hotDays) + ' °C hotter');
+    return b;
+  }
+
+  // ---------------------------------------------------------------- side by side: observed history and the chosen what-if, current plans
+  function median(a) { var s = a.slice().sort(function (x, y) { return x - y; }), n = s.length; return n ? (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2) : null; }
+  function mean(a) { return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : null; }
+  // whole-farm series, one value per past season: % of a normal crop (acre-weighted) and dollars (sum over fields), for the plan chosen on each field
+  function series(controls) {
+    var years = null, pct = null, usd = null, acres = 0, moneyOk = true;
+    D.farm.fields.forEach(function (f) {
+      var d = FS.engine.seasons(f.id, controls); if (!d || !d.plan) return;
+      if (!years) { years = d.years.slice(); pct = years.map(function () { return 0; }); usd = years.map(function () { return 0; }); }
+      acres += f.acres;
+      d.plan.pct.forEach(function (v, i) { pct[i] += (v == null ? 0 : v) * f.acres; });
+      d.plan.perAcre.forEach(function (v, i) { if (v == null) moneyOk = false; else usd[i] += v * f.acres; });
+    });
+    if (!years || !acres) return null;
+    return { years: years, pct: pct.map(function (v) { return v / acres; }), usd: usd, moneyOk: moneyOk };
+  }
+  function pick(s, idx) { return { years: idx.map(function (i) { return s.years[i]; }), pct: idx.map(function (i) { return s.pct[i]; }), usd: idx.map(function (i) { return s.usd[i]; }), moneyOk: s.moneyOk }; }
+  function stats(s, avg) {
+    var t = avg ? mean : median, wi = 0;
+    s.pct.forEach(function (v, i) { if (v < s.pct[wi]) wi = i; });
+    return { typPct: t(s.pct), typUsd: t(s.usd), worstPct: s.pct[wi], worstUsd: s.usd[wi], worstYear: s.years[wi], n: s.years.length };
+  }
+  var cmpCache = { key: '', val: null };
+  // returns null when the weather has nothing assumed and no drought preset (nothing to compare), else { base, scen, preset, moneyOk }
+  function compare(controls) {
+    if (!FS.engine || !FS.engine.seasons || !controls || !controls.weather) return null;
+    var wc = controls.weather, id = active(wc), p = id ? byId(id) : null;
+    if (!isAssumed(wc) && !(p && p.id === 'drought')) return null;
+    var key = JSON.stringify([wc, controls.crops && controls.crops.plans, controls.crops && controls.crops.trialAcres, controls.crops && controls.crops.plantShiftDays, controls.crops && controls.crops.irrigation, controls.other, D.farm.fields.map(function (f) { return f.acres; })]);
+    if (cmpCache.key === key) return cmpCache.val;
+    var out = null;
+    try {
+      var bc = clone(controls); bc.weather = clone(CLEAR); bc.crops = bc.crops || {};
+      var base = series(bc); if (!base) return null;
+      var sc, avg = false, label = p ? p.name : 'Your what-if';
+      if (p && p.id === 'drought') {
+        var idx = p.years.map(function (y) { return base.years.indexOf(y); }).filter(function (i) { return i >= 0; });
+        if (!idx.length) return null;
+        sc = pick(base, idx); avg = true;
+      } else sc = series(controls);
+      if (!sc) return null;
+      out = { preset: p ? p.id : null, label: label, assumed: isAssumed(wc), base: stats(base, false), scen: stats(sc, avg), avg: avg, moneyOk: base.moneyOk && sc.moneyOk && (!FS.absMoneyOk || FS.absMoneyOk()), nBase: base.years.length };
+    } catch (e) { console.error('[Field Shift] scenario comparison failed:', e); out = null; }
+    cmpCache = { key: key, val: out };
+    return out;
+  }
+  function money(n) { var r = Math.round(n / 100) * 100, s = Math.abs(r).toLocaleString('en-US'); return (r < 0 ? '−' : '') + '$' + s; }
+  function cell(pct, usd, ok) { return '<b>' + Math.round(pct) + '%</b>' + (ok ? '<span class="fs-scn-usd">' + money(usd) + '</span>' : ''); }
+  function compareHtml(r) {
+    var c = compare(r && r.inputs); if (!c) return '';
+    var kind = c.assumed ? 'assumed' : 'observed', b = c.base, s = c.scen;
+    var rows = '<tr><th scope="row">' + badge('observed') + '<span class="fs-scn-rl">All ' + b.n + ' past seasons</span></th><td>' + cell(b.typPct, b.typUsd, c.moneyOk) + '</td><td>' + cell(b.worstPct, b.worstUsd, c.moneyOk) + '<span class="fs-scn-yr">' + b.worstYear + '</span></td></tr>' +
+      '<tr class="is-scen"><th scope="row">' + badge(kind) + '<span class="fs-scn-rl">' + esc(c.label) + '</span></th><td>' + cell(s.typPct, s.typUsd, c.moneyOk) + '</td><td>' + cell(s.worstPct, s.worstUsd, c.moneyOk) + '<span class="fs-scn-yr">' + s.worstYear + ' weather</span></td></tr>';
+    return '<details class="fs-scn-cmp"><summary>Compare With History</summary>' +
+      '<div class="fs-scn-tw"><table class="fs-scn-t"><thead><tr><th scope="col"><span class="fs-sr">Weather</span></th><th scope="col">' + (c.avg ? 'Average season' : 'Typical season') + '</th><th scope="col">Worst season</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      '<p class="fs-scn-note">% of a normal crop' + (c.moneyOk ? ' and farm return after costs, at today\'s prices' : '') + ', current plans. ' +
+      (c.assumed ? 'The scenario row is a what-if, not a prediction.' : 'Both rows are observed seasons, not a forecast.') + '</p></details>';
+  }
+  // the line at the top of a result: where the numbers come from, and "what-if, not a prediction" for assumed weather
+  function runBanner(r) {
+    var as = isAssumed(r && r.inputs && r.inputs.weather);
+    return '<p class="fs-prov-line">' + badge(as ? 'assumed' : 'observed') + (as ? ' <span>What-if, not a prediction.</span>' : '') + '</p>';
+  }
+
+  // ---------------------------------------------------------------- the Scenarios section of the Weather / Season box
+  var host = null;
+  function sectionHtml() {
+    var h = '<div class="fs-scn-head"><span class="fs-scn-title" id="fs-scn-title">Scenarios</span><span class="fs-scn-state" aria-live="polite"></span></div>' +
+      '<div class="fs-scn-list" role="group" aria-labelledby="fs-scn-title">';
+    PRESETS.forEach(function (p) {
+      h += '<button type="button" class="fs-scn-btn" data-preset="' + p.id + '" aria-pressed="false" title="' + esc(p.blurb) + '">' + esc(p.name) + '</button>';
+    });
+    h += '</div><details class="fs-scn-det"><summary>About These Scenarios</summary><ul class="fs-scn-src">' +
+      PRESETS.map(function (p) { return '<li><b>' + esc(p.name) + '.</b> ' + esc(p.blurb) + ' <i>' + esc(p.basis) + '</i></li>'; }).join('') +
+      '<li><b>Labels.</b> ' + Object.keys(KINDS).map(function (k) { return '<b>' + esc(KINDS[k].text) + ':</b> ' + esc(KINDS[k].tip); }).join(' ') +
+      ' History shows how a plan did under past conditions, not the chance of any season next year. EcoShift holds no long-term climate projections: the assumed scenarios are what-ifs.</li></ul></details>';
+    return h;
+  }
+  function sync() {
+    if (!host) return;
+    var wc = S.get().controls.weather, id = active(wc);
+    host.querySelectorAll('.fs-scn-btn').forEach(function (b) {
+      var on = b.getAttribute('data-preset') === id; b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    var p = id && byId(id);
+    host.querySelector('.fs-scn-state').innerHTML = badge(p ? p.kind : isAssumed(wc) ? 'assumed' : 'observed');
+  }
+  function mount(el) {
+    host = el; el.innerHTML = sectionHtml();
+    el.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('.fs-scn-btn'); if (!b) return;
+      var p = byId(b.getAttribute('data-preset')); if (!p) return;
+      apply(p.id, 'ui'); A.runSimulation('preset', p.name);
+    });
+    S.on('controls:change', sync); sync();
+  }
+
+  FS.scenarios = { presets: PRESETS, byId: byId, active: active, isAssumed: isAssumed, apply: apply, extraWords: extraWords, compare: compare, compareHtml: compareHtml,
+                   runBanner: runBanner, mount: mount, clear: CLEAR };
+})();
+
+</script>
+<script>
 /* The three control boxes. Every change goes through FS.actions.setControl; the boxes re-render from 'controls:change'
    so changes made by the chat show up here too. */
 (function () {
@@ -3832,7 +4342,7 @@ window.FS = window.FS || {};
   };
   FS.plantWords = function (v) { v = Number(v) || 0; return v === 0 ? 'On time' : Math.abs(v) + ' days ' + (v < 0 ? 'earlier' : 'later'); };
   function events(c) { var e = c && c.weather && c.weather.events; return Array.isArray(e) ? e : []; }
-  function dflt(path) { return path === 'crops.plantShiftDays' ? 0 : path === 'other.priority' ? 'balanced' : path === 'crops.irrigation' ? 'none' : undefined; }
+  function dflt(path) { return path === 'crops.plantShiftDays' || path === 'weather.rainSwing' || path === 'weather.hotDays' ? 0 : path === 'other.priority' ? 'balanced' : path === 'crops.irrigation' ? 'none' : undefined; }
   // Irrigation (API_V4 section 3): one inch a week, spread over the season months chosen.
   var IRRIG = [['none', 'None'], ['july', 'In July'], ['july-aug', 'July and August'], ['jun-aug', 'June to August']];
   var IRRIG_SAY = { july: 'an inch a week in July', 'july-aug': 'an inch a week in July and August', 'jun-aug': 'an inch a week from June to August' };
@@ -3843,6 +4353,7 @@ window.FS = window.FS || {};
   var FMT = {
     plant: function (v) { return FS.plantWords(v); },
     temp: function (v) { return sign(v, ' °C'); },
+    hot: function (v) { return v === 0 ? 'None' : '+' + v + ' °C'; },
     pct: function (v) { return sign(v, ' %'); },
     plain: function (v) { return v + ' %'; },
     acres: function (v) { return v === 0 ? '0 ac (current plan)' : v + ' ac'; },
@@ -3896,32 +4407,42 @@ window.FS = window.FS || {};
   }
   function fieldOptions() { return D.farm.fields.map(function (f) { return '<option value="' + f.id + '">' + esc(f.name) + ' · ' + f.acres + ' ac</option>'; }).join(''); }
 
+  // Advanced controls sit in one collapsed "More Options" fold per box; the summary says how many of them are changed.
+  function more(id, inner) {
+    return '<details class="fs-more" id="' + id + '"><summary><span class="fs-more-t">More Options</span><span class="fs-more-n" aria-live="polite"></span></summary><div class="fs-more-body">' + inner + '</div></details>';
+  }
   function build() {
     root.weather.innerHTML = head('Weather / Season', 'fs-reset-weather') + '<div class="fs-panel-body">' +
-      '<div class="fs-row" data-path="weather.scenario"><div class="fs-row-head"><label for="fs-weather-scenario">Scenario</label></div>' +
+      '<div class="fs-scn" id="fs-scn"></div>' +
+      '<div class="fs-row" data-path="weather.scenario"><div class="fs-row-head"><label for="fs-weather-scenario">Replay one past season</label></div>' +
       '<select id="fs-weather-scenario" class="fs-select">' + scenarioOptions() + '</select></div>' +
-      slider('fs-weather-temp', 'Temperature shift', 'weather.tempShift', -2, 4, 0.5, 'temp') +
-      slider('fs-weather-rain', 'Rain change', 'weather.rainChange', -50, 50, 5, 'pct') +
-      '<div class="fs-chips" id="fs-weather-chips" hidden></div></div>';
+      '<div class="fs-chips" id="fs-weather-chips" hidden></div>' +
+      more('fs-more-weather',
+        slider('fs-weather-temp', 'Warmer / cooler', 'weather.tempShift', -2, 4, 0.5, 'temp') +
+        slider('fs-weather-rain', 'Wetter / drier', 'weather.rainChange', -50, 50, 5, 'pct') +
+        slider('fs-weather-swing', 'Wet-dry swings (assumed)', 'weather.rainSwing', 0, 100, 10, 'pct') +
+        slider('fs-weather-hot', 'Extra heat on hot days (assumed)', 'weather.hotDays', 0, 6, 1, 'hot')) + '</div>';
 
     root.crops.innerHTML = head('Crops', 'fs-reset-crops') + '<div class="fs-panel-body">' +
       '<div class="fs-row"><div class="fs-row-head"><label for="fs-crops-field">Field</label></div>' +
       '<select id="fs-crops-field" class="fs-select">' + fieldOptions() + '</select></div>' +
       '<div class="fs-row" id="fs-plan-row"><div class="fs-row-head"><label for="fs-crops-plan">Plan for next season</label></div>' +
       '<select id="fs-crops-plan" name="fs-plan" class="fs-select"></select></div>' +
-      '<div id="fs-acres-slot"></div>' +
-      slider('fs-crops-plant', 'Planting date, all fields', 'crops.plantShiftDays', -21, 21, 7, 'plant') +
-      '<div class="fs-row" id="fs-irrig-row" data-path="crops.irrigation" hidden><div class="fs-row-head"><label for="fs-crops-irrigation">Irrigation, 1 inch a week</label></div>' +
-      '<select id="fs-crops-irrigation" class="fs-select">' + IRRIG.map(function (p) { return '<option value="' + p[0] + '">' + p[1] + '</option>'; }).join('') + '</select></div></div>';
+      more('fs-more-crops',
+        '<div id="fs-acres-slot"></div>' +
+        slider('fs-crops-plant', 'Planting date, all fields', 'crops.plantShiftDays', -21, 21, 7, 'plant') +
+        '<div class="fs-row" id="fs-irrig-row" data-path="crops.irrigation" hidden><div class="fs-row-head"><label for="fs-crops-irrigation">Irrigation, 1 inch a week</label></div>' +
+        '<select id="fs-crops-irrigation" class="fs-select">' + IRRIG.map(function (p) { return '<option value="' + p[0] + '">' + p[1] + '</option>'; }).join('') + '</select></div>') + '</div>';
 
     root.other.innerHTML = head('Other Conditions', 'fs-reset-other') + '<div class="fs-panel-body">' +
       slider('fs-other-price', 'Crop price', 'other.priceChange', -40, 40, 5, 'pct') +
-      slider('fs-other-nitrogen', 'Nitrogen price', 'other.nitrogenChange', -30, 80, 5, 'pct') +
-      slider('fs-other-contracted', 'Already contracted', 'other.contracted', 0, 100, 5, 'plain') +
-      '<div class="fs-row" data-path="other.costShare"><label class="fs-check" for="fs-other-costshare">' +
-      '<input type="checkbox" id="fs-other-costshare"><span>Iowa cover-crop cost-share ($30/acre, Iowa farms only)</span></label></div>' +
       '<div class="fs-row" data-path="other.priority" data-fmt="prio"><div class="fs-row-head"><label for="fs-other-priority">Rank options by</label></div>' +
-      '<select id="fs-other-priority" class="fs-select">' + PRIOS.map(function (p) { return '<option value="' + p[0] + '">' + p[1] + '</option>'; }).join('') + '</select></div></div>';
+      '<select id="fs-other-priority" class="fs-select">' + PRIOS.map(function (p) { return '<option value="' + p[0] + '">' + p[1] + '</option>'; }).join('') + '</select></div>' +
+      more('fs-more-other',
+        slider('fs-other-nitrogen', 'Nitrogen price', 'other.nitrogenChange', -30, 80, 5, 'pct') +
+        slider('fs-other-contracted', 'Already contracted', 'other.contracted', 0, 100, 5, 'plain') +
+        '<div class="fs-row" data-path="other.costShare"><label class="fs-check" for="fs-other-costshare">' +
+        '<input type="checkbox" id="fs-other-costshare"><span>Iowa cover-crop cost-share ($30/acre, Iowa farms only)</span></label></div>') + '</div>';
   }
 
   // Rebuild only the parts of the Crops box that depend on the selected field.
@@ -3963,8 +4484,18 @@ window.FS = window.FS || {};
       });
     });
     drawChips(c);
+    countChanged();
     var ir = root.crops.querySelector('#fs-irrig-row'), irv = pathGet(c, 'crops.irrigation');
     if (ir) ir.hidden = !(FS.farmSetup.canIrrigate || (irv && irv !== 'none'));
+  }
+  // "2 changed" on a closed More Options fold, so a hidden setting never goes unnoticed
+  function countChanged() {
+    ['weather', 'crops', 'other'].forEach(function (k) {
+      var d = root[k] && root[k].querySelector('.fs-more'); if (!d) return;
+      var n = d.querySelectorAll('.fs-row.is-changed').length, out = d.querySelector('.fs-more-n');
+      out.textContent = n ? ' · ' + n + ' changed' : '';
+      d.classList.toggle('has-changes', n > 0);
+    });
   }
   function drawChips(c) {
     var box = root.weather.querySelector('#fs-weather-chips'), list = events(c);
@@ -4007,7 +4538,7 @@ window.FS = window.FS || {};
       if (e.target.id === 'fs-crops-irrigation') A.setControl('crops.irrigation', e.target.value, 'ui');
     });
     root.weather.querySelector('#fs-reset-weather').addEventListener('click', function () {
-      resetPaths(['weather.scenario', 'weather.tempShift', 'weather.rainChange', 'weather.events']);
+      resetPaths(['weather.scenario', 'weather.tempShift', 'weather.rainChange', 'weather.rainSwing', 'weather.hotDays', 'weather.events']);
     });
     root.other.querySelector('#fs-reset-other').addEventListener('click', function () {
       resetPaths(['other.priceChange', 'other.nitrogenChange', 'other.contracted', 'other.costShare', 'other.priority']);
@@ -4035,9 +4566,191 @@ window.FS = window.FS || {};
         root[p[0]].querySelector('.fs-panel-body').insertAdjacentHTML('afterbegin',
           '<div class="fs-body-tools"><button type="button" class="fs-linkbtn fs-reset" id="fs-reset-' + p[0] + '" aria-label="Reset ' + p[1] + '">Reset</button></div>');
       });
+      try { if (FS.scenarios) FS.scenarios.mount(root.weather.querySelector('#fs-scn')); } catch (e) { console.error('[Field Shift] scenarios failed:', e); }
       wire(); wireToggles(); sync();
     }
   };
+})();
+
+</script>
+<script>
+/* Money and risk display: one compact range line for the selected field (Sim Analysis) and for each option card (chat), with the detail
+   folded into <details> sections: Money Breakdown, Crop Insurance, About These Numbers. All numbers come from FS.engine.finance(). */
+(function () {
+  'use strict';
+  var FS = window.FS, D = FS.data, S = FS.store, A = FS.actions;
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function usd(n, signed) { var r = Math.round(n), s = Math.abs(r).toLocaleString('en-US'); return (r < 0 ? '−' : signed && r > 0 ? '+' : '') + '$' + (r === 0 ? '0' : s); }
+  function pc(n) { return Math.round(n) + '%'; }
+  var NAME = { 'soy': 'Soybeans', 'rye-soy': 'Rye, Then Soybeans', 'corn-corn': 'Corn After Corn', 'oats-cover': 'Oats, Then Cover', 'corn': 'Corn', 'rye-corn': 'Rye, Then Corn', 'soy-soy': 'Soybeans After Soybeans' };
+  var HEAD = { 'soy': 'Soybeans', 'rye-soy': 'Rye + Soy', 'corn-corn': 'Corn After Corn', 'oats-cover': 'Oats', 'corn': 'Corn', 'rye-corn': 'Rye + Corn', 'soy-soy': 'Soy After Soy' };
+  function planName(p) { return NAME[p] || p; }
+  function moneyOk() { return !FS.absMoneyOk || FS.absMoneyOk(); }
+
+  // ---- finance() with a small cache (the engine call is cheap but the panel and every card ask for it)
+  var cache = {};
+  function fin(fieldId, controls) {
+    var key, r;
+    try { key = fieldId + '|' + JSON.stringify(controls); } catch (e) { key = null; }
+    if (key && cache[key]) return cache[key];
+    try { r = FS.engine && FS.engine.finance ? FS.engine.finance(fieldId, controls) : null; } catch (e) { console.error(e); r = null; }
+    if (key && r) { var ks = Object.keys(cache); if (ks.length > 12) delete cache[ks[0]]; cache[key] = r; }
+    return r;
+  }
+  function itemOf(f, plan) { return f && f.items.filter(function (x) { return x.plan === plan; })[0] || null; }
+  function ruleText(f) {
+    var r = f.rule;
+    return 'Safer Choice: an option that gives up no more than ' + usd(r.maxGiveUp) + ' an acre or ' + Math.round(r.maxGiveUpShare * 100) + '% of the best average (whichever is larger) in average net return, but whose stress-test worst season is at least ' + usd(r.minWorstGain) + ' an acre better, and at least ' + r.gainTimesGiveUp + ' times what it gives up.';
+  }
+  function badge(f, it) { return it && it.safer ? ' <span class="fs-badge" title="' + esc(ruleText(f)) + '">Safer Choice</span>' : ''; }
+
+  // ---- the one compact line
+  function lineText(f, it) {
+    var p = it.pct, t = 'Range: worst ' + pc(p.worst) + ' · typical ' + pc(p.median) + ' · best ' + pc(p.best);
+    if (!it.moneyHidden && moneyOk()) t += ' · net ' + usd(it.net.mean) + '/acre';
+    return t;
+  }
+  function cardLine(fieldId, plan, controls) {
+    var f = fin(fieldId, controls || S.get().controls), it = itemOf(f, plan);
+    if (!it) return '';
+    return '<div class="fs-fin-line" title="Over the ' + f.nSeasons + ' past seasons the model replayed, as a share of a normal crop (worst, typical = median, best). Net is the average net return per acre after all costs.">' + esc(lineText(f, it)) + badge(f, it) + '</div>';
+  }
+  function cardMore(fieldId, plan, controls) {
+    var f = fin(fieldId, controls || S.get().controls), it = itemOf(f, plan);
+    if (!it || it.moneyHidden || !moneyOk()) return '';
+    var b = it.breakdown, rows = [
+      ['Gross revenue', usd(b.revenue)], ['Seed', usd(b.seed)], ['Fertilizer', usd(b.fertilizer)], ['Fuel and machinery', usd(b.machinery)], ['Irrigation and water', usd(b.irrigation)],
+      ['Cover crop establishment', usd(b.cover)], ['Labor', usd(b.labor)], ['Chemicals, interest, other', usd(b.other)], ['Land rent', usd(b.landRent)], ['Cost-share', usd(b.costShare)]];
+    return '<details class="fs-fin-d"><summary>Money Breakdown</summary><ul class="fs-detail-list">' +
+      rows.map(function (r) { return '<li>' + r[0] + ': ' + r[1] + ' per acre</li>'; }).join('') +
+      '<li><strong>Net return:</strong> ' + usd(it.net.mean) + ' per acre on average; worst season ' + usd(it.net.worst) + ' (' + it.net.worstYear + '); a loss in ' + it.net.lossSeasons + ' of ' + f.nSeasons + ' seasons.</li></ul></details>';
+  }
+
+  // ---- compact range bar (worst to best, tick at the typical season)
+  function rangeBar(p) {
+    var lo = Math.min(40, Math.floor(p.worst / 10) * 10), hi = Math.max(120, Math.ceil(p.best / 10) * 10), sp = hi - lo;
+    function x(v) { return Math.max(0, Math.min(100, (v - lo) / sp * 100)).toFixed(1) + '%'; }
+    return '<div class="fs-rbar" role="img" aria-label="Worst ' + pc(p.worst) + ', typical ' + pc(p.median) + ', best ' + pc(p.best) + ' of a normal crop"><span class="fs-rbar-100" style="left:' + x(100) + '"></span>' +
+      '<span class="fs-rbar-span" style="left:' + x(p.worst) + ';width:calc(' + x(p.best) + ' - ' + x(p.worst) + ')"></span><span class="fs-rbar-tick" style="left:' + x(p.median) + '"></span></div>' +
+      '<div class="fs-rbar-cap"><span>' + lo + '%</span><span>100% = a normal crop</span><span>' + hi + '%</span></div>';
+  }
+
+  // ---- panel pieces
+  function table(f, rowsSpec, items) {
+    var h = '<div class="fs-fin-scroll"><table class="fs-fin-table"><thead><tr><th scope="col"></th>' + items.map(function (it) { return '<th scope="col">' + esc(HEAD[it.plan] || it.plan) + (it.isCurrent ? '<br><small>(current)</small>' : '') + (it.safer ? ' <span class="fs-badge">Safer Choice</span>' : '') + '</th>'; }).join('') + '</tr></thead><tbody>';
+    rowsSpec.forEach(function (r) {
+      if (r.head) { h += '<tr class="fs-fin-sub"><th scope="row" colspan="' + (items.length + 1) + '">' + r.head + '</th></tr>'; return; }
+      h += '<tr' + (r.strong ? ' class="fs-fin-strong"' : '') + '><th scope="row">' + r.label + '</th>' + items.map(function (it) { var v = r.get(it); return '<td>' + (v == null ? '–' : v) + '</td>'; }).join('') + '</tr>';
+    });
+    return h + '</tbody></table></div>';
+  }
+  function num(id, label, val, ph, unit) {
+    return '<label class="fs-fin-in" for="' + id + '"><span>' + label + '</span><input id="' + id + '" type="number" inputmode="decimal" min="0" step="any" value="' + (val == null ? '' : esc(val)) + '" placeholder="' + esc(ph) + '"><small>' + unit + '</small></label>';
+  }
+  function breakdownHtml(f) {
+    var items = f.items.filter(function (x) { return !x.moneyHidden; });
+    if (!items.length) return '<p>Money is not shown for this plan.</p>';
+    var P = function (k) { return function (it) { return usd(it.breakdown[k]); }; };
+    var rows = [
+      { head: 'Gross Revenue' }, { label: 'Gross revenue (average of the ' + f.nSeasons + ' seasons)', get: P('revenue'), strong: 1 },
+      { head: 'Operating Costs' }, { label: 'Seed', get: P('seed') }, { label: 'Fertilizer', get: P('fertilizer') }, { label: 'Chemicals, interest and other', get: P('other') },
+      { label: 'Fuel and machinery', get: P('machinery') }, { label: 'Irrigation and water', get: P('irrigation') }, { label: 'Cover crop establishment', get: P('cover') }, { label: 'Labor', get: P('labor') },
+      { label: 'Operating costs, total', get: P('operating'), strong: 1 },
+      { head: 'Land And Help' }, { label: 'Land rent', get: P('landRent') }, { label: 'Cost-share received', get: function (it) { return it.breakdown.costShare ? usd(it.breakdown.costShare) : '$0'; } },
+      { label: 'Estimated net return (no insurance)', get: function (it) { return usd(it.net.mean); }, strong: 1 },
+      { head: 'Downside Risk' },
+      { label: 'Worst season', get: function (it) { return usd(it.net.worst) + ' (' + it.net.worstYear + ')'; } },
+      { label: 'Typical season', get: function (it) { return usd(it.net.median); } }, { label: 'Best season', get: function (it) { return usd(it.net.best) + ' (' + it.net.bestYear + ')'; } },
+      { label: 'Seasons with a loss', get: function (it) { return it.net.lossSeasons + ' of ' + f.nSeasons; } },
+      { label: 'Stress-test worst season', get: function (it) { return usd(it.stress.net.worst); } },
+      { label: 'Gives up vs best average', get: function (it) { return it.leader ? '(best)' : usd(-it.giveUp); } },
+      { label: 'Stress-test worst, vs best average', get: function (it) { return it.leader ? '–' : usd(it.worstGain, true); } },
+      { head: 'Price Swing' },
+      { label: 'Net at a low price', get: function (it) { return it.band ? usd(it.band.low) : null; } }, { label: 'Net at a high price', get: function (it) { return it.band ? usd(it.band.high) : null; } }
+    ];
+    var h = '<p class="fs-fin-note">Dollars per acre, ' + f.years[0] + '–' + f.years[f.years.length - 1] + ' seasons replayed with today’s prices and costs. Net return is after every cost, including land rent and labor, so a loss means the crop did not cover its full budget.</p>' + table(f, rows, items);
+    var sf = f.safer ? 'Safer Choice on ' + esc(f.fieldName) + ': ' + esc(planName(f.safer)) + '.' : 'No option on ' + esc(f.fieldName) + ' qualifies as a Safer Choice.';
+    h += '<p><b>' + sf + '</b> ' + esc(ruleText(f)) + '</p>';
+    var v = f.volatility, lowHigh = [];
+    if (v.corn) lowHigh.push('corn ±' + Math.round(v.corn * 100) + '%'); if (v.soybean) lowHigh.push('soybean ±' + Math.round(v.soybean * 100) + '%');
+    h += '<p>Price swing: low and high price are one price-volatility step either side of today’s price (' + lowHigh.join(', ') + '; USDA RMA 2026 volatility factors). Yield and price are not linked here, though in real droughts prices often rise.</p>';
+    h += '<p>Stress test: the model’s own seasons swing less than real Iowa yields do, so bad seasons are stretched to the observed spread (as the risk numbers elsewhere in this tool do).</p>';
+    var I = f.inputs, d = f.defaults;
+    h += '<p class="fs-fin-h">Your Own Numbers</p><div class="fs-fin-inputs">' +
+      num('fs-fin-rent', 'Land rent', I.landRent, d.landRent.toFixed(2), '$/acre, default is Iowa State’s cash rent figure') +
+      num('fs-fin-wage', 'Labor wage', I.wage, d.wage.toFixed(2), '$/hour, default is Iowa State’s wage') +
+      num('fs-fin-cover', 'Cover crop seed and seeding', I.coverCost, d.coverCost.toFixed(2), '$/acre, example value, set your own') +
+      '</div><p><button type="button" class="fs-linkbtn" data-fin-reset="1">Use the sourced numbers</button></p>';
+    return h;
+  }
+  function insuranceHtml(f) {
+    var items = f.items.filter(function (x) { return !x.moneyHidden && x.insurable; });
+    var I = f.inputs, d = f.defaults, E = D.economics;
+    var h = '<p class="fs-fin-note">Approximation of revenue protection: the guarantee is the coverage level × normal yield × projected price (corn ' + E.normalYield.corn + ' bu × ' + '$' + E.price.corn.toFixed(2) + '/bu, soybean ' + E.normalYield.soybean + ' bu × $' + E.price.soybean.toFixed(2) + '/bu here). When a season’s simulated revenue falls below it, the policy pays the gap. Real policies also have a harvest-price option, your own yield history, farm units and premium subsidies that are not modelled.</p>';
+    h += '<div class="fs-fin-inputs"><label class="fs-fin-in" for="fs-fin-cov"><span>Coverage level</span><select id="fs-fin-cov">' + d.levels.map(function (l) { return '<option value="' + l + '"' + (l === f.level ? ' selected' : '') + '>' + l + '%</option>'; }).join('') + '</select><small>of expected revenue</small></label>' +
+      num('fs-fin-pcorn', 'Corn premium', I.premiumCorn, d.premiumCorn.toFixed(2), '$/acre you pay') + num('fs-fin-psoy', 'Soybean premium', I.premiumSoybean, d.premiumSoybean.toFixed(2), '$/acre you pay') + '</div>';
+    h += '<p class="fs-fin-note">Premium: Iowa State’s budgets carry $17.10 (corn) and $9.10 (soybean) an acre for 80% revenue protection. Premiums at 70, 75 and 85% are example values (a share of the 80% premium), not real rates: set your own from your agent’s quote.</p>';
+    if (!items.length) return h + '<p>No insurable crop in these options.</p>';
+    var rows = [
+      { label: 'Premium you pay', get: function (it) { return usd(it.insurance.premium); } },
+      { label: 'Seasons it pays out', get: function (it) { return it.insurance.payoutSeasons + ' of ' + f.nSeasons; } },
+      { label: 'Average payout', get: function (it) { return usd(it.insurance.payoutMean); } },
+      { head: 'Average Net Return' }, { label: 'Without insurance', get: function (it) { return usd(it.net.mean); } }, { label: 'With insurance', get: function (it) { return usd(it.netIns.mean); } },
+      { head: 'Worst Season' }, { label: 'Without insurance', get: function (it) { return usd(it.net.worst); } }, { label: 'With insurance', get: function (it) { return usd(it.netIns.worst); } },
+      { head: 'Seasons With A Loss' }, { label: 'Without insurance', get: function (it) { return it.net.lossSeasons + ' of ' + f.nSeasons; } }, { label: 'With insurance', get: function (it) { return it.netIns.lossSeasons + ' of ' + f.nSeasons; } },
+      { head: 'Stress Test (Bad Seasons Stretched)' }, { label: 'Worst without insurance', get: function (it) { return usd(it.stress.net.worst); } }, { label: 'Worst with insurance', get: function (it) { return usd(it.stress.netIns.worst); } },
+      { label: 'Seasons it pays out', get: function (it) { return it.stress.payoutSeasons + ' of ' + f.nSeasons; } },
+      { head: 'Price Swing (Average Net)' }, { label: 'Low price, with insurance', get: function (it) { return it.band ? usd(it.band.lowIns) : null; } }, { label: 'High price, with insurance', get: function (it) { return it.band ? usd(it.band.highIns) : null; } }
+    ];
+    return h + table(f, rows, items) + '<p class="fs-fin-note">Insurance results are an approximation, not a quote. The ' + usd(d.premiumCorn) + ' / ' + usd(d.premiumSoybean) + ' premiums apply at ' + f.level + '% coverage.</p>';
+  }
+  function aboutHtml(f) {
+    var v = f.validation, E = D.economics, src = D.sources, links = ['power', 'nrcs', 'isu', 'wasde', 'rma', 'idals', 'nass'].map(function (k) { return src[k] ? '<a href="' + esc(src[k].url) + '" target="_blank" rel="noopener">' + esc(src[k].label) + '</a>' : ''; }).filter(Boolean).join(', ');
+    var c = v.corn, s = v.soybean, li = [];
+    li.push('<li><b>What this is:</b> a replay of ' + f.nSeasons + ' past seasons (' + f.years[0] + '–' + f.years[f.years.length - 1] + ') of real weather on this field’s soil, using today’s prices and costs. It is not a forecast of next season.</li>');
+    li.push('<li><b>How the model was checked:</b> each season’s yield was predicted with that season left out, then compared with USDA NASS Iowa state yields' + (c && s ? ': typical one-season error ' + c.rmsePct.toFixed(1) + ' points for corn and ' + s.rmsePct.toFixed(1) + ' for soybean, against ' + c.rmseTrendPct.toFixed(1) + ' and ' + s.rmseTrendPct.toFixed(1) + ' for just using the yield trend' : '') + '. It catches the big droughts (1988, 2012) but in ordinary years does little better than the trend. Details are in VALIDATION.md in the project files.</li>');
+    li.push('<li><b>Uncertainty:</b> one season is uncertain by about ' + Math.round(Math.max(f.err.corn.points, f.err.soybean.points)) + ' points of a normal crop (about ' + usd(f.err.corn.dollars) + ' an acre of corn, ' + usd(f.err.soybean.dollars) + ' of soybean). No interval is put on the ' + f.nSeasons + '-season average, because averaging does not remove a bias shared by all seasons.</li>');
+    li.push('<li><b>Validated on:</b> Iowa corn and soybean yields. Other counties use the same model but were not checked; oats and cover crops have no validation, and oats money is not shown.</li>');
+    li.push('<li><b>Assumptions:</b> corn ' + '$' + E.price.corn.toFixed(2) + ' and soybean $' + E.price.soybean.toFixed(2) + ' a bushel (USDA WASDE, Nov 2026) in every season; costs from Iowa State’s 2026 crop budgets, including land rent (' + usd(E.costParts.corn.landRent) + ') and labor (' + usd(E.wagePerHour) + ' an hour); the cover crop cost is an example value; cost-share only if you tick it (Iowa program, 160-acre cap); irrigation counts pumping energy only; insurance is a simplified approximation.</li>');
+    li.push('<li><b>Data sources:</b> ' + links + '. Prices and costs as of ' + esc(f.asOf) + '.</li>');
+    li.push('<li><b>Limits:</b> prices do not change with the weather (in real droughts prices rise, so drought losses here are overstated); weather is one 50 km grid cell; tile drainage, disease, hail and machinery breakdowns are not modelled; the Iowa budgets are not your farm’s records, so put in your own rent, wage and costs.</li>');
+    return '<ul class="fs-detail-list">' + li.join('') + '</ul>';
+  }
+
+  // ---- the block under the season strip
+  var openMap = {};
+  function panelHtml(fieldId, controls, planId) {
+    var f = fin(fieldId, controls); if (!f) return '';
+    var plan = planId && itemOf(f, planId) ? planId : f.items[0].plan, it = itemOf(f, plan);
+    var h = '<div class="fs-fin"><p class="fs-fin-line"><b>' + esc(f.fieldName) + ', ' + esc(planName(plan).toLowerCase()) + '.</b> ' + esc(lineText(f, it)) + badge(f, it) + '</p>' + rangeBar(it.pct);
+    var pts = it.crop === 'soybean' ? f.err.soybean : f.err.corn;
+    var rangeNote = '<p class="fs-fin-note">Typical model error for one season: about ' + Math.round(pts.points) + ' points of a normal crop' + (!it.moneyHidden && moneyOk() ? ' (about ' + usd(pts.dollars) + ' an acre)' : '') + '. Worst season ' + it.pct.worstYear + ', best ' + it.pct.bestYear + '.' + (!it.moneyHidden && moneyOk() ? ' Net return range: worst ' + usd(it.net.worst) + ', typical ' + usd(it.net.median) + ', best ' + usd(it.net.best) + ' an acre; a loss in ' + it.net.lossSeasons + ' of ' + f.nSeasons + ' seasons.' : '') + '</p>';
+    function det(id, title, body) { return '<details class="fs-fin-d" data-fin="' + id + '"' + (openMap[id] ? ' open' : '') + '><summary>' + title + '</summary><div class="fs-fin-body">' + body + '</div></details>'; }
+    h += det('range', 'Range Details', rangeNote);
+    if (!moneyOk()) h += '<p class="fs-fin-note">Dollar figures are not shown outside Iowa, because the costs are Iowa State budgets.</p>';
+    else if (f.items.some(function (x) { return !x.moneyHidden; })) { h += det('money', 'Money Breakdown', breakdownHtml(f)); h += det('ins', 'Crop Insurance', insuranceHtml(f)); }
+    h += det('about', 'About These Numbers', aboutHtml(f)) + '</div>';
+    return h;
+  }
+
+  function readNum(id) { var e = document.getElementById(id); if (!e || e.value === '') return null; var v = Number(e.value); return isFinite(v) && v >= 0 ? v : null; }
+  function setFin(key, v) { var c = S.get().controls; c.other = c.other || {}; c.other.fin = c.other.fin || {}; A.setControl('other.fin.' + key, v, 'ui'); }
+  function bind(listEl, redo) {
+    listEl.addEventListener('toggle', function (e) { var d = e.target; if (d && d.getAttribute && d.getAttribute('data-fin')) openMap[d.getAttribute('data-fin')] = d.open; }, true);
+    listEl.addEventListener('change', function (e) {
+      var id = e.target && e.target.id, m = { 'fs-fin-rent': 'landRent', 'fs-fin-wage': 'wage', 'fs-fin-cover': 'coverCost', 'fs-fin-pcorn': 'premiumCorn', 'fs-fin-psoy': 'premiumSoybean' };
+      if (id === 'fs-fin-cov') { setFin('coverage', Number(e.target.value)); A.runSimulation('fin', 'Crop insurance ' + e.target.value + '%'); return; }
+      if (m[id]) { setFin(m[id], readNum(id)); A.runSimulation('fin', 'Your own money numbers'); }
+    });
+    listEl.addEventListener('click', function (e) {
+      if (!(e.target.closest && e.target.closest('[data-fin-reset]'))) return;
+      ['landRent', 'wage', 'coverCost', 'premiumCorn', 'premiumSoybean'].forEach(function (k) { setFin(k, null); });
+      A.runSimulation('fin', 'Sourced money numbers');
+    });
+  }
+
+  FS.finUI = { panelHtml: panelHtml, cardLine: cardLine, cardMore: cardMore, bind: bind, planName: planName };
 })();
 
 </script>
@@ -4082,7 +4795,7 @@ window.FS = window.FS || {};
     var empty = listEl.querySelector('.fs-empty'); if (empty) empty.remove();
     var d = document.createElement('div'); d.className = 'fs-msg assistant fs-run-msg'; d.innerHTML = runHtml(r);
     // Only the latest run is shown, so old numbers never sit next to new ones (the chat keeps the history).
-    listEl.innerHTML = ''; listEl.appendChild(d); listEl.scrollTop = 0; drawStrip();
+    listEl.innerHTML = ''; listEl.appendChild(d); listEl.scrollTop = 0; drawStrip(); drawFin();
   }
 
   function scen(id) {
@@ -4097,6 +4810,7 @@ window.FS = window.FS || {};
     var b = [], t = Number(w && w.tempShift) || 0, rn = Number(w && w.rainChange) || 0;
     if (t) b.push(Math.abs(t) + ' °C ' + (t > 0 ? 'warmer' : 'cooler'));
     if (rn) b.push('with ' + Math.abs(rn) + '% ' + (rn > 0 ? 'more' : 'less') + ' rain');
+    if (FS.scenarios) b = b.concat(FS.scenarios.extraWords(w));
     var ev = (w && Array.isArray(w.events)) ? w.events : [];
     var evs = ev.map(function (e) { var t = FS.eventPhrase ? FS.eventPhrase(e) : ''; return t ? 'a ' + t.charAt(0).toLowerCase() + t.slice(1) : ''; }).filter(Boolean);
     if (evs.length) b.push('with ' + (evs.length < 2 ? evs[0] : evs.slice(0, -1).join(', ') + ' and ' + evs[evs.length - 1]));
@@ -4139,6 +4853,10 @@ window.FS = window.FS || {};
     return rows ? '<ul class="fs-verdicts" aria-label="One line per field">' + rows + '</ul>' : '';
   }
 
+  // scenario analysis (scenarios.js): where the numbers come from, and the plan under observed history next to the chosen what-if
+  function scenarioBanner(r) { try { return FS.scenarios ? FS.scenarios.runBanner(r) : ''; } catch (e) { return ''; } }
+  function scenarioCompare(r) { try { return FS.scenarios ? FS.scenarios.compareHtml(r) : ''; } catch (e) { console.error(e); return ''; } }
+
   function runHtml(r) {
     var s = r.summary, delta = s.farm.returnVsBaselineTotal, cur0 = D.initialControls.crops.plans;
     var all = D.farm.fields.filter(function (f) { return s.fields[f.id]; });
@@ -4164,7 +4882,7 @@ window.FS = window.FS || {};
     } else {
       open = 'In ' + esc(sc) + ', your farm gets about ' + pctNormal + '% of a normal crop' + (FS.absMoneyOk() ? ' and ' + earns(s.farm.returnTotal) : '') + (changed.length ? ', about the same as your current plan' : '') + '.';
     }
-    h = verdictsHtml(r, all, cur0) + '<p>' + open + '</p><div class="fs-strip-wrap"></div>';
+    h = scenarioBanner(r) + verdictsHtml(r, all, cur0) + '<p>' + open + '</p><div class="fs-strip-wrap"></div>';
 
     // Details: plain sentences, a farmer can read them top to bottom.
     var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -4200,6 +4918,7 @@ window.FS = window.FS || {};
     if (chips.length) h += '<li>Sources: ' + esc(chips.map(srcName).filter(Boolean).join(', ')) + '.</li>';
     h += '</ul>';
     h += '</div>';
+    h += '<div class="fs-fin-wrap"></div>' + scenarioCompare(r);
     return h;
   }
 
@@ -4244,9 +4963,17 @@ window.FS = window.FS || {};
     if (focusYear != null) { var b = wrap.querySelector('[data-year="' + focusYear + '"]'); if (b) b.focus(); focusYear = null; }
   }
 
+  // money and risk for the selected field: one range line, with the detail folded away (finui.js)
+  function drawFin() {
+    var wrap = listEl && listEl.querySelector('.fs-fin-wrap'), r = S.get().current; if (!wrap || !r || !FS.finUI) return;
+    var fid = S.get().selectedField, h = '';
+    try { h = FS.finUI.panelHtml(fid, r.inputs, r.inputs.crops && r.inputs.crops.plans && r.inputs.crops.plans[fid]); } catch (e) { console.error(e); }
+    wrap.innerHTML = h;
+  }
+
   FS.analysis = {
     mount: function (mountEl) {
-      el = mountEl; chrome();
+      el = mountEl; chrome(); if (FS.finUI) FS.finUI.bind(listEl);
       var runs = S.get().runs;
       if (!runs.length) listEl.innerHTML = '<p class="fs-empty">Run a simulation to see what happened.</p>';
       runs.forEach(addRun);
@@ -4256,7 +4983,7 @@ window.FS = window.FS || {};
         var empty = listEl.querySelector('.fs-empty'); if (empty) empty.remove();
         listEl.appendChild(runningEl); scrollEnd();
       });
-      S.on('field:select', function () { drawStrip(); });
+      S.on('field:select', function () { drawStrip(); drawFin(); });
       S.on('sim:done', function (r) { if (runningEl) { runningEl.remove(); runningEl = null; } addRun(r); });
     }
   };
@@ -4317,6 +5044,12 @@ window.FS = window.FS || {};
     if (a < 0.1) return 'no change in months with living roots in the field';
     var txt = (a % 1 === 0 ? String(a) : a.toFixed(1));
     return 'about ' + txt + (a === 1 ? ' month' : ' months') + (v > 0 ? ' more' : ' fewer') + ' with living roots in the field';
+  }
+  // the short form for a card's first line: "$50 an acre less than your plan"
+  function moneyShort(d) {
+    d = Math.round(d);
+    if (Math.abs(d) < 2) return 'about the same profit as your plan';
+    return 'about $' + Math.abs(d).toLocaleString('en-US') + ' an acre ' + (d < 0 ? 'less' : 'more') + ' than your plan';
   }
   function moneyVs(d, brief) {
     d = Math.round(d);
@@ -4473,7 +5206,7 @@ window.FS = window.FS || {};
 
   // ---------- undo: snapshots of the controls taken before each chat-applied change ----------
   var undoStack = [];
-  var LEAF_NAME = { 'weather.scenario': 'weather', 'weather.tempShift': 'temperature', 'weather.rainChange': 'rain', 'other.priceChange': 'crop prices', 'other.nitrogenChange': 'nitrogen price', 'other.priority': 'ranking' };
+  var LEAF_NAME = { 'weather.scenario': 'weather', 'weather.tempShift': 'temperature', 'weather.rainChange': 'rain', 'weather.rainSwing': 'rain swings', 'weather.hotDays': 'hot days', 'other.priceChange': 'crop prices', 'other.nitrogenChange': 'nitrogen price', 'other.priority': 'ranking' };
   function leaves(o, prefix, out) {
     Object.keys(o || {}).forEach(function (k) {
       var p = prefix ? prefix + '.' + k : k;
@@ -4502,6 +5235,8 @@ window.FS = window.FS || {};
     if (path === 'crops.irrigation') return v === 'none' || v == null ? 'no irrigation' : FS.irrigationPhrase(v);
     if (path === 'weather.tempShift') return signed(v, ' °C') + ' temperature';
     if (path === 'weather.rainChange') return 'rain ' + signed(v, '%');
+    if (path === 'weather.rainSwing') return Number(v) ? 'rain swings ' + v + '% bigger' : 'rain as observed';
+    if (path === 'weather.hotDays') return Number(v) ? 'hot summer days ' + v + ' °C hotter' : 'hot days as observed';
     if (path === 'other.priceChange') return 'crop prices ' + signed(v, '%');
     if (path === 'other.nitrogenChange') return 'nitrogen price ' + signed(v, '%');
     if (path === 'crops.soilWaterPct') return Number(v) ? 'soil holding ' + signed(Number(v), '%') + ' water' : 'soil as surveyed';
@@ -4641,6 +5376,28 @@ window.FS = window.FS || {};
         raw = raw.replace(WC, sev ? 'severe dry July and severe dry August' : 'dry July and dry August');
         t = raw.toLowerCase().replace(/[−–]/g, '-').replace(/['’]/g, ''); tk = tokenize(raw); n = tk.length;
         notes.push('Irrigation amounts and water allocations are not modeled yet (irrigation here is one inch a week in set months). I used a ' + (sev ? 'severe ' : '') + 'dry July and August as the closest stand-in for having less water.');
+      }
+    }
+
+    // ---- scenario presets said in plain words, with no numbers: "hotter future", "less rain", "more extreme weather", "climate change"
+    if (FS.scenarios && !/\d/.test(t) && !(Q_LEAD && !CMD)) {
+      var PRE = [['baseline', /\bhistorical baseline\b|\bobserved history\b/], ['drought', /\bhistorical drought\b/],
+        ['combined', /\bclimate change\b|\bchanging climate\b|\bfuture climate\b|\bfuture weather\b|\bmore extreme weather\b|\bextreme weather\b|\bcombined future\b/],
+        ['heat', /\bhotter future\b|\bhotter summers?\b|\bmore (?:frequent |extreme )?heat\b|\bextreme heat\b|\bmore (?:frequent )?heat ?waves?\b|\bmore hot days\b/],
+        ['swing', /\bmore variable (?:rain|rainfall|precipitation|weather)\b|\brain(?:fall)? variability\b|\bprecipitation variability\b|\bwetter wets\b|\bbigger swings\b|\bmore erratic (?:rain|weather)\b/],
+        ['rain', /\bless rain\b|\breduced (?:rain|rainfall|precipitation)\b|\bless precipitation\b|\bdrier future\b|\bdrier climate\b|\bdrier summers?\b/]];
+      var pm = PRE.filter(function (x) { return x[1].test(t); })[0], pr = pm && FS.scenarios.byId(pm[0]);
+      if (pr) {
+        var pacts = [];
+        Object.keys(pr.weather).forEach(function (k) {
+          var v = pr.weather[k], cur = controls.weather[k];
+          if (JSON.stringify(v) !== JSON.stringify(cur == null ? (Array.isArray(v) ? [] : 0) : cur)) pacts.push({ type: 'setControl', path: 'weather.' + k, value: Array.isArray(v) ? [] : v });
+        });
+        var asm = pr.kind === 'assumed';
+        var say = asm ? 'Running the "' + pr.name + '" what-if: ' + pr.blurb.replace(/^./, function (c) { return c.toLowerCase(); }) + '\nThis is an assumption, not a forecast: the sizes are illustrative and say nothing about the chance of this happening next year.'
+          : 'Running "' + pr.name + '": ' + pr.blurb.replace(/^./, function (c) { return c.toLowerCase(); }) + '\nThese are observed seasons, not a forecast.';
+        pacts.push({ type: 'run', label: pr.name });
+        return { reply: say, actions: pacts };
       }
     }
 
@@ -5242,23 +5999,27 @@ window.FS = window.FS || {};
     // Season counts are money comparisons, so they are left out when money is not shown (oats placeholders).
     if (it.moneyNote) return '';
     if (it.isCurrent || it.betterSeasons == null || !it.nSeasons) return '';
-    return it.betterSeasons === 0 ? 'earned less than your current plan in every one of the ' + it.nSeasons + ' past seasons the model replayed (a model estimate; small gaps are within its error)'
-      : 'earned more than your current plan in ' + it.betterSeasons + ' of ' + it.nSeasons + ' past seasons the model replayed';
+    return it.betterSeasons === 0 ? 'earned less than your current plan in all ' + it.nSeasons + ' past seasons'
+      : 'earned more than your current plan in ' + it.betterSeasons + ' of ' + it.nSeasons + ' past seasons';
   }
+  var SEASON_CAVEAT = 'Season counts come from the model replaying past seasons. They are estimates, and small gaps are within its error.';
   function itemHtml(it, idx, kind) {
     var f = fieldById(it.fieldId), seasons = bits(it), lead, more = [];
     if (kind === 'cmp') {
-      var m = it.moneyNote ? it.moneyNote.replace(/\.$/, '') : moneyVs(it.deltaPerAcre);
+      var m = it.moneyNote ? it.moneyNote.replace(/\.$/, '') : moneyShort(it.deltaPerAcre);
       lead = esc(cap(planPlain(it.plan))) + ': ' + esc(m) + (it.tooClose && !it.moneyNote ? ' (too close to call)' : '') + (seasons ? '; ' + esc(seasons) : '') + '.';
+      if (seasons) more.push('<li>' + SEASON_CAVEAT + '</li>');
       more.push('<li>' + esc(cap(coverPhrase(it.greenCoverMonthsAdded))) + ' compared with your current plan.</li>');
       if (!it.moneyNote && !it.isCurrent && it.worst5) more.push('<li>In the worst 5 past seasons: about $' + esc(Math.abs(Math.round(it.worst5)).toLocaleString('en-US')) + ' per acre ' + (it.worst5 < 0 ? 'worse' : 'better') + ' than your current plan.</li>');
     } else {
       lead = esc(f.name) + ': ' + esc(planPlain(it.plan));
       more.push('<li>' + (it.moneyNote ? esc(it.moneyNote) + ' ' : 'Compared with your current plan: ' + esc(moneyVs(it.deltaPerAcre, true)) + (it.tooClose ? ' (too close to call)' : '') + ', ') + (it.moneyNote ? esc(cap(coverPhrase(it.greenCoverMonthsAdded))) : esc(coverPhrase(it.greenCoverMonthsAdded))) + '.</li>');
-      if (seasons) more.push('<li>' + esc(cap(seasons)) + '.</li>');
+      if (seasons) more.push('<li>' + esc(cap(seasons)) + '. ' + SEASON_CAVEAT + '</li>');
     }
-    return '<li>' + lead + ' <button type="button" class="fs-linkbtn" data-act="more" aria-expanded="false">More</button>' +
-      '<div class="fs-rec-more" hidden><ul class="fs-detail-list">' + more.join('') + cardLines(it, kind) + '</ul>' +
+    var finLine = '', finMore = '';
+    try { if (FS.finUI && it.fieldId) { finLine = FS.finUI.cardLine(it.fieldId, it.plan); finMore = FS.finUI.cardMore(it.fieldId, it.plan); } } catch (e) { console.error(e); }
+    return '<li>' + lead + ' <button type="button" class="fs-linkbtn" data-act="more" aria-expanded="false">More</button>' + finLine +
+      '<div class="fs-rec-more" hidden><ul class="fs-detail-list">' + more.join('') + cardLines(it, kind) + '</ul>' + finMore +
       '<button type="button" class="fs-linkbtn" data-act="sim" data-i="' + idx + '">Show on map</button></div></li>';
   }
   // ---------- the helper trace: which helpers ran for one reply, recorded as the code runs ----------
@@ -5285,7 +6046,10 @@ window.FS = window.FS || {};
     if (m.note) h += '<p>' + esc(m.note) + '</p>';
     h += '<p>' + esc(m.text) + '</p>';
     var items = m.items || m.recs;
-    if (items && items.length) { h += '<ul class="fs-recs">' + items.map(function (r, i) { return itemHtml(r, i, m.kind || (m.recs ? 'rec' : 'cmp')); }).join('') + '</ul>'; d._items = items; }
+    if (items && items.length) {
+      var ul = '<ul class="fs-recs">' + items.map(function (r, i) { return itemHtml(r, i, m.kind || (m.recs ? 'rec' : 'cmp')); }).join('') + '</ul>';
+      h += m.fold ? '<details class="fs-fold"><summary>' + esc(m.fold) + '</summary>' + ul + '</details>' : ul; d._items = items;
+    }
     if (m.foot) h += '<p>' + esc(m.foot) + '</p>';
     if (m.trace && m.trace.length) h += traceHtml(m.trace);
     d.innerHTML = h;
@@ -5312,7 +6076,7 @@ window.FS = window.FS || {};
       // so the farmer always sees the current plan and its alternatives with their cards.
       var fid = S.get().selectedField, cmp = compareReply(fid, S.get().controls, S.get(), '');
       var note = plainSpeak(sm.recommendationNote || 'No alternative beats your current plans.');
-      if (cmp && cmp.items && cmp.items.length) msg = { role: 'assistant', text: note + '\nHere is how the other options on ' + fieldById(fid).name + ' compare:', items: cmp.items, kind: 'cmp', foot: intro === false ? null : 'Type a what-if below, or "compare" for another field.' };
+      if (cmp && cmp.items && cmp.items.length) msg = { role: 'assistant', text: note, fold: 'Compare The Other Options On ' + fieldById(fid).name, items: cmp.items, kind: 'cmp', foot: intro === false ? null : 'Type a what-if below, or "compare" for another field.' };
       else msg = { role: 'assistant', text: 'Ranked by ' + PRIO_PHRASE[pr] + ': ' + note, foot: intro === false ? null : 'Type a what-if below, or "compare" for one field.' };
     }
     var adv = FS.chat.advice;
@@ -5335,7 +6099,7 @@ window.FS = window.FS || {};
     var init = D.initialControls; if (!init) return [];
     var a = leaves(S.get().controls, '', {}), b = leaves(init, '', {}), out = [];
     Object.keys(a).forEach(function (p) {
-      if (!/^(weather\.(scenario|tempShift|rainChange|events)|other\.(priceChange|nitrogenChange)|crops\.(plantShiftDays|soilWaterPct))$/.test(p)) return;
+      if (!/^(weather\.(scenario|tempShift|rainChange|rainSwing|hotDays|events)|other\.(priceChange|nitrogenChange)|crops\.(plantShiftDays|soilWaterPct))$/.test(p)) return;
       if (String(a[p]) !== String(b[p] == null ? (p === 'weather.events' ? '[]' : 0) : b[p])) out.push(describeValue(p, a[p]));
     });
     return out;
@@ -5409,6 +6173,8 @@ window.FS = window.FS || {};
         m = /^y(\d{4})$/.exec(v); return m && climYears().indexOf(+m[1]) >= 0 ? v : null;
       case 'weather.tempShift': return num(v, -2, 4, 0.5);
       case 'weather.rainChange': return num(v, -50, 50, 5);
+      case 'weather.rainSwing': return num(v, 0, 100, 10);
+      case 'weather.hotDays': return num(v, 0, 6, 1);
       case 'weather.events':
         var ev; try { ev = JSON.parse(v); } catch (e) { return null; }
         if (!Array.isArray(ev)) return null;
@@ -5501,7 +6267,7 @@ window.FS = window.FS || {};
   function onListClick(e) {
     var b = e.target.closest && e.target.closest('button[data-act]'); if (!b) return;
     if (b.getAttribute('data-act') === 'more') {
-      var box = b.nextElementSibling, open = box.hidden;
+      var box = b.parentNode.querySelector('.fs-rec-more') || b.nextElementSibling, open = box.hidden;
       box.hidden = !open; b.textContent = open ? 'Less' : 'More'; b.setAttribute('aria-expanded', open ? 'true' : 'false');
       return;
     }
@@ -6084,6 +6850,8 @@ window.FS = window.FS || {};
   var el = null, data = null, dataKey = '', err = null, loading = false, seq = 0, model = null, note = null, noteErr = null, warnList = [];
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  // provenance badge (scenarios.js); the days keep their plain text label when the badge helper is missing
+  function prov(kind, plain) { return FS.provenance ? FS.provenance.badge(kind) : esc(plain || ''); }
   function r0(x) { return Math.round(x); }
   function r1(x) { return Math.round(x * 10) / 10; }
   function apiBase() { return /^https?:$/.test(location.protocol) ? location.origin : null; }
@@ -6260,7 +7028,7 @@ window.FS = window.FS || {};
       h += '<span class="fs-ol-lab">' + (d.n === 1 || (d.n % 5 === 0 && d.n < days.length) ? esc(fmt(d.date)) : '') + '</span></div>';
       return h;
     }).join('');
-    var head = '<div class="fs-ol-phase" style="grid-column:span ' + nFc + '">Forecast · days 1–' + nFc + '</div>' + (nEx ? '<div class="fs-ol-phase is-est" style="grid-column:span ' + nEx + '">Estimate · days ' + (nFc + 1) + '–' + days.length + '</div>' : '');
+    var head = '<div class="fs-ol-phase" style="grid-column:span ' + nFc + '">' + prov('forecast', 'Forecast · days 1–' + nFc) + '</div>' + (nEx ? '<div class="fs-ol-phase is-est" style="grid-column:span ' + nEx + '">' + prov('seasonal', 'Estimate · days ' + (nFc + 1) + '–' + days.length) + '</div>' : '');
     var sum = days.length + ' days from ' + fmt(days[0].date) + ': highs ' + r0(Math.min.apply(null, days.map(function (d) { return d.tmax; }))) + ' to ' + r0(Math.max.apply(null, days.map(function (d) { return d.tmax; }))) + ' °C, ' +
       r0(days.reduce(function (a, d) { return a + (d.rain || 0); }, 0)) + ' mm of rain in all (normal ' + r0(days.reduce(function (a, d) { return a + (d.norm ? d.norm.rain : 0); }, 0)) + ' mm). Day-by-day numbers are in the table below.';
     return '<p class="fs-ol-axis">Temperature scale ' + String(lo).replace('-', '−') + ' to ' + hi + ' °C · rain bars up to ' + r0(rmax) + ' mm a day</p>' +
@@ -6269,7 +7037,7 @@ window.FS = window.FS || {};
       '<p class="fs-ol-key"><span><i class="k-bar"></i>Daily high to low</span><span><i class="k-norm"></i>Normal high and low</span><span><i class="k-rain"></i>Rain</span>' + (nEx ? '<span><i class="k-band"></i>Estimate range (10th–90th percentile)</span>' : '') + '</p>';
   }
   function tableHTML(days) {
-    return '<details class="fs-ol-details"><summary>Day by day</summary><div class="fs-ol-tablewrap"><table class="fs-ol-table"><thead><tr><th scope="col">Day</th><th scope="col">High / low °C</th><th scope="col">Normal °C</th><th scope="col">Rain mm</th><th scope="col">Normal mm</th><th scope="col">Other</th></tr></thead><tbody>' +
+    return '<details class="fs-ol-details"><summary>Day By Day</summary><div class="fs-ol-tablewrap"><table class="fs-ol-table"><thead><tr><th scope="col">Day</th><th scope="col">High / low °C</th><th scope="col">Normal °C</th><th scope="col">Rain mm</th><th scope="col">Normal mm</th><th scope="col">Other</th></tr></thead><tbody>' +
       days.map(function (d) {
         var other = [];
         if (d.rainChance != null) other.push(d.rainChance + '% rain chance');
@@ -6281,7 +7049,7 @@ window.FS = window.FS || {};
       }).join('') + '</tbody></table></div></details>';
   }
   function warnHTML() {
-    if (!warnList.length) return '<p class="fs-ol-none">No warnings: none of the fixed rules (frost in the growing season, heat, dry spell, heavy rain, strong gusts, snow, frozen ground, extreme cold) trips in the next 30 days.</p>';
+    if (!warnList.length) return '<p class="fs-ol-none">No warnings in the next 30 days. The rules checked are listed under Where These Numbers Come From.</p>';
     return '<ul class="fs-ol-warns">' + warnList.map(function (w) {
       return '<li class="fs-ol-warn k-' + w.kind + (w.est ? ' is-est' : '') + '"><b>' + esc(w.title) + (w.est ? ' <span class="fs-ol-tag">estimate, days 17–30</span>' : '') + '</b> ' + esc(w.text) + '</li>';
     }).join('') + '</ul>';
@@ -6296,19 +7064,19 @@ window.FS = window.FS || {};
         if (!f.grain || !(f.normal > 0)) return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td colspan="2">No grain harvest on this plan</td></tr>';
         return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td>' + r0(f.normal) + '</td><td>' + r0(f.p10) + '–' + r0(f.p90) + '</td></tr>';
       }).join('');
-      return '<h3 class="fs-ol-h">Next Harvest (' + model.year + '), Bushels Per Acre</h3>' +
+      return '<details class="fs-ol-details fs-ol-harvestfold"><summary>Next Harvest (' + model.year + '), Bushels Per Acre</summary><p class="fs-ol-prov">' + prov('observed') + '</p>' +
         '<div class="fs-ol-tablewrap"><table class="fs-ol-table fs-ol-harvest"><thead><tr><th scope="col">Field</th><th scope="col">Plan</th><th scope="col">Normal (median)</th><th scope="col">Range (10th–90th)</th></tr></thead><tbody>' + rowsE + '</tbody></table></div>' +
-        '<p class="fs-ol-plain">Plainly: these 30 days come before planting. In this model, weather before spring does not change the ' + model.year + ' harvest (each season starts from the same spring soil water), so this table is the spread of all ' + nY + ' past seasons on your current plan, not a forecast. Check back in spring.</p>';
+        '<p class="fs-ol-plain">Plainly: these 30 days come before planting. In this model, weather before spring does not change the ' + model.year + ' harvest (each season starts from the same spring soil water), so this table is the spread of all ' + nY + ' past seasons on your current plan, not a forecast. Check back in spring.</p></details>';
     }
     var rows = model.fields.map(function (f) {
       if (!f.grain || !(f.normal > 0)) return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td colspan="4">No grain harvest on this plan</td></tr>';
       var pr = f.pct == null ? null : r1(f.pct), pc = pr == null ? '–' : (pr > 0 ? '+' : pr < 0 ? '−' : '') + Math.abs(pr) + '%';
       return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td>' + r0(f.normal) + '</td><td>' + r0(f.med) + '</td><td>' + r0(f.p10) + '–' + r0(f.p90) + '</td><td class="' + (f.pct <= -1 ? 'is-down' : f.pct >= 1 ? 'is-up' : '') + '">' + pc + '</td></tr>';
     }).join('');
-    return '<h3 class="fs-ol-h">Next Harvest (' + model.year + '), Bushels Per Acre</h3>' +
+    return '<details class="fs-ol-details fs-ol-harvestfold"><summary>Next Harvest (' + model.year + '), Bushels Per Acre</summary><p class="fs-ol-prov">' + prov('observed') + '</p>' +
       '<div class="fs-ol-tablewrap"><table class="fs-ol-table fs-ol-harvest"><thead><tr><th scope="col">Field</th><th scope="col">Plan</th><th scope="col">Normal (median)</th><th scope="col">With these 30 days (median)</th><th scope="col">Range (10th–90th)</th><th scope="col">Change</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
       '<p class="fs-ol-plain">Only these 30 days are known; the rest of the season comes from replaying every past season (' + nY + ' of them), which is where most of the range comes from.' +
-      ' Each field keeps its current plan. Days 17–30 are a rough average of many forecasts, so a single frost, heat wave or downpour on those days will not show.</p>';
+      ' Each field keeps its current plan. Days 17–30 are a rough average of many forecasts, so a single frost, heat wave or downpour on those days will not show.</p></details>';
   }
   function noteHTML() {
     if (note && note.summary) return '<div class="fs-ol-note"><h3 class="fs-ol-h">What This Means <span class="fs-ol-tag">written by Gemini from the numbers above</span></h3><p>' + esc(note.summary) + '</p>' +
@@ -6322,14 +7090,14 @@ window.FS = window.FS || {};
     if (data.obsGap) li.push('<li>' + esc(data.obsGap) + '</li>');
     li.push('<li>Normals: the mean of NASA POWER daily weather, ' + (ys.length ? ys[0] + '–' + ys[ys.length - 1] : '') + ', for ' + esc(site.name || 'the county') + (loc ? ', shifted month by month to your farm (NASA POWER climatology)' : '') + '.</li>');
     li.push('<li>Harvest: the Field Shift crop model' + (loc ? ' fitted to your farm (not checked against your own harvests)' : '') + '; yields measured against the farm\'s normal of ' + r0(FS.data.economics.normalYield.corn) + ' bu corn and ' + r0(FS.data.economics.normalYield.soybean) + ' bu soybeans. Only Story County, Iowa was checked against real harvests.</li>');
-    li.push('<li>Warnings: fixed rules applied to the numbers above, not official alerts. Check the National Weather Service for watches and warnings.</li>');
-    return '<details class="fs-ol-details"><summary>Where these numbers come from</summary><ul class="fs-ol-src">' + li.join('') + '</ul></details>';
+    li.push('<li>Warnings: fixed rules applied to the numbers above (frost in the growing season, heat, dry spell, heavy rain, strong gusts, snow, frozen ground, extreme cold, cool enough for fall nitrogen), not official alerts. Check the National Weather Service for watches and warnings.</li>');
+    return '<details class="fs-ol-details"><summary>Where These Numbers Come From</summary><ul class="fs-ol-src">' + li.join('') + '</ul></details>';
   }
 
   function render() {
     if (!el) return;
     var body = el.querySelector('.fs-panel-body'), w = where();
-    var place = '<p class="fs-ol-where">' + (w.own ? (/^your\b/i.test(w.label || '') ? 'For ' + esc(w.label.charAt(0).toLowerCase() + w.label.slice(1)) : 'For your farm near ' + esc(w.label)) : 'For ' + esc(w.label) + ' (the county point: add your farm\'s address under “Your farm · Change” for your own spot)') +
+    var place = '<p class="fs-ol-where">' + (w.own ? (/^your\b/i.test(w.label || '') ? 'For ' + esc(w.label.charAt(0).toLowerCase() + w.label.slice(1)) : 'For your farm near ' + esc(w.label)) : 'For ' + esc(w.label) + ' (county point; add your address under “Your farm · Change” for your own spot)') +
       (data ? ' · ' + esc(fmt(data.today, { weekday: 'long', month: 'long', day: 'numeric' })) : '') + '</p>';
     if (!apiBase()) { body.innerHTML = place + '<p class="fs-ol-faint">Open this page through the EcoShift server for the live forecast (run <code>npm start</code>, then open http://localhost:8787).</p>'; return; }
     if (err) { body.innerHTML = place + '<p class="fs-ol-err">' + esc(err) + '</p><button type="button" class="fs-ol-retry">Try again</button>'; body.querySelector('.fs-ol-retry').onclick = function () { dataKey = ''; refresh(); }; return; }
@@ -6519,12 +7287,12 @@ window.FS = window.FS || {};
   function request() {
     var su = FS.farmSetup && FS.farmSetup.setup, g = su && !su.example && su.geo, F = FS.data.farm.fields;
     if (g && g.fields.every(function (f) { return Array.isArray(f.ring) && f.ring.length >= 3; })) {
-      return { approximate: false, fields: g.fields.filter(function (f) { return F.some(function (x) { return x.id === f.id; }); }).map(function (f) { return { id: f.id, name: f.name, ring: f.ring, holes: Array.isArray(f.holesLL) ? f.holesLL.filter(function (h) { return Array.isArray(h) && h.length >= 3; }) : [] }; }) };
+      return { approximate: false, fields: g.fields.filter(function (f) { return F.some(function (x) { return x.id === f.id; }); }).map(function (f) { return { id: f.id, name: f.name, ring: f.ring, holes: Array.isArray(f.holesLL) ? f.holesLL.filter(function (h) { return Array.isArray(h) && h.length >= 3; }) : [], survey: surveyOf(f.id) }; }) };
     }
     return { approximate: true, fields: F.map(function (f) {
       var p = f.soil && f.soil.point; if (!p) return null;
       var half = Math.sqrt(f.acres * 4046.86) / 2, dy = half / 110574, dx = half / (111320 * Math.cos(p[1] * R));
-      return { id: f.id, name: f.name, ring: [[p[0] - dx, p[1] - dy], [p[0] + dx, p[1] - dy], [p[0] + dx, p[1] + dy], [p[0] - dx, p[1] + dy]] };
+      return { id: f.id, name: f.name, ring: [[p[0] - dx, p[1] - dy], [p[0] + dx, p[1] - dy], [p[0] + dx, p[1] + dy], [p[0] - dx, p[1] + dy]], survey: surveyOf(f.id) };
     }).filter(Boolean) };
   }
 
@@ -6551,7 +7319,7 @@ window.FS = window.FS || {};
     var irr = !!(FS.farmSetup && FS.farmSetup.canIrrigate);
     return { normalYield: E.normalYield || {}, fields: req.fields.map(function (x) {
       var f = F.filter(function (q) { return q.id === x.id; })[0] || {}, crop = f.lastCrop === 'soybean' ? 'soybean' : 'corn';
-      return { id: x.id, name: x.name, ring: x.ring, holes: x.holes || [], crop: crop, plantDate: y + (south ? (crop === 'corn' ? '-10-28' : '-11-15') : (crop === 'corn' ? '-04-28' : '-05-15')), irrigable: irr };
+      return { id: x.id, name: x.name, ring: x.ring, holes: x.holes || [], soilTest: testOf(x.id) || undefined, crop: crop, plantDate: y + (south ? (crop === 'corn' ? '-10-28' : '-11-15') : (crop === 'corn' ? '-04-28' : '-05-15')), irrigable: irr };
     }) };
   }
   function loadHealth(req, force) {
@@ -6573,17 +7341,119 @@ window.FS = window.FS || {};
       '<line x1="6" x2="' + (W - 6) + '" y1="' + sy(0).toFixed(1) + '" y2="' + sy(0).toFixed(1) + '" class="fs-hl-zero"/>' + line('ndvi', 'fs-hl-ndvi') + line('ndmi', 'fs-hl-ndmi') +
       '<text x="6" y="11" class="fs-hl-ax">' + esc(rows[0].date.slice(5)) + '</text><text x="' + (W - 6) + '" y="11" class="fs-hl-ax" text-anchor="end">' + esc(rows[rows.length - 1].date.slice(5)) + '</text></svg>';
   }
-  function bar(label, sc, detail) {
+  function bar(label, sc, detail, ev) {
     return '<div class="fs-hl-bar"><span class="fs-hl-bl">' + label + '</span><span class="fs-hl-track">' + (sc == null ? '' : '<i class="' + (sc >= 70 ? 'ok' : sc >= 45 ? 'mid' : 'bad') + '" style="width:' + sc + '%"></i>') + '</span>' +
-      '<span class="fs-hl-v">' + (sc == null ? 'n/a' : sc) + '</span><span class="fs-hl-d">' + detail + '</span></div>';
+      '<span class="fs-hl-v">' + (sc == null ? 'n/a' : sc) + '</span><span class="fs-hl-d">' + detail + (ev ? ' ' + evb(ev) : '') + '</span></div>';
   }
   function csvHref(rows) {
     var cols = ['date', 'clear_pct', 'ndvi', 'ndvi_p10', 'ndvi_p90', 'ndvi_cv', 'ndre', 'ndre_p90', 'n_sufficiency', 'ndmi', 's2rep_nm', 'savi', 'lai', 'fvc'];
     var t = cols.join(',') + '\n' + rows.map(function (r) { return cols.map(function (k) { return r[k] == null ? '' : r[k]; }).join(','); }).join('\n') + '\n';
     return 'data:text/csv;charset=utf-8,' + encodeURIComponent(t);
   }
+  // ---------------------------------------------------------------- evidence labels and the soil-health card
+  // Five levels say how sure a finding is (the server sends one with every finding, score, warning and piece of advice). The badges are small and quiet;
+  // the legend sits once, in a closed box near the top.
+  var EVL = { measured: 'Measured', satellite_indicator: 'Satellite Indicator', model_estimate: 'Model Estimate', possible_explanation: 'Possible Explanation', verify_in_field: 'Check In The Field' };
+  var EVM = { measured: 'A direct reading, such as a weather station, a probe or your own soil test.', satellite_indicator: 'Something a satellite sees (greenness, red edge, bare soil, fire). A clue, not a diagnosis.',
+    model_estimate: 'Worked out by a model or a map (weather models, SoilGrids, soil survey) or by a scoring rule. Not measured on this field.', possible_explanation: 'One of several things that could explain what the satellite sees. Not confirmed.',
+    verify_in_field: 'A recommendation that depends on an inference: look at the field or test first.' };
+  function evb(l, label) { return l && EVL[l] ? '<span class="fs-ev fs-ev-' + l + '" title="' + esc(EVM[l]) + '">' + esc(label || EVL[l]) + '</span>' : ''; }
+  function evLegend() {
+    return '<details class="fs-cn-more fs-ev-legend"><summary>What The Labels Mean</summary><ul>' + Object.keys(EVL).map(function (k) { return '<li>' + evb(k) + ' ' + esc(EVM[k]) + '</li>'; }).join('') +
+      '</ul><p class="fs-fm-faint fs-hl-small">A satellite sees a symptom (for example pale leaves), not its cause. Findings are labelled so a clue is not mistaken for a diagnosis.</p></details>';
+  }
+
+  // the farmer's own soil tests: kept in this browser only (localStorage, one entry per field); a copy in memory if the browser will not store them
+  var SKEY = 'ecoshift-soil-tests-v1', memTests = null, shOpen = {}, shMsg = {};
+  function loadTests() {
+    if (memTests) return memTests;
+    var j = null; try { j = JSON.parse(localStorage.getItem(SKEY) || '{}'); } catch (e) { j = null; }
+    memTests = j && typeof j === 'object' && !Array.isArray(j) ? j : {}; return memTests;
+  }
+  function saveTests() { try { localStorage.setItem(SKEY, JSON.stringify(memTests || {})); return true; } catch (e) { return false; } }
+  function testOf(id) { var t = loadTests()[id]; return t && typeof t === 'object' ? t : null; }
+  function surveyOf(id) {
+    var f = ((FS.data && FS.data.farm && FS.data.farm.fields) || []).filter(function (q) { return q.id === id; })[0], s = f && f.soil;
+    return s && s.awcMmPerM ? { name: s.name || '', awcMmPerM: s.awcMmPerM, drainage: s.drainage || '', hydgrp: s.hydgrp || '', source: s.source === 'soilgrids' ? 'soilgrids' : 'nrcs' } : undefined;
+  }
+  var TEST_KEY = { om: 'om', ph: 'ph', n: 'no3Ppm', p: 'pPpm', k: 'kPpm', infiltration: 'infiltrationMin', bio: 'earthworms' };
+  var P_NAME = { bray1: 'Bray-1', mehlich3: 'Mehlich-3', olsen: 'Olsen', other: 'method not listed' };
+  function measuredText(key, t) {
+    var v = t[TEST_KEY[key]];
+    return key === 'om' ? v + '% organic matter' : key === 'ph' ? 'pH ' + v : key === 'n' ? v + ' ppm nitrate-N' : key === 'p' ? v + ' ppm (' + (P_NAME[t.pMethod] || P_NAME.other) + ')' : key === 'k' ? v + ' ppm' : key === 'infiltration' ? v + ' min for the ring to drain' : v + ' earthworms counted';
+  }
+  function hasTest(id, key) { var t = testOf(id); return !!(t && t[key] != null); }
+  function field(v) { var x = parseFloat(String(v).replace(',', '.')); return isFinite(x) ? x : null; }
+  function formVal(t, k) { return t && t[k] != null ? esc(t[k]) : ''; }
+  function inp(id, name, label, t, attrs) { return '<label class="fs-sh-l">' + esc(label) + '<input type="number" inputmode="decimal" step="any" name="' + name + '" value="' + formVal(t, name) + '" ' + (attrs || '') + '></label>'; }
+
+  function soilHealthHTML(d, req) {
+    var cards = '';
+    req.fields.forEach(function (f) {
+      var x = d.fields && d.fields[f.id], rows = x && x.soilHealth && x.soilHealth.rows; if (!rows) return;
+      var t = testOf(f.id), cnt = { measured: 0, mapped: 0, sat: 0, need: 0 };
+      var body = rows.map(function (r) {
+        var meas = t && t[TEST_KEY[r.key]] != null, lab = r.key === 'infiltration' || r.key === 'bio' ? 'field check' : 'soil test', cmp = '';
+        if (meas) {
+          cnt.measured++;
+          var mv = r.key === 'om' ? r.organicMatterPct : r.key === 'ph' ? field(r.value) : null;
+          if (mv != null) { var df = Math.round((t[TEST_KEY[r.key]] - mv) * 10) / 10; cmp = '<span class="fs-sh-cmp">Map estimate ' + mv + (r.key === 'om' ? '%' : '') + (df === 0 ? ': the same' : ': your test is ' + Math.abs(df) + (df > 0 ? ' higher' : ' lower')) + '</span>'; }
+          else if (r.value) cmp = '<span class="fs-sh-cmp">Map estimate: ' + esc(r.value) + '</span>';
+          return '<tr><th scope="row">' + esc(r.label) + '</th><td><b>' + esc(measuredText(r.key, t)) + '</b>' + cmp + '</td><td>' + evb('measured', 'Measured (your ' + lab + (t.date ? ', ' + t.date : '') + ')') + '</td><td class="fs-sh-src">Your ' + lab + '</td></tr>';
+        }
+        if (r.evidence === 'model_estimate') cnt.mapped++; else if (r.evidence === 'satellite_indicator') cnt.sat++; else cnt.need++;
+        var needName = r.need ? r.need.split(' (')[0] : '', needMore = r.need && r.need.indexOf(' (') > 0 ? r.need.slice(r.need.indexOf(' (')) : '';
+        return '<tr><th scope="row">' + esc(r.label) + '</th><td>' + (r.value ? esc(r.value) : '<b class="fs-sh-need">' + esc(needName) + '</b>') + '</td><td>' + evb(r.evidence) + '</td><td class="fs-sh-src">' + esc(r.source) +
+          (r.note ? '<br><span class="fs-fm-faint">' + esc(r.note) + '</span>' : '') + (r.value && needName ? '<br><span class="fs-fm-faint">' + esc(needName + needMore) + ' to confirm.</span>' : r.value ? '' : '<br><span class="fs-fm-faint">' + esc(needMore.replace(/^ \(|\)$/g, '')) + '</span>') + '</td></tr>';
+      }).join('');
+      var sum = 'Soil Health, ' + f.name + ': ' + cnt.mapped + ' mapped estimate' + (cnt.mapped === 1 ? '' : 's') + (cnt.sat ? ', ' + cnt.sat + ' satellite' : '') + ', ' + cnt.measured + ' measured, ' + cnt.need + ' need a test';
+      var hf = hs.data && hs.data.fields && hs.data.fields[f.id], items = hf && hf.soilTest && hf.soilTest.items || [];
+      var says = items.length ? '<h5>What Your Soil Test Says</h5><ul class="fs-sh-says">' + items.map(function (it) { return '<li>' + evb('measured') + ' ' + esc(it.basis.charAt(0).toUpperCase() + it.basis.slice(1) + ': ' + it.text + ' ' + it.action) + '</li>'; }).join('') + '</ul>' : '';
+      var form = '<h5>Enter Your Soil Test</h5><form class="fs-sh-form" data-f="' + esc(f.id) + '" autocomplete="off"><div class="fs-sh-grid">' +
+        '<label class="fs-sh-l">Sample date<input type="date" name="date" value="' + (t && t.date ? esc(t.date) : '') + '" max="' + new Date().toISOString().slice(0, 10) + '"></label>' +
+        inp(f.id, 'om', 'Organic matter (%)', t, 'min="0" max="30"') + inp(f.id, 'ph', 'pH', t, 'min="3" max="10"') + inp(f.id, 'pPpm', 'Phosphorus, P (ppm)', t, 'min="0"') +
+        '<label class="fs-sh-l">P method<select name="pMethod">' + ['bray1', 'mehlich3', 'olsen', 'other'].map(function (m) { return '<option value="' + m + '"' + (t && t.pMethod === m ? ' selected' : '') + '>' + P_NAME[m] + '</option>'; }).join('') + '</select></label>' +
+        inp(f.id, 'kPpm', 'Potassium, K (ppm)', t, 'min="0"') + inp(f.id, 'no3Ppm', 'Nitrate-N (ppm)', t, 'min="0"') +
+        inp(f.id, 'infiltrationMin', 'Infiltration ring time (min, optional)', t, 'min="0"') + inp(f.id, 'earthworms', 'Earthworm count per spade (optional)', t, 'min="0"') +
+        '<label class="fs-sh-l fs-sh-wide">Notes (optional)<input type="text" name="notes" maxlength="240" value="' + (t && t.notes ? esc(t.notes) : '') + '"></label></div>' +
+        '<div class="fs-sh-btns"><button type="submit" class="fs-fm-btn">Save Soil Test</button>' + (t ? '<button type="button" class="fs-fm-btn fs-sh-clear">Remove</button>' : '') + '</div>' +
+        '<p class="fs-fm-faint fs-hl-small" role="status">' + esc(shMsg[f.id] || 'Saved only in this browser, never sent for storage. It is used in the advice for this field (lime from pH, fertiliser from P and K).') + '</p></form>';
+      cards += '<details class="fs-cn-more fs-sh"' + (shOpen[f.id] ? ' open' : '') + '><summary>' + esc(sum) + '</summary>' +
+        '<div class="fs-cn-tablewrap" tabindex="0" aria-label="Soil health rows, scrolls sideways"><table class="fs-cn-table fs-sh-table"><caption class="fs-cn-sr">Soil health evidence for ' + esc(f.name) + '</caption><thead><tr><th scope="col">Soil Property</th><th scope="col">Value</th><th scope="col">Evidence</th><th scope="col">Source</th></tr></thead><tbody>' + body + '</tbody></table></div>' +
+        says + form + '</details>';
+    });
+    if (!cards) return '';
+    return '<div class="fs-sh-wrap"><h4 class="fs-cn-sub">Soil Health <span class="fs-fm-faint">(open a field to see the rows)</span></h4>' + cards + rotationNote() + '</div>';
+  }
+  function rotationNote() {
+    var RS = evb('possible_explanation', 'Published Research (not measured on this field)').replace('fs-ev-possible_explanation', 'fs-ev-research');
+    return '<details class="fs-cn-more fs-sh-rot"><summary>How Rotations Affect Soil Health</summary>' +
+      '<p><b>EcoShift does not measure long-term soil-health change.</b> Comparing yields under different rotations does not show it: soil health also means organic carbon, structure, water infiltration, moisture retention, nutrient supply, erosion and biological activity. Only repeated soil tests (same spot, same lab, same season, every 2 to 3 years) plus field checks can show a trend on your field.</p>' +
+      '<ul class="fs-sh-says"><li>' + RS + ' <b>Cereal rye cover:</b> expected to cut erosion and nitrate loss to drainage water; it can slow corn that follows it. <span class="fs-fm-faint">Iowa State University Extension (Iowa Nutrient Reduction Strategy); USDA NRCS.</span></li>' +
+      '<li>' + RS + ' <b>Corn-soybean rotation:</b> expected to give a nitrogen credit to corn after soybeans and to break pest and disease cycles. <span class="fs-fm-faint">Iowa State University Extension (corn nitrogen guidelines, PM 1714).</span></li>' +
+      '<li>' + RS + ' <b>Continuous corn:</b> expected to leave more residue and to need more nitrogen, often with a yield penalty. <span class="fs-fm-faint">Iowa State University Extension; USDA NRCS.</span></li></ul>' +
+      '<p class="fs-fm-faint fs-hl-small">Links to each source are listed in DATA_NOTES.md.</p></details>';
+  }
+  function wireSoil() {
+    Array.prototype.forEach.call(layer.querySelectorAll('.fs-sh-form'), function (fm) {
+      var id = fm.getAttribute('data-f');
+      function done(msg) { shOpen[id] = true; shMsg[id] = msg; render(); if (st.req) loadHealth(st.req, true); }
+      fm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var g = function (n) { return fm.elements[n] ? fm.elements[n].value : ''; }, t = { date: g('date') || null, pMethod: g('pMethod') || 'other', notes: g('notes').slice(0, 240) };
+        ['om', 'ph', 'pPpm', 'kPpm', 'no3Ppm', 'infiltrationMin', 'earthworms'].forEach(function (k) { t[k] = field(g(k)); });
+        var rg = { om: [0, 30], ph: [3, 10], pPpm: [0, 600], kPpm: [0, 2000], no3Ppm: [0, 400], infiltrationMin: [0, 600], earthworms: [0, 1000] }, bad = Object.keys(rg).filter(function (k) { return t[k] != null && (t[k] < rg[k][0] || t[k] > rg[k][1]); });
+        if (bad.length) { shOpen[id] = true; shMsg[id] = 'A value is out of range (pH 3 to 10, organic matter 0 to 30%). Check the numbers.'; return render(); }
+        if (!Object.keys(rg).some(function (k) { return t[k] != null; })) { shOpen[id] = true; shMsg[id] = 'Enter at least one value.'; return render(); }
+        loadTests()[id] = t;
+        done(saveTests() ? 'Saved in this browser.' : 'This browser would not keep it (private window?), so it is used only until you close the page.');
+      });
+      var c = fm.querySelector('.fs-sh-clear');
+      if (c) c.addEventListener('click', function () { delete loadTests()[id]; saveTests(); done('Removed.'); });
+    });
+  }
   function healthHTML() {
-    var h = '<h4 class="fs-cn-sub">This season, field by field <span class="fs-fm-faint">(Copernicus Sentinel-2)</span></h4>';
+    var h = '<h4 class="fs-cn-sub">This season, field by field <span class="fs-fm-faint">(Copernicus Sentinel-2)</span> ' + evb('satellite_indicator') + '</h4>';
     if (hs.busy) return h + '<div class="fs-fm-busy" role="status"><span class="fs-fm-spin" aria-hidden="true"></span>Reading this season’s Sentinel-2 images of each field… <span class="fs-cn-hsec">' + Math.round((Date.now() - hs.t0) / 1000) + '</span> s <span class="fs-fm-faint">(15 to 60 s the first time)</span></div>';
     if (hs.err) return h + '<p class="fs-fm-msg fs-fm-err">' + esc(hs.err) + '</p>';
     if (!hs.data) return h;
@@ -6594,22 +7464,22 @@ window.FS = window.FS || {};
       h += '<article class="fs-hl-field"><header><strong>' + esc(f.name) + '</strong> <span class="fs-fm-faint">' + esc(f.crop === 'soybean' ? 'soybeans' : f.crop) + ' · ' + f.observations + ' clear images</span></header>';
       if (f.error) { h += '<p>' + esc(f.error) + '</p></article>'; return; }
       var M = f.momentum || {}, Y = f.yieldEstimate || {}, hi = f.healthIndex != null ? f.healthIndex : f.yieldScore;
-      h += '<div class="fs-hl-scores"><span class="fs-hl-big ' + (hi >= 70 ? 'ok' : hi >= 45 ? 'mid' : 'bad') + '">Health <b>' + hi + '</b>/100</span><span>Stage <b>' + esc(f.stage) + '</b></span><span>Growth <b>' + esc(M.word) + '</b></span><span>Yield guide <b>' + (Y.bu ? Y.bu + ' bu/acre' : '–') + '</b></span></div>';
+      h += '<div class="fs-hl-scores"><span class="fs-hl-big ' + (hi >= 70 ? 'ok' : hi >= 45 ? 'mid' : 'bad') + '">Health <b>' + hi + '</b>/100 ' + evb('model_estimate') + '</span><span>Stage <b>' + esc(f.stage) + '</b> ' + evb('model_estimate') + '</span><span>Growth <b>' + esc(M.word) + '</b> ' + evb('satellite_indicator') + '</span><span>Yield guide <b>' + (Y.bu ? Y.bu + ' bu/acre' : '–') + '</b> ' + evb('model_estimate') + '</span></div>';
       h += '<details class="fs-cn-more fs-hl-det"' + (narrow() ? '' : ' open') + '><summary>Details: greenness through the season and scores</summary><div class="fs-hl-grid"><div>' + spark(f.series) + '<p class="fs-hl-key"><i class="g"></i>greenness NDVI <i class="b"></i>leaf water NDMI</p></div><div class="fs-hl-bars">' +
-        bar('Canopy', H.canopy.score, 'NDVI ' + H.canopy.ndvi + ', ' + Math.round(H.canopy.cover * 100) + '% cover') +
-        bar('Nitrogen', H.nitrogen.score, H.nitrogen.note ? esc(H.nitrogen.note) : 'red edge ' + Math.round(H.nitrogen.sufficiency * 100) + '% of the field’s best (a hint only)') +
-        bar('Moisture', H.moisture.score, 'leaf water NDMI ' + H.moisture.ndmi) +
-        bar('Uniformity', H.uniformity.score, 'spread ' + Math.round(H.uniformity.cv * 100) + '% across the field') + '</div></div></details>';
+        bar('Canopy', H.canopy.score, 'NDVI ' + H.canopy.ndvi + ', ' + Math.round(H.canopy.cover * 100) + '% cover', 'satellite_indicator') +
+        bar('Nitrogen', H.nitrogen.score, H.nitrogen.note ? esc(H.nitrogen.note) : 'red edge ' + Math.round(H.nitrogen.sufficiency * 100) + '% of the field’s best (a hint only)', 'satellite_indicator') +
+        bar('Moisture', H.moisture.score, 'leaf water NDMI ' + H.moisture.ndmi, 'satellite_indicator') +
+        bar('Uniformity', H.uniformity.score, 'spread ' + Math.round(H.uniformity.cv * 100) + '% across the field', 'satellite_indicator') + '</div></div></details>';
       var top = (f.advice || []).filter(function (a) { return a.priority === 'high'; })[0] || (f.advice || [])[0];
-      if (top) h += '<p class="fs-hl-todo"><span class="fs-hl-pr fs-hl-' + top.priority + '">' + top.priority + '</span> <b>' + esc(top.topic) + ':</b> ' + esc(top.text) + '</p>';
-      h += '<details class="fs-cn-more"><summary>Root causes, all advice and details</summary>' +
+      if (top) h += '<p class="fs-hl-todo"><span class="fs-hl-pr fs-hl-' + top.priority + '">' + top.priority + '</span> <b>' + esc(top.topic) + ':</b> ' + esc(top.text) + ' ' + evb(top.evidence) + '</p>';
+      h += '<details class="fs-cn-more"><summary>Possible causes, all advice and details</summary>' +
         '<p class="fs-hl-line">Stage: <b>' + esc(f.stage) + '</b>' + (f.gdd != null ? ' (' + f.gdd + ' degree days since planting)' : '') + ' · Growth momentum: <b>' + esc(M.word) + '</b>' + (M.perWeek != null ? ' (NDVI ' + (M.perWeek > 0 ? '+' : '') + M.perWeek + ' a week' + (M.accel ? ', ' + esc(M.accel) : '') + ')' : '') + ' · Peak NDVI ' + f.peak.ndvi + ' on ' + esc(f.peak.date) + '</p>' +
         '<p class="fs-hl-line">Quality score <b>' + f.qualityScore + '</b>/100' + (Y.bu ? ' · Yield guide ' + Y.bu + ' bu/acre (range ' + Y.low + ' to ' + Y.high + '; county normal ' + Y.normal + ')' : '') + '</p>' +
-        '<div class="fs-hl-bars">' + bar('Phosphorus', null, esc(H.phosphorus.note)) + bar('Leaf structure', H.leaf.score, 'red-edge position ' + H.leaf.redEdgeNm + ' nm') + '</div>' +
+        '<div class="fs-hl-bars">' + bar('Phosphorus', null, esc(H.phosphorus.note), 'verify_in_field') + bar('Leaf structure', H.leaf.score, 'red-edge position ' + H.leaf.redEdgeNm + ' nm', 'satellite_indicator') + '</div>' +
         '<p class="fs-fm-faint fs-hl-small">The health index (0 to 100) compares the canopy with a healthy crop’s normal peak, and the nitrogen, leaf structure and evenness with this field’s own best parts.</p>' +
         (Y.note ? '<p class="fs-fm-faint fs-hl-small">' + esc(Y.note) + '</p>' : '') +
-        '<div class="fs-hl-cols"><div><h5>Root causes</h5><ul>' + f.causes.map(function (c) { return '<li><b>' + esc(c.cause) + '</b> <span class="fs-fm-faint">(' + esc(c.confidence) + ' confidence)</span>: ' + esc(c.why) + '</li>'; }).join('') + '</ul></div>' +
-        '<div><h5>What to do</h5><ul class="fs-hl-adv">' + f.advice.map(function (a) { return '<li><span class="fs-hl-pr fs-hl-' + a.priority + '">' + a.priority + '</span> <b>' + esc(a.topic) + ':</b> ' + esc(a.text) + '</li>'; }).join('') + '</ul></div></div>' +
+        '<div class="fs-hl-cols"><div><h5>Possible Causes</h5><ul>' + f.causes.map(function (c) { return '<li><b>' + esc(c.cause) + '</b> ' + evb(c.evidence) + ' <span class="fs-fm-faint">(' + esc(c.confidence) + ' confidence)</span>: ' + (c.observed ? esc(c.observed) + ' ' + evb(c.observedEvidence) + ' ' : '') + esc(c.why) + (c.alternatives && c.alternatives.length ? ' <i>It could also be ' + esc(c.alternatives.join(', ')) + '.</i>' : '') + (c.verify ? ' <i>Check first: ' + esc(c.verify) + '.</i> ' + evb('verify_in_field') : '') + '</li>'; }).join('') + '</ul></div>' +
+        '<div><h5>What to do</h5><ul class="fs-hl-adv">' + f.advice.map(function (a) { return '<li><span class="fs-hl-pr fs-hl-' + a.priority + '">' + a.priority + '</span> <b>' + esc(a.topic) + ':</b> ' + esc(a.text) + ' ' + evb(a.evidence) + '</li>'; }).join('') + '</ul></div></div>' +
         '<p class="fs-hl-small"><a download="' + esc((f.name || id).replace(/[^\w-]+/g, '_')) + '_sentinel2.csv" href="' + csvHref(f.series || []) + '">Download this field’s data (CSV)</a>' + (f.csv ? ' · also saved on the server as <code>' + esc(String(f.csv).split(/[\\/]/).pop()) + '</code>' : '') + '</p></details></article>';
     });
     h += '</div>';
@@ -6802,14 +7672,14 @@ window.FS = window.FS || {};
         if (done[w.kind]) return '';
         done[w.kind] = 1;
         var g = items.filter(function (x) { return x.kind === w.kind; }), warn = g.some(function (x) { return x.level === 'warn'; }), tail = split(g[0].text)[1], on = g.some(function (x) { return x.n - 1 === pick; });
-        return '<li class="fs-cn-group fs-cn-' + (warn ? 'warn' : 'info') + (on ? ' fs-cn-on' : '') + '"><div class="fs-cn-nhead"><p><span class="fs-cn-badge">' + (warn ? 'Check' : 'Note') + '</span> <b>' + esc(GROUP[w.kind](g.length, g[0])) + '</b></p></div>' +
+        return '<li class="fs-cn-group fs-cn-' + (warn ? 'warn' : 'info') + (on ? ' fs-cn-on' : '') + '"><div class="fs-cn-nhead"><p><span class="fs-cn-badge">' + (warn ? 'Check' : 'Note') + '</span> <b>' + esc(GROUP[w.kind](g.length, g[0])) + '</b> ' + evb(g[0].evidence) + (g[0].verify ? ' ' + evb('verify_in_field') : '') + '</p></div>' +
           '<ul class="fs-cn-gitems">' + g.map(function (x) {
             return '<li class="fs-cn-' + x.level + (x.n - 1 === pick ? ' fs-cn-on' : '') + '"><span class="fs-cn-num" aria-hidden="true">' + x.n + '</span><span class="fs-cn-gt"><span class="fs-cn-sr">Note ' + x.n + ': </span>' + esc(placeText(x)) + '</span>' + (x.lon != null ? showBtn(x) : '') + '</li>';
           }).join('') + '</ul>' + (tail ? '<details class="fs-cn-more"><summary>What this means and what to do</summary><p>' + esc(tail) + '</p></details>' : '') + '</li>';
       }
       var p = String(w.text).length <= 240 ? [w.text, ''] : split(w.text), on1 = w.n - 1 === pick;
       return '<li class="fs-cn-' + w.level + (on1 ? ' fs-cn-on' : '') + '"><div class="fs-cn-nhead"><span class="fs-cn-num" aria-hidden="true">' + w.n + '</span>' +
-        '<p><span class="fs-cn-sr">Note ' + w.n + ': </span><span class="fs-cn-badge">' + (w.level === 'warn' ? 'Check' : 'Note') + '</span> ' + esc(p[0]) + '</p></div>' +
+        '<p><span class="fs-cn-sr">Note ' + w.n + ': </span><span class="fs-cn-badge">' + (w.level === 'warn' ? 'Check' : 'Note') + '</span> ' + esc(p[0]) + ' ' + evb(w.evidence) + (w.verify ? ' ' + evb('verify_in_field') : '') + '</p></div>' +
         (w.lon != null || p[1] ? '<div class="fs-cn-nfoot">' + (w.lon != null ? showBtn(w) : '') +
         (p[1] ? '<details class="fs-cn-more"><summary>More</summary><p>' + esc(p[1]) + '</p></details>' : '') + '</div>' : '') + '</li>';
     }).join('') + '</ol>';
@@ -6850,15 +7720,15 @@ window.FS = window.FS || {};
     if (wn && wn.level !== 'unlikely' && lows.length) out.push({ level: 'warn', text: (wn.level === 'likely' ? 'Water is likely standing in ' : 'Puddles are possible in ') + lows.length + ' low spot' + (lows.length > 1 ? 's' : '') + ' (notes ' + lows.map(function (w) { return w.n; }).join(', ') + '). Keep heavy machinery off them.', i: lows[0].n - 1 });
     var rank = { fire: 0, water: 1, weather: 2, air: 3, soil: 4, crop: 5 };
     var warns = list.filter(function (w) { return w.level === 'warn' && !(out.length && w.kind === 'low'); }).sort(function (a, z) { return (rank[a.topic] == null ? 9 : rank[a.topic]) - (rank[z.topic] == null ? 9 : rank[z.topic]) || a.n - z.n; });
-    warns.forEach(function (w) { if (out.length < 3) out.push({ level: 'warn', text: short(w), i: w.lon != null ? w.n - 1 : -1, n: w.n }); });
+    warns.forEach(function (w) { if (out.length < 3) out.push({ level: 'warn', text: short(w), i: w.lon != null ? w.n - 1 : -1, n: w.n, ev: w.evidence }); });
     var urgent = out.length;
-    list.forEach(function (w) { if (out.length < 3 && w.level !== 'warn' && !(urgent && w.kind === 'low' && out[0].i === lows[0].n - 1)) out.push({ level: 'info', text: short(w), i: w.lon != null ? w.n - 1 : -1, n: w.n }); });
+    list.forEach(function (w) { if (out.length < 3 && w.level !== 'warn' && !(urgent && w.kind === 'low' && out[0].i === lows[0].n - 1)) out.push({ level: 'info', text: short(w), i: w.lon != null ? w.n - 1 : -1, n: w.n, ev: w.evidence }); });
     var good = goingWell(d), gh = good.length ? '<div class="fs-cn-good"><h4>Going well</h4><ul>' + good.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></div>' : '';
-    var h = '<section class="fs-cn-today" aria-labelledby="fs-cn-h-today"><h3 id="fs-cn-h-today">' + (urgent ? urgent + ' thing' + (urgent > 1 ? 's' : '') + ' to check today' : 'Nothing urgent on your fields today') + '</h3>';
+    var h = '<section class="fs-cn-today" aria-labelledby="fs-cn-h-today"><h3 id="fs-cn-h-today">' + (urgent ? urgent + ' thing' + (urgent > 1 ? 's' : '') + ' to check today' : 'Nothing urgent on your fields today') + (FS.provenance ? ' ' + FS.provenance.badge('current') : '') + '</h3>';
     if (!out.length) return h + '<p class="fs-cn-lead">No warnings on these fields right now. The simulation below can help you plan next season with confidence.</p>' + gh + '</section>';
     if (!urgent) h += '<p class="fs-cn-lead">Worth knowing:</p>';
     return h + '<ul class="fs-cn-check">' + out.map(function (x) {
-      return '<li class="fs-cn-' + x.level + '"><p>' + (x.n ? '<span class="fs-cn-num" aria-hidden="true">' + x.n + '</span> ' : '') + esc(x.text) + (x.n ? '<span class="fs-cn-sr"> (note ' + x.n + ')</span>' : '') + '</p>' + (x.i >= 0 ? '<button type="button" class="fs-cn-show" data-i="' + x.i + '">Show on map</button>' : '') + '</li>';
+      return '<li class="fs-cn-' + x.level + '"><p>' + (x.n ? '<span class="fs-cn-num" aria-hidden="true">' + x.n + '</span> ' : '') + esc(x.text) + (x.ev ? ' ' + evb(x.ev) : '') + (x.n ? '<span class="fs-cn-sr"> (note ' + x.n + ')</span>' : '') + '</p>' + (x.i >= 0 ? '<button type="button" class="fs-cn-show" data-i="' + x.i + '">Show on map</button>' : '') + '</li>';
     }).join('') + '</ul>' + gh + '</section>';
   }
 
@@ -6884,6 +7754,7 @@ window.FS = window.FS || {};
     layer.innerHTML = h;
     var now = layer.querySelectorAll('details'); detKey(now).forEach(function (k, i) { if (state[k] != null) now[i].open = state[k]; });
     layer.scrollTop = keepScroll;
+    if (st.data) wireSoil();
     var rf = layer.querySelector('#fs-cn-refresh'); if (rf) rf.addEventListener('click', function () { load(true); });
     Array.prototype.forEach.call(layer.querySelectorAll('.fs-cn-show, .fs-cn-pin'), function (b) {
       b.addEventListener('click', function () {
@@ -6909,13 +7780,14 @@ window.FS = window.FS || {};
 
   function body(d, req) {
     var n = d.now || {}, e5 = d.era5Soil, a = d.air || {}, N = d.nasa || {}, wn = d.wetNow;
-    var list = (d.warnings || []).map(function (w, i) { return Object.assign({ n: i + 1 }, w); });
+    var list = (d.warnings || []).filter(function (w) { return !(w.soilKey && hasTest(w.field, w.soilKey)); }).map(function (w, i) { return Object.assign({ n: i + 1 }, w); });
     var SEC = { water: 'water', soil: 'soil', crop: 'crop', fire: 'fire', air: 'fire', weather: 'weather' };
     noteSec = {}; list.forEach(function (w) { noteSec[w.n] = SEC[w.topic || 'soil'] || 'soil'; });
     var by = function (t) { return list.filter(function (w) { return (w.topic || 'soil') === t; }); };
     var plural = function (k, one, many) { return k + ' ' + (k === 1 ? one : many); };
     var h = '';
-    if (req.approximate) h += '<p class="fs-cn-note">These are the example fields, so each is checked as a square of its size around its soil survey point. Import your real field outlines (the box below the simulation) for checks on your exact fields.</p>';
+    if (req.approximate) h += '<p class="fs-cn-note">These are the example fields, so each is checked as a square of its size around its soil survey point. Import your real field outlines (the Import Your Real Field box at the top) for checks on your exact fields.</p>';
+    h += evLegend();
     h += todayList(d, list);
 
     // ---- map
@@ -6932,7 +7804,7 @@ window.FS = window.FS || {};
       g += gauge('Root zone, to about 1 m (NASA MERRA-2)', N.soil.root, 1, N.soil.avgRoot, N.soil.root + ' of 1', N.soil.avgRoot != null ? 'normal = the ' + esc(N.soil.years) + ' average for ' + esc(N.soil.window) : '');
     }
     if (n.soilMoist != null) g += gauge('Topsoil 0 to 7 cm, now (ECMWF)', n.soilMoist, 0.5, null, Math.round(n.soilMoist * 100) + '% water', 'by volume; most soils are saturated near 45 to 50%' + (e5 ? '. ERA5-Land: ' + Math.round(e5.top7 * 100) + '% on ' + esc(e5.time.slice(0, 10)) : ''));
-    h += section('water', 'Water and wet ground', '',
+    h += section('water', 'Water and wet ground', evb('model_estimate') + ' Soil wetness and puddles come from weather and soil models. ' + evb('satellite_indicator') + ' Ponds and wet ground come from a land-cover map; low spots from an elevation model.',
       '<div class="fs-cn-wetnow wet-' + (wn ? wn.level : 'na') + '"><p class="fs-cn-wetbig">' + wetTxt + '</p>' + (wn ? '<p>Because: ' + esc(wn.why.join('; ')) + '.</p>' : '') + '</div>' +
       (g ? '<div class="fs-cn-gauges">' + g + '</div>' : '') + noteList(by('water')) + (by('water').length ? '' : '<p class="fs-cn-lead">No ponds, wetland or large low spots found in or right next to these fields.</p>'),
       (wn ? { likely: 'puddles likely now', possible: 'puddles possible now', unlikely: 'puddles unlikely now' }[wn.level] : 'wetness unknown') + (N.soil && N.soil.avgRoot != null ? ' · soil ' + (N.soil.root - N.soil.avgRoot > 0.08 ? 'wetter than normal' : N.soil.root - N.soil.avgRoot < -0.08 ? 'drier than normal' : 'about normal') : ''), by('water'));
@@ -6943,17 +7815,17 @@ window.FS = window.FS || {};
         var x = d.fields[f.id] || {}, s = x.fertility || {}, t = x.terrain || {}, sa = x.satellite || {};
         return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + num(s.ph, '', 1) + '</td><td>' + num(s.organicCarbonGkg, ' g/kg', 1) + '</td><td>' + num(s.nitrogenGkg, ' g/kg', 2) + '</td><td>' + num(s.cecCmolKg, '', 0) + '</td><td>' + num(t.slopePct, '%', 1) + '</td><td>' + (sa.ground ? sa.ground.bareSoilPct + '% <span class="fs-fm-faint">(' + esc(sa.ground.date.slice(5)) + ')</span>' : '–') + '</td></tr>';
       }).join('') + '</tbody></table></div>';
-    h += section('soil', 'Soil', 'Model estimates for the top 30 cm (ISRIC SoilGrids); a lab soil test is more exact. CEC is how much nutrient the soil can hold.', tbl + noteList(by('soil')),
+    h += section('soil', 'Soil', evb('model_estimate') + ' Model estimates for the top 30 cm (ISRIC SoilGrids); a lab soil test is more exact. CEC is how much nutrient the soil can hold.', tbl + noteList(by('soil')),
       (function () { var ph = req.fields.map(function (f) { var x = d.fields[f.id]; return x && x.fertility && x.fertility.ph; }).filter(function (v) { return v != null; }), lo = Math.min.apply(null, ph), hi = Math.max.apply(null, ph); return (ph.length ? 'pH ' + lo + (hi !== lo ? ' to ' + hi : '') + ' · ' : '') + plural(req.fields.length, 'field', 'fields'); })(), by('soil'));
 
     // ---- crop health
     var weakN = by('crop').filter(function (w) { return w.kind === 'weak'; }).length, his = hs.data ? Object.keys(hs.data.fields).map(function (id) { var f = hs.data.fields[id]; return f.healthIndex != null ? f.healthIndex : f.yieldScore; }).filter(function (v) { return v != null; }) : [];
-    h += section('crop', 'Crop health', '', noteList(by('crop')) + healthHTML(),
+    h += section('crop', 'Crop health', '', noteList(by('crop')) + healthHTML() + soilHealthHTML(d, req),
       (weakN ? plural(weakN, 'weak-growth zone', 'weak-growth zones') : 'no weak-growth zones') + (his.length ? ' · health ' + Math.min.apply(null, his) + (his.length > 1 && Math.max.apply(null, his) !== Math.min.apply(null, his) ? ' to ' + Math.max.apply(null, his) : '') + ' of 100' : hs.busy ? ' · field health loading' : ''), by('crop'));
 
     // ---- fire and air
     var pm = pmLevel(a.pm25), uv = uvLevel(a.uv), fireN = N.fire ? N.fire.detections.length : null;
-    h += section('fire', 'Fire and air', '',
+    h += section('fire', 'Fire and air', evb('satellite_indicator') + ' NASA fire detections. ' + evb('model_estimate') + ' Air from the CAMS model.',
       '<div class="fs-cn-chips">' +
       chip('Fire seen by NASA', fireN == null ? '–' : fireN ? 'Yes, ' + fireN + ' field' + (fireN > 1 ? 's' : '') : 'None', fireN ? 'bad' : fireN === 0 ? 'ok' : 'na', N.fire ? 'last 14 days, to ' + esc(N.fire.to) : 'the check did not answer') +
       chip('Fine dust PM2.5', num(a.pm25, ' µg/m³'), pm[1], esc(pm[0])) +
@@ -6963,7 +7835,7 @@ window.FS = window.FS || {};
       (fireN == null ? 'fire check did not answer' : fireN ? 'fire seen near ' + plural(fireN, 'field', 'fields') : 'no fire seen') + ' · air ' + (a.pm25 == null ? 'unknown' : pm[0]), by('fire').concat(by('air')));
 
     // ---- weather
-    h += section('weather', 'Weather', '',
+    h += section('weather', 'Weather', evb('model_estimate') + ' Weather-model values (ECMWF), not a gauge on your field.',
       '<div class="fs-cn-chips">' + chip('Now', num(n.tempC, ' °C', 1), 'na', 'humidity ' + num(n.rhPct, '%')) + chip('Wind', num(n.windKmh, ' km/h'), n.windKmh >= 16 ? 'bad' : n.windKmh != null ? 'ok' : 'na', 'gusts ' + num(n.gustKmh, ' km/h') + (n.windKmh >= 16 ? ' · too windy to spray' : '')) +
       chip('Rain, past 7 days', num(n.rainPast7Mm, ' mm', 1), 'na', 'next 3 days ' + num(n.rainNext3Mm, ' mm', 1)) + chip('Coldest, next 3 days', num(n.minNext3C, ' °C', 1), n.minNext3C != null && n.minNext3C <= 0 ? 'bad' : 'na', n.minNext3C != null && n.minNext3C <= 0 ? 'frost' : 'no frost') + '</div>' +
       weatherChart(n.daily) + noteList(by('weather')),
@@ -7315,25 +8187,28 @@ window.FS = window.FS || {};
     var anchor = $('fs-app') || $('fs-outlook') || $('fs-foot'); if (!anchor) return;   // at the top, above Weather / Season
     var sec = document.createElement('section'); sec.className = 'fs-panel'; sec.id = 'fs-import'; sec.setAttribute('aria-label', 'Import your real field');
     sec.innerHTML =
-      '<div class="fs-panel-head"><h2 class="fs-panel-title">Import your real field</h2></div>' +
-      '<div class="fs-imp-body">' +
+      '<div class="fs-imp-row">' +
+        '<h2 class="fs-panel-title fs-imp-title">Import Your Real Field</h2>' +
         '<label id="fs-imp-zone" class="fs-imp-zone" data-tip="Import your real field. Accepted: .geojson, .json or .kml">' +
           '<input type="file" id="fs-imp-file" accept=".geojson,.json,.kml,application/geo+json,application/vnd.google-earth.kml+xml" aria-describedby="fs-imp-types">' +
-          '<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>' +
-          '<span class="fs-imp-big">Drop your field boundary file here, or click to choose one</span>' +
+          '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>' +
+          '<span class="fs-imp-big">Drop a field file here, or click to choose</span>' +
           '<span class="fs-imp-tip" role="tooltip">Import your real field<br><b>Accepted:</b> .geojson, .json, .kml</span>' +
         '</label>' +
-        '<div class="fs-imp-info">' +
+        '<p class="fs-imp-try">Or try a sample: <a href="sample-fields.geojson" class="fs-imp-sample" data-name="sample-fields.geojson">Iowa sample</a> · <a href="california-fields.geojson" class="fs-imp-sample" data-name="california-fields.geojson">California sample</a></p>' +
+      '</div>' +
+      '<div class="fs-imp-info">' +
+        '<details class="fs-imp-more"><summary>Which Files Work?</summary>' +
           '<p id="fs-imp-types"><b>Files that work:</b> ' + TYPES_WORDS + '. Other files (shapefiles, KMZ, CSV, images) are not accepted.</p>' +
           '<ul><li>Field outlines (polygons) in longitude and latitude (WGS84), as exported by geojson.io, Google Earth, QGIS, John Deere Operations Center or Climate FieldView.</li>' +
           '<li>Up to 4 fields (the largest 4 if there are more), each 1 to 5000 acres; 5 MB at most.</li>' +
           '<li>Optional: a <code>name</code> for each field and a <code>crop</code> (corn or soybean).</li>' +
-          '<li>Try one in one click: <a href="sample-fields.geojson" class="fs-imp-sample" data-name="sample-fields.geojson">Iowa sample</a> · <a href="california-fields.geojson" class="fs-imp-sample" data-name="california-fields.geojson">California sample</a> (or download them: <a href="sample-fields.geojson" download>Iowa</a>, <a href="california-fields.geojson" download>California</a>)</li></ul>' +
-          '<p id="fs-imp-status" class="fs-imp-status" role="status" hidden></p>' +
-          '<div id="fs-imp-done" class="fs-imp-done" hidden><p id="fs-imp-what"></p>' +
-            '<button type="button" id="fs-imp-reset" class="fs-btn-primary">Reset simulation</button>' +
-            '<span class="fs-fm-faint">Takes the imported fields out and starts the simulation again from the beginning, with every setting back to its start.</span></div>' +
-        '</div>' +
+          '<li>Download the samples to see the format: <a href="sample-fields.geojson" download>Iowa</a>, <a href="california-fields.geojson" download>California</a>.</li></ul>' +
+        '</details>' +
+        '<p id="fs-imp-status" class="fs-imp-status" role="status" hidden></p>' +
+        '<div id="fs-imp-done" class="fs-imp-done" hidden><p id="fs-imp-what"></p>' +
+          '<button type="button" id="fs-imp-reset" class="fs-btn-primary">Reset simulation</button>' +
+          '<span class="fs-fm-faint">Takes the imported fields out and starts the simulation again from the beginning, with every setting back to its start.</span></div>' +
       '</div>';
     anchor.parentNode.insertBefore(sec, anchor);
     var inp = $('fs-imp-file'), zone = $('fs-imp-zone');

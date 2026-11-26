@@ -126,7 +126,7 @@ flowchart LR
 - Under every answer, "How This Answer Was Made" lists which helpers ran, so the farmer can see what was code and what was AI.
 - Per-visitor rate limits on every AI route and a shared total of 600 calls per 10 minutes.
 - With no key, the rule chat, the model and all non-AI features work the same.
-- 251 chat cases pass, including the 35 published in `verify/chat_rules.json`.
+- 264 chat cases pass, including the 35 published in `verify/chat_rules.json`.
 
 ## 7. Frontend And Backend
 
@@ -138,8 +138,8 @@ flowchart LR
 
 | Command (in `simulator-source/`) | What it checks | Result in README |
 |---|---|---|
-| `node --test tests/engine.test.js` | The crop model: water balance, stages, planting, frost, rotation, money | 30 of 30 pass |
-| `node verify/qa2/chat_test.js dist/simulator.test.html out.md` | 251 chat cases and the "How This Answer Was Made" trace | 251 of 251 |
+| `node --test tests/engine.test.js` | The crop model: water balance, stages, planting, frost, rotation, money, insurance, climate scenarios | 38 of 38 pass |
+| `node verify/qa2/chat_test.js dist/simulator.test.html out.md` | 264 chat cases and the "How This Answer Was Made" trace | 264 of 264 |
 | `node verify/qa2/setup_test.js dist/simulator.test.html` | Questionnaire, example farm, saved answers, phone layout | all pass |
 | `node verify/qa2/realmap_test.js` and `livemap_test.js` | The farm map view and the near-real-time warnings map | all pass |
 | `python3 tools/validate.py` | Re-runs the leave-one-year-out yield check (about 2 minutes) | writes `data/validation.json` |
@@ -178,7 +178,7 @@ A live conditions request touches about ten outside services, and any one can ha
 
 ### 10.5 Keeping AI out of the numbers
 
-A chat that can say anything can also say wrong numbers. We split the system so the AI cannot calculate. Gemini returns JSON that must fit a schema, chooses only from a fixed list of settings, and the browser clamps or rejects what it returns. The crop model then computes the result. The prompts also carry the real validation numbers, so the AI states the honest accuracy. Under each answer, a trace shows which helpers ran. Checked by 251 chat cases.
+A chat that can say anything can also say wrong numbers. We split the system so the AI cannot calculate. Gemini returns JSON that must fit a schema, chooses only from a fixed list of settings, and the browser clamps or rejects what it returns. The crop model then computes the result. The prompts also carry the real validation numbers, so the AI states the honest accuracy. Under each answer, a trace shows which helpers ran. Checked by 264 chat cases.
 
 ### 10.6 Leave-one-year-out validation
 
