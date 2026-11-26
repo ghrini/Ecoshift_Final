@@ -3,8 +3,8 @@
 // The guide opens by itself when the farmer finishes the questionnaire, once per visit,
 // and also from the "How To Use This Page" button in the simulator's top bar.
 // It walks through every part of the simulator, one at a time, in plain language (about 20 steps, 3 minutes):
-//  your farm and language, Run, importing your real field outlines (the real-world analysis), the Weather / Crops /
-//  Other boxes, the field picture and Play bar, the three views (Simulation, Farm Map with "Use my own photo",
+//  your farm and language, Run, importing your real field outlines (the Import Field button in the Simulation panel), the Weather /
+//  Crops / Prices & Costs settings bar, the field picture and Play bar, the three views (Simulation, Farm Map with "Use my own photo",
 //  Advanced Near-Real-Time Conditions), the results and season strip, the chat, the Next 30 Days panel, and the
 //  Make A Box Bigger button.
 //
@@ -16,7 +16,9 @@
 //
 // The guide only points at things; it never presses a button or changes the page. Parts that sit behind a tab
 // (the Farm Map and the live conditions) are explained while the tab button itself is highlighted, because opening
-// those views starts slow server work (aerial photos, satellite checks). A step marked "optional" is left out
+// those views starts slow server work (aerial photos, satellite checks). The same goes for Next 30 Days: it stays folded and its
+// title line is highlighted, because opening it fetches the forecast. The settings panels and the import panel are only opened to be
+// shown (a step's open() hook) and are closed again when the step changes. A step marked "optional" is left out
 // when its part is not on the page (for example the language picker when the page is opened as a file).
 // Text is set in English; the simulator's language module (src/i18n.js) translates whatever text appears on the
 // page, so this guide is shown in the farmer's language too.
@@ -50,16 +52,16 @@
     lang: "Choose your language here and the whole page is shown in it, this guide too. You can type your questions in your own language as well.",
     runT: "Run The Simulation",
     run: "After you change any setting, press Run Simulation. A small dot on the button means you have changes that have not run yet. The results then update.",
-    impT: "Import Your Real Field",
-    imp: "Use your real fields instead of the example ones. Drop a file with your field outlines in this box, or press it to choose one. Google Earth files (.kml) work, and so do .geojson and .json files from farm software like John Deere Operations Center or Climate FieldView, geojson.io or QGIS. Any shape works: curved edges, round center pivots, and fields with a pond or yard cut out of the middle. Up to 4 fields and 5 MB.",
+    impT: "Import Your Field",
+    imp: "Use your real fields instead of the example ones. Press Import Field, above the map, and a small panel opens. Drop a file with your field outlines in its box, or press the box to choose one. Google Earth files (.kml) work, and so do .geojson and .json files from farm software like John Deere Operations Center or Climate FieldView, geojson.io or QGIS. Any shape works: curved edges, round center pivots, and fields with a pond or yard cut out of the middle. Up to 4 fields and 5 MB.",
     impDoneT: "What You Get From Your File",
-    impDone: "No file? Press Iowa sample or California sample to try one. After 10 to 40 seconds, the simulation runs on your exact fields. It uses 44 seasons of NASA weather for your spot, the slope and height inside each field, the USDA soil in each field, and your county's harvests. The chat lists what was found. To go back to the example farm, press Reset simulation, which shows up here after an import.",
-    weatherT: "Weather And Season",
-    weather: "Press here to open it. Pick a scenario button, such as Historical Drought, or replay one past season. Press More Options to make every year warmer or cooler, and wetter or drier.",
+    impDone: "No file? Press Iowa sample or California sample to try one. After 10 to 40 seconds, the simulation runs on your exact fields. It uses 44 seasons of NASA weather for your spot, the slope and height inside each field, the USDA soil in each field, and your county's harvests. The chat lists what was found. To go back to the example farm, press Reset Simulation, which shows up in this panel after an import.",
+    weatherT: "Weather",
+    weather: "Press Weather to open its settings. Pick a Quick Picks button, such as Historical Drought, or pick one past season. Press More Options to make every year warmer or cooler, and wetter or drier. Press Weather again to close it. Only one settings panel is open at a time.",
     cropsT: "Crops",
-    crops: "Press here to open it. Choose a field and the plan for next season. Press More Options to set how many acres to try it on, the planting date, and the irrigation if your farm can water its crops.",
-    otherT: "Prices And Other Conditions",
-    other: "Press here to open it. Set the crop price and how the options are ranked. Press More Options for the fertilizer price, how much you have already sold, and cover-crop cost-share. Each box has a Reset button to put it back.",
+    crops: "Press Crops to open it. Choose a field and the plan for next season. Press More Options to set how many acres to try it on, the planting date, and the irrigation if your farm can water its crops.",
+    otherT: "Prices And Costs",
+    other: "Press Prices & Costs to open it. Set the crop price and how the options are ranked. Press More Options for the fertilizer price, how much you have already sold, and cover-crop cost-share. Each panel has a Reset button to put it back.",
     viewT: "Your Fields From Above",
     view: "This picture shows your fields. The colours show what is growing: corn, soybeans, rye, oats or bare ground. Press Fields to see the list, and press a field to pick it. The Add field and minus buttons change how many fields you have, up to four.",
     playT: "Play The Season",
@@ -73,13 +75,13 @@
     warnT: "Warnings And What To Do",
     warn: "In the same view, a map of your fields marks wet spots and puddles, low ground, bare soil, weak growth and burned ground, with numbered warnings and what to do about each. Field health this season shows how each crop is doing in satellite pictures. Press Check again for the newest news. While the view is open, it checks again by itself every 15 minutes.",
     resultsT: "Your Results",
-    results: "The first lines give one answer per field: what to plant, and how it does in its worst season. Below that, how your farm does in a typical season: how much of a normal crop you get and what it earns. Press Show details to read more. Folds below hold Range Details, the Money Breakdown, Crop Insurance and About These Numbers.",
+    results: "The first lines give one answer per field: what to plant, and how it does in its worst year. Below that, how your farm does in a typical year: how much of a normal crop you get and what it earns. Press Show details to read more. Folds below hold About This Range, Costs And Profit, Crop Insurance and Where These Numbers Come From.",
     stripT: "Every Season Since 1982",
     strip: "Each small square is one real season of weather on your farm. Olive means a good season, brown means a bad one, and grey means about normal. Press a square to see that season.",
     chatT: "Ask In Your Own Words",
-    chat: "Type a what-if, for example: What if July is very dry? Then press Send. The answers also compare the options for each field. Open Compare The Other Options, then press More on an option to read about it. Under each answer, How This Answer Was Made shows which helpers worked on it.",
+    chat: "Type a question or a change, for example: What if July is very dry? Then press Send. The answers also compare the options for each field. Open Other Options For a field, then press More on an option to read about it. Under each answer, How This Answer Was Made shows which helpers worked on it.",
     outlookT: "The Next 30 Days",
-    outlook: "This shows the weather forecast for your farm, warnings like frost or heavy rain, and a first guess at next year's harvest, which opens from Next Harvest. When the AI helper is on, a short note says what it means for you. Days 17 to 30 are only a rough guess.",
+    outlook: "This line is folded to keep the page short. Press it to open the weather forecast for your farm, warnings like frost or heavy rain, and a first guess at next year's harvest, which opens from Next Harvest. When the AI helper is on, a short note says what it means for you. Days 17 to 30 are only a rough guess.",
     bigT: "Make A Box Bigger",
     big: "This button makes a box fill the screen, which is easier to read. Press it again to make it small. Most boxes have one. When a box has more to read, a Scroll down for more note shows at its bottom; press it to see the rest.",
     endTitle: "You Are Ready",
@@ -92,11 +94,11 @@
     { t: "farmT", x: "farm", target: "#fs-farm-btn" },
     { t: "langT", x: "lang", target: "#fs-lang-top", optional: true },
     { t: "runT", x: "run", target: "#fs-run" },
-    { t: "impT", x: "imp", target: "#fs-imp-zone", optional: true },
-    { t: "impDoneT", x: "impDone", target: "#fs-import .fs-imp-info", optional: true },
-    { t: "weatherT", x: "weather", target: "#fs-ctl-weather" },
-    { t: "cropsT", x: "crops", target: "#fs-ctl-crops" },
-    { t: "otherT", x: "other", target: "#fs-ctl-other" },
+    { t: "impT", x: "imp", target: "#fs-imp-btn, #fs-import .fs-imp-card", optional: true, open: openImport },
+    { t: "impDoneT", x: "impDone", target: "#fs-imp-btn, #fs-import .fs-imp-card", optional: true, open: openImport },
+    { t: "weatherT", x: "weather", target: "#fs-ctl-weather .fs-ctl-toggle, #fs-ctl-weather .fs-panel-body", open: function () { return openControls("weather"); } },
+    { t: "cropsT", x: "crops", target: "#fs-ctl-crops .fs-ctl-toggle, #fs-ctl-crops .fs-panel-body", open: function () { return openControls("crops"); } },
+    { t: "otherT", x: "other", target: "#fs-ctl-other .fs-ctl-toggle, #fs-ctl-other .fs-panel-body", open: function () { return openControls("other"); } },
     { t: "viewT", x: "view", target: "#fs-view .fv-stage" },
     { t: "playT", x: "play", target: "#fs-view .fv-bar" },
     { t: "tabsT", x: "tabs", target: ".fs-fm-tabs" },
@@ -111,6 +113,24 @@
     { t: "endTitle", x: "endText", target: null }
   ];
   var STEPS = ALL_STEPS;         // the steps for this showing (set in start)
+
+  // A step may open a panel of the simulator so its part is on screen (its open() hook). The hook returns a function that closes the
+  // panel again (or null when the farmer already had it open); that runs when the step changes or the guide ends.
+  function fsCall(mod, fn) {
+    try { var F = window.FS, o = mod ? F && F[mod] : F, a = Array.prototype.slice.call(arguments, 2); if (o && typeof o[fn] === "function") o[fn].apply(o, a); } catch (e) { /* the part is simply not shown */ }
+  }
+  function openImport() {
+    var b = document.getElementById("fs-imp-btn"), was = !!b && b.getAttribute("aria-expanded") === "true";
+    fsCall("fieldImport", "open", true);
+    return was ? null : function () { fsCall("fieldImport", "open", false); };
+  }
+  function openControls(k) {
+    var box = document.getElementById("fs-ctl-" + k), was = !!box && !box.classList.contains("is-collapsed");
+    fsCall("", "controlsOpen", k, true);
+    return was ? null : function () { fsCall("", "controlsOpen", k, false); };
+  }
+  var closer = null;
+  function closeOpened() { var c = closer; closer = null; if (c) c(); }
 
   var index = -1;                // -1 = intro, 0.. = steps
   var open = false;
@@ -288,6 +308,8 @@
     index = Math.max(-1, Math.min(STEPS.length - 1, i));
     var intro = index === -1, last = index === STEPS.length - 1;
     var s = STEPS[index];
+    closeOpened();
+    if (s && s.open) closer = s.open();
 
     els.panel.classList.toggle("fsg-center", intro || last);
     els.count.textContent = intro ? "" : L.stepOf.replace("{n}", index + 1).replace("{total}", STEPS.length);
@@ -329,6 +351,7 @@
   function finish() {
     if (!open) return;
     open = false;
+    closeOpened();
     clearInterval(timer);
     window.removeEventListener("scroll", place);
     window.removeEventListener("resize", place);

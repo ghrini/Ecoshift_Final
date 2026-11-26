@@ -12,8 +12,8 @@
     FS.store.on('controls:change', refresh); FS.store.on('sim:done', refresh); refresh();
   }
 
-  // Expand one of Simulation / Sim analysis / Chat to fill the viewport. Only one at a time; Esc collapses.
-  var panelOf = { 'Simulation': 'fs-view-panel', 'Sim analysis': 'fs-analysis', 'Chat': 'fs-chat' };
+  // Expand one of Simulation / Results / Chat to fill the viewport. Only one at a time; Esc collapses.
+  var panelOf = { 'Simulation': 'fs-view-panel', 'Results': 'fs-analysis', 'Chat': 'fs-chat' };
   function setExpanded(title) {
     Object.keys(panelOf).forEach(function (t) {
       var p = $(panelOf[t]); if (!p) return;
@@ -199,6 +199,7 @@
     guard('run', function () { FS.actions.runSimulation('setup', 'Typical season · current plans'); });
     guard('recs', function () { FS.chat.postRecs(); });
     guard('outlook', function () { if (FS.outlook) FS.outlook.refresh(); });
+    guard('import panel', function () { if (FS.fieldImport && FS.fieldImport.show) FS.fieldImport.show(); });
     guard('farm map', function () { if (FS.farmMap) FS.farmMap.refresh(); });
     guard('conditions', function () { if (FS.conditions) FS.conditions.refresh(); });
     return { ok: true };

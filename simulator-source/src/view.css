@@ -120,4 +120,4 @@
 #fs-view.fv-noteside .fv-mapnote { left: auto; right: 10px; text-align: right; }
 /* phones: the closed field list is only as wide as its button, so it does not run under the weather pill */
 @media (max-width: 560px) { #fs-view .fv-legend.fv-collapsed { width: auto; } }
-@media (max-width: 440px) { #fs-view-panel .fs-panel-title { font-size: 20px; overflow-wrap: normal; } }
+@media (max-width: 440px) { #fs-view-panel .fs-panel-title { font-size: 17px; overflow-wrap: normal; } }

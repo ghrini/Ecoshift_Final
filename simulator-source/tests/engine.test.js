@@ -773,6 +773,6 @@ test('37. the presets (as listed in scenarios.js) change the weather as describe
   assert.ok(dr && !dr.assumed && dr.avg && dr.scen.n === 2 && dr.scen.typPct < dr.base.typPct, 'the two droughts are below the record');
   assert.equal(FS.scenarios.compare(c(byId('baseline').weather)), null, 'nothing to compare at the baseline');
   assert.match(FS.scenarios.compareHtml(r1), /Compare With History/);
-  assert.match(FS.scenarios.runBanner(r1), /Assumed scenario[\s\S]*not a prediction/);
-  assert.match(FS.scenarios.runBanner(r0), /Observed history/);
+  assert.match(FS.scenarios.runBanner(r1), /What-if weather[\s\S]*not a prediction/);
+  assert.match(FS.scenarios.runBanner(r0), /Real past weather/);
 });

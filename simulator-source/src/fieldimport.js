@@ -241,7 +241,7 @@
     show();
   }
 
-  // ---------------------------------------------------------------- the "Import your real field" section (below the simulation)
+  // ---------------------------------------------------------------- the Import Field button and its small panel (in the Simulation panel)
   var TYPES = ['.geojson', '.json', '.kml'];
   var TYPES_WORDS = 'GeoJSON (.geojson or .json) or KML (.kml, as saved by Google Earth)';
   function extOf(name) { var m = /\.[^.]+$/.exec(String(name || '').toLowerCase()); return m ? m[0] : ''; }
@@ -282,36 +282,52 @@
   function status(kind, text) {
     var el = $('fs-imp-status'); if (!el) return;
     el.className = 'fs-imp-status' + (kind ? ' fs-imp-' + kind : ''); el.textContent = text || ''; el.hidden = !text;
+    if (text) setOpen(true);   // a message (progress, error, done) is always shown, never hidden behind a closed panel
   }
   function setBusy(on) {
     var z = $('fs-imp-zone'); if (z) z.classList.toggle('fs-imp-busy', on);
     var i = $('fs-imp-file'); if (i) i.disabled = on;
-    if (on) status('wait', 'Reading your fields and getting 44 seasons of NASA POWER weather and the elevation model… this takes 10 to 40 seconds.');
+    var b = $('fs-imp-btn'); if (b) b.classList.toggle('is-busy', on);
+    if (on) status('wait', 'Reading your fields and getting 44 seasons of weather and the elevation of your land. This takes 10 to 40 seconds.');
   }
   function show() {
     var cur = FS.farmSetup && FS.farmSetup.setup, g = cur && !cur.example && cur.geo, done = $('fs-imp-done');
     if (!done) return;
     done.hidden = !g;
+    var b = $('fs-imp-btn'); if (b) b.classList.toggle('is-on', !!g);
     if (g) {
       $('fs-imp-what').textContent = 'Simulating your ' + g.fields.length + ' imported field' + (g.fields.length === 1 ? '' : 's') + (g.file ? ' from ' + g.file : '') + ': ' +
         g.fields.map(function (f) { return f.name + ' (' + Math.round(f.acres) + ' ac)'; }).join(', ') + '.';
       var st = $('fs-imp-status'); if (st && /wait/.test(st.className)) status('', '');
+      setOpen(true);   // imported fields are active: keep Reset Simulation easy to find
     }
+  }
+  // the small panel under the Simulation head: open on the Import Field button, held open while an import runs
+  function setOpen(on) {
+    var sec = $('fs-import'), btn = $('fs-imp-btn'); if (!sec || !btn) return;
+    if (!on && busy) on = true;
+    sec.hidden = !on; btn.setAttribute('aria-expanded', on ? 'true' : 'false');
   }
   function mount() {
     if ($('fs-import')) return;
-    var anchor = $('fs-app') || $('fs-outlook') || $('fs-foot'); if (!anchor) return;   // at the top, above Weather / Season
-    var sec = document.createElement('section'); sec.className = 'fs-panel'; sec.id = 'fs-import'; sec.setAttribute('aria-label', 'Import your real field');
+    var panel = $('fs-view-panel'), right = panel && panel.querySelector('.fs-head-right'), head = panel && panel.querySelector('.fs-panel-head');
+    if (!panel || !right || !head) return;
+    // the button sits in the Simulation head, after the Simulation / Farm Map / Conditions tabs
+    var btn = document.createElement('button'); btn.type = 'button'; btn.id = 'fs-imp-btn'; btn.className = 'fs-imp-btn';
+    btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', 'fs-import');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg><span>Import Field</span>';
+    var ex = right.querySelector('.fs-expand'); right.insertBefore(btn, ex || null);
+    var sec = document.createElement('section'); sec.id = 'fs-import'; sec.className = 'fs-imp-panel'; sec.setAttribute('aria-label', 'Import your field'); sec.hidden = true;
     sec.innerHTML =
+      '<div class="fs-imp-card">' +
       '<div class="fs-imp-row">' +
-        '<h2 class="fs-panel-title fs-imp-title">Import Your Real Field</h2>' +
         '<label id="fs-imp-zone" class="fs-imp-zone" data-tip="Import your real field. Accepted: .geojson, .json or .kml">' +
           '<input type="file" id="fs-imp-file" accept=".geojson,.json,.kml,application/geo+json,application/vnd.google-earth.kml+xml" aria-describedby="fs-imp-types">' +
           '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>' +
           '<span class="fs-imp-big">Drop a field file here, or click to choose</span>' +
           '<span class="fs-imp-tip" role="tooltip">Import your real field<br><b>Accepted:</b> .geojson, .json, .kml</span>' +
         '</label>' +
-        '<p class="fs-imp-try">Or try a sample: <a href="sample-fields.geojson" class="fs-imp-sample" data-name="sample-fields.geojson">Iowa sample</a> · <a href="california-fields.geojson" class="fs-imp-sample" data-name="california-fields.geojson">California sample</a></p>' +
+        '<p class="fs-imp-try">No file? Try a sample: <a href="sample-fields.geojson" class="fs-imp-sample" data-name="sample-fields.geojson">Iowa sample</a> · <a href="california-fields.geojson" class="fs-imp-sample" data-name="california-fields.geojson">California sample</a></p>' +
       '</div>' +
       '<div class="fs-imp-info">' +
         '<details class="fs-imp-more"><summary>Which Files Work?</summary>' +
@@ -323,15 +339,29 @@
         '</details>' +
         '<p id="fs-imp-status" class="fs-imp-status" role="status" hidden></p>' +
         '<div id="fs-imp-done" class="fs-imp-done" hidden><p id="fs-imp-what"></p>' +
-          '<button type="button" id="fs-imp-reset" class="fs-btn-primary">Reset simulation</button>' +
-          '<span class="fs-fm-faint">Takes the imported fields out and starts the simulation again from the beginning, with every setting back to its start.</span></div>' +
-      '</div>';
-    anchor.parentNode.insertBefore(sec, anchor);
+          '<button type="button" id="fs-imp-reset" class="fs-btn-primary">Reset Simulation</button>' +
+          '<span class="fs-fm-faint">Removes your fields and starts again with every setting back to its start.</span></div>' +
+      '</div></div>';
+    head.parentNode.insertBefore(sec, head.nextSibling);   // right under the head; it floats over the view, so the map keeps its size
+    btn.addEventListener('click', function () { setOpen(sec.hidden); });
+    document.addEventListener('keydown', function (e) {   // Escape closes the panel when focus is in it or on its button
+      if (e.key !== 'Escape' || busy || sec.hidden || !(sec.contains(document.activeElement) || document.activeElement === btn)) return;
+      setOpen(false); btn.focus();
+    });
     var inp = $('fs-imp-file'), zone = $('fs-imp-zone');
     inp.addEventListener('change', function () { var f = inp.files && inp.files[0]; inp.value = ''; if (f) readFile(f); });
     ['dragenter', 'dragover'].forEach(function (ev) { zone.addEventListener(ev, function (e) { e.preventDefault(); zone.classList.add('fs-imp-over'); }); });
     ['dragleave', 'drop'].forEach(function (ev) { zone.addEventListener(ev, function () { zone.classList.remove('fs-imp-over'); }); });
     zone.addEventListener('drop', function (e) { e.preventDefault(); if (busy) return; var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (f) readFile(f); });
+    // a file dropped anywhere on the Simulation panel opens the import panel and imports it
+    function hasFiles(e) { return !!(e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') >= 0); }
+    panel.addEventListener('dragover', function (e) { if (hasFiles(e)) e.preventDefault(); });
+    panel.addEventListener('dragenter', function (e) { if (hasFiles(e)) { e.preventDefault(); setOpen(true); } });
+    panel.addEventListener('drop', function (e) {
+      if (e.defaultPrevented || !hasFiles(e)) return;
+      e.preventDefault(); if (busy) return; setOpen(true);
+      var f = e.dataTransfer.files && e.dataTransfer.files[0]; if (f) readFile(f);
+    });
     $('fs-imp-reset').addEventListener('click', reset);
     // the sample links import the sample straight away (their own download links sit next to them)
     Array.prototype.forEach.call(sec.querySelectorAll('.fs-imp-sample'), function (a) {
@@ -349,10 +379,10 @@
   function reset() {
     remove();
     try { FS.fieldView.pause(); FS.fieldView.setWeek(0); } catch (e) { /* the view may not be ready */ }
-    status('ok', 'Reset: the imported fields are out and every setting is back to its start.');
+    status('ok', 'Reset. Your fields are out and every setting is back to its start.');
     var top = $('fs-app'); if (top && top.scrollIntoView) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(mount, 0); }); else setTimeout(mount, 0);
 
-  FS.fieldImport = { importText: importText, parse: parse, remove: remove, reset: reset, kmlToGeoJSON: kmlToGeoJSON };
+  FS.fieldImport = { open: setOpen, show: show, importText: importText, parse: parse, remove: remove, reset: reset, kmlToGeoJSON: kmlToGeoJSON };
 })();

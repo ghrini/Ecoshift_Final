@@ -5,6 +5,7 @@
   'use strict';
   var FS = window.FS = window.FS || {};
   var DAY = 864e5, N_DAYS = 365;
+  var opened = false;   // the forecast is only fetched once the panel is opened
   var el = null, data = null, dataKey = '', err = null, loading = false, seq = 0, model = null, note = null, noteErr = null, warnList = [];
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -255,7 +256,7 @@
   function render() {
     if (!el) return;
     var body = el.querySelector('.fs-panel-body'), w = where();
-    var place = '<p class="fs-ol-where">' + (w.own ? (/^your\b/i.test(w.label || '') ? 'For ' + esc(w.label.charAt(0).toLowerCase() + w.label.slice(1)) : 'For your farm near ' + esc(w.label)) : 'For ' + esc(w.label) + ' (county point; add your address under “Your farm · Change” for your own spot)') +
+    var place = '<p class="fs-ol-where">' + (w.own ? (/^your\b/i.test(w.label || '') ? 'For ' + esc(w.label.charAt(0).toLowerCase() + w.label.slice(1)) : 'For your farm near ' + esc(w.label)) : 'For ' + esc(w.label) + ' (the county’s point; add your address under “Your farm · Change” for your own spot)') +
       (data ? ' · ' + esc(fmt(data.today, { weekday: 'long', month: 'long', day: 'numeric' })) : '') + '</p>';
     if (!apiBase()) { body.innerHTML = place + '<p class="fs-ol-faint">Open this page through the EcoShift server for the live forecast (run <code>npm start</code>, then open http://localhost:8787).</p>'; return; }
     if (err) { body.innerHTML = place + '<p class="fs-ol-err">' + esc(err) + '</p><button type="button" class="fs-ol-retry">Try again</button>'; body.querySelector('.fs-ol-retry').onclick = function () { dataKey = ''; refresh(); }; return; }
@@ -267,7 +268,7 @@
 
   // ---------------------------------------------------------------- public
   function refresh() {
-    if (!el) return;
+    if (!el || !opened) return;
     var w = where(), key = w.lat.toFixed(3) + ',' + w.lon.toFixed(3), base = apiBase();
     seq++; note = null; noteErr = null;
     if (!base || !isFinite(w.lat) || !isFinite(w.lon)) { data = null; render(); return; }
@@ -289,9 +290,19 @@
   }
   function mount(node) {
     el = node; if (!el) return;
-    el.innerHTML = '<div class="fs-panel-head"><h2 class="fs-panel-title">Next 30 Days</h2></div><div class="fs-panel-body" aria-live="polite"></div>';
-    refresh();
+    el.innerHTML = '<div class="fs-panel-head"><h2 class="fs-panel-title"><button type="button" class="fs-ctl-toggle fs-ol-toggle" id="fs-ol-toggle" aria-expanded="false" aria-controls="fs-ol-body">' +
+      '<span class="fs-ol-ttl">Next 30 Days</span><svg class="fs-chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' +
+      '<span class="fs-ol-hint">(weather forecast for your farm)</span></button></h2></div><div class="fs-panel-body" id="fs-ol-body" aria-live="polite" hidden></div>';
+    el.classList.add('is-collapsed');
+    var btn = el.querySelector('#fs-ol-toggle'), body = el.querySelector('#fs-ol-body');
+    btn.addEventListener('click', function () {
+      opened = body.hidden;   // hidden now means this press opens it
+      body.hidden = !opened; el.classList.toggle('is-collapsed', !opened); btn.setAttribute('aria-expanded', opened ? 'true' : 'false');
+      if (opened) refresh();
+    });
   }
+  // open or close it from code (the guide opens it to show what is inside)
+  function setOpen(on) { var b = el && el.querySelector('#fs-ol-toggle'); if (b && (b.getAttribute('aria-expanded') === 'true') !== !!on) b.click(); }
 
-  FS.outlook = { mount: mount, refresh: refresh, _warnings: warnings, _dayIndex: dayIndex };
+  FS.outlook = { mount: mount, refresh: refresh, open: setOpen, _warnings: warnings, _dayIndex: dayIndex };
 })();

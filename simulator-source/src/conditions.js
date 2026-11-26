@@ -524,7 +524,7 @@
     var by = function (t) { return list.filter(function (w) { return (w.topic || 'soil') === t; }); };
     var plural = function (k, one, many) { return k + ' ' + (k === 1 ? one : many); };
     var h = '';
-    if (req.approximate) h += '<p class="fs-cn-note">These are the example fields, so each is checked as a square of its size around its soil survey point. Import your real field outlines (the Import Your Real Field box at the top) for checks on your exact fields.</p>';
+    if (req.approximate) h += '<p class="fs-cn-note">These are the example fields, so each is checked as a square of its size around its soil survey point. Import your real field outlines (press Import Field in the Simulation panel) for checks on your exact fields.</p>';
     h += evLegend();
     h += todayList(d, list);
 

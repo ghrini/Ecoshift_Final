@@ -32,7 +32,7 @@
   // ---- the one compact line
   function lineText(f, it) {
     var p = it.pct, t = 'Range: worst ' + pc(p.worst) + ' · typical ' + pc(p.median) + ' · best ' + pc(p.best);
-    if (!it.moneyHidden && moneyOk()) t += ' · net ' + usd(it.net.mean) + '/acre';
+    if (!it.moneyHidden && moneyOk()) t += ' · profit ' + usd(it.net.mean) + '/acre';
     return t;
   }
   function cardLine(fieldId, plan, controls) {
@@ -46,7 +46,7 @@
     var b = it.breakdown, rows = [
       ['Gross revenue', usd(b.revenue)], ['Seed', usd(b.seed)], ['Fertilizer', usd(b.fertilizer)], ['Fuel and machinery', usd(b.machinery)], ['Irrigation and water', usd(b.irrigation)],
       ['Cover crop establishment', usd(b.cover)], ['Labor', usd(b.labor)], ['Chemicals, interest, other', usd(b.other)], ['Land rent', usd(b.landRent)], ['Cost-share', usd(b.costShare)]];
-    return '<details class="fs-fin-d"><summary>Money Breakdown</summary><ul class="fs-detail-list">' +
+    return '<details class="fs-fin-d"><summary>Costs And Profit</summary><ul class="fs-detail-list">' +
       rows.map(function (r) { return '<li>' + r[0] + ': ' + r[1] + ' per acre</li>'; }).join('') +
       '<li><strong>Net return:</strong> ' + usd(it.net.mean) + ' per acre on average; worst season ' + usd(it.net.worst) + ' (' + it.net.worstYear + '); a loss in ' + it.net.lossSeasons + ' of ' + f.nSeasons + ' seasons.</li></ul></details>';
   }
@@ -151,10 +151,10 @@
     var pts = it.crop === 'soybean' ? f.err.soybean : f.err.corn;
     var rangeNote = '<p class="fs-fin-note">Typical model error for one season: about ' + Math.round(pts.points) + ' points of a normal crop' + (!it.moneyHidden && moneyOk() ? ' (about ' + usd(pts.dollars) + ' an acre)' : '') + '. Worst season ' + it.pct.worstYear + ', best ' + it.pct.bestYear + '.' + (!it.moneyHidden && moneyOk() ? ' Net return range: worst ' + usd(it.net.worst) + ', typical ' + usd(it.net.median) + ', best ' + usd(it.net.best) + ' an acre; a loss in ' + it.net.lossSeasons + ' of ' + f.nSeasons + ' seasons.' : '') + '</p>';
     function det(id, title, body) { return '<details class="fs-fin-d" data-fin="' + id + '"' + (openMap[id] ? ' open' : '') + '><summary>' + title + '</summary><div class="fs-fin-body">' + body + '</div></details>'; }
-    h += det('range', 'Range Details', rangeNote);
+    h += det('range', 'About This Range', rangeNote);
     if (!moneyOk()) h += '<p class="fs-fin-note">Dollar figures are not shown outside Iowa, because the costs are Iowa State budgets.</p>';
-    else if (f.items.some(function (x) { return !x.moneyHidden; })) { h += det('money', 'Money Breakdown', breakdownHtml(f)); h += det('ins', 'Crop Insurance', insuranceHtml(f)); }
-    h += det('about', 'About These Numbers', aboutHtml(f)) + '</div>';
+    else if (f.items.some(function (x) { return !x.moneyHidden; })) { h += det('money', 'Costs And Profit', breakdownHtml(f)); h += det('ins', 'Crop Insurance', insuranceHtml(f)); }
+    h += det('about', 'Where These Numbers Come From', aboutHtml(f)) + '</div>';
     return h;
   }
 

@@ -1001,3 +1001,115 @@ details.fs-fold > .fs-recs { margin: 4px 0 0; padding: 0 12px 12px 36px; }
 @media (min-width: 1001px) { #fs-right { grid-template-rows: minmax(0, 1.32fr) minmax(0, 1fr); } }
 #fs-analysis .fs-verdicts, #fs-analysis .fs-verdicts * { font-size: calc(var(--fs-inner) - 2px); }
 @media (max-width: 1000px) { #fs-chat:not(.fs-expanded) { height: auto; min-height: 360px; max-height: min(620px, 80dvh); } }
+
+/* ===== Calm type: smaller, quieter lettering across the simulation page (farmers found the large text intimidating) ===== */
+:root { --fs-inner: 15px; }
+.fs-panel-head, .fs-ctl-row .fs-panel .fs-panel-head { height: 48px; min-height: 48px; padding: 0 12px 0 16px; }
+.fs-panel-title, .fs-ctl-row .fs-panel-title { font: 650 17px/1.2 var(--font-sans); letter-spacing: 0; }
+.fs-adjust-title { font: 600 16px/1.2 var(--font-sans); }
+.fs-steps-line { font-size: 13px; }
+.fs-farm-btn { font: 500 14px/1.3 var(--font-sans); }
+#fs-run, #fs-header #fs-run, #fs-header .fs-btn-primary { font-size: 14px; padding: 8px 14px; min-height: 0; height: auto; }
+#fs-analysis .fs-panel-body *, #fs-chat .fs-panel-body * { line-height: 1.5; }
+#fs-analysis .fs-verdicts, #fs-analysis .fs-verdicts * { font-size: 14px; line-height: 1.45; }
+#fs-chat-input { min-height: 42px; }
+#fs-chat-send { font-size: 14px; height: 42px; }
+.fs-more > summary { font-size: 14px; }
+#fs-import .fs-imp-title { font-size: 16px; }
+#fs-import .fs-imp-big { font-size: 14px; font-weight: 500; }
+#fs-import .fs-imp-try { font-size: 13px; }
+#fs-outlook .fs-panel-body { font-size: 15px; }
+.fs-ol-h { font-size: 15px; }
+.fs-cn { font-size: 15px; }
+.fs-cn h3 { font-size: 16px; }
+.fs-big { font-size: 22px; }
+@media (min-width: 1001px) {
+  .fs-panel-head { height: 48px; }
+  .fs-panel-title { font-size: 17px; }
+}
+@media (max-width: 700px) {
+  :root { --fs-inner: 15px; }
+  #fs-view-panel .fs-panel-title, #fs-view-panel .fs-panel-head .fs-panel-title { font-size: 17px; }
+  .fs-ctl-row .fs-panel .fs-panel-head { height: 44px; min-height: 44px; }
+  #fs-view-panel .fs-fm-tabs button { font-size: 12px; padding: 6px 4px; }
+  .fs-steps-line { font-size: 12px; }
+}
+/* quieter small print */
+#fs-analysis .fs-panel-body .fs-strip-cap, #fs-analysis .fs-panel-body .fs-strip-cap *, #fs-analysis .fs-panel-body .fs-rbar-cap, #fs-analysis .fs-panel-body .fs-rbar-cap * { font-size: 13px; color: var(--text-faint); }
+#fs-foot { font-size: 12px; }
+
+/* ===== Declutter: one settings bar, Import Field in the Simulation head, one Run button, a folded Next 30 Days ===== */
+/* 1. Settings bar: Weather / Crops / Prices & Costs are three buttons in one slim bar. The open panel shows underneath, one at a time.
+      The three sections stay in the page (display: contents) so every id and control keeps working. */
+.fs-ctl-row { position: relative; z-index: 20; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; height: auto; align-items: stretch;
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.fs-ctl-row > .fs-panel { display: contents; }
+.fs-ctl-row .fs-panel .fs-panel-head { grid-row: 1; height: 42px; min-height: 42px; padding: 0; border: 0; border-left: 1px solid var(--divider); background: transparent; border-radius: 0; }
+.fs-ctl-row > .fs-panel.is-collapsed .fs-panel-head, .fs-ctl-row > .fs-panel:not(.is-collapsed) .fs-panel-head { border-radius: 0; }
+.fs-ctl-row > .fs-panel:first-child .fs-panel-head { border-left: 0; }
+.fs-ctl-row .fs-panel .fs-panel-title { flex: 1; margin: 0; height: 100%; display: flex; font-size: 15px; font-weight: 600; }
+.fs-ctl-row .fs-ctl-toggle { width: 100%; height: 100%; justify-content: center; gap: 8px; padding: 0 10px; border-radius: 0; font: 600 15px/1.2 var(--font-sans); color: var(--text); }
+.fs-ctl-row > .fs-panel:first-child .fs-ctl-toggle { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+.fs-ctl-row > .fs-panel:last-of-type .fs-ctl-toggle { border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+.fs-ctl-row .fs-ctl-toggle:hover { background: var(--panel-2); }
+.fs-ctl-row .fs-ctl-toggle:focus-visible { outline-offset: -3px; }
+.fs-ctl-row .fs-ctl-toggle[aria-expanded="true"] { background: var(--umber-glow); color: var(--on-bg-accent); box-shadow: inset 0 -2px 0 var(--umber); }
+.fs-ctl-row .fs-ctl-toggle .fs-ctl-t { overflow: visible; text-overflow: clip; }
+.fs-ctl-n { font-weight: 500; font-size: 13px; color: var(--on-bg-accent); white-space: nowrap; }
+.fs-ctl-n[hidden] { display: none; }
+.fs-ctl-row .fs-panel.is-collapsed .fs-panel-body { display: none; }
+/* the open panel: the shared area under the bar */
+.fs-ctl-row .fs-panel:not(.is-collapsed) .fs-panel-body { grid-column: 1 / -1; grid-row: 2; border-top: 1px solid var(--divider); padding: 14px 16px 16px; overflow: visible; max-height: none;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px 24px; align-items: start; }
+.fs-ctl-row .fs-panel-body > .fs-body-tools, .fs-ctl-row .fs-panel-body > .fs-scn, .fs-ctl-row .fs-panel-body > .fs-chips, .fs-ctl-row .fs-panel-body > .fs-more { grid-column: 1 / -1; }
+.fs-ctl-row .fs-body-tools { margin-bottom: -8px; }
+.fs-ctl-row .fs-more-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px 24px; align-items: start; }
+@media (min-width: 1001px) {
+  .fs-ctl-row .fs-panel:not(.is-collapsed) .fs-panel-body { position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 30; background: var(--panel);
+    border: 1px solid var(--border-strong); border-radius: var(--radius-md); box-shadow: var(--shadow-modal); max-height: calc(100dvh - var(--header-h) - 150px); overflow-y: auto; scrollbar-width: thin; }
+}
+@media (max-width: 1000px) { .fs-ctl-row .fs-panel:not(.is-collapsed) .fs-panel-body { position: static; } }
+@media (max-width: 520px) {
+  .fs-ctl-row .fs-ctl-toggle { padding: 0 6px; gap: 4px; font-size: 14px; }
+  .fs-ctl-row .fs-ctl-toggle .fs-chev { display: none; }
+  .fs-ctl-row .fs-panel:not(.is-collapsed) .fs-panel-body { grid-template-columns: minmax(0, 1fr); padding: 12px 14px 14px; }
+  .fs-ctl-row .fs-more-body { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* 2. Import Field: a small button in the Simulation head; its panel floats under the head so the map keeps its size */
+.fs-imp-btn { display: inline-flex; align-items: center; gap: 6px; flex: none; padding: 6px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--panel-2); color: var(--text);
+  font: 600 14px/1.2 var(--font-sans); cursor: pointer; white-space: nowrap; }
+.fs-imp-btn:hover { background: var(--panel-3); }
+.fs-imp-btn:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+.fs-imp-btn[aria-expanded="true"] { border-color: var(--umber); background: var(--umber-glow); color: var(--on-bg-accent); }
+.fs-imp-btn.is-on::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent-strong); }
+.fs-imp-btn.is-busy { cursor: progress; }
+#fs-import { position: relative; z-index: 25; flex: none; height: 0; margin: 0; padding: 0; border: 0; background: none; }
+#fs-import[hidden] { display: none; }
+#fs-import .fs-imp-card { position: absolute; top: 0; left: 0; right: 0; max-height: min(78vh, 460px); overflow-y: auto; padding: 14px 16px 16px; background: var(--panel);
+  border-bottom: 1px solid var(--border-strong); border-radius: 0 0 var(--radius-md) var(--radius-md); box-shadow: var(--shadow-modal); }
+#fs-import .fs-imp-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+#fs-import .fs-imp-zone { flex: 1 1 260px; }
+#fs-import .fs-imp-try { flex: 0 1 auto; }
+#fs-import .fs-imp-tip { display: none; }
+#fs-import .fs-imp-info { margin-top: 8px; }
+@media (max-width: 700px) { .fs-imp-btn { order: 2; padding: 6px 10px; } #fs-view-panel .fs-head-right { gap: 8px; } }
+
+/* 3. One Run button: Run Simulation at the top. The play bar's small Run stays in the page, hidden. */
+#fs-view .fv-run[hidden] { display: none; }
+#fs-view .fv-bar { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+
+/* 4. Next 30 Days starts as one line and opens on click */
+#fs-outlook .fs-panel-head { padding: 0; height: auto; min-height: 48px; }
+#fs-outlook .fs-panel-title { flex: 1; display: block; margin: 0; }
+#fs-outlook .fs-ol-toggle { display: flex; width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 16px; gap: 10px; justify-content: flex-start; font: 650 17px/1.2 var(--font-sans); color: var(--text); border-radius: var(--radius-lg); }
+#fs-outlook .fs-ol-toggle:hover { background: var(--panel-2); }
+#fs-outlook .fs-ol-toggle .fs-chev { order: 2; }
+#fs-outlook .fs-ol-hint { order: 3; font: 400 14px/1.3 var(--font-sans); color: var(--text-muted); white-space: normal; text-align: left; }
+#fs-outlook .fs-ol-toggle span { overflow: visible; text-overflow: clip; }
+#fs-outlook .fs-ol-toggle { text-align: left; }
+#fs-outlook .fs-ol-ttl { white-space: nowrap; flex: none; }
+#fs-outlook .fs-ol-hint { flex: 1 1 auto; min-width: 0; }
+@media (max-width: 700px) { #fs-outlook .fs-ol-toggle { flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; } #fs-outlook .fs-ol-hint { flex-basis: 100%; order: 4; } #fs-outlook .fs-ol-toggle .fs-chev { margin-left: auto; } }
+#fs-outlook.is-collapsed .fs-panel-head { border-bottom: 0; }
+#fs-outlook.is-collapsed .fs-panel-body { display: none; }

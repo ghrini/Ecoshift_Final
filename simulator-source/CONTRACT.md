@@ -8,7 +8,7 @@ This is the shared contract for the simulator page. Two developers work in paral
 +-------------------------------------------------------------------------------------------+
 | header: app name · location ("Story County, Iowa · 4 fields") · Sample data badge · Run     |
 +--------------------+--------------------+--------------------+-----------------------------+
-| Weather / season   | Crops              | Other conditions   | Sim analysis                |
+| Weather / season   | Crops              | Other conditions   | Results                     |
 | dropdown + sliders | field + plan +     | price, nitrogen,   | what happened in the last   |
 |                    | trial acres slider | contracted, toggle | run, per field, why         |
 +--------------------+--------------------+--------------------+                             |
@@ -38,7 +38,7 @@ CSS order: `tokens.css` (exists) → `app.css` (developer A) → `view.css` (dev
 - `#fs-header` header bar
 - `#fs-ctl-weather`, `#fs-ctl-crops`, `#fs-ctl-other` the three control boxes
 - `#fs-view` the bird's-eye view box (developer B owns everything inside it, including the legend overlay and playback bar)
-- `#fs-analysis` the Sim analysis box
+- `#fs-analysis` the Results box
 - `#fs-chat` the chat box
 Developer A must not style anything inside `#fs-view`. Developer B's CSS selectors must all be scoped under `#fs-view` or start with `.fv-`.
 

@@ -292,7 +292,7 @@ window.FS = window.FS || {};
           '<input type="range" id="fs-week" class="fv-range" min="0" max="52" step="1" value="0" aria-label="Week of the season">' +
           '<output class="fv-date" for="fs-week">Nov 16, 2026</output>' +
           '<button type="button" id="fs-view-speed" class="fv-btn fv-speed" aria-label="Playback speed 1x. Press to change">1x</button>' +
-          '<button type="button" id="fs-view-run" class="fv-btn fv-run">Run</button>' +
+          '<button type="button" id="fs-view-run" class="fv-btn fv-run" hidden>Run</button>' +
         '</div>' +
       '</div>';
     var $ = function (s) { return el.querySelector(s); };

@@ -1,5 +1,5 @@
-/* The three control boxes. Every change goes through FS.actions.setControl; the boxes re-render from 'controls:change'
-   so changes made by the chat show up here too. */
+/* The three settings panels (Weather, Crops, Prices & Costs), opened one at a time from one slim bar of three buttons.
+   Every change goes through FS.actions.setControl; the panels re-render from 'controls:change' so changes made by the chat show up here too. */
 (function () {
   'use strict';
   var FS = window.FS, D = FS.data, A = FS.actions, S = FS.store;
@@ -47,7 +47,7 @@
     // The title is a disclosure button: the box starts collapsed and opens to show its sliders.
     var bodyId = resetId.replace('fs-reset-', 'fs-body-');
     return '<div class="fs-panel-head"><h2 class="fs-panel-title"><button type="button" class="fs-ctl-toggle" aria-expanded="false" aria-controls="' + bodyId + '">' +
-      '<span>' + title + '</span><svg class="fs-chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' +
+      '<span class="fs-ctl-t">' + title + '</span><span class="fs-ctl-n" hidden></span><svg class="fs-chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' +
       '</button></h2></div>';
   }
   function slider(id, label, path, min, max, step, fmt) {
@@ -63,13 +63,17 @@
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
     body.hidden = !open;
   }
+  // one panel open at a time: opening one closes the others
+  function closeOthers(k) { ['weather', 'crops', 'other'].forEach(function (o) { if (o !== k && root[o]) setOpen(root[o], false); }); }
   function wireToggles() {
     ['weather', 'crops', 'other'].forEach(function (k) {
       var box = root[k], body = box.querySelector('.fs-panel-body');
       body.id = 'fs-body-' + k;
       setOpen(box, false);
       box.querySelector('.fs-ctl-toggle').addEventListener('click', function () {
-        setOpen(box, box.classList.contains('is-collapsed'));
+        var willOpen = box.classList.contains('is-collapsed');
+        if (willOpen) closeOthers(k);
+        setOpen(box, willOpen);
         window.dispatchEvent(new Event('resize')); // the map redraws at its new size
       });
     });
@@ -82,7 +86,7 @@
       setOpen(box, false); box.querySelector('.fs-ctl-toggle').focus(); window.dispatchEvent(new Event('resize'));
     });
   });
-  FS.controlsOpen = function (k, open) { if (root[k]) { setOpen(root[k], open !== false); window.dispatchEvent(new Event('resize')); } };
+  FS.controlsOpen = function (k, open) { if (root[k]) { if (open !== false) closeOthers(k); setOpen(root[k], open !== false); window.dispatchEvent(new Event('resize')); } };
 
   function scenarioOptions() {
     return D.weatherScenarios.map(function (s) { return '<option value="' + s.id + '">' + esc(s.label) + '</option>'; }).join('') +
@@ -95,9 +99,9 @@
     return '<details class="fs-more" id="' + id + '"><summary><span class="fs-more-t">More Options</span><span class="fs-more-n" aria-live="polite"></span></summary><div class="fs-more-body">' + inner + '</div></details>';
   }
   function build() {
-    root.weather.innerHTML = head('Weather / Season', 'fs-reset-weather') + '<div class="fs-panel-body">' +
+    root.weather.innerHTML = head('Weather', 'fs-reset-weather') + '<div class="fs-panel-body">' +
       '<div class="fs-scn" id="fs-scn"></div>' +
-      '<div class="fs-row" data-path="weather.scenario"><div class="fs-row-head"><label for="fs-weather-scenario">Replay one past season</label></div>' +
+      '<div class="fs-row" data-path="weather.scenario"><div class="fs-row-head"><label for="fs-weather-scenario">Pick a past season</label></div>' +
       '<select id="fs-weather-scenario" class="fs-select">' + scenarioOptions() + '</select></div>' +
       '<div class="fs-chips" id="fs-weather-chips" hidden></div>' +
       more('fs-more-weather',
@@ -117,12 +121,12 @@
         '<div class="fs-row" id="fs-irrig-row" data-path="crops.irrigation" hidden><div class="fs-row-head"><label for="fs-crops-irrigation">Irrigation, 1 inch a week</label></div>' +
         '<select id="fs-crops-irrigation" class="fs-select">' + IRRIG.map(function (p) { return '<option value="' + p[0] + '">' + p[1] + '</option>'; }).join('') + '</select></div>') + '</div>';
 
-    root.other.innerHTML = head('Other Conditions', 'fs-reset-other') + '<div class="fs-panel-body">' +
+    root.other.innerHTML = head('Prices &amp; Costs', 'fs-reset-other') + '<div class="fs-panel-body">' +
       slider('fs-other-price', 'Crop price', 'other.priceChange', -40, 40, 5, 'pct') +
       '<div class="fs-row" data-path="other.priority" data-fmt="prio"><div class="fs-row-head"><label for="fs-other-priority">Rank options by</label></div>' +
       '<select id="fs-other-priority" class="fs-select">' + PRIOS.map(function (p) { return '<option value="' + p[0] + '">' + p[1] + '</option>'; }).join('') + '</select></div>' +
       more('fs-more-other',
-        slider('fs-other-nitrogen', 'Nitrogen price', 'other.nitrogenChange', -30, 80, 5, 'pct') +
+        slider('fs-other-nitrogen', 'Fertilizer (nitrogen) price', 'other.nitrogenChange', -30, 80, 5, 'pct') +
         slider('fs-other-contracted', 'Already contracted', 'other.contracted', 0, 100, 5, 'plain') +
         '<div class="fs-row" data-path="other.costShare"><label class="fs-check" for="fs-other-costshare">' +
         '<input type="checkbox" id="fs-other-costshare"><span>Iowa cover-crop cost-share ($30/acre, Iowa farms only)</span></label></div>') + '</div>';
@@ -178,6 +182,12 @@
       var n = d.querySelectorAll('.fs-row.is-changed').length, out = d.querySelector('.fs-more-n');
       out.textContent = n ? ' · ' + n + ' changed' : '';
       d.classList.toggle('has-changes', n > 0);
+    });
+    // the bar's button says how many settings in its panel are changed, so a closed panel never hides a change
+    ['weather', 'crops', 'other'].forEach(function (k) {
+      var b = root[k] && root[k].querySelector('.fs-ctl-n'); if (!b) return;
+      var n = root[k].querySelectorAll('.fs-row.is-changed').length;
+      b.hidden = !n; b.innerHTML = n ? '· ' + n + '<span class="fs-sr"> changed</span>' : '';
     });
   }
   function drawChips(c) {
@@ -245,7 +255,7 @@
       root = els;
       build();
       // Reset lives inside each open box (top right), so the title bar only holds the title and the open/close arrow.
-      [['weather', 'Weather / Season'], ['crops', 'Crops'], ['other', 'Other Conditions']].forEach(function (p) {
+      [['weather', 'Weather'], ['crops', 'Crops'], ['other', 'Prices and Costs']].forEach(function (p) {
         root[p[0]].querySelector('.fs-panel-body').insertAdjacentHTML('afterbegin',
           '<div class="fs-body-tools"><button type="button" class="fs-linkbtn fs-reset" id="fs-reset-' + p[0] + '" aria-label="Reset ' + p[1] + '">Reset</button></div>');
       });

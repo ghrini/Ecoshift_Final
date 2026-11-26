@@ -58,7 +58,7 @@ The button names below come from the README of the live site at the time of writ
 - **If the participant has no field file:** Say "There is a sample field you can use if you like." Do not say where it is. (The Simulation tab has an "Import your real field" box at the top with an Iowa sample and a California sample button. A GeoJSON or KML file also works.)
 - **Success criteria:** A field outline appears in the simulation, and the participant can say what the tool now knows about the field (for example its weather, soil or slope).
 - **Time limit:** 5 minutes.
-- **Observe:** Where do they look first? Do they find the Simulation tab and the import box? Do they understand what a field outline file is? Do they use the sample or their own? Do they notice the wait (about 30 seconds on a cold start)? Do they understand any message shown?
+- **Observe:** Where do they look first? Do they find the Simulation tab and the Import Field button? Do they understand what a field outline file is? Do they use the sample or their own? Do they notice the wait (about 30 seconds on a cold start)? Do they understand any message shown?
 - **Follow-up:** "What do you think the tool knows about this field now?" "What would you want it to know that it does not?"
 
 ### Task 2: Evaluate a current crop rotation

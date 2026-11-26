@@ -1,4 +1,4 @@
-/* Sim analysis box: shows what happened in a run (summary only).  */
+/* Results box: shows what happened in a run (summary only).  */
 (function () {
   'use strict';
   var FS = window.FS, D = FS.data, S = FS.store, A = FS.actions;
@@ -18,8 +18,8 @@
 
   var listEl, runningEl = null, made = {};
   function chrome() {
-    el.innerHTML = '<div class="fs-panel-head"><h2 class="fs-panel-title">Sim Analysis</h2><div class="fs-head-right">' +
-      '<button type="button" class="fs-expand" data-expand="Sim analysis" aria-label="Expand Sim analysis">' + EXPAND_SVG + '</button></div></div>' +
+    el.innerHTML = '<div class="fs-panel-head"><h2 class="fs-panel-title">Results</h2><div class="fs-head-right">' +
+      '<button type="button" class="fs-expand" data-expand="Results" aria-label="Expand Results">' + EXPAND_SVG + '</button></div></div>' +
       '<div class="fs-panel-body" id="fs-analysis-body" aria-live="polite"></div>';
     listEl = el.querySelector('#fs-analysis-body');
     listEl.addEventListener('click', function (e) {
@@ -60,7 +60,8 @@
     return b.length ? ', ' + b.join(' and ') : '';
   }
   FS.weatherPhrase = function (w) { return scen(w.scenario).phrase + shiftWords(w); };
-  function scenarioPhrase(r) { return FS.weatherPhrase(r.inputs.weather); }
+  // the first line says it in plain words: "a typical year (2011 weather)"
+  function scenarioPhrase(r) { return FS.weatherPhrase(r.inputs.weather).replace(/^a typical season's weather \((\d{4})\)/, 'a typical year ($1 weather)'); }
   function round10(n) { return Math.round(Math.abs(n) / 10) * 10; }
   function planName(x) { var t = x.planLabel.replace(/\s*\(current plan\)/, ''); return t.charAt(0).toLowerCase() + t.slice(1); }
 
@@ -91,7 +92,7 @@
       if (worst == null) return;
       var keep = !plan || plan === cur0[f.id];
       var what = keep ? 'keep ' + (CROP_OF[cur0[f.id]] || 'your plan') : 'try ' + (PLAN_SHORT[plan] || 'your plan');
-      rows += '<li><b>' + esc(f.name) + ':</b> ' + esc(what) + ' \u00b7 <span title="The worst of the ' + data.years.length + ' past seasons (' + wy + ')">worst season ' + Math.round(worst) + '% of normal</span></li>';
+      rows += '<li><b>' + esc(f.name) + ':</b> ' + esc(what) + ' \u00b7 <span title="The worst of the ' + data.years.length + ' past seasons (' + wy + ')">worst year ' + Math.round(worst) + '% of normal</span></li>';
     });
     return rows ? '<ul class="fs-verdicts" aria-label="One line per field">' + rows + '</ul>' : '';
   }
@@ -119,11 +120,11 @@
     changed.forEach(function (f) { var p = r.inputs.crops.plans[f.id]; if (!byPlan[p]) { byPlan[p] = { p: p, x: s.fields[f.id], names: [] }; groups.push(byPlan[p]); } byPlan[p].names.push(esc(f.name)); });
     var who = groups.length > 2 ? 'your changes on ' + changed.length + ' fields' : joinAnd(groups.map(function (g) { return planPhrase(g.p, g.x) + ' on ' + joinAnd(g.names); }));
     if (oats) {
-      open = 'In ' + esc(sc) + ', your farm gets about ' + pctNormal + '% of a normal crop. Money is not shown while oats is in the plan, because oats price and cost are rough guesses with no source yet.';
+      open = 'In ' + esc(sc) + ', your farm makes about ' + pctNormal + '% of a normal crop. Money is not shown while oats is in the plan: the oats price and cost are only rough guesses.';
     } else if (changed.length && Math.round(delta) !== 0) {
       open = 'In ' + esc(sc) + ', ' + who + (groups.length > 1 ? ' earn' : ' earns') + ' about ' + money(round10(delta)) + (delta < 0 ? ' less' : ' more') + ' than your current plan.';
     } else {
-      open = 'In ' + esc(sc) + ', your farm gets about ' + pctNormal + '% of a normal crop' + (FS.absMoneyOk() ? ' and ' + earns(s.farm.returnTotal) : '') + (changed.length ? ', about the same as your current plan' : '') + '.';
+      open = 'In ' + esc(sc) + ', your farm makes about ' + pctNormal + '% of a normal crop' + (FS.absMoneyOk() ? ' and ' + earns(s.farm.returnTotal) : '') + (changed.length ? ', about the same as your current plan' : '') + '.';
     }
     h = scenarioBanner(r) + verdictsHtml(r, all, cur0) + '<p>' + open + '</p><div class="fs-strip-wrap"></div>';
 
@@ -201,7 +202,7 @@
       }
       h += '<button type="button" class="fs-sq is-' + cl + (y === sel ? ' is-sel' : '') + '" data-year="' + y + '" aria-pressed="' + (y === sel ? 'true' : 'false') + '" aria-label="' + esc(label) + '" title="' + esc(label) + '"></button>';
     });
-    h += '</div><p class="fs-strip-cap">' + (diff ? data.years[0] + '–' + data.years[n - 1] + '. Olive: $10+ an acre more than your plan. Brown: $10+ less. Grey: about the same.' : data.years[0] + '–' + data.years[n - 1] + '. Olive: good year. Brown: bad year. Grey: about normal.') + '</p>';
+    h += '</div><p class="fs-strip-cap">' + (diff ? data.years[0] + '–' + data.years[n - 1] + '. Olive = $10+ an acre more than your plan · Brown = $10+ less · Grey = about the same.' : data.years[0] + '–' + data.years[n - 1] + '. Olive = good year · Brown = bad year · Grey = about normal.') + '</p>';
     wrap.innerHTML = h;
     if (focusYear != null) { var b = wrap.querySelector('[data-year="' + focusYear + '"]'); if (b) b.focus(); focusYear = null; }
   }
@@ -218,7 +219,7 @@
     mount: function (mountEl) {
       el = mountEl; chrome(); if (FS.finUI) FS.finUI.bind(listEl);
       var runs = S.get().runs;
-      if (!runs.length) listEl.innerHTML = '<p class="fs-empty">Run a simulation to see what happened.</p>';
+      if (!runs.length) listEl.innerHTML = '<p class="fs-empty">Press Run Simulation to see your results.</p>';
       runs.forEach(addRun);
       S.on('sim:start', function () {
         if (runningEl) return;

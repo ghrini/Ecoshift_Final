@@ -1043,6 +1043,118 @@ details.fs-fold > .fs-recs { margin: 4px 0 0; padding: 0 12px 12px 36px; }
 #fs-analysis .fs-verdicts, #fs-analysis .fs-verdicts * { font-size: calc(var(--fs-inner) - 2px); }
 @media (max-width: 1000px) { #fs-chat:not(.fs-expanded) { height: auto; min-height: 360px; max-height: min(620px, 80dvh); } }
 
+/* ===== Calm type: smaller, quieter lettering across the simulation page (farmers found the large text intimidating) ===== */
+:root { --fs-inner: 15px; }
+.fs-panel-head, .fs-ctl-row .fs-panel .fs-panel-head { height: 48px; min-height: 48px; padding: 0 12px 0 16px; }
+.fs-panel-title, .fs-ctl-row .fs-panel-title { font: 650 17px/1.2 var(--font-sans); letter-spacing: 0; }
+.fs-adjust-title { font: 600 16px/1.2 var(--font-sans); }
+.fs-steps-line { font-size: 13px; }
+.fs-farm-btn { font: 500 14px/1.3 var(--font-sans); }
+#fs-run, #fs-header #fs-run, #fs-header .fs-btn-primary { font-size: 14px; padding: 8px 14px; min-height: 0; height: auto; }
+#fs-analysis .fs-panel-body *, #fs-chat .fs-panel-body * { line-height: 1.5; }
+#fs-analysis .fs-verdicts, #fs-analysis .fs-verdicts * { font-size: 14px; line-height: 1.45; }
+#fs-chat-input { min-height: 42px; }
+#fs-chat-send { font-size: 14px; height: 42px; }
+.fs-more > summary { font-size: 14px; }
+#fs-import .fs-imp-title { font-size: 16px; }
+#fs-import .fs-imp-big { font-size: 14px; font-weight: 500; }
+#fs-import .fs-imp-try { font-size: 13px; }
+#fs-outlook .fs-panel-body { font-size: 15px; }
+.fs-ol-h { font-size: 15px; }
+.fs-cn { font-size: 15px; }
+.fs-cn h3 { font-size: 16px; }
+.fs-big { font-size: 22px; }
+@media (min-width: 1001px) {
+  .fs-panel-head { height: 48px; }
+  .fs-panel-title { font-size: 17px; }
+}
+@media (max-width: 700px) {
+  :root { --fs-inner: 15px; }
+  #fs-view-panel .fs-panel-title, #fs-view-panel .fs-panel-head .fs-panel-title { font-size: 17px; }
+  .fs-ctl-row .fs-panel .fs-panel-head { height: 44px; min-height: 44px; }
+  #fs-view-panel .fs-fm-tabs button { font-size: 12px; padding: 6px 4px; }
+  .fs-steps-line { font-size: 12px; }
+}
+/* quieter small print */
+#fs-analysis .fs-panel-body .fs-strip-cap, #fs-analysis .fs-panel-body .fs-strip-cap *, #fs-analysis .fs-panel-body .fs-rbar-cap, #fs-analysis .fs-panel-body .fs-rbar-cap * { font-size: 13px; color: var(--text-faint); }
+#fs-foot { font-size: 12px; }
+
+/* ===== Declutter: one settings bar, Import Field in the Simulation head, one Run button, a folded Next 30 Days ===== */
+/* 1. Settings bar: Weather / Crops / Prices & Costs are three buttons in one slim bar. The open panel shows underneath, one at a time.
+      The three sections stay in the page (display: contents) so every id and control keeps working. */
+.fs-ctl-row { position: relative; z-index: 20; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; height: auto; align-items: stretch;
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.fs-ctl-row > .fs-panel { display: contents; }
+.fs-ctl-row .fs-panel .fs-panel-head { grid-row: 1; height: 42px; min-height: 42px; padding: 0; border: 0; border-left: 1px solid var(--divider); background: transparent; border-radius: 0; }
+.fs-ctl-row > .fs-panel.is-collapsed .fs-panel-head, .fs-ctl-row > .fs-panel:not(.is-collapsed) .fs-panel-head { border-radius: 0; }
+.fs-ctl-row > .fs-panel:first-child .fs-panel-head { border-left: 0; }
+.fs-ctl-row .fs-panel .fs-panel-title { flex: 1; margin: 0; height: 100%; display: flex; font-size: 15px; font-weight: 600; }
+.fs-ctl-row .fs-ctl-toggle { width: 100%; height: 100%; justify-content: center; gap: 8px; padding: 0 10px; border-radius: 0; font: 600 15px/1.2 var(--font-sans); color: var(--text); }
+.fs-ctl-row > .fs-panel:first-child .fs-ctl-toggle { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+.fs-ctl-row > .fs-panel:last-of-type .fs-ctl-toggle { border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+.fs-ctl-row .fs-ctl-toggle:hover { background: var(--panel-2); }
+.fs-ctl-row .fs-ctl-toggle:focus-visible { outline-offset: -3px; }
+.fs-ctl-row .fs-ctl-toggle[aria-expanded="true"] { background: var(--umber-glow); color: var(--on-bg-accent); box-shadow: inset 0 -2px 0 var(--umber); }
+.fs-ctl-row .fs-ctl-toggle .fs-ctl-t { overflow: visible; text-overflow: clip; }
+.fs-ctl-n { font-weight: 500; font-size: 13px; color: var(--on-bg-accent); white-space: nowrap; }
+.fs-ctl-n[hidden] { display: none; }
+.fs-ctl-row .fs-panel.is-collapsed .fs-panel-body { display: none; }
+/* the open panel: the shared area under the bar */
+.fs-ctl-row .fs-panel:not(.is-collapsed) .fs-panel-body { grid-column: 1 / -1; grid-row: 2; border-top: 1px solid var(--divider); padding: 14px 16px 16px; overflow: visible; max-height: none;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px 24px; align-items: start; }
+.fs-ctl-row .fs-panel-body > .fs-body-tools, .fs-ctl-row .fs-panel-body > .fs-scn, .fs-ctl-row .fs-panel-body > .fs-chips, .fs-ctl-row .fs-panel-body > .fs-more { grid-column: 1 / -1; }
+.fs-ctl-row .fs-body-tools { margin-bottom: -8px; }
+.fs-ctl-row .fs-more-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px 24px; align-items: start; }
+@media (min-width: 1001px) {
+  .fs-ctl-row .fs-panel:not(.is-collapsed) .fs-panel-body { position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 30; background: var(--panel);
+    border: 1px solid var(--border-strong); border-radius: var(--radius-md); box-shadow: var(--shadow-modal); max-height: calc(100dvh - var(--header-h) - 150px); overflow-y: auto; scrollbar-width: thin; }
+}
+@media (max-width: 1000px) { .fs-ctl-row .fs-panel:not(.is-collapsed) .fs-panel-body { position: static; } }
+@media (max-width: 520px) {
+  .fs-ctl-row .fs-ctl-toggle { padding: 0 6px; gap: 4px; font-size: 14px; }
+  .fs-ctl-row .fs-ctl-toggle .fs-chev { display: none; }
+  .fs-ctl-row .fs-panel:not(.is-collapsed) .fs-panel-body { grid-template-columns: minmax(0, 1fr); padding: 12px 14px 14px; }
+  .fs-ctl-row .fs-more-body { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* 2. Import Field: a small button in the Simulation head; its panel floats under the head so the map keeps its size */
+.fs-imp-btn { display: inline-flex; align-items: center; gap: 6px; flex: none; padding: 6px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--panel-2); color: var(--text);
+  font: 600 14px/1.2 var(--font-sans); cursor: pointer; white-space: nowrap; }
+.fs-imp-btn:hover { background: var(--panel-3); }
+.fs-imp-btn:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+.fs-imp-btn[aria-expanded="true"] { border-color: var(--umber); background: var(--umber-glow); color: var(--on-bg-accent); }
+.fs-imp-btn.is-on::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent-strong); }
+.fs-imp-btn.is-busy { cursor: progress; }
+#fs-import { position: relative; z-index: 25; flex: none; height: 0; margin: 0; padding: 0; border: 0; background: none; }
+#fs-import[hidden] { display: none; }
+#fs-import .fs-imp-card { position: absolute; top: 0; left: 0; right: 0; max-height: min(78vh, 460px); overflow-y: auto; padding: 14px 16px 16px; background: var(--panel);
+  border-bottom: 1px solid var(--border-strong); border-radius: 0 0 var(--radius-md) var(--radius-md); box-shadow: var(--shadow-modal); }
+#fs-import .fs-imp-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+#fs-import .fs-imp-zone { flex: 1 1 260px; }
+#fs-import .fs-imp-try { flex: 0 1 auto; }
+#fs-import .fs-imp-tip { display: none; }
+#fs-import .fs-imp-info { margin-top: 8px; }
+@media (max-width: 700px) { .fs-imp-btn { order: 2; padding: 6px 10px; } #fs-view-panel .fs-head-right { gap: 8px; } }
+
+/* 3. One Run button: Run Simulation at the top. The play bar's small Run stays in the page, hidden. */
+#fs-view .fv-run[hidden] { display: none; }
+#fs-view .fv-bar { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+
+/* 4. Next 30 Days starts as one line and opens on click */
+#fs-outlook .fs-panel-head { padding: 0; height: auto; min-height: 48px; }
+#fs-outlook .fs-panel-title { flex: 1; display: block; margin: 0; }
+#fs-outlook .fs-ol-toggle { display: flex; width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 16px; gap: 10px; justify-content: flex-start; font: 650 17px/1.2 var(--font-sans); color: var(--text); border-radius: var(--radius-lg); }
+#fs-outlook .fs-ol-toggle:hover { background: var(--panel-2); }
+#fs-outlook .fs-ol-toggle .fs-chev { order: 2; }
+#fs-outlook .fs-ol-hint { order: 3; font: 400 14px/1.3 var(--font-sans); color: var(--text-muted); white-space: normal; text-align: left; }
+#fs-outlook .fs-ol-toggle span { overflow: visible; text-overflow: clip; }
+#fs-outlook .fs-ol-toggle { text-align: left; }
+#fs-outlook .fs-ol-ttl { white-space: nowrap; flex: none; }
+#fs-outlook .fs-ol-hint { flex: 1 1 auto; min-width: 0; }
+@media (max-width: 700px) { #fs-outlook .fs-ol-toggle { flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; } #fs-outlook .fs-ol-hint { flex-basis: 100%; order: 4; } #fs-outlook .fs-ol-toggle .fs-chev { margin-left: auto; } }
+#fs-outlook.is-collapsed .fs-panel-head { border-bottom: 0; }
+#fs-outlook.is-collapsed .fs-panel-body { display: none; }
+
 /* Bird's-eye view styles. Every selector is scoped under #fs-view or starts with .fv- (tokens only for color). */
 #fs-view { position: relative; display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: var(--panel); color: var(--text); font-family: var(--font-sans); }
 #fs-view .fv-stage { position: relative; flex: 1 1 auto; min-height: 0; outline: none; background: var(--panel); touch-action: pan-y; }
@@ -1165,13 +1277,13 @@ details.fs-fold > .fs-recs { margin: 4px 0 0; padding: 0 12px 12px 36px; }
 #fs-view.fv-noteside .fv-mapnote { left: auto; right: 10px; text-align: right; }
 /* phones: the closed field list is only as wide as its button, so it does not run under the weather pill */
 @media (max-width: 560px) { #fs-view .fv-legend.fv-collapsed { width: auto; } }
-@media (max-width: 440px) { #fs-view-panel .fs-panel-title { font-size: 20px; overflow-wrap: normal; } }
+@media (max-width: 440px) { #fs-view-panel .fs-panel-title { font-size: 17px; overflow-wrap: normal; } }
 </style>
 </head><body>
 <nav id="fs-backrow" hidden><a id="fs-back" class="fs-backlink" href="../index.html">← Back to EcoShift</a></nav>
 <header id="fs-header">
   <h1 class="fs-adjust-title"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Try A Change On Your Farm</h1>
-  <p class="fs-steps-line"><span>1 Choose your plans</span> · <span>2 Run</span> · <span>3 Read the results</span></p>
+  <p class="fs-steps-line"><span>1 Pick plans</span> · <span>2 Run</span> · <span>3 See results</span></p>
   <button type="button" id="fs-farm-btn" class="fs-farm-btn"><span class="fs-farm-name">Your farm</span><span aria-hidden="true"> · </span><span class="fs-farm-change">Change</span></button>
   <div class="fs-run-wrap">
     <button type="button" id="fs-run" class="fs-btn-primary">
@@ -1182,10 +1294,10 @@ details.fs-fold > .fs-recs { margin: 4px 0 0; padding: 0 12px 12px 36px; }
 </header>
 <main id="fs-app">
   <div id="fs-left">
-    <div class="fs-ctl-row">
-      <section class="fs-panel" id="fs-ctl-weather" aria-label="Weather and season"></section>
+    <div class="fs-ctl-row" role="group" aria-label="Settings">
+      <section class="fs-panel" id="fs-ctl-weather" aria-label="Weather"></section>
       <section class="fs-panel" id="fs-ctl-crops" aria-label="Crops"></section>
-      <section class="fs-panel" id="fs-ctl-other" aria-label="Other conditions"></section>
+      <section class="fs-panel" id="fs-ctl-other" aria-label="Prices and costs"></section>
     </div>
     <section class="fs-panel" id="fs-view-panel" aria-label="Simulation">
       <div class="fs-panel-head"><h2 class="fs-panel-title">Simulation</h2><div class="fs-head-right"><button type="button" class="fs-expand" data-expand="Simulation" aria-label="Expand Simulation"><svg class="ic-expand" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg><svg class="ic-collapse" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10h-6V4M4 14h6v6M14 10l7-7M10 14l-7 7"/></svg></button></div></div>
@@ -1193,7 +1305,7 @@ details.fs-fold > .fs-recs { margin: 4px 0 0; padding: 0 12px 12px 36px; }
     </section>
   </div>
   <div id="fs-right">
-    <section class="fs-panel" id="fs-analysis" aria-label="Sim analysis"></section>
+    <section class="fs-panel" id="fs-analysis" aria-label="Results"></section>
     <section class="fs-panel" id="fs-chat" aria-label="Chat"></section>
   </div>
 </main>
@@ -3479,7 +3591,7 @@ window.FS = window.FS || {};
           '<input type="range" id="fs-week" class="fv-range" min="0" max="52" step="1" value="0" aria-label="Week of the season">' +
           '<output class="fv-date" for="fs-week">Nov 16, 2026</output>' +
           '<button type="button" id="fs-view-speed" class="fv-btn fv-speed" aria-label="Playback speed 1x. Press to change">1x</button>' +
-          '<button type="button" id="fs-view-run" class="fv-btn fv-run">Run</button>' +
+          '<button type="button" id="fs-view-run" class="fv-btn fv-run" hidden>Run</button>' +
         '</div>' +
       '</div>';
     var $ = function (s) { return el.querySelector(s); };
@@ -4144,11 +4256,11 @@ window.FS = window.FS || {};
 
   // ---------------------------------------------------------------- provenance labels
   var KINDS = {
-    observed: { text: 'Observed history', tip: 'What actually happened in the past seasons (NASA POWER daily weather). It shows how a plan did under those conditions. It is not the chance of any season next year.' },
+    observed: { text: 'Real past weather', tip: 'What actually happened in the past seasons (NASA POWER daily weather). It shows how a plan did under those conditions. It is not the chance of any season next year.' },
     current: { text: 'Current observations', tip: 'Recent satellite readings and weather estimates for your fields. They describe now, not the rest of the season.' },
     forecast: { text: 'Forecast (next 16 days)', tip: 'A weather-model forecast for the next 16 days. Useful for the coming days, not for the whole season.' },
-    seasonal: { text: 'Seasonal outlook (days 17-30)', tip: 'A rough long-range estimate for days 17 to 30, an average of many model runs. Much less certain than the 16-day forecast.' },
-    assumed: { text: 'Assumed scenario', tip: 'A what-if built on assumed changes with illustrative sizes. It is not a forecast and not a probability.' }
+    seasonal: { text: 'Rough estimate (days 17-30)', tip: 'A rough long-range estimate for days 17 to 30, an average of many model runs. Much less certain than the 16-day forecast.' },
+    assumed: { text: 'What-if weather', tip: 'A what-if built on assumed changes with illustrative sizes. It is not a forecast and not a probability.' }
   };
   function badge(kind, more) {
     var k = KINDS[kind]; if (!k) return '';
@@ -4279,12 +4391,12 @@ window.FS = window.FS || {};
   // ---------------------------------------------------------------- the Scenarios section of the Weather / Season box
   var host = null;
   function sectionHtml() {
-    var h = '<div class="fs-scn-head"><span class="fs-scn-title" id="fs-scn-title">Scenarios</span><span class="fs-scn-state" aria-live="polite"></span></div>' +
+    var h = '<div class="fs-scn-head"><span class="fs-scn-title" id="fs-scn-title">Quick Picks</span><span class="fs-scn-state" aria-live="polite"></span></div>' +
       '<div class="fs-scn-list" role="group" aria-labelledby="fs-scn-title">';
     PRESETS.forEach(function (p) {
       h += '<button type="button" class="fs-scn-btn" data-preset="' + p.id + '" aria-pressed="false" title="' + esc(p.blurb) + '">' + esc(p.name) + '</button>';
     });
-    h += '</div><details class="fs-scn-det"><summary>About These Scenarios</summary><ul class="fs-scn-src">' +
+    h += '</div><details class="fs-scn-det"><summary>About These Picks</summary><ul class="fs-scn-src">' +
       PRESETS.map(function (p) { return '<li><b>' + esc(p.name) + '.</b> ' + esc(p.blurb) + ' <i>' + esc(p.basis) + '</i></li>'; }).join('') +
       '<li><b>Labels.</b> ' + Object.keys(KINDS).map(function (k) { return '<b>' + esc(KINDS[k].text) + ':</b> ' + esc(KINDS[k].tip); }).join(' ') +
       ' History shows how a plan did under past conditions, not the chance of any season next year. EcoShift holds no long-term climate projections: the assumed scenarios are what-ifs.</li></ul></details>';
@@ -4315,8 +4427,8 @@ window.FS = window.FS || {};
 
 </script>
 <script>
-/* The three control boxes. Every change goes through FS.actions.setControl; the boxes re-render from 'controls:change'
-   so changes made by the chat show up here too. */
+/* The three settings panels (Weather, Crops, Prices & Costs), opened one at a time from one slim bar of three buttons.
+   Every change goes through FS.actions.setControl; the panels re-render from 'controls:change' so changes made by the chat show up here too. */
 (function () {
   'use strict';
   var FS = window.FS, D = FS.data, A = FS.actions, S = FS.store;
@@ -4364,7 +4476,7 @@ window.FS = window.FS || {};
     // The title is a disclosure button: the box starts collapsed and opens to show its sliders.
     var bodyId = resetId.replace('fs-reset-', 'fs-body-');
     return '<div class="fs-panel-head"><h2 class="fs-panel-title"><button type="button" class="fs-ctl-toggle" aria-expanded="false" aria-controls="' + bodyId + '">' +
-      '<span>' + title + '</span><svg class="fs-chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' +
+      '<span class="fs-ctl-t">' + title + '</span><span class="fs-ctl-n" hidden></span><svg class="fs-chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' +
       '</button></h2></div>';
   }
   function slider(id, label, path, min, max, step, fmt) {
@@ -4380,13 +4492,17 @@ window.FS = window.FS || {};
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
     body.hidden = !open;
   }
+  // one panel open at a time: opening one closes the others
+  function closeOthers(k) { ['weather', 'crops', 'other'].forEach(function (o) { if (o !== k && root[o]) setOpen(root[o], false); }); }
   function wireToggles() {
     ['weather', 'crops', 'other'].forEach(function (k) {
       var box = root[k], body = box.querySelector('.fs-panel-body');
       body.id = 'fs-body-' + k;
       setOpen(box, false);
       box.querySelector('.fs-ctl-toggle').addEventListener('click', function () {
-        setOpen(box, box.classList.contains('is-collapsed'));
+        var willOpen = box.classList.contains('is-collapsed');
+        if (willOpen) closeOthers(k);
+        setOpen(box, willOpen);
         window.dispatchEvent(new Event('resize')); // the map redraws at its new size
       });
     });
@@ -4399,7 +4515,7 @@ window.FS = window.FS || {};
       setOpen(box, false); box.querySelector('.fs-ctl-toggle').focus(); window.dispatchEvent(new Event('resize'));
     });
   });
-  FS.controlsOpen = function (k, open) { if (root[k]) { setOpen(root[k], open !== false); window.dispatchEvent(new Event('resize')); } };
+  FS.controlsOpen = function (k, open) { if (root[k]) { if (open !== false) closeOthers(k); setOpen(root[k], open !== false); window.dispatchEvent(new Event('resize')); } };
 
   function scenarioOptions() {
     return D.weatherScenarios.map(function (s) { return '<option value="' + s.id + '">' + esc(s.label) + '</option>'; }).join('') +
@@ -4412,9 +4528,9 @@ window.FS = window.FS || {};
     return '<details class="fs-more" id="' + id + '"><summary><span class="fs-more-t">More Options</span><span class="fs-more-n" aria-live="polite"></span></summary><div class="fs-more-body">' + inner + '</div></details>';
   }
   function build() {
-    root.weather.innerHTML = head('Weather / Season', 'fs-reset-weather') + '<div class="fs-panel-body">' +
+    root.weather.innerHTML = head('Weather', 'fs-reset-weather') + '<div class="fs-panel-body">' +
       '<div class="fs-scn" id="fs-scn"></div>' +
-      '<div class="fs-row" data-path="weather.scenario"><div class="fs-row-head"><label for="fs-weather-scenario">Replay one past season</label></div>' +
+      '<div class="fs-row" data-path="weather.scenario"><div class="fs-row-head"><label for="fs-weather-scenario">Pick a past season</label></div>' +
       '<select id="fs-weather-scenario" class="fs-select">' + scenarioOptions() + '</select></div>' +
       '<div class="fs-chips" id="fs-weather-chips" hidden></div>' +
       more('fs-more-weather',
@@ -4434,12 +4550,12 @@ window.FS = window.FS || {};
         '<div class="fs-row" id="fs-irrig-row" data-path="crops.irrigation" hidden><div class="fs-row-head"><label for="fs-crops-irrigation">Irrigation, 1 inch a week</label></div>' +
         '<select id="fs-crops-irrigation" class="fs-select">' + IRRIG.map(function (p) { return '<option value="' + p[0] + '">' + p[1] + '</option>'; }).join('') + '</select></div>') + '</div>';
 
-    root.other.innerHTML = head('Other Conditions', 'fs-reset-other') + '<div class="fs-panel-body">' +
+    root.other.innerHTML = head('Prices &amp; Costs', 'fs-reset-other') + '<div class="fs-panel-body">' +
       slider('fs-other-price', 'Crop price', 'other.priceChange', -40, 40, 5, 'pct') +
       '<div class="fs-row" data-path="other.priority" data-fmt="prio"><div class="fs-row-head"><label for="fs-other-priority">Rank options by</label></div>' +
       '<select id="fs-other-priority" class="fs-select">' + PRIOS.map(function (p) { return '<option value="' + p[0] + '">' + p[1] + '</option>'; }).join('') + '</select></div>' +
       more('fs-more-other',
-        slider('fs-other-nitrogen', 'Nitrogen price', 'other.nitrogenChange', -30, 80, 5, 'pct') +
+        slider('fs-other-nitrogen', 'Fertilizer (nitrogen) price', 'other.nitrogenChange', -30, 80, 5, 'pct') +
         slider('fs-other-contracted', 'Already contracted', 'other.contracted', 0, 100, 5, 'plain') +
         '<div class="fs-row" data-path="other.costShare"><label class="fs-check" for="fs-other-costshare">' +
         '<input type="checkbox" id="fs-other-costshare"><span>Iowa cover-crop cost-share ($30/acre, Iowa farms only)</span></label></div>') + '</div>';
@@ -4495,6 +4611,12 @@ window.FS = window.FS || {};
       var n = d.querySelectorAll('.fs-row.is-changed').length, out = d.querySelector('.fs-more-n');
       out.textContent = n ? ' · ' + n + ' changed' : '';
       d.classList.toggle('has-changes', n > 0);
+    });
+    // the bar's button says how many settings in its panel are changed, so a closed panel never hides a change
+    ['weather', 'crops', 'other'].forEach(function (k) {
+      var b = root[k] && root[k].querySelector('.fs-ctl-n'); if (!b) return;
+      var n = root[k].querySelectorAll('.fs-row.is-changed').length;
+      b.hidden = !n; b.innerHTML = n ? '· ' + n + '<span class="fs-sr"> changed</span>' : '';
     });
   }
   function drawChips(c) {
@@ -4562,7 +4684,7 @@ window.FS = window.FS || {};
       root = els;
       build();
       // Reset lives inside each open box (top right), so the title bar only holds the title and the open/close arrow.
-      [['weather', 'Weather / Season'], ['crops', 'Crops'], ['other', 'Other Conditions']].forEach(function (p) {
+      [['weather', 'Weather'], ['crops', 'Crops'], ['other', 'Prices and Costs']].forEach(function (p) {
         root[p[0]].querySelector('.fs-panel-body').insertAdjacentHTML('afterbegin',
           '<div class="fs-body-tools"><button type="button" class="fs-linkbtn fs-reset" id="fs-reset-' + p[0] + '" aria-label="Reset ' + p[1] + '">Reset</button></div>');
       });
@@ -4608,7 +4730,7 @@ window.FS = window.FS || {};
   // ---- the one compact line
   function lineText(f, it) {
     var p = it.pct, t = 'Range: worst ' + pc(p.worst) + ' · typical ' + pc(p.median) + ' · best ' + pc(p.best);
-    if (!it.moneyHidden && moneyOk()) t += ' · net ' + usd(it.net.mean) + '/acre';
+    if (!it.moneyHidden && moneyOk()) t += ' · profit ' + usd(it.net.mean) + '/acre';
     return t;
   }
   function cardLine(fieldId, plan, controls) {
@@ -4622,7 +4744,7 @@ window.FS = window.FS || {};
     var b = it.breakdown, rows = [
       ['Gross revenue', usd(b.revenue)], ['Seed', usd(b.seed)], ['Fertilizer', usd(b.fertilizer)], ['Fuel and machinery', usd(b.machinery)], ['Irrigation and water', usd(b.irrigation)],
       ['Cover crop establishment', usd(b.cover)], ['Labor', usd(b.labor)], ['Chemicals, interest, other', usd(b.other)], ['Land rent', usd(b.landRent)], ['Cost-share', usd(b.costShare)]];
-    return '<details class="fs-fin-d"><summary>Money Breakdown</summary><ul class="fs-detail-list">' +
+    return '<details class="fs-fin-d"><summary>Costs And Profit</summary><ul class="fs-detail-list">' +
       rows.map(function (r) { return '<li>' + r[0] + ': ' + r[1] + ' per acre</li>'; }).join('') +
       '<li><strong>Net return:</strong> ' + usd(it.net.mean) + ' per acre on average; worst season ' + usd(it.net.worst) + ' (' + it.net.worstYear + '); a loss in ' + it.net.lossSeasons + ' of ' + f.nSeasons + ' seasons.</li></ul></details>';
   }
@@ -4727,10 +4849,10 @@ window.FS = window.FS || {};
     var pts = it.crop === 'soybean' ? f.err.soybean : f.err.corn;
     var rangeNote = '<p class="fs-fin-note">Typical model error for one season: about ' + Math.round(pts.points) + ' points of a normal crop' + (!it.moneyHidden && moneyOk() ? ' (about ' + usd(pts.dollars) + ' an acre)' : '') + '. Worst season ' + it.pct.worstYear + ', best ' + it.pct.bestYear + '.' + (!it.moneyHidden && moneyOk() ? ' Net return range: worst ' + usd(it.net.worst) + ', typical ' + usd(it.net.median) + ', best ' + usd(it.net.best) + ' an acre; a loss in ' + it.net.lossSeasons + ' of ' + f.nSeasons + ' seasons.' : '') + '</p>';
     function det(id, title, body) { return '<details class="fs-fin-d" data-fin="' + id + '"' + (openMap[id] ? ' open' : '') + '><summary>' + title + '</summary><div class="fs-fin-body">' + body + '</div></details>'; }
-    h += det('range', 'Range Details', rangeNote);
+    h += det('range', 'About This Range', rangeNote);
     if (!moneyOk()) h += '<p class="fs-fin-note">Dollar figures are not shown outside Iowa, because the costs are Iowa State budgets.</p>';
-    else if (f.items.some(function (x) { return !x.moneyHidden; })) { h += det('money', 'Money Breakdown', breakdownHtml(f)); h += det('ins', 'Crop Insurance', insuranceHtml(f)); }
-    h += det('about', 'About These Numbers', aboutHtml(f)) + '</div>';
+    else if (f.items.some(function (x) { return !x.moneyHidden; })) { h += det('money', 'Costs And Profit', breakdownHtml(f)); h += det('ins', 'Crop Insurance', insuranceHtml(f)); }
+    h += det('about', 'Where These Numbers Come From', aboutHtml(f)) + '</div>';
     return h;
   }
 
@@ -4755,7 +4877,7 @@ window.FS = window.FS || {};
 
 </script>
 <script>
-/* Sim analysis box: shows what happened in a run (summary only).  */
+/* Results box: shows what happened in a run (summary only).  */
 (function () {
   'use strict';
   var FS = window.FS, D = FS.data, S = FS.store, A = FS.actions;
@@ -4775,8 +4897,8 @@ window.FS = window.FS || {};
 
   var listEl, runningEl = null, made = {};
   function chrome() {
-    el.innerHTML = '<div class="fs-panel-head"><h2 class="fs-panel-title">Sim Analysis</h2><div class="fs-head-right">' +
-      '<button type="button" class="fs-expand" data-expand="Sim analysis" aria-label="Expand Sim analysis">' + EXPAND_SVG + '</button></div></div>' +
+    el.innerHTML = '<div class="fs-panel-head"><h2 class="fs-panel-title">Results</h2><div class="fs-head-right">' +
+      '<button type="button" class="fs-expand" data-expand="Results" aria-label="Expand Results">' + EXPAND_SVG + '</button></div></div>' +
       '<div class="fs-panel-body" id="fs-analysis-body" aria-live="polite"></div>';
     listEl = el.querySelector('#fs-analysis-body');
     listEl.addEventListener('click', function (e) {
@@ -4817,7 +4939,8 @@ window.FS = window.FS || {};
     return b.length ? ', ' + b.join(' and ') : '';
   }
   FS.weatherPhrase = function (w) { return scen(w.scenario).phrase + shiftWords(w); };
-  function scenarioPhrase(r) { return FS.weatherPhrase(r.inputs.weather); }
+  // the first line says it in plain words: "a typical year (2011 weather)"
+  function scenarioPhrase(r) { return FS.weatherPhrase(r.inputs.weather).replace(/^a typical season's weather \((\d{4})\)/, 'a typical year ($1 weather)'); }
   function round10(n) { return Math.round(Math.abs(n) / 10) * 10; }
   function planName(x) { var t = x.planLabel.replace(/\s*\(current plan\)/, ''); return t.charAt(0).toLowerCase() + t.slice(1); }
 
@@ -4848,7 +4971,7 @@ window.FS = window.FS || {};
       if (worst == null) return;
       var keep = !plan || plan === cur0[f.id];
       var what = keep ? 'keep ' + (CROP_OF[cur0[f.id]] || 'your plan') : 'try ' + (PLAN_SHORT[plan] || 'your plan');
-      rows += '<li><b>' + esc(f.name) + ':</b> ' + esc(what) + ' \u00b7 <span title="The worst of the ' + data.years.length + ' past seasons (' + wy + ')">worst season ' + Math.round(worst) + '% of normal</span></li>';
+      rows += '<li><b>' + esc(f.name) + ':</b> ' + esc(what) + ' \u00b7 <span title="The worst of the ' + data.years.length + ' past seasons (' + wy + ')">worst year ' + Math.round(worst) + '% of normal</span></li>';
     });
     return rows ? '<ul class="fs-verdicts" aria-label="One line per field">' + rows + '</ul>' : '';
   }
@@ -4876,11 +4999,11 @@ window.FS = window.FS || {};
     changed.forEach(function (f) { var p = r.inputs.crops.plans[f.id]; if (!byPlan[p]) { byPlan[p] = { p: p, x: s.fields[f.id], names: [] }; groups.push(byPlan[p]); } byPlan[p].names.push(esc(f.name)); });
     var who = groups.length > 2 ? 'your changes on ' + changed.length + ' fields' : joinAnd(groups.map(function (g) { return planPhrase(g.p, g.x) + ' on ' + joinAnd(g.names); }));
     if (oats) {
-      open = 'In ' + esc(sc) + ', your farm gets about ' + pctNormal + '% of a normal crop. Money is not shown while oats is in the plan, because oats price and cost are rough guesses with no source yet.';
+      open = 'In ' + esc(sc) + ', your farm makes about ' + pctNormal + '% of a normal crop. Money is not shown while oats is in the plan: the oats price and cost are only rough guesses.';
     } else if (changed.length && Math.round(delta) !== 0) {
       open = 'In ' + esc(sc) + ', ' + who + (groups.length > 1 ? ' earn' : ' earns') + ' about ' + money(round10(delta)) + (delta < 0 ? ' less' : ' more') + ' than your current plan.';
     } else {
-      open = 'In ' + esc(sc) + ', your farm gets about ' + pctNormal + '% of a normal crop' + (FS.absMoneyOk() ? ' and ' + earns(s.farm.returnTotal) : '') + (changed.length ? ', about the same as your current plan' : '') + '.';
+      open = 'In ' + esc(sc) + ', your farm makes about ' + pctNormal + '% of a normal crop' + (FS.absMoneyOk() ? ' and ' + earns(s.farm.returnTotal) : '') + (changed.length ? ', about the same as your current plan' : '') + '.';
     }
     h = scenarioBanner(r) + verdictsHtml(r, all, cur0) + '<p>' + open + '</p><div class="fs-strip-wrap"></div>';
 
@@ -4958,7 +5081,7 @@ window.FS = window.FS || {};
       }
       h += '<button type="button" class="fs-sq is-' + cl + (y === sel ? ' is-sel' : '') + '" data-year="' + y + '" aria-pressed="' + (y === sel ? 'true' : 'false') + '" aria-label="' + esc(label) + '" title="' + esc(label) + '"></button>';
     });
-    h += '</div><p class="fs-strip-cap">' + (diff ? data.years[0] + '–' + data.years[n - 1] + '. Olive: $10+ an acre more than your plan. Brown: $10+ less. Grey: about the same.' : data.years[0] + '–' + data.years[n - 1] + '. Olive: good year. Brown: bad year. Grey: about normal.') + '</p>';
+    h += '</div><p class="fs-strip-cap">' + (diff ? data.years[0] + '–' + data.years[n - 1] + '. Olive = $10+ an acre more than your plan · Brown = $10+ less · Grey = about the same.' : data.years[0] + '–' + data.years[n - 1] + '. Olive = good year · Brown = bad year · Grey = about normal.') + '</p>';
     wrap.innerHTML = h;
     if (focusYear != null) { var b = wrap.querySelector('[data-year="' + focusYear + '"]'); if (b) b.focus(); focusYear = null; }
   }
@@ -4975,7 +5098,7 @@ window.FS = window.FS || {};
     mount: function (mountEl) {
       el = mountEl; chrome(); if (FS.finUI) FS.finUI.bind(listEl);
       var runs = S.get().runs;
-      if (!runs.length) listEl.innerHTML = '<p class="fs-empty">Run a simulation to see what happened.</p>';
+      if (!runs.length) listEl.innerHTML = '<p class="fs-empty">Press Run Simulation to see your results.</p>';
       runs.forEach(addRun);
       S.on('sim:start', function () {
         if (runningEl) return;
@@ -5189,6 +5312,9 @@ window.FS = window.FS || {};
 
   function plainSpeak(s) {
     return String(s || '').replace(/bad-year safety/g, 'how it does in bad years')
+      .replace(/keeping your current plans gives the best balance of average profit and results in bad years over the past (\d+) seasons/, 'your current plans are the best mix of profit and safety over the past $1 seasons')
+      .replace(/keeping your current plans earns the most on average over the past (\d+) seasons/, 'your current plans earn the most on average over the past $1 seasons')
+      .replace(/Your current plans already have the best bad years of the options tried\./, 'Your current plans do best in bad years.')
       .replace(/\bit makes about (\$[\d,]+) less per acre/g, 'it costs about $1 per acre').replace(/\bmakes about (\$[\d,]+) more per acre/g, 'earns about $1 more per acre')
       .replace(/\bmakes about (\$[\d,]+) less per acre/g, 'costs about $1 per acre').replace(/\bmakes about (\$[\d,]+) less\b/g, 'costs about $1');
   }
@@ -6070,14 +6196,14 @@ window.FS = window.FS || {};
     var sm = cur.summary, recs = recsFrom(sm), pr = (cur.inputs.other && cur.inputs.other.priority) || 'balanced';
     lastRecPriority = pr;
     var msg;
-    if (recs.length) msg = { role: 'assistant', text: (recs.length === 3 ? 'Three' : cap(['zero', 'one', 'two'][recs.length])) + ' option' + (recs.length === 1 ? '' : 's') + ' worth a look, ranked by ' + PRIO_PHRASE[pr] + ':', items: recs, kind: 'rec', note: sm.recommendationNote ? plainSpeak(sm.recommendationNote) : null, foot: intro === false ? null : 'Type a what-if below, or "compare" for one field.' };
+    if (recs.length) msg = { role: 'assistant', text: (recs.length === 3 ? 'Three' : cap(['zero', 'one', 'two'][recs.length])) + ' option' + (recs.length === 1 ? '' : 's') + ' worth a look, ranked by ' + PRIO_PHRASE[pr] + ':', items: recs, kind: 'rec', note: sm.recommendationNote ? plainSpeak(sm.recommendationNote) : null, foot: intro === false ? null : 'Type a question or a change below, or say "compare" for one field.' };
     else {
       // Nothing beats the current plans: say so, then still show the side-by-side comparison for the selected field,
       // so the farmer always sees the current plan and its alternatives with their cards.
       var fid = S.get().selectedField, cmp = compareReply(fid, S.get().controls, S.get(), '');
       var note = plainSpeak(sm.recommendationNote || 'No alternative beats your current plans.');
-      if (cmp && cmp.items && cmp.items.length) msg = { role: 'assistant', text: note, fold: 'Compare The Other Options On ' + fieldById(fid).name, items: cmp.items, kind: 'cmp', foot: intro === false ? null : 'Type a what-if below, or "compare" for another field.' };
-      else msg = { role: 'assistant', text: 'Ranked by ' + PRIO_PHRASE[pr] + ': ' + note, foot: intro === false ? null : 'Type a what-if below, or "compare" for one field.' };
+      if (cmp && cmp.items && cmp.items.length) msg = { role: 'assistant', text: note, fold: 'Other Options For ' + fieldById(fid).name, items: cmp.items, kind: 'cmp', foot: intro === false ? null : 'Type a question or a change below, or say "compare" for another field.' };
+      else msg = { role: 'assistant', text: 'Ranked by ' + PRIO_PHRASE[pr] + ': ' + note, foot: intro === false ? null : 'Type a question or a change below, or say "compare" for one field.' };
     }
     var adv = FS.chat.advice;
     if (intro !== false && adv && !adv.used) {
@@ -6283,8 +6409,8 @@ window.FS = window.FS || {};
       '<svg class="ic-expand" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>' +
       '<svg class="ic-collapse" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10h-6V4M4 14h6v6M14 10l7-7M10 14l-7 7"/></svg></button></div></div>' +
       '<div class="fs-panel-body" id="fs-chat-list" aria-live="polite"></div>' +
-      '<form class="fs-chat-form" id="fs-chat-form"><label for="fs-chat-input" style="position:absolute;left:-9999px">Type a what-if</label>' +
-      '<textarea id="fs-chat-input" rows="1" placeholder="Type a what-if…"></textarea>' +
+      '<form class="fs-chat-form" id="fs-chat-form"><label for="fs-chat-input" style="position:absolute;left:-9999px">Ask a question or try a change</label>' +
+      '<textarea id="fs-chat-input" rows="1" placeholder="Ask or try a change…"></textarea>' +
       '<button type="submit" id="fs-chat-send">Send</button></form>';
     listEl = el.querySelector('#fs-chat-list'); inputEl = el.querySelector('#fs-chat-input');
     S.get().chat.forEach(append);
@@ -6847,6 +6973,7 @@ window.FS = window.FS || {};
   'use strict';
   var FS = window.FS = window.FS || {};
   var DAY = 864e5, N_DAYS = 365;
+  var opened = false;   // the forecast is only fetched once the panel is opened
   var el = null, data = null, dataKey = '', err = null, loading = false, seq = 0, model = null, note = null, noteErr = null, warnList = [];
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -7097,7 +7224,7 @@ window.FS = window.FS || {};
   function render() {
     if (!el) return;
     var body = el.querySelector('.fs-panel-body'), w = where();
-    var place = '<p class="fs-ol-where">' + (w.own ? (/^your\b/i.test(w.label || '') ? 'For ' + esc(w.label.charAt(0).toLowerCase() + w.label.slice(1)) : 'For your farm near ' + esc(w.label)) : 'For ' + esc(w.label) + ' (county point; add your address under “Your farm · Change” for your own spot)') +
+    var place = '<p class="fs-ol-where">' + (w.own ? (/^your\b/i.test(w.label || '') ? 'For ' + esc(w.label.charAt(0).toLowerCase() + w.label.slice(1)) : 'For your farm near ' + esc(w.label)) : 'For ' + esc(w.label) + ' (the county’s point; add your address under “Your farm · Change” for your own spot)') +
       (data ? ' · ' + esc(fmt(data.today, { weekday: 'long', month: 'long', day: 'numeric' })) : '') + '</p>';
     if (!apiBase()) { body.innerHTML = place + '<p class="fs-ol-faint">Open this page through the EcoShift server for the live forecast (run <code>npm start</code>, then open http://localhost:8787).</p>'; return; }
     if (err) { body.innerHTML = place + '<p class="fs-ol-err">' + esc(err) + '</p><button type="button" class="fs-ol-retry">Try again</button>'; body.querySelector('.fs-ol-retry').onclick = function () { dataKey = ''; refresh(); }; return; }
@@ -7109,7 +7236,7 @@ window.FS = window.FS || {};
 
   // ---------------------------------------------------------------- public
   function refresh() {
-    if (!el) return;
+    if (!el || !opened) return;
     var w = where(), key = w.lat.toFixed(3) + ',' + w.lon.toFixed(3), base = apiBase();
     seq++; note = null; noteErr = null;
     if (!base || !isFinite(w.lat) || !isFinite(w.lon)) { data = null; render(); return; }
@@ -7131,11 +7258,21 @@ window.FS = window.FS || {};
   }
   function mount(node) {
     el = node; if (!el) return;
-    el.innerHTML = '<div class="fs-panel-head"><h2 class="fs-panel-title">Next 30 Days</h2></div><div class="fs-panel-body" aria-live="polite"></div>';
-    refresh();
+    el.innerHTML = '<div class="fs-panel-head"><h2 class="fs-panel-title"><button type="button" class="fs-ctl-toggle fs-ol-toggle" id="fs-ol-toggle" aria-expanded="false" aria-controls="fs-ol-body">' +
+      '<span class="fs-ol-ttl">Next 30 Days</span><svg class="fs-chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' +
+      '<span class="fs-ol-hint">(weather forecast for your farm)</span></button></h2></div><div class="fs-panel-body" id="fs-ol-body" aria-live="polite" hidden></div>';
+    el.classList.add('is-collapsed');
+    var btn = el.querySelector('#fs-ol-toggle'), body = el.querySelector('#fs-ol-body');
+    btn.addEventListener('click', function () {
+      opened = body.hidden;   // hidden now means this press opens it
+      body.hidden = !opened; el.classList.toggle('is-collapsed', !opened); btn.setAttribute('aria-expanded', opened ? 'true' : 'false');
+      if (opened) refresh();
+    });
   }
+  // open or close it from code (the guide opens it to show what is inside)
+  function setOpen(on) { var b = el && el.querySelector('#fs-ol-toggle'); if (b && (b.getAttribute('aria-expanded') === 'true') !== !!on) b.click(); }
 
-  FS.outlook = { mount: mount, refresh: refresh, _warnings: warnings, _dayIndex: dayIndex };
+  FS.outlook = { mount: mount, refresh: refresh, open: setOpen, _warnings: warnings, _dayIndex: dayIndex };
 })();
 
 </script>
@@ -7786,7 +7923,7 @@ window.FS = window.FS || {};
     var by = function (t) { return list.filter(function (w) { return (w.topic || 'soil') === t; }); };
     var plural = function (k, one, many) { return k + ' ' + (k === 1 ? one : many); };
     var h = '';
-    if (req.approximate) h += '<p class="fs-cn-note">These are the example fields, so each is checked as a square of its size around its soil survey point. Import your real field outlines (the Import Your Real Field box at the top) for checks on your exact fields.</p>';
+    if (req.approximate) h += '<p class="fs-cn-note">These are the example fields, so each is checked as a square of its size around its soil survey point. Import your real field outlines (press Import Field in the Simulation panel) for checks on your exact fields.</p>';
     h += evLegend();
     h += todayList(d, list);
 
@@ -8125,7 +8262,7 @@ window.FS = window.FS || {};
     show();
   }
 
-  // ---------------------------------------------------------------- the "Import your real field" section (below the simulation)
+  // ---------------------------------------------------------------- the Import Field button and its small panel (in the Simulation panel)
   var TYPES = ['.geojson', '.json', '.kml'];
   var TYPES_WORDS = 'GeoJSON (.geojson or .json) or KML (.kml, as saved by Google Earth)';
   function extOf(name) { var m = /\.[^.]+$/.exec(String(name || '').toLowerCase()); return m ? m[0] : ''; }
@@ -8166,36 +8303,52 @@ window.FS = window.FS || {};
   function status(kind, text) {
     var el = $('fs-imp-status'); if (!el) return;
     el.className = 'fs-imp-status' + (kind ? ' fs-imp-' + kind : ''); el.textContent = text || ''; el.hidden = !text;
+    if (text) setOpen(true);   // a message (progress, error, done) is always shown, never hidden behind a closed panel
   }
   function setBusy(on) {
     var z = $('fs-imp-zone'); if (z) z.classList.toggle('fs-imp-busy', on);
     var i = $('fs-imp-file'); if (i) i.disabled = on;
-    if (on) status('wait', 'Reading your fields and getting 44 seasons of NASA POWER weather and the elevation model… this takes 10 to 40 seconds.');
+    var b = $('fs-imp-btn'); if (b) b.classList.toggle('is-busy', on);
+    if (on) status('wait', 'Reading your fields and getting 44 seasons of weather and the elevation of your land. This takes 10 to 40 seconds.');
   }
   function show() {
     var cur = FS.farmSetup && FS.farmSetup.setup, g = cur && !cur.example && cur.geo, done = $('fs-imp-done');
     if (!done) return;
     done.hidden = !g;
+    var b = $('fs-imp-btn'); if (b) b.classList.toggle('is-on', !!g);
     if (g) {
       $('fs-imp-what').textContent = 'Simulating your ' + g.fields.length + ' imported field' + (g.fields.length === 1 ? '' : 's') + (g.file ? ' from ' + g.file : '') + ': ' +
         g.fields.map(function (f) { return f.name + ' (' + Math.round(f.acres) + ' ac)'; }).join(', ') + '.';
       var st = $('fs-imp-status'); if (st && /wait/.test(st.className)) status('', '');
+      setOpen(true);   // imported fields are active: keep Reset Simulation easy to find
     }
+  }
+  // the small panel under the Simulation head: open on the Import Field button, held open while an import runs
+  function setOpen(on) {
+    var sec = $('fs-import'), btn = $('fs-imp-btn'); if (!sec || !btn) return;
+    if (!on && busy) on = true;
+    sec.hidden = !on; btn.setAttribute('aria-expanded', on ? 'true' : 'false');
   }
   function mount() {
     if ($('fs-import')) return;
-    var anchor = $('fs-app') || $('fs-outlook') || $('fs-foot'); if (!anchor) return;   // at the top, above Weather / Season
-    var sec = document.createElement('section'); sec.className = 'fs-panel'; sec.id = 'fs-import'; sec.setAttribute('aria-label', 'Import your real field');
+    var panel = $('fs-view-panel'), right = panel && panel.querySelector('.fs-head-right'), head = panel && panel.querySelector('.fs-panel-head');
+    if (!panel || !right || !head) return;
+    // the button sits in the Simulation head, after the Simulation / Farm Map / Conditions tabs
+    var btn = document.createElement('button'); btn.type = 'button'; btn.id = 'fs-imp-btn'; btn.className = 'fs-imp-btn';
+    btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', 'fs-import');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg><span>Import Field</span>';
+    var ex = right.querySelector('.fs-expand'); right.insertBefore(btn, ex || null);
+    var sec = document.createElement('section'); sec.id = 'fs-import'; sec.className = 'fs-imp-panel'; sec.setAttribute('aria-label', 'Import your field'); sec.hidden = true;
     sec.innerHTML =
+      '<div class="fs-imp-card">' +
       '<div class="fs-imp-row">' +
-        '<h2 class="fs-panel-title fs-imp-title">Import Your Real Field</h2>' +
         '<label id="fs-imp-zone" class="fs-imp-zone" data-tip="Import your real field. Accepted: .geojson, .json or .kml">' +
           '<input type="file" id="fs-imp-file" accept=".geojson,.json,.kml,application/geo+json,application/vnd.google-earth.kml+xml" aria-describedby="fs-imp-types">' +
           '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>' +
           '<span class="fs-imp-big">Drop a field file here, or click to choose</span>' +
           '<span class="fs-imp-tip" role="tooltip">Import your real field<br><b>Accepted:</b> .geojson, .json, .kml</span>' +
         '</label>' +
-        '<p class="fs-imp-try">Or try a sample: <a href="sample-fields.geojson" class="fs-imp-sample" data-name="sample-fields.geojson">Iowa sample</a> · <a href="california-fields.geojson" class="fs-imp-sample" data-name="california-fields.geojson">California sample</a></p>' +
+        '<p class="fs-imp-try">No file? Try a sample: <a href="sample-fields.geojson" class="fs-imp-sample" data-name="sample-fields.geojson">Iowa sample</a> · <a href="california-fields.geojson" class="fs-imp-sample" data-name="california-fields.geojson">California sample</a></p>' +
       '</div>' +
       '<div class="fs-imp-info">' +
         '<details class="fs-imp-more"><summary>Which Files Work?</summary>' +
@@ -8207,15 +8360,29 @@ window.FS = window.FS || {};
         '</details>' +
         '<p id="fs-imp-status" class="fs-imp-status" role="status" hidden></p>' +
         '<div id="fs-imp-done" class="fs-imp-done" hidden><p id="fs-imp-what"></p>' +
-          '<button type="button" id="fs-imp-reset" class="fs-btn-primary">Reset simulation</button>' +
-          '<span class="fs-fm-faint">Takes the imported fields out and starts the simulation again from the beginning, with every setting back to its start.</span></div>' +
-      '</div>';
-    anchor.parentNode.insertBefore(sec, anchor);
+          '<button type="button" id="fs-imp-reset" class="fs-btn-primary">Reset Simulation</button>' +
+          '<span class="fs-fm-faint">Removes your fields and starts again with every setting back to its start.</span></div>' +
+      '</div></div>';
+    head.parentNode.insertBefore(sec, head.nextSibling);   // right under the head; it floats over the view, so the map keeps its size
+    btn.addEventListener('click', function () { setOpen(sec.hidden); });
+    document.addEventListener('keydown', function (e) {   // Escape closes the panel when focus is in it or on its button
+      if (e.key !== 'Escape' || busy || sec.hidden || !(sec.contains(document.activeElement) || document.activeElement === btn)) return;
+      setOpen(false); btn.focus();
+    });
     var inp = $('fs-imp-file'), zone = $('fs-imp-zone');
     inp.addEventListener('change', function () { var f = inp.files && inp.files[0]; inp.value = ''; if (f) readFile(f); });
     ['dragenter', 'dragover'].forEach(function (ev) { zone.addEventListener(ev, function (e) { e.preventDefault(); zone.classList.add('fs-imp-over'); }); });
     ['dragleave', 'drop'].forEach(function (ev) { zone.addEventListener(ev, function () { zone.classList.remove('fs-imp-over'); }); });
     zone.addEventListener('drop', function (e) { e.preventDefault(); if (busy) return; var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (f) readFile(f); });
+    // a file dropped anywhere on the Simulation panel opens the import panel and imports it
+    function hasFiles(e) { return !!(e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') >= 0); }
+    panel.addEventListener('dragover', function (e) { if (hasFiles(e)) e.preventDefault(); });
+    panel.addEventListener('dragenter', function (e) { if (hasFiles(e)) { e.preventDefault(); setOpen(true); } });
+    panel.addEventListener('drop', function (e) {
+      if (e.defaultPrevented || !hasFiles(e)) return;
+      e.preventDefault(); if (busy) return; setOpen(true);
+      var f = e.dataTransfer.files && e.dataTransfer.files[0]; if (f) readFile(f);
+    });
     $('fs-imp-reset').addEventListener('click', reset);
     // the sample links import the sample straight away (their own download links sit next to them)
     Array.prototype.forEach.call(sec.querySelectorAll('.fs-imp-sample'), function (a) {
@@ -8233,12 +8400,12 @@ window.FS = window.FS || {};
   function reset() {
     remove();
     try { FS.fieldView.pause(); FS.fieldView.setWeek(0); } catch (e) { /* the view may not be ready */ }
-    status('ok', 'Reset: the imported fields are out and every setting is back to its start.');
+    status('ok', 'Reset. Your fields are out and every setting is back to its start.');
     var top = $('fs-app'); if (top && top.scrollIntoView) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(mount, 0); }); else setTimeout(mount, 0);
 
-  FS.fieldImport = { importText: importText, parse: parse, remove: remove, reset: reset, kmlToGeoJSON: kmlToGeoJSON };
+  FS.fieldImport = { open: setOpen, show: show, importText: importText, parse: parse, remove: remove, reset: reset, kmlToGeoJSON: kmlToGeoJSON };
 })();
 
 </script>
@@ -8257,8 +8424,8 @@ window.FS = window.FS || {};
     FS.store.on('controls:change', refresh); FS.store.on('sim:done', refresh); refresh();
   }
 
-  // Expand one of Simulation / Sim analysis / Chat to fill the viewport. Only one at a time; Esc collapses.
-  var panelOf = { 'Simulation': 'fs-view-panel', 'Sim analysis': 'fs-analysis', 'Chat': 'fs-chat' };
+  // Expand one of Simulation / Results / Chat to fill the viewport. Only one at a time; Esc collapses.
+  var panelOf = { 'Simulation': 'fs-view-panel', 'Results': 'fs-analysis', 'Chat': 'fs-chat' };
   function setExpanded(title) {
     Object.keys(panelOf).forEach(function (t) {
       var p = $(panelOf[t]); if (!p) return;
@@ -8444,6 +8611,7 @@ window.FS = window.FS || {};
     guard('run', function () { FS.actions.runSimulation('setup', 'Typical season · current plans'); });
     guard('recs', function () { FS.chat.postRecs(); });
     guard('outlook', function () { if (FS.outlook) FS.outlook.refresh(); });
+    guard('import panel', function () { if (FS.fieldImport && FS.fieldImport.show) FS.fieldImport.show(); });
     guard('farm map', function () { if (FS.farmMap) FS.farmMap.refresh(); });
     guard('conditions', function () { if (FS.conditions) FS.conditions.refresh(); });
     return { ok: true };

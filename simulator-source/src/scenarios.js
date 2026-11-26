@@ -12,11 +12,11 @@
 
   // ---------------------------------------------------------------- provenance labels
   var KINDS = {
-    observed: { text: 'Observed history', tip: 'What actually happened in the past seasons (NASA POWER daily weather). It shows how a plan did under those conditions. It is not the chance of any season next year.' },
+    observed: { text: 'Real past weather', tip: 'What actually happened in the past seasons (NASA POWER daily weather). It shows how a plan did under those conditions. It is not the chance of any season next year.' },
     current: { text: 'Current observations', tip: 'Recent satellite readings and weather estimates for your fields. They describe now, not the rest of the season.' },
     forecast: { text: 'Forecast (next 16 days)', tip: 'A weather-model forecast for the next 16 days. Useful for the coming days, not for the whole season.' },
-    seasonal: { text: 'Seasonal outlook (days 17-30)', tip: 'A rough long-range estimate for days 17 to 30, an average of many model runs. Much less certain than the 16-day forecast.' },
-    assumed: { text: 'Assumed scenario', tip: 'A what-if built on assumed changes with illustrative sizes. It is not a forecast and not a probability.' }
+    seasonal: { text: 'Rough estimate (days 17-30)', tip: 'A rough long-range estimate for days 17 to 30, an average of many model runs. Much less certain than the 16-day forecast.' },
+    assumed: { text: 'What-if weather', tip: 'A what-if built on assumed changes with illustrative sizes. It is not a forecast and not a probability.' }
   };
   function badge(kind, more) {
     var k = KINDS[kind]; if (!k) return '';
@@ -147,12 +147,12 @@
   // ---------------------------------------------------------------- the Scenarios section of the Weather / Season box
   var host = null;
   function sectionHtml() {
-    var h = '<div class="fs-scn-head"><span class="fs-scn-title" id="fs-scn-title">Scenarios</span><span class="fs-scn-state" aria-live="polite"></span></div>' +
+    var h = '<div class="fs-scn-head"><span class="fs-scn-title" id="fs-scn-title">Quick Picks</span><span class="fs-scn-state" aria-live="polite"></span></div>' +
       '<div class="fs-scn-list" role="group" aria-labelledby="fs-scn-title">';
     PRESETS.forEach(function (p) {
       h += '<button type="button" class="fs-scn-btn" data-preset="' + p.id + '" aria-pressed="false" title="' + esc(p.blurb) + '">' + esc(p.name) + '</button>';
     });
-    h += '</div><details class="fs-scn-det"><summary>About These Scenarios</summary><ul class="fs-scn-src">' +
+    h += '</div><details class="fs-scn-det"><summary>About These Picks</summary><ul class="fs-scn-src">' +
       PRESETS.map(function (p) { return '<li><b>' + esc(p.name) + '.</b> ' + esc(p.blurb) + ' <i>' + esc(p.basis) + '</i></li>'; }).join('') +
       '<li><b>Labels.</b> ' + Object.keys(KINDS).map(function (k) { return '<b>' + esc(KINDS[k].text) + ':</b> ' + esc(KINDS[k].tip); }).join(' ') +
       ' History shows how a plan did under past conditions, not the chance of any season next year. EcoShift holds no long-term climate projections: the assumed scenarios are what-ifs.</li></ul></details>';
