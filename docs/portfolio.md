@@ -229,7 +229,7 @@ Two false starts before the single-function rewrite worked (see 10.1).
 ### 11.9 Things we could not do
 
 - NOAA and Iowa Environmental Mesonet web services were blocked in our build environment.
-- The Open-Meteo free tier returned HTTP 429 for six counties, so six counties reuse Story County's heat thresholds.
+- The Open-Meteo free tier returned HTTP 429 for six counties in the first build, so they borrowed Story County's heat thresholds. A later run filled in five of them. Christian County, Kentucky still reuses Story County's.
 - CropScape failed TLS in our environment, so the MODIS check uses a hand-built cropland mask, and we did not disable TLS.
 - Drawing a new farm map needs Python, which Vercel does not provide.
 - We have not yet tested the tool with farmers.

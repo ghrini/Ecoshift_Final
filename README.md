@@ -176,7 +176,11 @@ Full method and tables: [`simulator-source/VALIDATION.md`](simulator-source/VALI
 
 <p align="center"><img src="docs/images/satellite-check.png" width="900" alt="MODIS peak greenness, the model's corn yield and the real Story County corn harvest, 2000 to 2025, each as a percent of normal."><br><sub>NASA Terra MODIS peak greenness, the model and the real Story County corn harvest, 2000 to 2025.</sub></p>
 
-The site's Project Details tab shows the chart (`public/images/validation-corn.svg`).
+**Checked in 14 counties.** The same model, with the settings fitted on Iowa and nothing refitted, was scored against each county's own USDA NASS yields (41 to 44 seasons each, the county's own NASA POWER weather and NRCS soil). Its error is smaller than the trend line's in 14 of 14 counties for corn and 13 of 14 for soybeans, by a small margin (median skill 0.14 and 0.11). It does best in Dane County, Wisconsin (corn skill 0.29) and Champaign County, Illinois (0.21). It is worse than the trend for O'Brien County, Iowa soybeans (-0.05), nearly flat in Christian County, Kentucky, and close to the trend line in ordinary seasons in about half the counties. Every county, good and bad, is in [`VALIDATION.md`](simulator-source/VALIDATION.md#multi-county-validation-14-counties). Script: `simulator-source/tools/validate_counties.py`.
+
+<p align="center"><img src="docs/images/validation-counties.png" width="900" alt="Skill against a trend-only guess in 14 counties, corn and soybeans, with 95% intervals."><br><sub>Skill against the trend line in 14 counties (0 = no better than the trend), Iowa-fitted model, no refit.</sub></p>
+
+The site's Project Details tab shows both charts (`public/images/validation-corn.svg`, `public/images/validation-counties.svg`).
 
 ---
 
@@ -410,6 +414,7 @@ The simulator also opens as a plain file (`public/deepdive/index.html`) and work
 | `node verify/qa2/realmap_test.js dist/simulator.test.html outdir` | The farm map view | all pass |
 | `node verify/qa2/livemap_test.js dist/simulator.test.html outdir` | The near-real-time warnings map | all pass |
 | `python3 tools/validate.py` | Re-runs the leave-one-year-out yield check (about 2 minutes) | writes `data/validation.json` and the tables in VALIDATION.md |
+| `python3 tools/validate_counties.py` | The 14-county check, transfer and refit (2 to 5 minutes) | writes `data/validation_counties.json` and `public/images/validation-counties.svg` |
 | `sha256sum -c raw/HASHES.txt` | Every raw NASA, USDA, NOAA and Open-Meteo download | matches |
 
 The page tests use Playwright and run against `dist/simulator.test.html`. Build the simulator first:

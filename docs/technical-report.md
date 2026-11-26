@@ -28,7 +28,7 @@
 
 Farmers choose next year's rotation before they know the weather. EcoShift tests that choice by replaying 44 real seasons (1982 to 2025) of NASA POWER daily weather through a FAO-56 soil-water crop model on a farmer's own fields, then comparing rotations in harvest, profit and bad-season risk. Imported field outlines can also be checked from space, with Copernicus Sentinel-2 field health, NASA fire detections, NASA soil wetness and terrain.
 
-We tested the weather response of the model against USDA NASS Iowa state yields for corn and soybeans, 1982 to 2025, predicting each season with the model's settings fitted without that season (leave-one-year-out). For corn, the correlation is r 0.48 and the error is 9.9 points of a normal crop, against 11.3 for a trend-only guess (skill 0.12). The model ranks the 1988 and 2012 droughts among its three lowest seasons. But in ordinary years, with 1988 and 2012 left out, it does no better than the trend (corn r 0.27, error 9.9 against 9.7), and it misses the 1993 flood. A small ridge regression on six weather numbers does better on the same test (corn r 0.58, error 9.1), but it cannot compare rotations, so we kept the process model and say so. NASA MODIS vegetation over Story County tracks real county corn yields (r 0.61), which gives an independent check that the satellite and the model both see 2012. Several limits apply: one weather grid cell, one validated county in the main test, no direct validation of rotation or cover-crop effects, and no testing with farmers yet.
+We tested the weather response of the model against USDA NASS Iowa state yields for corn and soybeans, 1982 to 2025, predicting each season with the model's settings fitted without that season (leave-one-year-out). For corn, the correlation is r 0.48 and the error is 9.9 points of a normal crop, against 11.3 for a trend-only guess (skill 0.12). The model ranks the 1988 and 2012 droughts among its three lowest seasons. But in ordinary years, with 1988 and 2012 left out, it does no better than the trend (corn r 0.27, error 9.9 against 9.7), and it misses the 1993 flood. A small ridge regression on six weather numbers does better on the same test (corn r 0.58, error 9.1), but it cannot compare rotations, so we kept the process model and say so. NASA MODIS vegetation over Story County tracks real county corn yields (r 0.61), which gives an independent check that the satellite and the model both see 2012. A second test on 14 Corn Belt counties, each against its own USDA county yields with the Iowa settings unchanged, gives a small skill over the trend in 14 of 14 counties for corn and 13 of 14 for soybeans (median 0.14 and 0.11), mostly from the worst seasons and often within the noise. Several limits apply: one weather grid cell per county, no direct validation of rotation or cover-crop effects, and no testing with farmers yet.
 
 ## 2. Research Question
 
@@ -198,28 +198,43 @@ The model design was iterated against these same 44 NASS years (the two-layer pr
 
 ## 8. Multi-County Results
 
-> **Status: pending.** A teammate is producing the multi-county validation. This section is the structure only. It contains no numbers until that work is merged.
+Source: `simulator-source/data/validation_counties.json` and the section "Multi-County Validation (14 Counties)" in `simulator-source/VALIDATION.md`, produced by `python3 tools/validate_counties.py`. Each county is scored against its own USDA NASS county yields, 41 to 44 seasons from 1982 to 2025, with its own NASA POWER weather and NRCS soil. The target and the trend-only baseline are the same as in section 6 (yield as a share of a robust trend, refitted without the held-out season).
 
-This section will summarise two sources:
+Two tests were run:
 
-- `simulator-source/data/validation_counties.json` (the machine-readable results), and
-- the section titled "Multi-County Validation" in `simulator-source/VALIDATION.md`.
+- **Transfer.** The model exactly as fitted on Iowa state yields, with nothing refitted.
+- **Refit.** Leave-one-year-out, refitting the three fitted numbers (gamma, heat slope, grain-fill exponent) on each county's other seasons. The structural settings were not searched again per county.
 
-**Where the table comes from.** Every figure in the table below will be copied from those two files, using the same leave-one-year-out method and metrics as section 6 (Pearson r, RMSE in points of trend, skill against trend-only), and not from anywhere else.
+Transfer test (skill = 1 - model RMSE / trend-only RMSE; RMSE in points of trend):
 
-Planned structure:
-
-| County | State | Seasons tested | Corn r | Corn RMSE | Corn trend-only RMSE | Corn skill | Soybean r | Soybean skill |
+| County | State | Corn seasons | Corn r | Corn RMSE | Corn trend-only RMSE | Corn skill | Soybean r | Soybean skill |
 |---|---|---|---|---|---|---|---|---|
-| (from `validation_counties.json`) | | | | | | | | |
+| Dane County | WI | 44 | 0.72 | 8.4 | 11.9 | +0.29 | 0.59 | +0.16 |
+| Champaign County | IL | 42 | 0.69 | 12.7 | 16.0 | +0.21 | 0.48 | +0.12 |
+| Saunders County | NE | 42 | 0.59 | 11.1 | 13.7 | +0.19 | 0.52 | +0.14 |
+| O'Brien County | IA | 44 | 0.58 | 8.4 | 10.3 | +0.18 | 0.07 | -0.05 |
+| Saline County | MO | 42 | 0.69 | 13.6 | 16.7 | +0.18 | 0.56 | +0.15 |
+| Blue Earth County | MN | 44 | 0.56 | 9.8 | 11.6 | +0.16 | 0.28 | +0.03 |
+| Nemaha County | KS | 41 | 0.63 | 25.8 | 30.1 | +0.14 | 0.60 | +0.13 |
+| Brookings County | SD | 43 | 0.52 | 13.1 | 14.9 | +0.13 | 0.31 | +0.02 |
+| Lenawee County | MI | 44 | 0.45 | 12.2 | 13.7 | +0.11 | 0.54 | +0.14 |
+| Story County | IA | 44 | 0.40 | 11.7 | 12.8 | +0.08 | 0.42 | +0.09 |
+| Cass County | ND | 44 | 0.42 | 15.8 | 17.2 | +0.08 | 0.50 | +0.13 |
+| Wood County | OH | 43 | 0.42 | 12.8 | 13.8 | +0.07 | 0.36 | +0.07 |
+| Tippecanoe County | IN | 43 | 0.35 | 14.6 | 15.6 | +0.06 | 0.47 | +0.10 |
+| Christian County | KY | 44 | 0.67 | 18.9 | 20.1 | +0.06 | 0.10 | +0.01 |
 
-Then, in plain words:
+Soybean season counts differ slightly from corn in a few counties; `VALIDATION.md` lists them.
 
-1. Which counties show skill above the trend, and which do not.
-2. Whether the Story County result (section 7) is typical or lucky.
-3. Whether droughts or floods drive the score in other counties, as they do in Story County.
-4. How the number of counties changes our claim about the tool, and which counties remain unvalidated (`VALIDATION.md` section 10 says that before this work, only Story County was checked).
-5. Any county where the model is worse than trend-only, stated plainly.
+What the numbers show:
+
+1. **Skill above trend, but small.** Skill is above zero in 14 of 14 counties for corn (median +0.14) and 13 of 14 for soybeans (median +0.11). It is 0.10 or more in 9 counties for corn and 8 for soybeans, and the 95% bootstrap interval stays above zero in only 6 (corn) and 5 (soybean).
+2. **Story County is not unusually good.** Its transfer skill (+0.08 corn, +0.09 soybean) is below the median, and its intervals include zero. The state-level result in section 7 (corn skill 0.12) uses Iowa state yields, which are smoother than one county's.
+3. **The skill comes from the bad seasons.** Without each county's five worst real seasons, skill is zero or negative in 8 of 14 counties for corn and 7 of 14 for soybeans. On average the model puts 2.6 (corn) and 2.0 (soybean) of a county's five worst seasons in its own worst five, against about 0.6 by chance. Its season-to-season swings are about half the real ones (7.3 vs 15.7 points for corn, 5.1 vs 14.8 for soybeans).
+4. **Where it does poorly.** O'Brien County, Iowa, soybeans are worse than trend-only (-0.05). Christian County, Kentucky, is nearly flat in the model, and it misses 2012 there (real 38% of trend, model 95%). The 1993 flood is read as a normal or good season in Nemaha, Saunders and Wood counties. 1992 is predicted badly in both directions: too low in Wood, Tippecanoe, Lenawee and Story, too high in Cass and Brookings. Northern counties and the poorly drained clay of Wood County have wide intervals and little skill.
+5. **Refitting does not rescue it.** Median refit skill is +0.15 (corn) and +0.08 (soybean), against +0.14 and +0.11 for the transfer test. Refitting helps most in Christian County corn (+0.06 to +0.39).
+
+These numbers flatter the model somewhat. The Iowa fit used the same 1982 to 2025 seasons, so the shared regional droughts are not unseen years, and the county median used to scale the model includes the held-out season. Our claim stays the same after this test: EcoShift can show which seasons are risky for a plan, and it is not a yield forecast.
 
 ## 9. Field-Level Satellite Checks
 
@@ -269,7 +284,7 @@ All of these are stated in the repository documents. We list them together here.
 7. **Not weather-model years.** 1993 (flood) and 2020 (derecho) are outside what the model can represent.
 8. **Technology trend.** Hybrids now tolerate drought better than in 1988, so old droughts replayed with today's hybrids are probably too severe in the model and the yields alike.
 9. **Heat is not identifiable.** The fitted corn heat slope is 0. The temperature slider uses a published-average floor (Zhao et al. 2017), which is a different place and model. POWER summer Tmax runs 1 to 3 C hotter than ERA5, which the data cannot separate from a real heat effect. A heat wave event raises water use only, and is probably too mild.
-10. **What is not validated:** field-level yields, rotation effects, cover-crop effects and planting-date effects (these come from Iowa State trials and budgets), money, irrigation, the planting shift control and weather events, and every county other than Story County in the main test (see section 8 for the multi-county work).
+10. **What is not validated:** field-level yields, rotation effects, cover-crop effects and planting-date effects (these come from Iowa State trials and budgets), money, irrigation, the planting shift control and weather events, and, outside the main Iowa test, any county beyond the 14 in section 8 (those 14 have a weaker, separate check).
 11. **Soil.** One NRCS map unit at one point per field, which can miss other map units in a real outline. Tile drainage, common in Story County, is not modelled. Drainage differences come from design constants.
 12. **Data differences.** POWER and ERA5 disagree on summer rain, summer heat and fall frost. Three NOAA stations agree with POWER on fall frost, not ERA5.
 13. **No nitrogen loss, hail, wind, disease or pests.** Only weather, soil water, planting date, frost, rotation and cover crop effects are in the yield formula.
@@ -286,7 +301,7 @@ All of these are stated in the repository documents. We list them together here.
 20. **Soil wetness is modelled MERRA-2, not SMAP.**
 
 **Reach and use**
-21. **Only a small number of counties.** There are 14 built-in counties, and for all but Story County in the main test, the same equations are used with no check of their own. The heat thresholds of six counties reuse Story County's.
+21. **Only a small number of counties.** There are 14 built-in counties. Each now has a check against its own USDA yields (section 8), but the model was fitted on Iowa only, and its skill outside the worst seasons is close to zero in about half of them. Christian County, Kentucky reuses Story County's heat thresholds, because its ERA5 series was not fetched.
 22. **No farmer testing yet.** We have not shown that the tool improves a decision. A plan is in `docs/farmer-testing/`.
 23. **Performance on hosting.** A cold field import takes about 30 seconds. New farm maps need Python, which the Vercel function does not have.
 24. **A prototype.** Results are estimates for comparing options, not predictions, and planting decisions should be confirmed with local agronomic advice.

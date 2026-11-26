@@ -660,9 +660,25 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
           </div>
         </div>
 
+        <div class="wrap limits" id="counties">
+          <p class="kicker">Checked In 14 Counties</p>
+          <div class="callout">
+            <p class="callout-lead">The Same Model, Tested On Each County's Own USDA Harvests.</p>
+            <figure class="valid-fig">
+              <img src="images/validation-counties.svg" width="960" height="616" loading="lazy" alt="Bar chart of model skill against a trend-only guess in 14 Corn Belt counties, corn and soybeans, using the settings fitted on Iowa with no refit. Corn bars are above zero in all 14 counties and soybean bars in 13; O'Brien County soybeans are slightly below zero. Most 95% intervals cross zero.">
+              <figcaption>Skill against the trend line in 14 counties, 41 to 44 seasons each, using the settings fitted on Iowa with nothing refitted. 0 means no better than the trend line. Whiskers are 95% intervals. Full tables, including every county where it does poorly: <a href="https://github.com/ghrini/Ecoshift_Final/blob/main/simulator-source/VALIDATION.md#multi-county-validation-14-counties" target="_blank" rel="noopener noreferrer">VALIDATION.md</a>.</figcaption>
+            </figure>
+            <ul class="callout-list">
+              <li>The model's error was smaller than the trend line's in 14 of 14 counties for corn and 13 of 14 for soybeans. The margin is small: a median of 14% for corn and 11% for soybeans.</li>
+              <li>It does best in Dane County, Wisconsin, and Champaign County, Illinois. It does worst for soybeans in O'Brien County, Iowa, where it is slightly worse than the trend line, and in Christian County, Kentucky, where its seasons barely change.</li>
+              <li>Its clearest skill is finding bad seasons: about 2.6 of each county's 5 worst corn seasons land in its own worst 5, against about 0.6 by chance. In ordinary seasons it is close to the trend line, and its swings are about half the size of the real ones.</li>
+            </ul>
+          </div>
+        </div>
+
         <div class="wrap limits">
           <p class="kicker">Who It Is For And How It Grows</p>
-          <p>EcoShift is for farmers who want to test a rotation before planting. Today its crop model knows corn, soybeans, oats and a rye cover crop, and it works at any point in the US Corn Belt, from 14 ready counties, with the farmer's own location fitted from NASA climate. Imported fields get NASA POWER weather, soil and satellite checks anywhere on Earth. The model has been checked against 44 years of Iowa harvests, with weather from Story County. Next steps are checking the other 13 counties the same way, adding NASA satellite soil moisture, and irrigated Western crops (tomatoes, alfalfa, wheat) with water allocation limits, for farms like those in California's Central Valley.</p>
+          <p>EcoShift is for farmers who want to test a rotation before planting. Today its crop model knows corn, soybeans, oats and a rye cover crop, and it works at any point in the US Corn Belt, from 14 ready counties, with the farmer's own location fitted from NASA climate. Imported fields get NASA POWER weather, soil and satellite checks anywhere on Earth. The model has been checked against 44 years of Iowa harvests, with weather from Story County, and against the USDA harvests of all 14 counties. Next steps are better results in ordinary seasons, adding NASA satellite soil moisture, and irrigated Western crops (tomatoes, alfalfa, wheat) with water allocation limits, for farms like those in California's Central Valley.</p>
         </div>
 
         <div class="wrap limits">
@@ -701,6 +717,7 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
               <div><dt>A Frost Fix That Was Wrong</dt><dd>We suspected NASA POWER's fall nights were too cold and matched them to ERA5. Three NOAA weather stations near Ames showed POWER was right, so we reverted the change. The station data decided it, not the score.</dd></div>
               <div><dt>More AI Was Not Better</dt><dd>Gradient boosting did worse than the trend line for corn: with 43 training seasons it overfit. Ridge regression beat our crop model (error 9.1 vs 9.9 points), but it cannot compare rotations, cover crops or planting dates, so we kept the crop model and use ridge as the benchmark. Our own plan said to switch, and we say openly that we did not.</dd></div>
               <div><dt>Ordinary Seasons Are Hard</dt><dd>Most of the model's skill comes from the big droughts. With 1988 and 2012 left out, its error is slightly higher than the trend line's (9.9 vs 9.7 points). That is why EcoShift shows a range of seasons and the typical error instead of one number.</dd></div>
+              <div><dt>Refitting Each County</dt><dd>We expected that refitting the model's three fitted numbers on each county's own harvests would help. On average it barely changed anything: the median corn skill went from 0.14 to 0.15, and soybeans dropped from 0.11 to 0.08. It helped a lot in Christian County, Kentucky, where the Iowa settings barely respond.</dd></div>
               <div><dt>Too Many Server Functions</dt><dd>The free hosting plan allows 12 server functions and we had more. Every route now runs through one function. Live field checks also timed out when one data service was slow, so each source now gets its own 40-second limit.</dd></div>
             </dl>
           </div>
@@ -728,7 +745,7 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
           <div class="split-body">
             <p class="lede">Can historical weather-based crop simulation help farmers judge the resilience and financial trade-offs of different crop rotations as weather becomes more variable?</p>
             <ul class="points">
-              <li><span class="num">01</span>Does fitting each county to its own USDA harvests make the model more reliable outside Iowa?</li>
+              <li><span class="num">01</span>Why does the model work better in some counties, like Dane County, Wisconsin, than in others, like O'Brien County, Iowa, and what would improve ordinary seasons?</li>
               <li><span class="num">02</span>Can NASA SMAP soil moisture, available from 2015, check the model's dry weeks?</li>
               <li><span class="num">03</span>Do farmers make a different, better-informed decision after using EcoShift, and which results do they trust?</li>
               <li><span class="num">04</span>How much average profit will a farmer give up for a smaller worst-case loss once crop insurance is counted?</li>
@@ -748,7 +765,7 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
               <div><dt>Who Uses It</dt><dd>Farmers deciding next year's rotation in the winter, and the county extension agents and crop advisers who help them. It is a web link: no account, no download, and it works on a phone.</dd></div>
               <div><dt>What It Costs To Run</dt><dd>Every data source is public and free: NASA POWER, NASA GIBS, USDA, Copernicus. The site is static pages and a few small server functions, which fit a free hosting plan for a pilot. The Gemini AI helpers are optional; without a key, everything else works the same.</dd></div>
               <div><dt>How It Reaches Farmers</dt><dd>Our plan is to test it with farmers and an extension office near us in California first, then bring it to Iowa extension workshops, with each county checked against its own USDA harvests before it is offered there.</dd></div>
-              <div><dt>What We Build Next</dt><dd>Irrigated crops and water allocation limits for California farms, NASA SMAP soil moisture and NASA HLS images for every field, and the same harvest check for the 13 other counties.</dd></div>
+              <div><dt>What We Build Next</dt><dd>Irrigated crops and water allocation limits for California farms, NASA SMAP soil moisture and NASA HLS images for every field, and testing sessions with farmers and extension specialists.</dd></div>
               <div><dt>Open Source</dt><dd>All the code, the data notes and the full validation are public on GitHub, so anyone can check our numbers. <a href="https://github.com/ghrini/Ecoshift_Final" target="_blank" rel="noopener noreferrer">github.com/ghrini/Ecoshift_Final</a></dd></div>
             </dl>
           </div>
