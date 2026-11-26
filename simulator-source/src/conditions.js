@@ -14,7 +14,7 @@
   var hidden = {};   // map layers the farmer switched off
   var secOpen = {}, noteSec = {};   // sections the farmer opened or closed; which section each numbered note is in
   function narrow() { return !!(window.matchMedia && window.matchMedia('(max-width: 600px)').matches); }
-  function isOpen(id) { return secOpen[id] != null ? secOpen[id] : !narrow(); }   // open on desktop, closed on phones until pressed
+  function isOpen(id) { return secOpen[id] != null ? secOpen[id] : false; }   // every detail section starts closed; the top of the view is the short list and the map
   var R = Math.PI / 180;
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }

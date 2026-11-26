@@ -1285,6 +1285,96 @@ details.fs-fin-d[open] > summary::before, details.fs-fold[open] > summary::befor
 #fs-analysis .fs-run-msg > .fs-sum-line { order: 1; }
 #fs-analysis .fs-run-msg > .fs-verdicts { order: 2; }
 
+/* ===== Calm near-real-time view: short bullets on top, the map, then closed boxes for every detail section ===== */
+.fs-cn { font-size: 15px; gap: 14px; }
+.fs-cn h3 { font: 600 16px/1.3 var(--font-sans); }
+.fs-cn .fs-fm-where, .fs-cn .fs-fm-where b { font-size: 14px; font-weight: 500; color: var(--text-muted); }
+.fs-cn #fs-cn-refresh { font-size: 13px; padding: 5px 10px; min-height: 0; }
+/* the example-fields note: one quiet line, no box */
+.fs-cn .fs-cn-note { border: 0; background: none; padding: 0; margin: 0; font-size: 13px; color: var(--text-faint); }
+/* things to check today: plain bullets, normal weight, no coloured edges */
+.fs-cn .fs-cn-today { border: 0; background: none; padding: 0; }
+.fs-cn .fs-cn-check { display: grid; gap: 6px; margin: 6px 0 0; padding: 0; }
+.fs-cn .fs-cn-check > li, .fs-cn .fs-cn-check > li * { font-size: 15px; font-weight: 400; line-height: 1.45; }
+.fs-cn .fs-cn-check > li { border: 0; border-left: 0; background: none; padding: 2px 0; box-shadow: none; display: flex; align-items: baseline; gap: 10px; }
+.fs-cn .fs-cn-check > li b, .fs-cn .fs-cn-check > li strong { font-weight: 600; }
+.fs-cn .fs-cn-check .fs-fm-btn, .fs-cn .fs-cn-check button { all: unset; cursor: pointer; flex: none; font-size: 13px; color: var(--text-muted); text-decoration: underline; text-underline-offset: 3px; }
+.fs-cn .fs-cn-check button:hover { color: var(--text); }
+.fs-cn .fs-cn-check button:focus-visible { outline: 2px solid var(--umber); outline-offset: 2px; }
+/* going well: plain heading, grey ticks */
+.fs-cn .fs-cn-good { border: 0; background: none; padding: 0; margin-top: 10px; }
+.fs-cn .fs-cn-good h4 { margin: 0 0 4px; font: 600 15px/1.3 var(--font-sans); color: var(--text); }
+.fs-cn .fs-cn-good li, .fs-cn .fs-cn-good li * { font-size: 15px; color: var(--text); }
+.fs-cn .fs-cn-good li::before, .fs-cn .fs-cn-good li svg { color: var(--text-muted); }
+/* the map box: no extra frame */
+.fs-cn .fs-cn-mapbox { border: 0; background: none; padding: 0; }
+/* evidence labels: quiet grey words, no pill */
+.fs-ev { border: 0; padding: 0; margin: 0 0 0 4px; font: 500 12px/1.4 var(--font-sans); color: var(--text-faint); }
+.fs-cn .fs-prov { border: 0; padding: 0; background: none; color: var(--text-faint); font-weight: 500; font-size: 12px; }
+/* detail sections: the same Raw Umber box as the folds in Results */
+.fs-cn .fs-cn-sec { border: 1px solid var(--umber); border-radius: var(--radius-md); background: var(--panel-2); padding: 0; }
+.fs-cn .fs-cn-secb { padding: 10px 12px; }
+.fs-cn .fs-cn-st { font: 600 15px/1.3 var(--font-sans); color: var(--text); }
+.fs-cn .fs-cn-ss, .fs-cn .fs-cn-cnt { font-size: 13px; color: var(--text-muted); background: none; border: 0; }
+.fs-cn .fs-cn-cnt.is-warn, .fs-cn .fs-cn-cnt.is-ok { color: var(--text-muted); background: none; }
+.fs-cn .fs-cn-secbody { padding: 0 12px 12px; }
+/* the labels key goes to the bottom, as a fold box */
+.fs-cn > .fs-ev-legend { order: 99; border: 1px solid var(--umber); border-radius: var(--radius-md); background: var(--panel-2); padding: 0; }
+.fs-cn > .fs-ev-legend > summary { padding: 10px 12px; color: var(--text); font-weight: 600; font-size: 15px; }
+.fs-cn > .fs-ev-legend > :not(summary) { padding: 0 12px 10px; }
+.fs-cn .fs-cn-today ul.fs-cn-check { gap: 4px; }
+.fs-cn .fs-cn-today li.fs-cn-warn, .fs-cn .fs-cn-today li { padding: 4px 0; background: none; border: 0; border-radius: 0; }
+.fs-cn .fs-cn-today li p { font-size: 15px; font-weight: 400; flex: 1 1 auto; }
+.fs-cn .fs-cn-today .fs-cn-num, .fs-cn .fs-cn-warn .fs-cn-num { min-width: 20px; height: 20px; border-radius: 10px; border: 1px solid var(--text-muted); font-size: 11px; color: var(--text-muted); margin-right: 6px; vertical-align: 1px; }
+.fs-cn .fs-cn-today .fs-cn-show { all: unset; cursor: pointer; font-size: 13px; color: var(--text-muted); text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+.fs-cn .fs-cn-today .fs-cn-show:hover, .fs-cn .fs-cn-today .fs-cn-show[aria-pressed="true"] { color: var(--text); background: none; }
+.fs-cn .fs-cn-today .fs-cn-show:focus-visible { outline: 2px solid var(--umber); outline-offset: 2px; }
+.fs-cn .fs-cn-sec, .fs-cn .fs-cn-mapbox, .fs-cn .fs-cn-today { padding-left: 0; padding-right: 0; }
+.fs-cn .fs-cn-sec { padding: 0; }
+.fs-cn .fs-cn-today li { flex-wrap: nowrap; align-items: baseline; }
+.fs-cn .fs-cn-today li p { flex: 1 1 0; min-width: 0; }
+.fs-cn .fs-cn-check .fs-ev, .fs-cn .fs-cn-today .fs-ev { font-size: 12px; font-weight: 500; }
+.fs-cn .fs-cn-today .fs-cn-good li { position: relative; padding: 2px 0 2px 24px; }
+.fs-cn .fs-cn-legendbox, .fs-cn .fs-cn-legendbox * { font-size: 13px; line-height: 1.4; }
+.fs-cn .fs-cn-legendbox h4, .fs-cn .fs-cn-legendbox button { font-size: 14px; }
+.fs-cn .fs-cn-cap, .fs-cn .fs-cn-cap * { font-size: 13px; color: var(--text-faint); }
+@media (max-width: 700px) { .fs-cn .fs-cn-today li { flex-wrap: wrap; } }
+.fs-cn .fs-cn-today .fs-cn-good li::before { border-right-color: var(--text-muted); border-bottom-color: var(--text-muted); border-right-width: 2px; border-bottom-width: 2px; }
+.fs-cn .fs-cn-chev { margin-left: 10px; }
+.fs-cn .fs-cn-st, .fs-cn h3, .fs-cn .fs-cn-good h4 { text-transform: capitalize; }
+/* "Where each layer comes from" and "Sources and how fresh each one is": the same box as the sections */
+.fs-cn .fs-cn-capmore, .fs-cn > details.fs-cn-more:not(.fs-ev-legend), .fs-cn > section > details.fs-cn-more, .fs-cn details.fs-cn-src { border: 1px solid var(--umber); border-radius: var(--radius-md); background: var(--panel-2); padding: 0; margin-top: 8px; }
+.fs-cn .fs-cn-capmore > summary, .fs-cn > details.fs-cn-more > summary, .fs-cn > section > details.fs-cn-more > summary, .fs-cn details.fs-cn-src > summary { padding: 10px 12px; color: var(--text); font-weight: 600; font-size: 15px; text-transform: capitalize; }
+.fs-cn .fs-cn-capmore > :not(summary), .fs-cn > details.fs-cn-more > :not(summary), .fs-cn > section > details.fs-cn-more > :not(summary) { padding: 0 12px 10px; }
+/* small "More" folds inside the notes: plain grey text */
+.fs-cn .fs-cn-notes details.fs-cn-more > summary { color: var(--text-muted); font-size: 13px; font-weight: 500; }
+.fs-cn h3 { text-transform: none; }
+.fs-cn #fs-cn-h-today, .fs-cn #fs-cn-h-map, .fs-cn .fs-cn-st { text-transform: capitalize; }
+.fs-cn .fs-cn-ss, .fs-cn .fs-cn-cnt { text-transform: none; }
+.fs-cn .fs-cn-cnt { margin-right: 12px; }
+.fs-cn details.fs-cn-sources { border: 1px solid var(--umber); border-radius: var(--radius-md); background: var(--panel-2); padding: 0; }
+.fs-cn details.fs-cn-sources > summary { padding: 10px 12px; color: var(--text); font-weight: 600; font-size: 15px; text-transform: capitalize; }
+.fs-cn details.fs-cn-sources > :not(summary) { padding: 0 12px 10px; }
+/* inside the detail sections: plain lists, quiet labels, link-style buttons */
+.fs-cn .fs-cn-secbody p, .fs-cn .fs-cn-secbody li, .fs-cn .fs-cn-secbody td, .fs-cn .fs-cn-secbody th { font-size: 15px; line-height: 1.5; }
+.fs-cn .fs-cn-notes { gap: 6px; }
+.fs-cn .fs-cn-notes > li, .fs-cn .fs-cn-notes > li.fs-cn-warn { padding: 6px 0; background: none; border: 0; border-radius: 0; }
+.fs-cn .fs-cn-nhead p { font-size: 15px; font-weight: 400; }
+.fs-cn .fs-cn-nhead p b, .fs-cn .fs-cn-nhead p strong { font-weight: 600; }
+.fs-cn .fs-cn-badge, .fs-cn .fs-cn-warn .fs-cn-badge, .fs-cn .fs-cn-info .fs-cn-badge { background: none; color: var(--text-muted); padding: 0; margin-right: 6px; font: 600 11px/1.6 var(--font-sans); letter-spacing: 0.04em; }
+.fs-cn .fs-cn-notes ul > li, .fs-cn .fs-cn-notes ol > li { background: none; border: 0; border-radius: 0; padding: 3px 0; box-shadow: none; }
+.fs-cn .fs-cn-show { all: unset; cursor: pointer; flex: none; font-size: 13px; color: var(--text-muted); text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+.fs-cn .fs-cn-show:hover, .fs-cn .fs-cn-show[aria-pressed="true"] { color: var(--text); background: none; }
+.fs-cn .fs-cn-show:focus-visible { outline: 2px solid var(--umber); outline-offset: 2px; }
+.fs-cn .fs-cn-num { min-width: 20px; height: 20px; border-radius: 10px; border: 1px solid var(--text-muted); font-size: 11px; color: var(--text-muted); }
+.fs-cn .fs-ev-verify_in_field { background: none; color: var(--text-faint); }
+.fs-cn .fs-cn-wetnow, .fs-cn .fs-cn-wetnow.wet-likely, .fs-cn .fs-cn-wetnow.wet-possible, .fs-cn .fs-cn-wetnow.wet-unlikely { background: none; border: 0; padding: 0; }
+.fs-cn .fs-cn-wetnow .fs-cn-wetbig { font-size: 15px; }
+.fs-cn h4.fs-cn-sub, .fs-cn h4.fs-cn-sub * { font: 600 15px/1.4 var(--font-sans); }
+.fs-cn .fs-cn-more summary { color: var(--text-muted); font-size: 13px; font-weight: 500; }
+.fs-cn .fs-cn-more p { font-size: 14px; }
+.fs-cn .fs-cn-nfoot { padding-left: 30px; gap: 4px 12px; }
+
 /* Bird's-eye view styles. Every selector is scoped under #fs-view or starts with .fv- (tokens only for color). */
 #fs-view { position: relative; display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: var(--panel); color: var(--text); font-family: var(--font-sans); }
 #fs-view .fv-stage { position: relative; flex: 1 1 auto; min-height: 0; outline: none; background: var(--panel); touch-action: pan-y; }
@@ -7574,7 +7664,7 @@ window.FS = window.FS || {};
   var hidden = {};   // map layers the farmer switched off
   var secOpen = {}, noteSec = {};   // sections the farmer opened or closed; which section each numbered note is in
   function narrow() { return !!(window.matchMedia && window.matchMedia('(max-width: 600px)').matches); }
-  function isOpen(id) { return secOpen[id] != null ? secOpen[id] : !narrow(); }   // open on desktop, closed on phones until pressed
+  function isOpen(id) { return secOpen[id] != null ? secOpen[id] : false; }   // every detail section starts closed; the top of the view is the short list and the map
   var R = Math.PI / 180;
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
