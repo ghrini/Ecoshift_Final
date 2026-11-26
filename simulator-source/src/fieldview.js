@@ -279,11 +279,11 @@ window.FS = window.FS || {};
         '<canvas class="fv-canvas" role="img" aria-label="Aerial illustration of the four fields"></canvas>' +
         '<div class="fv-labels" aria-hidden="true"></div>' +
         '<div class="fv-legend"><button type="button" class="fv-legend-head" id="fs-view-legend-toggle" aria-expanded="true" aria-controls="fv-legend-body"><span>Fields</span><span class="fv-chev" aria-hidden="true"></span></button>' +
-          '<div class="fv-legend-body" id="fv-legend-body"><ul class="fv-fields"></ul><div class="fv-key" aria-hidden="true"></div></div></div>' +
+          '<div class="fv-legend-body" id="fv-legend-body"><ul class="fv-fields"></ul><div class="fv-key" aria-hidden="true"></div>' +
+          '<details class="fs-fold fv-about"><summary>About This Map</summary><div class="fv-credit">Illustrative field layout · weather and soils are real</div></details></div></div>' +
         '<div class="fv-topright"><div class="fv-wx" aria-live="off"></div><div class="fv-note" hidden>Changes not run yet</div></div>' +
         '<div class="fv-tip" role="tooltip" hidden></div>' +
         '<div class="fv-mapnote" role="status" hidden></div>' +
-        '<div class="fv-credit">Illustrative field layout · weather and soils are real</div>' +
       '</div>' +
       '<div class="fv-bar">' +
         '<div class="fv-tl" role="group" aria-label="Event timeline: click a mark to jump to that week"><span class="fv-tl-track"></span><span class="fv-playhead"></span><span class="fv-ticks"></span></div>' +

@@ -139,15 +139,11 @@
     var site = FS.farmSetup.site || STORY(), m = FS.data.climate && FS.data.climate.meta, ys = (m && m.years) || [], span = ys.length ? ys[0] + '–' + ys[ys.length - 1] : '1982–2025';
     var demo = fromEco || FS.farmSetup.example, checked = site.validated !== false, loc = localOf();
     if (loc && !demo) {
-      el.textContent = 'Real NASA POWER weather (' + span + ') and USDA soils · your farm near ' + loc.label + ' · data from ' + loc.dataFrom + ' (' + loc.km + ' km), fitted to your spot with NASA POWER, USDA soils and yields' +
-        ' · the yield check was done for Story County, Iowa (see Show details); fitted farms are not checked against their own harvests · part of EcoShift · supports, not replaces, your judgment.';
+      el.textContent = 'NASA POWER weather ' + span + ' and USDA soils · your farm near ' + loc.label + ', fitted to your spot (not checked against your own harvests; see Results, Where These Numbers Come From) · supports, not replaces, your judgment.';
       try { document.title = 'EcoShift · ' + loc.label; } catch (e) { /* ignore */ }
       return;
     }
-    el.textContent = 'Real NASA POWER weather (' + span + ') and USDA soils · ' + (demo ? 'demonstration farm in ' : 'your farm in ') + site.name + ' · ' +
-      (checked ? 'catches the 1988 and 2012 droughts, no better than the yield trend in ordinary years (see Show details)'
-        : 'the yield check was done for Story County, Iowa (see Show details); this location is not checked against its own county\'s harvests') +
-      ' · part of EcoShift · supports, not replaces, your judgment.';
+    el.textContent = 'NASA POWER weather ' + span + ' and USDA soils · ' + site.name + (checked ? '' : ' (yield check was done for Story County, Iowa only)') + ' · supports, not replaces, your judgment.';
     try { document.title = 'EcoShift · ' + site.name; } catch (e) { /* ignore */ }
   }
   function wireFarmLine() {

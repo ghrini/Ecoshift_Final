@@ -190,13 +190,13 @@
     var head = '<div class="fs-ol-phase" style="grid-column:span ' + nFc + '">' + prov('forecast', 'Forecast · days 1–' + nFc) + '</div>' + (nEx ? '<div class="fs-ol-phase is-est" style="grid-column:span ' + nEx + '">' + prov('seasonal', 'Estimate · days ' + (nFc + 1) + '–' + days.length) + '</div>' : '');
     var sum = days.length + ' days from ' + fmt(days[0].date) + ': highs ' + r0(Math.min.apply(null, days.map(function (d) { return d.tmax; }))) + ' to ' + r0(Math.max.apply(null, days.map(function (d) { return d.tmax; }))) + ' °C, ' +
       r0(days.reduce(function (a, d) { return a + (d.rain || 0); }, 0)) + ' mm of rain in all (normal ' + r0(days.reduce(function (a, d) { return a + (d.norm ? d.norm.rain : 0); }, 0)) + ' mm). Day-by-day numbers are in the table below.';
-    return '<p class="fs-ol-axis">Temperature scale ' + String(lo).replace('-', '−') + ' to ' + hi + ' °C · rain bars up to ' + r0(rmax) + ' mm a day</p>' +
+    return '<details class="fs-fold fs-ol-details fs-ol-chartfold"><summary>Daily Chart</summary><p class="fs-ol-axis">Temperature scale ' + String(lo).replace('-', '−') + ' to ' + hi + ' °C · rain bars up to ' + r0(rmax) + ' mm a day</p>' +
       '<div class="fs-ol-wrap"><div class="fs-ol-grid" style="grid-template-columns:repeat(' + days.length + ',minmax(0,1fr))">' + head + '</div>' +
       '<div class="fs-ol-strip" role="img" aria-label="' + esc(sum) + '" style="grid-template-columns:repeat(' + days.length + ',minmax(0,1fr))">' + cols + '</div></div>' +
-      '<p class="fs-ol-key"><span><i class="k-bar"></i>Daily high to low</span><span><i class="k-norm"></i>Normal high and low</span><span><i class="k-rain"></i>Rain</span>' + (nEx ? '<span><i class="k-band"></i>Estimate range (10th–90th percentile)</span>' : '') + '</p>';
+      '<p class="fs-ol-key"><span><i class="k-bar"></i>Daily high to low</span><span><i class="k-norm"></i>Normal high and low</span><span><i class="k-rain"></i>Rain</span>' + (nEx ? '<span><i class="k-band"></i>Estimate range (10th–90th percentile)</span>' : '') + '</p></details>';
   }
   function tableHTML(days) {
-    return '<details class="fs-ol-details"><summary>Day By Day</summary><div class="fs-ol-tablewrap"><table class="fs-ol-table"><thead><tr><th scope="col">Day</th><th scope="col">High / low °C</th><th scope="col">Normal °C</th><th scope="col">Rain mm</th><th scope="col">Normal mm</th><th scope="col">Other</th></tr></thead><tbody>' +
+    return '<details class="fs-fold fs-ol-details"><summary>Day By Day</summary><div class="fs-ol-tablewrap"><table class="fs-ol-table"><thead><tr><th scope="col">Day</th><th scope="col">High / low °C</th><th scope="col">Normal °C</th><th scope="col">Rain mm</th><th scope="col">Normal mm</th><th scope="col">Other</th></tr></thead><tbody>' +
       days.map(function (d) {
         var other = [];
         if (d.rainChance != null) other.push(d.rainChance + '% rain chance');
@@ -208,9 +208,9 @@
       }).join('') + '</tbody></table></div></details>';
   }
   function warnHTML() {
-    if (!warnList.length) return '<p class="fs-ol-none">No warnings in the next 30 days. The rules checked are listed under Where These Numbers Come From.</p>';
+    if (!warnList.length) return '<p class="fs-ol-none">No warnings.</p>';
     return '<ul class="fs-ol-warns">' + warnList.map(function (w) {
-      return '<li class="fs-ol-warn k-' + w.kind + (w.est ? ' is-est' : '') + '"><b>' + esc(w.title) + (w.est ? ' <span class="fs-ol-tag">estimate, days 17–30</span>' : '') + '</b> ' + esc(w.text) + '</li>';
+      return '<li class="fs-ol-warn k-' + w.kind + (w.est ? ' is-est' : '') + '"><b>' + esc(w.title) + '</b>' + (w.est ? ' <span class="fs-ol-tag">(estimate, days 17–30)</span>' : '') + ': ' + esc(w.text) + '</li>';
     }).join('') + '</ul>';
   }
   function harvestHTML() {
@@ -223,7 +223,7 @@
         if (!f.grain || !(f.normal > 0)) return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td colspan="2">No grain harvest on this plan</td></tr>';
         return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td>' + r0(f.normal) + '</td><td>' + r0(f.p10) + '–' + r0(f.p90) + '</td></tr>';
       }).join('');
-      return '<details class="fs-ol-details fs-ol-harvestfold"><summary>Next Harvest (' + model.year + '), Bushels Per Acre</summary><p class="fs-ol-prov">' + prov('observed') + '</p>' +
+      return '<details class="fs-fold fs-ol-details fs-ol-harvestfold"><summary>Next Harvest (' + model.year + ')</summary><p class="fs-ol-prov">' + prov('observed') + ' Bushels per acre.</p>' +
         '<div class="fs-ol-tablewrap"><table class="fs-ol-table fs-ol-harvest"><thead><tr><th scope="col">Field</th><th scope="col">Plan</th><th scope="col">Normal (median)</th><th scope="col">Range (10th–90th)</th></tr></thead><tbody>' + rowsE + '</tbody></table></div>' +
         '<p class="fs-ol-plain">Plainly: these 30 days come before planting. In this model, weather before spring does not change the ' + model.year + ' harvest (each season starts from the same spring soil water), so this table is the spread of all ' + nY + ' past seasons on your current plan, not a forecast. Check back in spring.</p></details>';
     }
@@ -232,16 +232,44 @@
       var pr = f.pct == null ? null : r1(f.pct), pc = pr == null ? '–' : (pr > 0 ? '+' : pr < 0 ? '−' : '') + Math.abs(pr) + '%';
       return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td>' + r0(f.normal) + '</td><td>' + r0(f.med) + '</td><td>' + r0(f.p10) + '–' + r0(f.p90) + '</td><td class="' + (f.pct <= -1 ? 'is-down' : f.pct >= 1 ? 'is-up' : '') + '">' + pc + '</td></tr>';
     }).join('');
-    return '<details class="fs-ol-details fs-ol-harvestfold"><summary>Next Harvest (' + model.year + '), Bushels Per Acre</summary><p class="fs-ol-prov">' + prov('observed') + '</p>' +
+    return '<details class="fs-fold fs-ol-details fs-ol-harvestfold"><summary>Next Harvest (' + model.year + ')</summary><p class="fs-ol-prov">' + prov('observed') + ' Bushels per acre.</p>' +
       '<div class="fs-ol-tablewrap"><table class="fs-ol-table fs-ol-harvest"><thead><tr><th scope="col">Field</th><th scope="col">Plan</th><th scope="col">Normal (median)</th><th scope="col">With these 30 days (median)</th><th scope="col">Range (10th–90th)</th><th scope="col">Change</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
       '<p class="fs-ol-plain">Only these 30 days are known; the rest of the season comes from replaying every past season (' + nY + ' of them), which is where most of the range comes from.' +
       ' Each field keeps its current plan. Days 17–30 are a rough average of many forecasts, so a single frost, heat wave or downpour on those days will not show.</p></details>';
   }
   function noteHTML() {
-    if (note && note.summary) return '<div class="fs-ol-note"><h3 class="fs-ol-h">What This Means <span class="fs-ol-tag">written by Gemini from the numbers above</span></h3><p>' + esc(note.summary) + '</p>' +
-      (note.actions && note.actions.length ? '<ul>' + note.actions.map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') + '</ul>' : '') + '</div>';
+    if (note && note.summary) return '<p class="fs-ol-note"><span class="fs-ol-tag" style="display:block">Written by Gemini from the numbers above.</span>' + esc(note.summary) + (note.actions && note.actions.length ? ' ' + esc(note.actions.join(' ')) : '') + '</p>';
     if (noteErr) return '<p class="fs-ol-faint">' + esc(noteErr) + '</p>';
     return model && !model.error && apiBase() ? '<p class="fs-ol-faint">Asking the AI helper for a short note…</p>' : '';
+  }
+  // a few plain bullets, worked out from the same days the chart draws
+  function summaryHTML(days) {
+    var fc = days.filter(function (d) { return !d.est; }), ex = days.filter(function (d) { return d.est; }), li = [];
+    function nums(a, k) { return a.map(function (d) { return d[k]; }).filter(function (v) { return v != null && isFinite(v); }); }
+    function mn(a) { return Math.min.apply(null, a); } function mx(a) { return Math.max.apply(null, a); }
+    function sum(a) { return a.reduce(function (x, y) { return x + y; }, 0); }
+    function deg(v) { return String(r0(v)).replace('-', '−'); }
+    if (fc.length) {
+      var hi = nums(fc, 'tmax'), lo = nums(fc, 'tmin');
+      if (hi.length && lo.length) li.push('Next ' + fc.length + ' days: highs ' + deg(mn(hi)) + ' to ' + deg(mx(hi)) + ' °C, lows down to ' + deg(mn(lo)) + ' °C.');
+      var rain = nums(fc, 'rain');
+      if (rain.length) {
+        var tot = sum(rain), wet = fc.filter(function (d) { return d.rain >= 1; }).length;
+        li.push(tot < 1 ? 'Almost no rain in those days.' : 'About ' + r0(tot) + ' mm of rain in total, on ' + wet + ' day' + (wet === 1 ? '' : 's') + '.');
+        var best = fc.reduce(function (a, d) { return (d.rain || 0) > (a.rain || 0) ? d : a; }, fc[0]);
+        if (best.rain >= 5) li.push('Wettest day: ' + fmt(best.date) + ', about ' + r0(best.rain) + ' mm.');
+      }
+    }
+    if (ex.length) {
+      var nt = ex.filter(function (d) { return d.norm && isFinite(d.tmax) && isFinite(d.tmin); });
+      var txt = 'Days ' + ex[0].n + ' to ' + ex[ex.length - 1].n + ': a rough estimate';
+      if (nt.length) {
+        var diff = sum(nt.map(function (d) { return (d.tmax + d.tmin) / 2 - (d.norm.tmax + d.norm.tmin) / 2; })) / nt.length;
+        txt += Math.abs(diff) < 1 ? ', near normal' : ', about ' + r0(Math.abs(diff)) + '\u00a0°C ' + (diff > 0 ? 'warmer' : 'colder') + ' than normal';
+      }
+      li.push(txt + '.');
+    }
+    return li.length ? '<ul class="fs-ol-sum">' + li.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '';
   }
   function sourcesHTML(w) {
     var C = FS.data.climate, ys = (C && C.meta && C.meta.years) || [], loc = FS.engine && FS.engine.site ? FS.engine.site().local : null, site = (FS.farmSetup && FS.farmSetup.site) || {};
@@ -250,7 +278,7 @@
     li.push('<li>Normals: the mean of NASA POWER daily weather, ' + (ys.length ? ys[0] + '–' + ys[ys.length - 1] : '') + ', for ' + esc(site.name || 'the county') + (loc ? ', shifted month by month to your farm (NASA POWER climatology)' : '') + '.</li>');
     li.push('<li>Harvest: the Field Shift crop model' + (loc ? ' fitted to your farm (not checked against your own harvests)' : '') + '; yields measured against the farm\'s normal of ' + r0(FS.data.economics.normalYield.corn) + ' bu corn and ' + r0(FS.data.economics.normalYield.soybean) + ' bu soybeans. Only Story County, Iowa was checked against real harvests.</li>');
     li.push('<li>Warnings: fixed rules applied to the numbers above (frost in the growing season, heat, dry spell, heavy rain, strong gusts, snow, frozen ground, extreme cold, cool enough for fall nitrogen), not official alerts. Check the National Weather Service for watches and warnings.</li>');
-    return '<details class="fs-ol-details"><summary>Where These Numbers Come From</summary><ul class="fs-ol-src">' + li.join('') + '</ul></details>';
+    return '<details class="fs-fold fs-ol-details"><summary>Where These Numbers Come From</summary><ul class="fs-ol-src">' + li.join('') + '</ul></details>';
   }
 
   function render() {
@@ -263,7 +291,7 @@
     if (!data) { body.innerHTML = place + '<p class="fs-ol-faint">' + (loading ? 'Getting the forecast…' : '') + '</p>'; return; }
     var days = strip();
     if (!days.length) { body.innerHTML = place + '<p class="fs-ol-err">The forecast came back empty.</p>'; return; }
-    body.innerHTML = place + stripHTML(days) + tableHTML(days) + '<h3 class="fs-ol-h">Warnings</h3>' + warnHTML() + harvestHTML() + noteHTML() + sourcesHTML(w);
+    body.innerHTML = place + summaryHTML(days) + '<h3 class="fs-ol-h">Warnings</h3>' + warnHTML() + noteHTML() + stripHTML(days) + tableHTML(days) + harvestHTML() + sourcesHTML(w);
   }
 
   // ---------------------------------------------------------------- public

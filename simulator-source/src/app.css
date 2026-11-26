@@ -1162,3 +1162,71 @@ details.fs-fin-d > summary, details.fs-fold > summary, #fs-analysis details.fs-s
 details.fs-fin-d > summary::-webkit-details-marker, details.fs-fold > summary::-webkit-details-marker, #fs-analysis details.fs-scn-cmp > summary::-webkit-details-marker { display: none; }
 details.fs-fin-d > summary::before, details.fs-fold > summary::before, #fs-analysis details.fs-scn-cmp > summary::before, #fs-analysis .fs-run-msg > p > .fs-linkbtn[data-toggle]::before { content: "▸"; display: inline-block; width: 1em; color: var(--text-muted); }
 details.fs-fin-d[open] > summary::before, details.fs-fold[open] > summary::before, #fs-analysis details.fs-scn-cmp[open] > summary::before, #fs-analysis .fs-run-msg > p > .fs-linkbtn[data-toggle][aria-expanded="true"]::before { content: "▾"; }
+
+/* ===== Calm page, round 3: tinted header bars, quiet expand buttons, a short Next 30 Days, one slider, one footer line ===== */
+:root { --fs-band: color-mix(in srgb, #9E6438 24%, #1c1c1c); }
+/* 1. every panel title bar (and the settings bar) is a Raw Umber tone; the body under it stays #1c1c1c */
+.fs-panel-head, .fs-ctl-row .fs-panel .fs-panel-head, #fs-outlook .fs-panel-head { background: var(--fs-band); border-bottom: 1px solid var(--umber); }
+.fs-panel-title, .fs-panel-title * { color: var(--text); }
+.fs-ctl-row { background: var(--fs-band); border-color: var(--umber); }
+.fs-ctl-row .fs-panel .fs-panel-head { border-bottom: 0; border-left: 1px solid color-mix(in srgb, var(--umber) 55%, transparent); }
+.fs-ctl-row > .fs-panel:first-child .fs-panel-head { border-left: 0; }
+.fs-ctl-row .fs-ctl-toggle:hover { background: color-mix(in srgb, #9E6438 34%, #1c1c1c); }
+.fs-ctl-row .fs-ctl-toggle[aria-expanded="true"] { background: color-mix(in srgb, #9E6438 34%, #1c1c1c); color: var(--text); box-shadow: inset 0 -2px 0 var(--umber); }
+#fs-outlook .fs-ol-toggle:hover { background: color-mix(in srgb, #9E6438 34%, #1c1c1c); }
+#fs-outlook.is-collapsed .fs-panel-head { border-bottom: 0; }
+#fs-outlook { border-color: var(--umber); }
+#fs-outlook .fs-ol-hint { color: var(--text-muted); }
+/* expand buttons: icon only, no box */
+.fs-expand { width: 32px; height: 32px; border: 0; background: transparent; color: var(--text-muted); box-shadow: none; }
+.fs-expand:hover, .fs-expand:focus-visible { background: transparent; color: var(--text); }
+/* settings tabs on the bar: the open one is marked by the underline only */
+.fs-ctl-row .fs-ctl-toggle[aria-expanded="true"] .fs-chev { color: var(--text); }
+
+/* 2. Next 30 Days, opened: a few plain bullets, then closed fold boxes */
+#fs-outlook .fs-panel-body { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 16px; color: var(--text); }
+#fs-outlook .fs-panel-body b { color: var(--text); font-weight: 600; }
+.fs-ol-where { font-size: 14px; color: var(--text-faint); }
+.fs-ol-sum, .fs-ol-warns { list-style: disc; margin: 0; padding: 0 0 0 20px; display: block; }
+.fs-ol-sum li, .fs-ol-warn { margin: 0 0 4px; padding: 0; background: none; border: 0; border-radius: 0; color: var(--text); }
+.fs-ol-sum li::marker, .fs-ol-warn::marker { color: var(--text-muted); }
+.fs-ol-warn.k-nitrogen, .fs-ol-warn.is-est { background: none; border: 0; color: var(--text); }
+.fs-ol-h { margin: 4px 0 0; font: 600 15px var(--font-sans); color: var(--text); }
+.fs-ol-none { color: var(--text); }
+.fs-ol-tag { font: 500 13px var(--font-sans); color: var(--text-faint); background: none; border-radius: 0; padding: 0; }
+.fs-ol-note { margin: 0; padding: 0; background: none; color: var(--text); }
+.fs-ol-err { color: var(--text); }
+.fs-ol-retry { border-color: var(--umber); }
+#fs-outlook details.fs-fold { margin-top: 0; }
+#fs-outlook details.fs-fold > :not(summary) { margin-left: 12px; margin-right: 12px; }
+#fs-outlook details.fs-fold > summary + * { margin-top: 2px; }
+#fs-outlook details.fs-fold > :last-child { margin-bottom: 12px; }
+#fs-outlook .fs-ol-key .k-rain, #fs-outlook .fs-ol-rain { background: var(--text-muted); }
+#fs-outlook .fs-ol-rband { border-color: var(--text-muted); }
+#fs-outlook .fs-ol-key .k-band, #fs-outlook .fs-ol-band { background: var(--umber-glow); }
+#fs-outlook .fs-ol-harvest td.is-down, #fs-outlook .fs-ol-harvest td.is-up { color: var(--text); }
+#fs-outlook .fs-ol-phase { color: var(--text-muted); }
+#fs-outlook .fs-ol-phase .fs-prov, #fs-outlook .fs-ol-prov .fs-prov, #fs-outlook .fs-ol-note .fs-prov { background: none; border: 0; padding: 0; color: var(--text-faint); font-weight: 500; }
+#fs-outlook .fs-ol-src, #fs-outlook .fs-ol-plain, #fs-outlook .fs-ol-axis, #fs-outlook .fs-ol-key { color: var(--text-muted); }
+#fs-outlook .fs-ol-table thead th { color: var(--text-muted); }
+
+/* 3. Simulation panel: one slider (the event-tick track stays in the page, hidden); the map credit is a closed fold in the field list */
+#fs-view .fv-tl { display: none; }
+#fs-view .fv-bar { row-gap: 0; }
+#fs-view .fv-play { background: var(--umber); }
+#fs-view .fv-speed { color: var(--text); }
+#fs-view .fv-wx { color: var(--text); }
+#fs-view .fv-note { color: var(--text-muted); background: var(--panel); border-color: var(--border); }
+#fs-view .fv-row.fv-flagged .fv-fcrop { color: var(--text-muted); }
+#fs-view .fv-about { margin: 4px 6px 6px; }
+#fs-view .fv-about > summary { padding: 6px 10px; font-size: 13px; cursor: pointer; }
+#fs-view .fv-about .fv-credit, #fs-view.fv-realmap .fv-credit, #fs-view.fv-capside .fv-credit { position: static; max-width: none !important; padding: 0 10px 10px; background: none; text-align: left; font-size: 12px; line-height: 1.4; color: var(--text-muted); pointer-events: auto; }
+
+/* 4. the footer is one quiet line */
+#fs-foot { margin: 10px 4px 4px; font-size: 12px; line-height: 1.4; color: var(--text-faint); }
+
+/* 5. one accent: no ecru or olive text or boxes left on the main screen */
+.fs-src, .fs-ol-details summary { color: var(--text); }
+#fs-chat .fs-panel-body, #fs-analysis .fs-panel-body { --on-bg-accent: var(--text); }
+/* selected rows and chips use the Raw Umber tint, not olive */
+:root { --accent-soft: color-mix(in srgb, #9E6438 28%, #1c1c1c); }
