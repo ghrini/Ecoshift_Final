@@ -672,6 +672,73 @@ var ETa = Ks * ETc;                        <span class="c">// water the crop rea
         </div>
       </section>
 
+      <!-- How to read the results: where each number comes from -->
+      <section class="band" id="read-results">
+        <div class="wrap split">
+          <h2>How To Read<br>The Results</h2>
+          <div class="split-body">
+            <p class="lede">Every result in EcoShift carries a label that says where it comes from, so a past season is never mistaken for a prediction.</p>
+            <dl class="rows">
+              <div><dt>Observed History</dt><dd>The 44-season replays use real NASA POWER weather from 1982 to 2025. They show how a plan would have done in those seasons. They do not say how likely each season is next year, or that the future climate will look like the past.</dd></div>
+              <div><dt>Current Observations</dt><dd>Satellite images, NASA fire detections and soil wetness for the farmer's own fields, from the last few days and weeks.</dd></div>
+              <div><dt>Forecast And Seasonal Outlook</dt><dd>The next 16 days come from a weather forecast. Days 17 to 30 come from a seasonal ensemble, which is much less certain.</dd></div>
+              <div><dt>Assumed Scenario</dt><dd>Hotter, drier or more variable seasons are what-ifs built by changing the past weather by a stated amount. They are not predictions.</dd></div>
+              <div><dt>Ranges, Not One Number</dt><dd>Each plan shows its worst, typical and best season, the model's typical error for one season, and the assumptions and sources behind it.</dd></div>
+              <div><dt>Evidence Levels On The Field</dt><dd>Field findings are tagged Measured, Satellite Indicator, Model Estimate, Possible Explanation or Check In The Field. A weak patch on a satellite image can have several causes, so EcoShift names them and says what to check before acting.</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <!-- What did not work, and what we changed -->
+      <section class="band" id="changed">
+        <div class="wrap split">
+          <h2>What Did Not Work,<br>And What We Changed</h2>
+          <div class="split-body">
+            <dl class="rows">
+              <div><dt>Tuning To One Drought</dt><dd>Our first model was tuned so that 2012 came out right. That also shrank the effect of rotation about six times: corn after corn cost half a point instead of about 8.5%. We now fit on 43 seasons at a time and apply the fitted setting to weather stress only. Corn after corn now costs 8.5% in a median season, matching Iowa State budgets.</dd></div>
+              <div><dt>Record Years Came Out As Disasters</dt><dd>2017 and 2021, two record harvests, ranked as the model's 4th and 3rd worst seasons. Roots that grew deeper found no extra water. We added a deeper two-layer soil and water-table supply, as Iowa State extension describes, and they moved to 10th and 9th lowest.</dd></div>
+              <div><dt>A Frost Fix That Was Wrong</dt><dd>We suspected NASA POWER's fall nights were too cold and matched them to ERA5. Three NOAA weather stations near Ames showed POWER was right, so we reverted the change. The station data decided it, not the score.</dd></div>
+              <div><dt>More AI Was Not Better</dt><dd>Gradient boosting did worse than the trend line for corn: with 43 training seasons it overfit. Ridge regression beat our crop model (error 9.1 vs 9.9 points), but it cannot compare rotations, cover crops or planting dates, so we kept the crop model and use ridge as the benchmark. Our own plan said to switch, and we say openly that we did not.</dd></div>
+              <div><dt>Ordinary Seasons Are Hard</dt><dd>Most of the model's skill comes from the big droughts. With 1988 and 2012 left out, its error is slightly higher than the trend line's (9.9 vs 9.7 points). That is why EcoShift shows a range of seasons and the typical error instead of one number.</dd></div>
+              <div><dt>Too Many Server Functions</dt><dd>The free hosting plan allows 12 server functions and we had more. Every route now runs through one function. Live field checks also timed out when one data service was slow, so each source now gets its own 40-second limit.</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <!-- What we learned and what we want to find out next -->
+      <section class="band" id="learned">
+        <div class="wrap split">
+          <h2>What We Learned</h2>
+          <div class="split-body">
+            <ul class="points">
+              <li><span class="num">01</span>A straight trend line is a hard baseline. Beating it, season by season with each season left out, is a fairer test than a single accuracy number.</li>
+              <li><span class="num">02</span>When there are only 44 seasons, simple models can beat complex ones.</li>
+              <li><span class="num">03</span>Independent data settles arguments. Weather stations, satellites and USDA harvests each caught a mistake the model could not catch on its own.</li>
+              <li><span class="num">04</span>Satellites show what happened, not what a different plan would have done, and one signal can have several causes. Labelling the evidence matters as much as the number.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="research">
+        <div class="wrap split">
+          <h2>Open Research<br>Questions</h2>
+          <div class="split-body">
+            <p class="lede">Can historical weather-based crop simulation help farmers judge the resilience and financial trade-offs of different crop rotations as weather becomes more variable?</p>
+            <ul class="points">
+              <li><span class="num">01</span>Does fitting each county to its own USDA harvests make the model more reliable outside Iowa?</li>
+              <li><span class="num">02</span>Can NASA SMAP soil moisture, available from 2015, check the model's dry weeks?</li>
+              <li><span class="num">03</span>Do farmers make a different, better-informed decision after using EcoShift, and which results do they trust?</li>
+              <li><span class="num">04</span>How much average profit will a farmer give up for a smaller worst-case loss once crop insurance is counted?</li>
+              <li><span class="num">05</span>Can satellite field health and soil tests together show long-term soil-health change from a rotation?</li>
+            </ul>
+            <p class="footnote">Our <a href="https://github.com/ghrini/Ecoshift_Final/blob/main/docs/technical-report.md" target="_blank" rel="noopener noreferrer">technical report</a> covers the model, data, assumptions, validation and limits, and our <a href="https://github.com/ghrini/Ecoshift_Final/tree/main/docs/farmer-testing" target="_blank" rel="noopener noreferrer">farmer testing plan</a> sets out how we will test it with farmers and extension specialists.</p>
+          </div>
+        </div>
+      </section>
+
       <!-- After the hackathon -->
       <section class="band" id="next">
         <div class="wrap split">
