@@ -149,8 +149,9 @@
     var plan = planId && itemOf(f, planId) ? planId : f.items[0].plan, it = itemOf(f, plan);
     var h = '<div class="fs-fin"><p class="fs-fin-line"><b>' + esc(f.fieldName) + ', ' + esc(planName(plan).toLowerCase()) + '.</b> ' + esc(lineText(f, it)) + badge(f, it) + '</p>' + rangeBar(it.pct);
     var pts = it.crop === 'soybean' ? f.err.soybean : f.err.corn;
-    h += '<p class="fs-fin-note">Typical model error for one season: about ' + Math.round(pts.points) + ' points of a normal crop' + (!it.moneyHidden && moneyOk() ? ' (about ' + usd(pts.dollars) + ' an acre)' : '') + '. Worst season ' + it.pct.worstYear + ', best ' + it.pct.bestYear + '.' + (!it.moneyHidden && moneyOk() ? ' Net return range: worst ' + usd(it.net.worst) + ', typical ' + usd(it.net.median) + ', best ' + usd(it.net.best) + ' an acre; a loss in ' + it.net.lossSeasons + ' of ' + f.nSeasons + ' seasons.' : '') + '</p>';
+    var rangeNote = '<p class="fs-fin-note">Typical model error for one season: about ' + Math.round(pts.points) + ' points of a normal crop' + (!it.moneyHidden && moneyOk() ? ' (about ' + usd(pts.dollars) + ' an acre)' : '') + '. Worst season ' + it.pct.worstYear + ', best ' + it.pct.bestYear + '.' + (!it.moneyHidden && moneyOk() ? ' Net return range: worst ' + usd(it.net.worst) + ', typical ' + usd(it.net.median) + ', best ' + usd(it.net.best) + ' an acre; a loss in ' + it.net.lossSeasons + ' of ' + f.nSeasons + ' seasons.' : '') + '</p>';
     function det(id, title, body) { return '<details class="fs-fin-d" data-fin="' + id + '"' + (openMap[id] ? ' open' : '') + '><summary>' + title + '</summary><div class="fs-fin-body">' + body + '</div></details>'; }
+    h += det('range', 'Range Details', rangeNote);
     if (!moneyOk()) h += '<p class="fs-fin-note">Dollar figures are not shown outside Iowa, because the costs are Iowa State budgets.</p>';
     else if (f.items.some(function (x) { return !x.moneyHidden; })) { h += det('money', 'Money Breakdown', breakdownHtml(f)); h += det('ins', 'Crop Insurance', insuranceHtml(f)); }
     h += det('about', 'About These Numbers', aboutHtml(f)) + '</div>';

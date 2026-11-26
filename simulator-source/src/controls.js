@@ -90,35 +90,42 @@
   }
   function fieldOptions() { return D.farm.fields.map(function (f) { return '<option value="' + f.id + '">' + esc(f.name) + ' · ' + f.acres + ' ac</option>'; }).join(''); }
 
+  // Advanced controls sit in one collapsed "More Options" fold per box; the summary says how many of them are changed.
+  function more(id, inner) {
+    return '<details class="fs-more" id="' + id + '"><summary><span class="fs-more-t">More Options</span><span class="fs-more-n" aria-live="polite"></span></summary><div class="fs-more-body">' + inner + '</div></details>';
+  }
   function build() {
     root.weather.innerHTML = head('Weather / Season', 'fs-reset-weather') + '<div class="fs-panel-body">' +
       '<div class="fs-scn" id="fs-scn"></div>' +
       '<div class="fs-row" data-path="weather.scenario"><div class="fs-row-head"><label for="fs-weather-scenario">Replay one past season</label></div>' +
       '<select id="fs-weather-scenario" class="fs-select">' + scenarioOptions() + '</select></div>' +
-      slider('fs-weather-temp', 'Temperature shift', 'weather.tempShift', -2, 4, 0.5, 'temp') +
-      slider('fs-weather-rain', 'Rain change', 'weather.rainChange', -50, 50, 5, 'pct') +
-      slider('fs-weather-swing', 'Wet-dry swings (assumed)', 'weather.rainSwing', 0, 100, 10, 'pct') +
-      slider('fs-weather-hot', 'Extra heat on hot days (assumed)', 'weather.hotDays', 0, 6, 1, 'hot') +
-      '<div class="fs-chips" id="fs-weather-chips" hidden></div></div>';
+      '<div class="fs-chips" id="fs-weather-chips" hidden></div>' +
+      more('fs-more-weather',
+        slider('fs-weather-temp', 'Warmer / cooler', 'weather.tempShift', -2, 4, 0.5, 'temp') +
+        slider('fs-weather-rain', 'Wetter / drier', 'weather.rainChange', -50, 50, 5, 'pct') +
+        slider('fs-weather-swing', 'Wet-dry swings (assumed)', 'weather.rainSwing', 0, 100, 10, 'pct') +
+        slider('fs-weather-hot', 'Extra heat on hot days (assumed)', 'weather.hotDays', 0, 6, 1, 'hot')) + '</div>';
 
     root.crops.innerHTML = head('Crops', 'fs-reset-crops') + '<div class="fs-panel-body">' +
       '<div class="fs-row"><div class="fs-row-head"><label for="fs-crops-field">Field</label></div>' +
       '<select id="fs-crops-field" class="fs-select">' + fieldOptions() + '</select></div>' +
       '<div class="fs-row" id="fs-plan-row"><div class="fs-row-head"><label for="fs-crops-plan">Plan for next season</label></div>' +
       '<select id="fs-crops-plan" name="fs-plan" class="fs-select"></select></div>' +
-      '<div id="fs-acres-slot"></div>' +
-      slider('fs-crops-plant', 'Planting date, all fields', 'crops.plantShiftDays', -21, 21, 7, 'plant') +
-      '<div class="fs-row" id="fs-irrig-row" data-path="crops.irrigation" hidden><div class="fs-row-head"><label for="fs-crops-irrigation">Irrigation, 1 inch a week</label></div>' +
-      '<select id="fs-crops-irrigation" class="fs-select">' + IRRIG.map(function (p) { return '<option value="' + p[0] + '">' + p[1] + '</option>'; }).join('') + '</select></div></div>';
+      more('fs-more-crops',
+        '<div id="fs-acres-slot"></div>' +
+        slider('fs-crops-plant', 'Planting date, all fields', 'crops.plantShiftDays', -21, 21, 7, 'plant') +
+        '<div class="fs-row" id="fs-irrig-row" data-path="crops.irrigation" hidden><div class="fs-row-head"><label for="fs-crops-irrigation">Irrigation, 1 inch a week</label></div>' +
+        '<select id="fs-crops-irrigation" class="fs-select">' + IRRIG.map(function (p) { return '<option value="' + p[0] + '">' + p[1] + '</option>'; }).join('') + '</select></div>') + '</div>';
 
     root.other.innerHTML = head('Other Conditions', 'fs-reset-other') + '<div class="fs-panel-body">' +
       slider('fs-other-price', 'Crop price', 'other.priceChange', -40, 40, 5, 'pct') +
-      slider('fs-other-nitrogen', 'Nitrogen price', 'other.nitrogenChange', -30, 80, 5, 'pct') +
-      slider('fs-other-contracted', 'Already contracted', 'other.contracted', 0, 100, 5, 'plain') +
-      '<div class="fs-row" data-path="other.costShare"><label class="fs-check" for="fs-other-costshare">' +
-      '<input type="checkbox" id="fs-other-costshare"><span>Iowa cover-crop cost-share ($30/acre, Iowa farms only)</span></label></div>' +
       '<div class="fs-row" data-path="other.priority" data-fmt="prio"><div class="fs-row-head"><label for="fs-other-priority">Rank options by</label></div>' +
-      '<select id="fs-other-priority" class="fs-select">' + PRIOS.map(function (p) { return '<option value="' + p[0] + '">' + p[1] + '</option>'; }).join('') + '</select></div></div>';
+      '<select id="fs-other-priority" class="fs-select">' + PRIOS.map(function (p) { return '<option value="' + p[0] + '">' + p[1] + '</option>'; }).join('') + '</select></div>' +
+      more('fs-more-other',
+        slider('fs-other-nitrogen', 'Nitrogen price', 'other.nitrogenChange', -30, 80, 5, 'pct') +
+        slider('fs-other-contracted', 'Already contracted', 'other.contracted', 0, 100, 5, 'plain') +
+        '<div class="fs-row" data-path="other.costShare"><label class="fs-check" for="fs-other-costshare">' +
+        '<input type="checkbox" id="fs-other-costshare"><span>Iowa cover-crop cost-share ($30/acre, Iowa farms only)</span></label></div>') + '</div>';
   }
 
   // Rebuild only the parts of the Crops box that depend on the selected field.
@@ -160,8 +167,18 @@
       });
     });
     drawChips(c);
+    countChanged();
     var ir = root.crops.querySelector('#fs-irrig-row'), irv = pathGet(c, 'crops.irrigation');
     if (ir) ir.hidden = !(FS.farmSetup.canIrrigate || (irv && irv !== 'none'));
+  }
+  // "2 changed" on a closed More Options fold, so a hidden setting never goes unnoticed
+  function countChanged() {
+    ['weather', 'crops', 'other'].forEach(function (k) {
+      var d = root[k] && root[k].querySelector('.fs-more'); if (!d) return;
+      var n = d.querySelectorAll('.fs-row.is-changed').length, out = d.querySelector('.fs-more-n');
+      out.textContent = n ? ' · ' + n + ' changed' : '';
+      d.classList.toggle('has-changes', n > 0);
+    });
   }
   function drawChips(c) {
     var box = root.weather.querySelector('#fs-weather-chips'), list = events(c);

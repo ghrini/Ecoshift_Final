@@ -969,3 +969,35 @@ details.fs-fin-d > summary:focus-visible { outline: 2px solid var(--info); outli
 .fs-sh-btns { display: flex; gap: 8px; margin-top: 10px; }
 .fs-sh-rot { margin-top: 8px; }
 .fs-sh-rot .fs-sh-says li { margin-bottom: 6px; }
+
+/* ===== Simpler first screen: one fold per box for the advanced controls, a folded option list in the chat,
+   a folded harvest table in Next 30 Days, and a short steps line in the header ===== */
+#fs-header .fs-adjust-title { margin-right: 0; }
+.fs-steps-line { margin: 0 auto 0 4px; min-width: 0; font: 500 15px/1.3 var(--font-sans); color: var(--on-bg-muted); }
+@media (max-width: 700px) { .fs-steps-line { order: 2; flex: 1 0 100%; margin: 0 0 0 4px; font-size: 14px; } }
+
+.fs-more { border-top: 1px solid var(--divider); padding-top: 4px; }
+.fs-more > summary { cursor: pointer; display: flex; align-items: center; gap: 6px; list-style: none; padding: 8px 2px; min-height: 28px; font: 600 var(--fs-inner)/1.3 var(--font-sans); color: var(--brown); }
+.fs-more > summary::-webkit-details-marker { display: none; }
+.fs-more > summary::before { content: ""; flex: none; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform 0.15s; margin: 0 4px 0 2px; }
+.fs-more[open] > summary::before { transform: rotate(45deg); }
+.fs-more > summary:hover { color: var(--brown-strong); }
+.fs-more > summary:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; border-radius: 6px; }
+.fs-more-n { font-weight: 500; color: var(--on-bg-accent); }
+.fs-more-body { display: flex; flex-direction: column; gap: 16px; padding: 6px 0 4px; }
+.fs-more-body #fs-acres-slot { display: contents; }
+@media (prefers-reduced-motion: reduce) { .fs-more > summary::before { transition: none; } }
+
+details.fs-fold { margin-top: 6px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--panel-2); }
+details.fs-fold > summary { cursor: pointer; padding: 8px 12px; color: var(--brown); font-weight: 600; min-height: 24px; }
+details.fs-fold > summary:hover { color: var(--brown-strong); }
+details.fs-fold > summary:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; border-radius: var(--radius-md); }
+details.fs-fold > .fs-recs { margin: 4px 0 0; padding: 0 12px 12px 36px; }
+
+.fs-ol-harvestfold { margin-top: 8px; }
+.fs-ol-prov { margin: 8px 0 0; }
+#fs-analysis .fs-fin { margin-top: 8px; padding-top: 8px; }
+/* the chat opens short now, so the results box gets more of the right-hand column on wide screens */
+@media (min-width: 1001px) { #fs-right { grid-template-rows: minmax(0, 1.32fr) minmax(0, 1fr); } }
+#fs-analysis .fs-verdicts, #fs-analysis .fs-verdicts * { font-size: calc(var(--fs-inner) - 2px); }
+@media (max-width: 1000px) { #fs-chat:not(.fs-expanded) { height: auto; min-height: 360px; max-height: min(620px, 80dvh); } }

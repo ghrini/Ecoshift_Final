@@ -195,7 +195,7 @@
       '<p class="fs-ol-key"><span><i class="k-bar"></i>Daily high to low</span><span><i class="k-norm"></i>Normal high and low</span><span><i class="k-rain"></i>Rain</span>' + (nEx ? '<span><i class="k-band"></i>Estimate range (10th–90th percentile)</span>' : '') + '</p>';
   }
   function tableHTML(days) {
-    return '<details class="fs-ol-details"><summary>Day by day</summary><div class="fs-ol-tablewrap"><table class="fs-ol-table"><thead><tr><th scope="col">Day</th><th scope="col">High / low °C</th><th scope="col">Normal °C</th><th scope="col">Rain mm</th><th scope="col">Normal mm</th><th scope="col">Other</th></tr></thead><tbody>' +
+    return '<details class="fs-ol-details"><summary>Day By Day</summary><div class="fs-ol-tablewrap"><table class="fs-ol-table"><thead><tr><th scope="col">Day</th><th scope="col">High / low °C</th><th scope="col">Normal °C</th><th scope="col">Rain mm</th><th scope="col">Normal mm</th><th scope="col">Other</th></tr></thead><tbody>' +
       days.map(function (d) {
         var other = [];
         if (d.rainChance != null) other.push(d.rainChance + '% rain chance');
@@ -207,7 +207,7 @@
       }).join('') + '</tbody></table></div></details>';
   }
   function warnHTML() {
-    if (!warnList.length) return '<p class="fs-ol-none">No warnings: none of the fixed rules (frost in the growing season, heat, dry spell, heavy rain, strong gusts, snow, frozen ground, extreme cold) trips in the next 30 days.</p>';
+    if (!warnList.length) return '<p class="fs-ol-none">No warnings in the next 30 days. The rules checked are listed under Where These Numbers Come From.</p>';
     return '<ul class="fs-ol-warns">' + warnList.map(function (w) {
       return '<li class="fs-ol-warn k-' + w.kind + (w.est ? ' is-est' : '') + '"><b>' + esc(w.title) + (w.est ? ' <span class="fs-ol-tag">estimate, days 17–30</span>' : '') + '</b> ' + esc(w.text) + '</li>';
     }).join('') + '</ul>';
@@ -222,19 +222,19 @@
         if (!f.grain || !(f.normal > 0)) return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td colspan="2">No grain harvest on this plan</td></tr>';
         return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td>' + r0(f.normal) + '</td><td>' + r0(f.p10) + '–' + r0(f.p90) + '</td></tr>';
       }).join('');
-      return '<h3 class="fs-ol-h">Next Harvest (' + model.year + '), Bushels Per Acre ' + prov('observed') + '</h3>' +
+      return '<details class="fs-ol-details fs-ol-harvestfold"><summary>Next Harvest (' + model.year + '), Bushels Per Acre</summary><p class="fs-ol-prov">' + prov('observed') + '</p>' +
         '<div class="fs-ol-tablewrap"><table class="fs-ol-table fs-ol-harvest"><thead><tr><th scope="col">Field</th><th scope="col">Plan</th><th scope="col">Normal (median)</th><th scope="col">Range (10th–90th)</th></tr></thead><tbody>' + rowsE + '</tbody></table></div>' +
-        '<p class="fs-ol-plain">Plainly: these 30 days come before planting. In this model, weather before spring does not change the ' + model.year + ' harvest (each season starts from the same spring soil water), so this table is the spread of all ' + nY + ' past seasons on your current plan, not a forecast. Check back in spring.</p>';
+        '<p class="fs-ol-plain">Plainly: these 30 days come before planting. In this model, weather before spring does not change the ' + model.year + ' harvest (each season starts from the same spring soil water), so this table is the spread of all ' + nY + ' past seasons on your current plan, not a forecast. Check back in spring.</p></details>';
     }
     var rows = model.fields.map(function (f) {
       if (!f.grain || !(f.normal > 0)) return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td colspan="4">No grain harvest on this plan</td></tr>';
       var pr = f.pct == null ? null : r1(f.pct), pc = pr == null ? '–' : (pr > 0 ? '+' : pr < 0 ? '−' : '') + Math.abs(pr) + '%';
       return '<tr><th scope="row">' + esc(f.name) + '</th><td>' + esc(f.plan) + '</td><td>' + r0(f.normal) + '</td><td>' + r0(f.med) + '</td><td>' + r0(f.p10) + '–' + r0(f.p90) + '</td><td class="' + (f.pct <= -1 ? 'is-down' : f.pct >= 1 ? 'is-up' : '') + '">' + pc + '</td></tr>';
     }).join('');
-    return '<h3 class="fs-ol-h">Next Harvest (' + model.year + '), Bushels Per Acre ' + prov('observed') + '</h3>' +
+    return '<details class="fs-ol-details fs-ol-harvestfold"><summary>Next Harvest (' + model.year + '), Bushels Per Acre</summary><p class="fs-ol-prov">' + prov('observed') + '</p>' +
       '<div class="fs-ol-tablewrap"><table class="fs-ol-table fs-ol-harvest"><thead><tr><th scope="col">Field</th><th scope="col">Plan</th><th scope="col">Normal (median)</th><th scope="col">With these 30 days (median)</th><th scope="col">Range (10th–90th)</th><th scope="col">Change</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
       '<p class="fs-ol-plain">Only these 30 days are known; the rest of the season comes from replaying every past season (' + nY + ' of them), which is where most of the range comes from.' +
-      ' Each field keeps its current plan. Days 17–30 are a rough average of many forecasts, so a single frost, heat wave or downpour on those days will not show.</p>';
+      ' Each field keeps its current plan. Days 17–30 are a rough average of many forecasts, so a single frost, heat wave or downpour on those days will not show.</p></details>';
   }
   function noteHTML() {
     if (note && note.summary) return '<div class="fs-ol-note"><h3 class="fs-ol-h">What This Means <span class="fs-ol-tag">written by Gemini from the numbers above</span></h3><p>' + esc(note.summary) + '</p>' +
@@ -248,14 +248,14 @@
     if (data.obsGap) li.push('<li>' + esc(data.obsGap) + '</li>');
     li.push('<li>Normals: the mean of NASA POWER daily weather, ' + (ys.length ? ys[0] + '–' + ys[ys.length - 1] : '') + ', for ' + esc(site.name || 'the county') + (loc ? ', shifted month by month to your farm (NASA POWER climatology)' : '') + '.</li>');
     li.push('<li>Harvest: the Field Shift crop model' + (loc ? ' fitted to your farm (not checked against your own harvests)' : '') + '; yields measured against the farm\'s normal of ' + r0(FS.data.economics.normalYield.corn) + ' bu corn and ' + r0(FS.data.economics.normalYield.soybean) + ' bu soybeans. Only Story County, Iowa was checked against real harvests.</li>');
-    li.push('<li>Warnings: fixed rules applied to the numbers above, not official alerts. Check the National Weather Service for watches and warnings.</li>');
-    return '<details class="fs-ol-details"><summary>Where these numbers come from</summary><ul class="fs-ol-src">' + li.join('') + '</ul></details>';
+    li.push('<li>Warnings: fixed rules applied to the numbers above (frost in the growing season, heat, dry spell, heavy rain, strong gusts, snow, frozen ground, extreme cold, cool enough for fall nitrogen), not official alerts. Check the National Weather Service for watches and warnings.</li>');
+    return '<details class="fs-ol-details"><summary>Where These Numbers Come From</summary><ul class="fs-ol-src">' + li.join('') + '</ul></details>';
   }
 
   function render() {
     if (!el) return;
     var body = el.querySelector('.fs-panel-body'), w = where();
-    var place = '<p class="fs-ol-where">' + (w.own ? (/^your\b/i.test(w.label || '') ? 'For ' + esc(w.label.charAt(0).toLowerCase() + w.label.slice(1)) : 'For your farm near ' + esc(w.label)) : 'For ' + esc(w.label) + ' (the county point: add your farm\'s address under “Your farm · Change” for your own spot)') +
+    var place = '<p class="fs-ol-where">' + (w.own ? (/^your\b/i.test(w.label || '') ? 'For ' + esc(w.label.charAt(0).toLowerCase() + w.label.slice(1)) : 'For your farm near ' + esc(w.label)) : 'For ' + esc(w.label) + ' (county point; add your address under “Your farm · Change” for your own spot)') +
       (data ? ' · ' + esc(fmt(data.today, { weekday: 'long', month: 'long', day: 'numeric' })) : '') + '</p>';
     if (!apiBase()) { body.innerHTML = place + '<p class="fs-ol-faint">Open this page through the EcoShift server for the live forecast (run <code>npm start</code>, then open http://localhost:8787).</p>'; return; }
     if (err) { body.innerHTML = place + '<p class="fs-ol-err">' + esc(err) + '</p><button type="button" class="fs-ol-retry">Try again</button>'; body.querySelector('.fs-ol-retry').onclick = function () { dataKey = ''; refresh(); }; return; }

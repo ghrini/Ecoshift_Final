@@ -125,7 +125,7 @@
     } else {
       open = 'In ' + esc(sc) + ', your farm gets about ' + pctNormal + '% of a normal crop' + (FS.absMoneyOk() ? ' and ' + earns(s.farm.returnTotal) : '') + (changed.length ? ', about the same as your current plan' : '') + '.';
     }
-    h = scenarioBanner(r) + verdictsHtml(r, all, cur0) + '<p>' + open + '</p><div class="fs-strip-wrap"></div>' + scenarioCompare(r);
+    h = scenarioBanner(r) + verdictsHtml(r, all, cur0) + '<p>' + open + '</p><div class="fs-strip-wrap"></div>';
 
     // Details: plain sentences, a farmer can read them top to bottom.
     var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -161,7 +161,7 @@
     if (chips.length) h += '<li>Sources: ' + esc(chips.map(srcName).filter(Boolean).join(', ')) + '.</li>';
     h += '</ul>';
     h += '</div>';
-    h += '<div class="fs-fin-wrap"></div>';
+    h += '<div class="fs-fin-wrap"></div>' + scenarioCompare(r);
     return h;
   }
 

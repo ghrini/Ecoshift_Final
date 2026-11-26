@@ -52,6 +52,12 @@
     var txt = (a % 1 === 0 ? String(a) : a.toFixed(1));
     return 'about ' + txt + (a === 1 ? ' month' : ' months') + (v > 0 ? ' more' : ' fewer') + ' with living roots in the field';
   }
+  // the short form for a card's first line: "$50 an acre less than your plan"
+  function moneyShort(d) {
+    d = Math.round(d);
+    if (Math.abs(d) < 2) return 'about the same profit as your plan';
+    return 'about $' + Math.abs(d).toLocaleString('en-US') + ' an acre ' + (d < 0 ? 'less' : 'more') + ' than your plan';
+  }
   function moneyVs(d, brief) {
     d = Math.round(d);
     if (Math.abs(d) < 2) return 'about the same profit as your current plan';
@@ -1000,20 +1006,22 @@
     // Season counts are money comparisons, so they are left out when money is not shown (oats placeholders).
     if (it.moneyNote) return '';
     if (it.isCurrent || it.betterSeasons == null || !it.nSeasons) return '';
-    return it.betterSeasons === 0 ? 'earned less than your current plan in every one of the ' + it.nSeasons + ' past seasons the model replayed (a model estimate; small gaps are within its error)'
-      : 'earned more than your current plan in ' + it.betterSeasons + ' of ' + it.nSeasons + ' past seasons the model replayed';
+    return it.betterSeasons === 0 ? 'earned less than your current plan in all ' + it.nSeasons + ' past seasons'
+      : 'earned more than your current plan in ' + it.betterSeasons + ' of ' + it.nSeasons + ' past seasons';
   }
+  var SEASON_CAVEAT = 'Season counts come from the model replaying past seasons. They are estimates, and small gaps are within its error.';
   function itemHtml(it, idx, kind) {
     var f = fieldById(it.fieldId), seasons = bits(it), lead, more = [];
     if (kind === 'cmp') {
-      var m = it.moneyNote ? it.moneyNote.replace(/\.$/, '') : moneyVs(it.deltaPerAcre);
+      var m = it.moneyNote ? it.moneyNote.replace(/\.$/, '') : moneyShort(it.deltaPerAcre);
       lead = esc(cap(planPlain(it.plan))) + ': ' + esc(m) + (it.tooClose && !it.moneyNote ? ' (too close to call)' : '') + (seasons ? '; ' + esc(seasons) : '') + '.';
+      if (seasons) more.push('<li>' + SEASON_CAVEAT + '</li>');
       more.push('<li>' + esc(cap(coverPhrase(it.greenCoverMonthsAdded))) + ' compared with your current plan.</li>');
       if (!it.moneyNote && !it.isCurrent && it.worst5) more.push('<li>In the worst 5 past seasons: about $' + esc(Math.abs(Math.round(it.worst5)).toLocaleString('en-US')) + ' per acre ' + (it.worst5 < 0 ? 'worse' : 'better') + ' than your current plan.</li>');
     } else {
       lead = esc(f.name) + ': ' + esc(planPlain(it.plan));
       more.push('<li>' + (it.moneyNote ? esc(it.moneyNote) + ' ' : 'Compared with your current plan: ' + esc(moneyVs(it.deltaPerAcre, true)) + (it.tooClose ? ' (too close to call)' : '') + ', ') + (it.moneyNote ? esc(cap(coverPhrase(it.greenCoverMonthsAdded))) : esc(coverPhrase(it.greenCoverMonthsAdded))) + '.</li>');
-      if (seasons) more.push('<li>' + esc(cap(seasons)) + '.</li>');
+      if (seasons) more.push('<li>' + esc(cap(seasons)) + '. ' + SEASON_CAVEAT + '</li>');
     }
     var finLine = '', finMore = '';
     try { if (FS.finUI && it.fieldId) { finLine = FS.finUI.cardLine(it.fieldId, it.plan); finMore = FS.finUI.cardMore(it.fieldId, it.plan); } } catch (e) { console.error(e); }
@@ -1045,7 +1053,10 @@
     if (m.note) h += '<p>' + esc(m.note) + '</p>';
     h += '<p>' + esc(m.text) + '</p>';
     var items = m.items || m.recs;
-    if (items && items.length) { h += '<ul class="fs-recs">' + items.map(function (r, i) { return itemHtml(r, i, m.kind || (m.recs ? 'rec' : 'cmp')); }).join('') + '</ul>'; d._items = items; }
+    if (items && items.length) {
+      var ul = '<ul class="fs-recs">' + items.map(function (r, i) { return itemHtml(r, i, m.kind || (m.recs ? 'rec' : 'cmp')); }).join('') + '</ul>';
+      h += m.fold ? '<details class="fs-fold"><summary>' + esc(m.fold) + '</summary>' + ul + '</details>' : ul; d._items = items;
+    }
     if (m.foot) h += '<p>' + esc(m.foot) + '</p>';
     if (m.trace && m.trace.length) h += traceHtml(m.trace);
     d.innerHTML = h;
@@ -1072,7 +1083,7 @@
       // so the farmer always sees the current plan and its alternatives with their cards.
       var fid = S.get().selectedField, cmp = compareReply(fid, S.get().controls, S.get(), '');
       var note = plainSpeak(sm.recommendationNote || 'No alternative beats your current plans.');
-      if (cmp && cmp.items && cmp.items.length) msg = { role: 'assistant', text: note + '\nHere is how the other options on ' + fieldById(fid).name + ' compare:', items: cmp.items, kind: 'cmp', foot: intro === false ? null : 'Type a what-if below, or "compare" for another field.' };
+      if (cmp && cmp.items && cmp.items.length) msg = { role: 'assistant', text: note, fold: 'Compare The Other Options On ' + fieldById(fid).name, items: cmp.items, kind: 'cmp', foot: intro === false ? null : 'Type a what-if below, or "compare" for another field.' };
       else msg = { role: 'assistant', text: 'Ranked by ' + PRIO_PHRASE[pr] + ': ' + note, foot: intro === false ? null : 'Type a what-if below, or "compare" for one field.' };
     }
     var adv = FS.chat.advice;
@@ -1263,7 +1274,7 @@
   function onListClick(e) {
     var b = e.target.closest && e.target.closest('button[data-act]'); if (!b) return;
     if (b.getAttribute('data-act') === 'more') {
-      var box = b.nextElementSibling, open = box.hidden;
+      var box = b.parentNode.querySelector('.fs-rec-more') || b.nextElementSibling, open = box.hidden;
       box.hidden = !open; b.textContent = open ? 'Less' : 'More'; b.setAttribute('aria-expanded', open ? 'true' : 'false');
       return;
     }
